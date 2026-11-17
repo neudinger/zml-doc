@@ -17,7 +17,7 @@
     let activeShell = cpuShell;
 
     const tabs = document.createElement("fieldset");
-    tabs.className = "bazel-platform-tabs";
+    tabs.className = "command-tabs";
     const legend = document.createElement("legend");
     legend.textContent = "Backend";
     tabs.append(legend);
@@ -41,7 +41,7 @@
       }
 
       const tab = document.createElement("label");
-      tab.className = "bazel-platform-tab";
+      tab.className = "command-tab";
       const input = document.createElement("input");
       input.type = "radio";
       input.name = `bazel-backend-${index}`;

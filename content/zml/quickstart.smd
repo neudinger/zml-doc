@@ -33,8 +33,8 @@ the checkout root.
 ```=html
 <div class="bazel-platforms" data-bazel-target="//examples/mnist">
   <p class="bazel-platform-host" role="status">Linux x86-64 or macOS (Intel or Apple Silicon). CPU is enabled by default.</p>
-  <div class="bazel-platform-shell">
-    <span class="bazel-platform-language icon-code">Shell</span>
+  <div class="bazel-platform-shell command-shell">
+    <span class="command-language icon-code">Shell</span>
     <pre><code class="sh">bazel build \
   --@zml//platforms:cpu=true \
   //examples/mnist

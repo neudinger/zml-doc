@@ -125,7 +125,7 @@ pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
 .homepage h2#serve-models-with-llmd { --icon: url("icons/server.svg"); }
 .sidebar-heading::before,
 .prose h2::before,
-.bazel-platform-language::before,
+.command-language::before,
 .theme-toggle::before {
   content: "";
   display: inline-block;
@@ -136,7 +136,7 @@ pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
 }
 .sidebar-heading::before,
 .prose h2::before,
-.bazel-platform-language::before { margin-inline-end: 0.45rem; vertical-align: -0.13em; }
+.command-language::before { margin-inline-end: 0.45rem; vertical-align: -0.13em; }
 .prose h2::before { inline-size: 1.25rem; block-size: 1.25rem; }
 .sidebar-group ul { list-style: none; margin: 0; padding: 0; }
 .sidebar-group a { display: block; border-radius: 0.25rem; padding: 0.38rem 0.65rem; }
@@ -208,7 +208,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   overflow: hidden;
   clip-path: inset(50%);
 }
-.bazel-platform-tabs {
+.command-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
@@ -217,22 +217,22 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   padding: 0;
   border: 0;
 }
-.bazel-platform-tabs legend {
+.command-tabs legend {
   margin-block-end: 0.25rem;
   padding: 0;
   color: var(--muted);
   font-size: 0.85rem;
   font-weight: 650;
 }
-.bazel-platform-tab { position: relative; cursor: pointer; }
-.bazel-platform-tab input {
+.command-tab { position: relative; cursor: pointer; }
+.command-tab input {
   position: absolute;
   inline-size: 1px;
   block-size: 1px;
   margin: 0;
   clip-path: inset(50%);
 }
-.bazel-platform-tab span {
+.command-tab span {
   display: grid;
   place-items: center;
   min-block-size: 2rem;
@@ -242,27 +242,27 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   color: var(--muted);
   font-size: 0.85rem;
 }
-.bazel-platform-tab:hover span, .bazel-platform-tab input:checked + span {
+.command-tab:hover span, .command-tab input:checked + span {
   background: var(--selection);
   color: var(--accent);
 }
-.bazel-platform-tab input:checked + span {
+.command-tab input:checked + span {
   border-image: linear-gradient(90deg, var(--neon)) 1;
 }
-.bazel-platform-tab input:focus-visible + span {
+.command-tab input:focus-visible + span {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 .prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
-.bazel-platform-shell { position: relative; }
-.bazel-platform-shell .code-block { margin-block: 0; }
-.prose .bazel-platform-shell pre {
+.command-shell { position: relative; }
+.command-shell .code-block { margin-block: 0; }
+.prose .command-shell pre {
   margin-block: 0;
   padding: 3.1rem 0.75rem 0.75rem;
   white-space: pre-wrap;
   line-height: 1.5;
 }
-.bazel-platform-language {
+.command-language {
   position: absolute;
   z-index: 1;
   inset: 1px 1px auto;
@@ -273,13 +273,76 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   font-weight: 650;
   pointer-events: none;
 }
-.bazel-platform-language::before { background: currentColor; }
+.command-language::before { background: currentColor; }
 .prose pre code .token:is(.keyword, .boolean, .constant, .important) { color: var(--code-keyword); }
 .prose pre code .token:is(.string, .char, .attr-value) { color: var(--code-string); }
 .prose pre code .token:is(.number, .duration) { color: var(--code-number); }
 .prose pre code .token:is(.function, .builtin, .class-name, .property, .key, .attr-name, .variable) { color: var(--code-name); }
 .prose pre code .token:is(.comment, .shebang) { color: var(--code-comment); }
 .prose .bazel-platform-shell .token.zml-command { color: var(--code-keyword); }
+.llmd-launch {
+  --llmd-launch-invalid: #ae193f;
+  container-type: inline-size;
+  margin-block: 1.5rem;
+}
+:root[data-theme="dark"] .llmd-launch { --llmd-launch-invalid: #ffa7bb; }
+.llmd-launch-layout, .llmd-launch-settings, .llmd-launch-commands {
+  display: grid;
+  min-inline-size: 0;
+  align-content: start;
+  gap: 0.8rem;
+}
+.llmd-launch-layout { gap: 1.5rem; }
+.llmd-launch [hidden] { display: none; }
+.llmd-launch-field {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+  min-inline-size: 0;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.llmd-launch-field :is(input, select) {
+  min-inline-size: 0;
+  inline-size: 100%;
+  min-block-size: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: var(--text);
+  font: 400 0.9rem var(--font-sans);
+}
+.llmd-launch-field input[name="directory"] { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
+.llmd-launch-field input::placeholder { color: var(--muted); opacity: 1; }
+.llmd-launch-field input[aria-invalid="true"] { border-color: var(--llmd-launch-invalid); }
+.llmd-launch-field-hint, .llmd-launch-field-error {
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.llmd-launch-field-hint { color: var(--muted); }
+.command-tabs .llmd-launch-field-hint { flex-basis: 100%; }
+.llmd-launch-field-error { color: var(--llmd-launch-invalid); }
+.llmd-launch-field-error:empty { position: absolute; }
+.llmd-launch-checkbox { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; }
+.llmd-launch-checkbox input { accent-color: var(--accent); }
+.llmd-launch-options { border-block: 1px solid var(--border); padding-block: 0.45rem; }
+.llmd-launch-options summary { color: var(--accent); cursor: pointer; font-weight: 650; }
+.llmd-launch-options fieldset { min-inline-size: 0; padding: 0; margin: 0.75rem 0 0.45rem; border: 0; }
+.llmd-launch-options legend { padding: 0; margin-block-end: 0.4rem; color: var(--muted); font-size: 0.85rem; font-weight: 650; }
+.llmd-launch-options-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+.prose .llmd-launch-hint, .prose .llmd-launch-error { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.prose .llmd-launch-error { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.55rem; color: var(--text); }
+.prose .llmd-launch-commands h2 { margin: 0 0 0.45rem; font-size: 1.15rem; }
+.prose .llmd-launch-commands [data-recipe] { margin-block-end: 0.45rem; }
+.llmd-launch-commands { gap: 1.25rem; }
+@container (min-width: 40rem) {
+  .llmd-launch-layout { grid-template-columns: minmax(15.5rem, 1fr) minmax(0, 1.55fr); }
+  .llmd-launch-settings { padding-inline-end: 1rem; border-inline-end: 1px solid var(--border); }
+  .llmd-launch-settings[hidden] + .llmd-launch-commands { grid-column: 1 / -1; }
+}
 .prose blockquote { margin-inline: 0; padding-left: 1.25rem; border-left: 3px solid var(--accent); color: var(--muted); }
 .prose table { width: 100%; border-collapse: collapse; }
 .prose th, .prose td { text-align: left; vertical-align: top; padding: 0.65rem; border-bottom: 1px solid var(--border); }
@@ -389,11 +452,12 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 
 @media (forced-colors: active) {
   .product-tabs a[aria-current="page"], .product-tabs a[aria-current="location"] { border-image: none; border-block-end-color: Highlight; }
-  .bazel-platform-tab input:checked + span { border-image: none; border-block-end-color: Highlight; }
+  .command-tab input:checked + span { border-image: none; border-block-end-color: Highlight; }
   .sidebar-group a[aria-current="page"] { outline: 1px solid Highlight; }
   .theme-toggle::before { forced-color-adjust: none; background: ButtonText; }
 }
 
 @media (pointer: coarse) {
-  .bazel-platform-tab span { min-block-size: 44px; }
+  .command-tab span, .llmd-launch-field :is(input, select) { min-block-size: 44px; }
+  .llmd-launch-field :is(input, select) { font-size: 1rem; }
 }

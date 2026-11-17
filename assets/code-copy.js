@@ -17,22 +17,34 @@
 
     let resetTimer;
     let copying = false;
+    let version = 0;
+    code.addEventListener("codechange", () => {
+      version++;
+      clearTimeout(resetTimer);
+      button.textContent = "Copy";
+      status.textContent = "";
+    });
     button.addEventListener("click", async () => {
       if (copying) return;
       copying = true;
       clearTimeout(resetTimer);
       status.textContent = "";
+      const copiedVersion = version;
 
       try {
         await navigator.clipboard.writeText(code.textContent);
+        if (version !== copiedVersion) return;
         button.textContent = "Copied";
         status.textContent = "Code copied to clipboard.";
       } catch {
+        if (version !== copiedVersion) return;
         button.textContent = "Select code to copy";
         status.textContent = "Clipboard unavailable. Select the code to copy it.";
       } finally {
         copying = false;
-        resetTimer = setTimeout(() => { button.textContent = "Copy"; }, 3000);
+        if (version === copiedVersion) {
+          resetTimer = setTimeout(() => { button.textContent = "Copy"; }, 3000);
+        }
       }
     });
 

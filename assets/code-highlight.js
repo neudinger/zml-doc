@@ -4,7 +4,7 @@
 
   prism.languages.insertBefore("bash", "function", {
     "zml-command": {
-      pattern: /(^[ \t]*)(?:bazel|bazelisk|brew|llmd|nvidia-smi|zml-smi)(?=\s|$)/m,
+      pattern: /(^[ \t]*)(?:bazel|bazelisk|brew|docker|llmd|nvidia-smi|uvx|zml-smi)(?=\s|$)/m,
       lookbehind: true,
       alias: "function",
     },
@@ -30,14 +30,20 @@
     }
   }
 
-  for (const code of document.querySelectorAll(".prose pre > code[class]")) {
+  function highlight(code) {
     const fence = code.classList[0];
     // Starlark uses Python syntax for the constructs in the Bazel examples.
     const language = fence === "starlark" ? "python" : fence;
-    if (language === "text" || !Object.hasOwn(prism.languages, language)) continue;
+    if (language === "text" || !Object.hasOwn(prism.languages, language)) return;
 
     const highlighted = document.createDocumentFragment();
     appendTokens(highlighted, prism.tokenize(code.textContent, prism.languages[language]));
     code.replaceChildren(highlighted);
   }
+
+  const codeSelector = ".prose pre > code[class]";
+  for (const code of document.querySelectorAll(codeSelector)) highlight(code);
+  document.addEventListener("codechange", event => {
+    if (event.target.matches(codeSelector)) highlight(event.target);
+  });
 })();

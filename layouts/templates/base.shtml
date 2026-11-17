@@ -97,6 +97,8 @@
                          aria-current="$site.page('llmd/quickstart-apple-silicon').isCurrent().then('page', 'false')">Apple Silicon quickstart</a></li>
                   <li><a href="$site.page('llmd/models').link()"
                          aria-current="$site.page('llmd/models').isCurrent().then('page', 'false')">Supported Models</a></li>
+                  <li><a href="$site.page('llmd/launch').link()"
+                         aria-current="$site.page('llmd/launch').isCurrent().then('page', 'false')">Docker launch</a></li>
                 </ul>
               </div>
               <div class="sidebar-group">
