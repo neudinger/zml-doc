@@ -13,10 +13,10 @@ by the [LLMD CLI reference]($link.page('llmd/cli')).
 
 Put `-e NAME` before the image name to copy an exported host value into the
 container. If that variable is absent from the invoking environment, Docker
-leaves it unset in the container. For example, add `-e HF_TOKEN` to the
-`docker run` command in the [LLMD quickstart]($link.page('llmd/quickstart'))
-when the model repository requires authentication. Keep credential values
-out of command examples and logs.
+leaves it unset in the container. For example, enable **Forward HF_TOKEN** in
+the [LLMD quickstart]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda'))
+for a Docker launch when the model repository requires authentication. Keep
+credential values out of command examples and logs.
 
 File and directory values must use paths visible to the process. For example,
 to use a gcloud application default credentials file with LLMD in Docker,

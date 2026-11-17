@@ -1,22 +1,42 @@
 (() => {
-  const sourceNotes = {
-    download: "Save a checkpoint on the Docker host, then mount it read-only.",
-    local: "Mount the existing checkpoint read-only from the Docker host.",
-    hub: "LLMD reads the checkpoint from Hugging Face at startup.",
-  };
   const backends = {
-    cuda: { defaultRelease: "20261106.0", shm: "256GB", devices: [] },
-    rocm: { defaultRelease: "20261029.0", shm: "256GB", devices: ["--device=/dev/kfd", "--device=/dev/dri"] },
-    oneapi: { defaultRelease: "20261029.0", shm: "", devices: ["--device=/dev/dri"] },
+    metal: { requirements: "Use an Apple Silicon Mac with macOS Tahoe or later and Homebrew. On M1 and M2, use LLMD 20261112.0 or later." },
+    cuda: { defaultRelease: "20261106.0", shm: "256GB", devices: [], requirements: "Use Linux with Docker, a supported NVIDIA GPU and driver, and NVIDIA Container Toolkit." },
+    rocm: { defaultRelease: "20261029.0", shm: "256GB", devices: ["--device=/dev/kfd", "--device=/dev/dri"], requirements: "Use Linux with Docker, a supported AMD GPU and driver, and access to /dev/kfd and /dev/dri." },
+    oneapi: { defaultRelease: "20261029.0", shm: "", devices: ["--device=/dev/dri"], requirements: "Use Linux with Docker, a supported Intel GPU and driver, and access to /dev/dri." },
+    tpu: {
+      defaultRelease: "20261029.0",
+      hostNetwork: true,
+      devices: ["--privileged"],
+      requirements: "Use an x86-64 Google TPU VM running Linux with Docker and access to its attached TPUs.",
+    },
+    furiosa: {
+      defaultRelease: "20261106.0",
+      devices: ["--device=furiosa.ai/npu=npu0", "--device=/dev/dma_heap/system", "--security-opt=seccomp=unconfined"],
+      requirements: "Use Linux x86-64 with the Furiosa RNGD driver, Docker with CDI enabled, and /dev/dma_heap/system available on the host.",
+    },
   };
   const presets = [
+    { id: "lfm3-fp8-metal", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "metal", batchSize: 4 },
     { id: "lfm3-fp8-cuda", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "cuda", release: "20261106.0" },
     { id: "lfm3-fp8-rocm", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "rocm", release: "20261029.0" },
     { id: "lfm3-oneapi", checkpoint: "LiquidAI/LFM3-1.7B", backend: "oneapi", release: "20261029.0" },
+    { id: "lfm3-tpu", checkpoint: "LiquidAI/LFM3-1.7B", backend: "tpu", release: "20261029.0" },
+    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", release: "20261106.0", batchSize: 1 },
+    { id: "qwen3-8-27b-fp8-metal", checkpoint: "Qwen/Qwen3.8-27B-FP8", backend: "metal", batchSize: 1 },
     { id: "qwen3-8-27b-cuda", checkpoint: "Qwen/Qwen3.8-27B", backend: "cuda", release: "20261112.0", dspine: true },
     { id: "qwen3-8-27b-rocm", checkpoint: "Qwen/Qwen3.8-27B", backend: "rocm", release: "20261112.0", dspine: true },
     { id: "qwen3-8-27b-oneapi", checkpoint: "Qwen/Qwen3.8-27B", backend: "oneapi", release: "20261112.0" },
+    { id: "qwen3-8-27b-tpu", checkpoint: "Qwen/Qwen3.8-27B", backend: "tpu", release: "20261106.0" },
   ];
+  const gemmaPreset = { id: "gemma-4-31b-it-cuda", checkpoint: "google/gemma-4-31B-it", backend: "cuda" };
+  const stepFragments = {
+    "before-you-start": "launch",
+    "install-llmd": "launch",
+    "start-the-server": "launch",
+    "check-the-loaded-model": "models",
+    "send-a-chat-request": "chat",
+  };
   const overrides = [
     ["context", "max-context-len"],
     ["batch", "batch-size"],
@@ -61,6 +81,19 @@
     return "Enter a whole number from 1 to " + max.toLocaleString("en-US") + " using digits only.";
   }
 
+  function parseListenAddress(value) {
+    if (/^(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){3}$/.test(value)) {
+      return value.split(".").every(octet => Number(octet) <= 255) ? value : "";
+    }
+    const address = value.startsWith("[") && value.endsWith("]") ? value.slice(1, -1) : value;
+    if (!address.includes(":") || !/^[0-9a-f:.]+$/i.test(address)) return "";
+    try {
+      return new URL("http://[" + address + "]").hostname;
+    } catch {
+      return "";
+    }
+  }
+
   function memoryError(value) {
     if (!value) return "";
     if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value)) {
@@ -76,23 +109,59 @@
     return "";
   }
 
-  function downloadCommand({ checkpoint, directory, revision }) {
-    const lines = ["uvx --from huggingface_hub hf download " + shellQuote(checkpoint)];
-    if (revision) lines.push("  --revision " + shellQuote(revision));
-    lines.push("  --local-dir " + homePath(directory));
-    return lines.join(continuation);
+  function downloadCommand({ checkpoint, directory }) {
+    return [
+      "uvx --from huggingface_hub hf download " + shellQuote(checkpoint),
+      "  --local-dir " + homePath(directory),
+    ].join(continuation);
   }
 
   function servedModelName(checkpoint) {
     return checkpoint.split("/").at(-1);
   }
 
-  function localApiUrl(port, endpoint) {
-    return "http://127.0.0.1:" + Number(port) + "/v1/" + endpoint;
+  function apiUrl(endpoint, route) {
+    return shellQuote("http://" + endpoint + "/v1/" + route);
   }
 
-  function launchCommand(settings, image, backendOptions) {
-    const { backend, checkpoint, directory, source, revision } = settings;
+  function llmdArguments(settings, modelArgument, defaultBatch) {
+    const args = ["  --model=" + modelArgument, "  --model-name=" + shellQuote(servedModelName(settings.checkpoint))];
+    if (settings.dspine) {
+      const drafter = settings.drafterSource === "local" ? "/drafter" : "hf://" + drafterCheckpoint;
+      args.push("  --speculative-drafter-model=" + shellQuote(drafter), "  --batch-size=1");
+    }
+    for (const [name, flag] of overrides) {
+      const value = name === "batch" ? settings.batch || defaultBatch : settings[name];
+      if (value) args.push("  --" + flag + "=" + Number(value));
+    }
+    return args;
+  }
+
+  function withAbsoluteHome(command, setup = []) {
+    return [
+      "(",
+      '  case "${HOME:?Set HOME to your absolute home directory}" in',
+      "    /*) ;;",
+      "    *) printf '%s\\n' 'HOME must be an absolute path.' >&2; exit 1 ;;",
+      "  esac",
+      ...setup,
+      command.replace(/^/gm, "  "),
+      ")",
+    ].join("\n");
+  }
+
+  function nativeLaunchCommand(settings, listener, defaultBatch) {
+    const localCheckpoint = settings.source !== "hub";
+    const model = localCheckpoint ? homePath(settings.directory) : shellQuote("hf://" + settings.checkpoint);
+    const command = [
+      "llmd --listen=" + shellQuote(listener),
+      ...llmdArguments(settings, model, defaultBatch),
+    ].join(continuation);
+    return localCheckpoint ? withAbsoluteHome(command) : command;
+  }
+
+  function dockerLaunchCommand(settings, image, backendOptions, listener, defaultBatch) {
+    const { backend, checkpoint, directory, source } = settings;
     const localCheckpoint = source !== "hub";
     const localDrafter = settings.drafterSource === "local";
     const mounts = [];
@@ -101,7 +170,7 @@
 
     const lines = [
       "docker run " + (settings.runMode === "foreground" ? "--rm" : "-d") + " --name llmd",
-      "  -p 127.0.0.1:" + Number(settings.port) + ":8000",
+      backendOptions.hostNetwork ? "  --net=host" : "  -p 127.0.0.1:" + Number(settings.port) + ":" + Number(settings.listenPort),
       ...backendOptions.devices.map(flag => "  " + flag),
     ];
     if (backend === "cuda") lines.push("  --gpus=" + shellQuote(settings.gpu));
@@ -112,45 +181,34 @@
       lines.push('  --mount "type=bind,\\"source=${' + name + '_src}\\",target=/' + name + ',readonly"');
     }
     if (settings.hfToken) lines.push("  -e HF_TOKEN");
-    const model = localCheckpoint ? "/model" : "hf://" + checkpoint + (revision ? "@" + revision : "");
-    lines.push("  " + image, "  --model=" + shellQuote(model), "  --model-name=" + shellQuote(servedModelName(checkpoint)));
-    if (settings.dspine) {
-      const drafter = localDrafter ? "/drafter" : "hf://" + drafterCheckpoint;
-      lines.push("  --speculative-drafter-model=" + shellQuote(drafter), "  --batch-size=1");
-    }
-    for (const [name, flag] of overrides) {
-      if (settings[name]) lines.push("  --" + flag + "=" + Number(settings[name]));
-    }
+    const model = localCheckpoint ? "/model" : "hf://" + checkpoint;
+    lines.push("  " + image, "  --listen=" + shellQuote(listener), ...llmdArguments(settings, shellQuote(model), defaultBatch));
     const command = lines.join(continuation);
     if (!mounts.length) return command;
 
-    return [
-      "(",
-      '  case "${HOME:?Set HOME to your absolute home directory}" in',
-      "    /*) ;;",
-      "    *) printf '%s\\n' 'HOME must be an absolute path.' >&2; exit 1 ;;",
-      "  esac",
-      ...mounts.map(({ name, directory }) =>
-        "  " + name + "_src=$(printf '%s' " + homePath(directory) + " | sed 's/\"/\"\"/g') || exit 1"
-      ),
-      command.replace(/^/gm, "  "),
-      ")",
-    ].join("\n");
+    const setup = mounts.map(({ name, directory }) =>
+      "  " + name + "_src=$(printf '%s' " + homePath(directory) + " | sed 's/\"/\"\"/g') || exit 1"
+    );
+    return withAbsoluteHome(command, setup);
   }
 
-  function chatCommand({ checkpoint, port }) {
+  function chatCommand(checkpoint, endpoint) {
     const payload = JSON.stringify({
       model: servedModelName(checkpoint),
       messages: [{ role: "user", content: "Reply with one short greeting." }],
     }, null, 2);
     return [
-      "curl -fsS " + localApiUrl(port, "chat/completions"),
+      "curl -fsS " + apiUrl(endpoint, "chat/completions"),
       "  -H 'Content-Type: application/json'",
       "  -d " + shellQuote(payload.replaceAll("\n", "\n  ")),
     ].join(continuation);
   }
 
   function updateCode(code, value) {
+    const copy = code.parentElement?.parentElement?.querySelector(".code-copy");
+    if (copy) copy.disabled = !value;
+    const shell = code.closest(".command-shell");
+    if (shell) shell.hidden = !value;
     if (code.textContent === value) return;
     code.textContent = value;
     code.dispatchEvent(new Event("codechange", { bubbles: true }));
@@ -159,67 +217,126 @@
   for (const root of document.querySelectorAll("[data-llmd-launch]")) {
     const form = root.querySelector("form");
     const part = name => root.querySelector(`[data-${name}]`);
-    const download = root.querySelector('code[data-command="download"]');
-    const drafterDownload = root.querySelector('code[data-command="drafter-download"]');
-    const launch = root.querySelector('code[data-command="launch"]');
-    const models = root.querySelector('code[data-command="models"]');
-    const chat = root.querySelector('code[data-command="chat"]');
-    const checkpointField = form.elements.namedItem("checkpoint");
-    const backendField = form.elements.namedItem("backend");
-    const dspineField = form.elements.namedItem("dspine");
-    const drafterSourceField = form.elements.namedItem("drafterSource");
-    const hfTokenField = form.elements.namedItem("hfToken");
-    const batchField = form.elements.namedItem("batch");
+    const field = name => form.elements.namedItem(name);
+    const commandButtons = [...root.querySelectorAll("[data-command-choice]")];
+    const commandPanels = Object.fromEntries([...root.querySelectorAll("[data-command-panel]")]
+      .map(panel => [panel.dataset.commandPanel, panel]));
+    const codeBlocks = [...root.querySelectorAll("code[data-command]")];
+    const checkpointField = field("checkpoint");
+    const backendField = field("backend");
+    const dspineField = field("dspine");
+    const drafterSourceField = field("drafterSource");
+    const hfTokenField = field("hfToken");
+    const batchField = field("batch");
     let checkpoint = checkpointField.value;
+    let useDefaultCheckpoint = true;
+    let activeCommand = "launch";
+
+    function show(name, visible) {
+      const element = part(name);
+      if (element) element.hidden = !visible;
+    }
+
+    function setText(name, value) {
+      for (const element of root.querySelectorAll(`[data-${name}]`)) {
+        if (element.textContent !== value) element.textContent = value;
+      }
+    }
 
     function updateCheckpointDirectory() {
       const nextCheckpoint = checkpointField.value;
       if (nextCheckpoint === checkpoint) return;
 
-      form.elements.namedItem("directory").value = homePrefix + "/models/" + nextCheckpoint;
-      form.elements.namedItem("revision").value = "";
+      field("directory").value = homePrefix + "/models/" + nextCheckpoint;
       checkpoint = nextCheckpoint;
     }
 
-    function applyPreset() {
-      const preset = presets.find(item => window.location.hash === "#" + item.id);
-      if (!preset || ![...backendField.options].some(option => option.value === preset.backend)
-          || ![...checkpointField.options].some(option => option.value === preset.checkpoint)) return;
+    function applyPreset(id) {
+      const gemma = id === gemmaPreset.id || id === "gemma-cuda";
+      const preset = gemma ? gemmaPreset : presets.find(item => item.id === id);
+      if (!preset) return;
 
       backendField.value = preset.backend;
       checkpointField.value = preset.checkpoint;
+      useDefaultCheckpoint = false;
+      if (gemma) field("source").value = "download";
       dspineField.checked = false;
       drafterSourceField.value = "hub";
       updateCheckpointDirectory();
+      activeCommand = "launch";
+    }
+
+    function applyFragment() {
+      const fragment = window.location.hash.slice(1);
+      applyPreset(fragment);
+      if (Object.hasOwn(stepFragments, fragment)) activeCommand = stepFragments[fragment];
+      if (fragment === "before-you-start") {
+        const requirements = part("requirements")?.closest("details");
+        if (requirements) requirements.open = true;
+      }
+    }
+
+    function showCommands(commands, available, errors) {
+      const focus = document.activeElement;
+      const focusedButton = commandButtons.find(button => button === focus);
+      const focusedPanel = Object.values(commandPanels).find(panel => panel.contains(focus));
+      const focusedShell = focusedPanel && focus.closest(".command-shell");
+      const canShow = key => Boolean(commands[key] || (key === "launch" && commands.setup));
+      if (!canShow(activeCommand)) {
+        activeCommand = canShow("launch") ? "launch" : Object.keys(commandPanels).find(canShow) ?? "launch";
+      }
+      let activeButton;
+      for (const button of commandButtons) {
+        const key = button.dataset.commandChoice;
+        const active = key === activeCommand;
+        button.hidden = !available[key];
+        button.disabled = !canShow(key);
+        button.setAttribute("aria-pressed", String(active));
+        commandPanels[key].hidden = !active;
+        if (active) activeButton = button;
+      }
+      for (const code of codeBlocks) updateCode(code, commands[code.dataset.command]);
+      if ((focusedButton && (focusedButton.hidden || focusedButton.disabled)) || focusedPanel?.hidden || focusedShell?.hidden) {
+        const invalidField = Object.keys(errors).find(name => errors[name]);
+        const destination = activeButton?.disabled && invalidField ? field(invalidField) : activeButton;
+        destination?.focus();
+      }
     }
 
     function render() {
       const backend = backendField.value;
+      const backendOptions = backends[backend];
+      const native = backend === "metal";
+      const furiosa = backend === "furiosa";
+      const hostListener = native || backendOptions.hostNetwork === true;
       const checkpoint = checkpointField.value;
       const preset = presets.find(item => item.checkpoint === checkpoint && item.backend === backend);
+      const defaultBatch = preset?.batchSize;
       const supportsDspine = !!preset?.dspine;
       if (!supportsDspine) dspineField.checked = false;
       dspineField.disabled = !supportsDspine;
       part("dspine").hidden = !supportsDspine;
-      drafterSourceField.disabled = !dspineField.checked;
-      part("drafter-source").hidden = drafterSourceField.disabled;
+      part("drafter-source").disabled = !dspineField.checked;
       batchField.disabled = dspineField.checked;
       part("batch").hidden = batchField.disabled;
 
-      const source = form.elements.namedItem("source").value;
-      const drafterSource = drafterSourceField.disabled ? "" : drafterSourceField.value;
-      hfTokenField.disabled = source !== "hub" && drafterSource !== "hub";
+      const source = field("source").value;
+      const drafterSource = dspineField.checked ? drafterSourceField.value : "";
+      hfTokenField.disabled = native || (source !== "hub" && drafterSource !== "hub");
+      field("runMode").disabled = native;
+      field("gpu").disabled = native;
+      field("shm").disabled = native;
+      field("listenAddress").disabled = !hostListener;
+      field("listenPort").disabled = hostListener;
+      batchField.placeholder = defaultBatch ? String(defaultBatch) : native ? "LLMD default" : "Image default";
       const settings = Object.fromEntries(new FormData(form));
-      const backendOptions = backends[backend];
-      const gemmaCuda = checkpoint === "google/gemma-4-31B-it" && backend === "cuda";
-      const tag = gemmaCuda ? "cuda" : `${preset?.release ?? backendOptions.defaultRelease}-${backend}`;
-      const image = "zmlai/llmd:" + tag;
+      const gemmaCuda = checkpoint === gemmaPreset.checkpoint && backend === gemmaPreset.backend;
+      const listenAddress = hostListener ? parseListenAddress(settings.listenAddress) : "0.0.0.0";
       const errors = {
         directory: source === "hub" ? "" : directoryError(settings.directory),
-        revision: source !== "local" && settings.revision && !/^[a-f0-9]{40}$/i.test(settings.revision)
-          ? "Enter exactly 40 hexadecimal characters (0–9 or a–f), or clear this field."
-          : "",
         port: integerError(settings.port, 65535, true),
+        listenAddress: listenAddress ? "" : "Enter an IPv4 or IPv6 address without a port, such as 127.0.0.1 or ::1.",
+        listenPort: hostListener ? "" : integerError(settings.listenPort, 65535, true),
         context: integerError(settings.context, 0xffffffff),
         batch: integerError(settings.batch, 0xffffffff),
         tokens: integerError(settings.tokens, 0xffffffff),
@@ -228,53 +345,94 @@
       for (const [name, error] of Object.entries(errors)) {
         const message = root.querySelector('[data-field-error="' + name + '"]');
         if (message.textContent === error) continue;
-        const field = form.elements.namedItem(name);
-        if (error) field.setAttribute("aria-invalid", "true");
-        else field.removeAttribute("aria-invalid");
+        if (error) field(name).setAttribute("aria-invalid", "true");
+        else field(name).removeAttribute("aria-invalid");
         message.textContent = error;
       }
       const hasErrors = Object.values(errors).some(Boolean);
-      const showDownload = source === "download" && !errors.directory && !errors.revision;
-      const showDrafterDownload = drafterSource === "local";
+      const listenPortName = hostListener ? "port" : "listenPort";
+      const listener = listenAddress && !errors[listenPortName]
+        ? listenAddress + ":" + Number(settings[listenPortName]) : "";
+      const loopback = listenAddress === "[::]" ? "[::1]" : "127.0.0.1";
+      const clientAddress = listenAddress === "0.0.0.0" || listenAddress === "[::]" ? loopback : listenAddress;
+      const endpoint = clientAddress && !errors.port ? clientAddress + ":" + Number(settings.port) : "";
+      const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true, models: true, chat: true };
+      const image = native ? "" : "zmlai/llmd:" + (gemmaCuda ? "cuda" : `${preset?.release ?? backendOptions.defaultRelease}-${backend}`);
+      let launch = "";
+      if (!hasErrors) {
+        launch = native ? nativeLaunchCommand(settings, listener, defaultBatch)
+          : dockerLaunchCommand(settings, image, backendOptions, listener, defaultBatch);
+      }
+      const commands = {
+        download: available.download && !errors.directory ? downloadCommand(settings) : "",
+        "drafter-download": available["drafter-download"]
+          ? downloadCommand({ checkpoint: drafterCheckpoint, directory: drafterDirectory }) : "",
+        setup: native ? "brew install zml/zml/llmd" : "docker pull " + image,
+        launch,
+        models: endpoint ? "curl -fsS " + apiUrl(endpoint, "models") : "",
+        chat: endpoint ? chatCommand(checkpoint, endpoint) : "",
+      };
 
-      part("local").hidden = source === "hub";
-      part("revision").hidden = source === "local";
-      part("hub").hidden = hfTokenField.disabled;
-      part("cuda").hidden = backend !== "cuda";
-      part("download-step").hidden = !showDownload;
-      part("drafter-download-step").hidden = !showDrafterDownload;
-      part("launch-output").hidden = hasErrors;
-      part("models-step").hidden = hasErrors;
-      part("chat-step").hidden = hasErrors;
-      part("error").hidden = !hasErrors;
-      part("hint").textContent = sourceNotes[source];
-      part("recipe").textContent = gemmaCuda
-        ? "ZML published a DFlash recipe for this checkpoint on the CUDA rolling image."
-        : preset
-          ? `${settings.dspine ? "DSpine" : "Base-model"} launch with LLMD ${preset.release}.`
-          : "Confirm compatibility for this checkpoint, backend, and image.";
-      updateCode(download, showDownload ? downloadCommand(settings) : "");
-      updateCode(drafterDownload, showDrafterDownload
-        ? downloadCommand({ checkpoint: drafterCheckpoint, directory: drafterDirectory }) : "");
-      updateCode(launch, hasErrors ? "" : launchCommand(settings, image, backendOptions));
-      updateCode(models, hasErrors ? "" : "curl -fsS " + localApiUrl(settings.port, "models"));
-      part("expected-model-id").textContent = hasErrors ? "" : servedModelName(checkpoint);
-      updateCode(chat, hasErrors ? "" : chatCommand(settings));
+      show("local", source !== "hub");
+      show("drafter-path", drafterSource === "local");
+      show("hub", !hfTokenField.disabled);
+      show("cuda", backend === "cuda");
+      show("furiosa-requirements", furiosa);
+      show("tpu-requirements", backend === "tpu");
+      show("host-listener", hostListener);
+      show("container-listener", !hostListener);
+      for (const element of root.querySelectorAll("[data-docker]")) element.hidden = native;
+      show("error", hasErrors);
+      setText("setup-title", native ? "Install LLMD" : "Pull the LLMD image");
+      setText("setup-hint", native ? "Run once to install LLMD with Homebrew." : "Run once for this image tag.");
+      setText("launch-hint", hasErrors ? "Server command unavailable until the launch settings are valid." : "Run each time you start the server.");
+      show("launch-ready", !hasErrors);
+      setText("hint", source === "hub"
+        ? "LLMD reads the checkpoint from Hugging Face at startup."
+        : native ? "Use the checkpoint directory directly on this Mac."
+          : "Mount the checkpoint directory read-only from the Docker host.");
+      setText("requirements", backendOptions.requirements);
+      setText("selected-checkpoint", checkpoint);
+      setText("fit", !preset ? "Confirm compatibility for this checkpoint and run target."
+        : furiosa ? "Tested upstream on Furiosa. Docker recipe pending hardware validation."
+          : "Published recipe for this checkpoint and accelerator.");
+      setText("recipe", gemmaCuda ? "Base-model launch with the rolling CUDA image."
+        : native ? "Native launch with the version from the ZML Homebrew tap."
+          : preset ? `${settings.dspine ? "DSpine" : "Base-model"} launch with LLMD ${preset.release}.` : "");
+      setText("endpoint", listener || "Enter a valid listener");
+      setText("client-endpoint", endpoint || "Enter a valid host port");
+      for (const element of root.querySelectorAll("[data-connect]")) element.hidden = hostListener && listener === endpoint;
+      setText("expected-model-id", servedModelName(checkpoint));
+      showCommands(commands, available, errors);
     }
 
     form.addEventListener("submit", event => event.preventDefault());
-    form.addEventListener("input", () => {
+    form.addEventListener("input", event => {
+      if (event.target === checkpointField) useDefaultCheckpoint = false;
+      if (event.target === backendField && useDefaultCheckpoint) {
+        checkpointField.value = presets.find(item => item.backend === backendField.value).checkpoint;
+      }
       updateCheckpointDirectory();
       render();
     });
 
     window.addEventListener("hashchange", () => {
-      applyPreset();
+      applyFragment();
       render();
     });
 
-    applyPreset();
+    for (const button of commandButtons) {
+      button.addEventListener("click", () => {
+        activeCommand = button.dataset.commandChoice;
+        render();
+      });
+    }
+    updateCheckpointDirectory();
+    applyPreset(new URLSearchParams(window.location.search).get("recipe"));
+    applyFragment();
+    setText("drafter-directory", drafterDirectory);
     render();
     form.hidden = false;
+    show("command-choices", true);
   }
 })();

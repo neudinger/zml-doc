@@ -10,13 +10,11 @@ existing server are separate starting points.
 # [Start a server]($heading.id('start-a-server'))
 
 Serve a model and send a chat request with the
-[CUDA quickstart]($link.page('llmd/quickstart')) for Docker or the
-[Apple Silicon quickstart]($link.page('llmd/quickstart-apple-silicon')) for Homebrew.
+[LLMD quickstart]($link.page('llmd/quickstart')). Choose a checkpoint and target
+to generate launch and request commands for Docker or Homebrew.
 See the [CLI reference]($link.page('llmd/cli')) for server flags and Docker options,
-and [Supported Models]($link.page('llmd/models')) to find a checkpoint and launch
+and [Model compatibility]($link.page('llmd/models')) to find a checkpoint and launch
 recipe for your hardware.
-Use [Docker launch]($link.page('llmd/launch')) to configure a startup command
-for a downloaded checkpoint or a Hugging Face repository.
 
 A complete first-run procedure needs a compatible installation, an accessible
 model, an explicit model name, and a readiness check. Success means receiving a

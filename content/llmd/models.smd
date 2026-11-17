@@ -1,6 +1,6 @@
 ---
-.title = "Supported Models",
-.description = "Find LLMD checkpoints by backend, weight precision, and release, with launch recipes and storage instructions.",
+.title = "Model compatibility",
+.description = "Compare LLMD checkpoints by backend, weight precision, and release using published launch recipes.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 ---
@@ -18,16 +18,16 @@ screens, scroll the table sideways to see all columns.
 >
 > | Checkpoint | Backend | Precision | LLMD release | Launch recipe |
 > | --- | --- | --- | --- | --- |
-> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | NVIDIA CUDA | FP8 | `20261106.0` | [CUDA quickstart]($link.page('llmd/quickstart')) · [Configure launch]($link.page('llmd/launch').unsafeRef('lfm3-fp8-cuda')) |
-> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | AMD ROCm | FP8 | `20261029.0` | [ROCm recipe](https://zml.ai/posts/llmd-20261029.0/#amd) · [Configure launch]($link.page('llmd/launch').unsafeRef('lfm3-fp8-rocm')) |
-> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | Apple Metal | FP8 | `20261106.0` | [Apple Silicon quickstart]($link.page('llmd/quickstart-apple-silicon')) |
-> | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | Intel oneAPI | BF16 | `20261029.0` | [oneAPI recipe](https://zml.ai/posts/llmd-20261029.0/#intel) · [Configure launch]($link.page('llmd/launch').unsafeRef('lfm3-oneapi')) |
-> | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | Google TPU | BF16 | `20261029.0` | [TPU recipe](https://zml.ai/posts/llmd-20261029.0/#google-tpu) |
-> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | NVIDIA CUDA | BF16 | `20261112.0` | [CUDA with DSpine](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/launch').unsafeRef('qwen3-8-27b-cuda')) |
-> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | AMD ROCm | BF16 | `20261112.0` | [ROCm with DSpine](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/launch').unsafeRef('qwen3-8-27b-rocm')) |
-> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | Intel oneAPI | BF16 | `20261112.0` | [oneAPI recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/launch').unsafeRef('qwen3-8-27b-oneapi')) |
-> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | Google TPU | BF16 | `20261112.0` | [TPU recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
-> | [`Qwen/Qwen3.8-27B-FP8`](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) | Apple Metal | FP8 | `20261112.0` | [Metal recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
+> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | NVIDIA CUDA | FP8 | `20261106.0` | [CUDA recipe](https://zml.ai/posts/llmd-20261029.0/#nvidia) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda')) |
+> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | AMD ROCm | FP8 | `20261029.0` | [ROCm recipe](https://zml.ai/posts/llmd-20261029.0/#amd) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-rocm')) |
+> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | Apple Metal | FP8 | `20261106.0` | [Metal recipe](https://zml.ai/posts/llmd-20261106.0/#try-it-today) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-metal')) |
+> | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | Intel oneAPI | BF16 | `20261029.0` | [oneAPI recipe](https://zml.ai/posts/llmd-20261029.0/#intel) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('lfm3-oneapi')) |
+> | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | Google TPU | BF16 | `20261029.0` | [TPU recipe](https://zml.ai/posts/llmd-20261029.0/#google-tpu) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('lfm3-tpu')) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | NVIDIA CUDA | BF16 | `20261112.0` | [CUDA with DSpine](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('qwen3-8-27b-cuda')) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | AMD ROCm | BF16 | `20261112.0` | [ROCm with DSpine](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('qwen3-8-27b-rocm')) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | Intel oneAPI | BF16 | `20261112.0` | [oneAPI recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('qwen3-8-27b-oneapi')) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | Google TPU | BF16 | `20261106.0` | [TPU recipe](https://zml.ai/posts/llmd-20261106.0/#try-it-today) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('qwen3-8-27b-tpu')) |
+> | [`Qwen/Qwen3.8-27B-FP8`](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) | Apple Metal | FP8 | `20261112.0` | [Metal recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) · [Configure launch]($link.page('llmd/quickstart').unsafeRef('qwen3-8-27b-fp8-metal')) |
 > | [`nvidia/Qwen3.8-27B-NVFP4`](https://huggingface.co/nvidia/Qwen3.8-27B-NVFP4) | Apple Metal | NVFP4 + FP8 | `20260929.0` | [Metal recipe](https://zml.ai/posts/llmd-20260929.0/#quantization-support-on-metal) |
 > | [`Qwen/Qwen3.8-Flash-Next`](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) | NVIDIA CUDA | BF16 | `20261023.0` | [CUDA recipe](https://zml.ai/posts/llmd-20261023.0/#try-it-today) |
 > | [`Qwen/Qwen3.8-Flash-Next`](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) | AMD ROCm | BF16 | `20261023.0` | [ROCm recipe](https://zml.ai/posts/llmd-20261023.0/#try-it-today) |
@@ -35,117 +35,14 @@ screens, scroll the table sideways to see all columns.
 > | [`deepseek-ai/DeepSeek-V4.1-Flash`](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash) | AMD ROCm | MXFP4 + FP8 | `20260929.0` | [ROCm recipe](https://zml.ai/posts/llmd-20260929.0/#try-it-today) |
 > | [`mistralai/Mistral-Large-4-1T-A52B`](https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B) | NVIDIA CUDA | FP8 | `20261029.0` | [CUDA recipe](https://zml.ai/posts/llmd-20261029.0/#mistral-large-4--le-chonk) |
 
-For the Docker recipes, pin the release by replacing the rolling tag with
-`<release>-<backend>`. For example, use `zmlai/llmd:20261112.0-cuda` for the
-Qwen3.8-27B CUDA recipe. Find versioned tags and digests on
-[Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags). For Metal, `brew install`
-uses the version currently in the [ZML tap](https://github.com/zml/homebrew-zml).
-The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/) list
-additional model families. This catalog covers specific combinations with
-published launch instructions.
-
-# [Keep the checkpoint files together]($heading.id('keep-the-checkpoint-files-together'))
-
-Point `--model` at the directory containing `config.json`. LLMD reads
-`model_type` from this file to select a model implementation. Keep the files
-from the same revision together.
-
-- Include `tokenizer.json` and the published tokenizer configuration.
-- Include the Safetensors weights. Keep any supplied Safetensors index and
-  every shard it references in the same relative locations.
-- Keep ancillary files from the checkpoint, such as `chat_template.jinja`
-  or `generation_config.json`. Chat templates can also be supplied through
-  `tokenizer_config.json`.
-
-See the [LFM3-1.7B FP8 files](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8/tree/main)
-for an example of a complete checkpoint.
-
-# [Load from Hugging Face]($heading.id('load-from-hugging-face'))
-
-Use `--model=hf://LiquidAI/LFM3-1.7B-FP8` for the public checkpoint in the
-quickstart. LLMD reads the files from Hugging Face at startup. The repository
-defaults to `main`.
-Use `--model=hf://org/repo@revision` with an exact commit when reproducing a
-deployment.
-
-For a [gated repository](https://huggingface.co/docs/hub/models-gated), request
-access on the model page and export `HF_TOKEN` for an account with read
-access. Add `-e HF_TOKEN` before the Docker image name to forward it. Pass the
-repository URI as `--model` after the image name. See
-[Environment variables]($link.page('reference/environment')) for token lookup
-order.
-
-# [Download a checkpoint]($heading.id('download-a-checkpoint'))
-
-Download weights to a writable host directory to reuse the same checkpoint
-across container launches. Install [uv](https://docs.astral.sh/uv/getting-started/installation/),
-then download the complete repository for the CUDA quickstart.
-
-```sh
-uvx --from huggingface_hub hf download LiquidAI/LFM3-1.7B-FP8 \
-  --local-dir "${HOME}/models/LiquidAI/LFM3-1.7B-FP8"
-```
-
-Use the same directory layout for a Gemma checkpoint.
-
-```sh
-uvx --from huggingface_hub hf download google/gemma-4-31B-it \
-  --local-dir "${HOME}/models/google/gemma-4-31B-it"
-```
-
-For a gated or private repository, confirm your account has read access and
-run `uvx --from huggingface_hub hf auth login` or export `HF_TOKEN` before
-downloading. Add `--revision` with the commit hash to pin the files, and keep
-each revision in its own directory. The
-[Hugging Face CLI guide](https://huggingface.co/docs/huggingface_hub/en/guides/cli#download-to-a-local-folder)
-covers download options.
-
-# [Load from a local directory]($heading.id('load-from-a-local-directory'))
-
-On a CUDA host configured as in the quickstart, mount the downloaded LFM3
-directory read-only at `/model` inside the container. To serve another compatible
-checkpoint, set the mount source to the absolute path to its directory.
-
-```sh
-docker run --rm --name llmd \
-  -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
-  --mount "type=bind,source=${HOME}/models/LiquidAI/LFM3-1.7B-FP8,target=/model,readonly" \
-  zmlai/llmd:20261106.0-cuda --model=/model --model-name=LFM3-1.7B-FP8
-```
-
-For a native installation, pass the local path directly with
-`llmd --model="${HOME}/models/LiquidAI/LFM3-1.7B-FP8"`. Use the
-[Docker launch workspace]($link.page('llmd/launch')) to generate a command
-for either storage workflow.
-
-# [Load from S3 or Google Cloud Storage]($heading.id('load-from-s3-or-google-cloud-storage'))
-
-Keep the checkpoint directory structure under the bucket prefix. Replace the
-`--model` value in your platform's startup command with the corresponding URI.
-
-| Storage | Model argument | Docker credentials |
-| --- | --- | --- |
-| S3 | `--model=s3://my-bucket/llm/checkpoint` | For a private bucket, export `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and pass both with `-e` before the image. Forward endpoint or region overrides if your store needs them. |
-| Google Cloud Storage | `--model=gs://my-bucket/llm/checkpoint` | For file-based credentials, mount a supported credentials file read-only and set `GOOGLE_APPLICATION_CREDENTIALS` to its path inside the container. |
-
-See [Environment variables]($link.page('reference/environment')) for credential
-precedence, supported credential types, and an example credentials mount.
-The [LLMD product page](https://zml.ai/llmd/) describes the supported storage
-URI schemes.
-
-# [Verify the loaded model]($heading.id('verify-the-loaded-model'))
-
-Check `GET /v1/models` after startup and use the returned ID in a chat request.
-Use `--model-name=<name>` to keep that ID stable when changing storage paths.
-
-The catalog recipes were checked against their published sources. Local
-hardware validation is pending. Record the LLMD version or image digest,
-checkpoint revision, accelerator and driver, and a successful request when
-validating a deployment.
+The table covers combinations with published recipes. Hardware validation for
+this documentation is pending. The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/)
+list additional model families. Check [Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags)
+for image tags and digests or the [ZML tap](https://github.com/zml/homebrew-zml)
+for the current Metal package.
 
 # [Next steps]($heading.id('next-steps'))
 
-- [Connect a client through the API]($link.page('llmd/api')) to send or stream
-  requests with the loaded model.
-- [Configure the server]($link.page('llmd/cli')) to choose options such as
-  the listener, batching, and context length.
+Choose **Configure launch** in a row to preselect its checkpoint and backend,
+or open the [LLMD quickstart]($link.page('llmd/quickstart')) to choose a model
+source and generate the commands.

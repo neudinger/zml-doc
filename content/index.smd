@@ -16,6 +16,6 @@ Bazel and classify a handwritten digit on CPU.
 # [Serve models with LLMD]($heading.id('serve-models-with-llmd'))
 
 Serve a checkpoint over HTTP. Follow the
-[LLMD quickstart]($link.page('llmd/quickstart')) to start a Docker container
+[LLMD quickstart]($link.page('llmd/quickstart')) to start a server
 and receive your first chat response. See [Operations]($link.page('operations'))
 to deploy, monitor, and troubleshoot the service.

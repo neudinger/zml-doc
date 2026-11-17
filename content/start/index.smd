@@ -25,9 +25,10 @@ Choose LLMD when you want applications to call a model through an
 OpenAI-compatible HTTP API. Start a server yourself or connect to an existing
 LLMD endpoint.
 
-- [Start LLMD with Docker]($link.page('llmd/quickstart')) and send a chat request.
-- [Browse Supported Models]($link.page('llmd/models')) for compatible checkpoints
-  and launch recipes.
+- [Start LLMD]($link.page('llmd/quickstart')) with a recipe for your hardware
+  and send a chat request.
+- [Compare checkpoints]($link.page('llmd/models')) by backend, precision, and
+  LLMD release.
 - [Connect to an existing endpoint]($link.page('llmd/api')) to list the model,
   send chat requests, or stream responses.
 - [Operate an LLMD service]($link.page('operations')) for deployment,

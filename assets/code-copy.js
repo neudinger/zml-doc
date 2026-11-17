@@ -13,7 +13,7 @@
     button.type = "button";
     button.className = "code-copy";
     button.textContent = "Copy";
-    button.setAttribute("aria-label", "Copy code");
+    button.setAttribute("aria-label", code.dataset.copyLabel || "Copy code");
 
     let resetTimer;
     let copying = false;

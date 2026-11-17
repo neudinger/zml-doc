@@ -15,7 +15,8 @@ deployment, use its base URL and any authentication it requires.
 Use its `id` in subsequent requests. The CLI's `--model-name` sets the ID.
 When omitted, LLMD uses the basename of `--model`. Start a server with a
 different checkpoint to serve a different model. See
-[Supported Models]($link.page('llmd/models')) for checkpoint sources.
+[Checkpoint storage]($link.page('llmd/quickstart').ref('checkpoint-storage'))
+for model sources and downloads.
 
 ```sh
 curl -fsS http://127.0.0.1:8000/v1/models

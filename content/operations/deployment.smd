@@ -19,9 +19,8 @@ can reproduce the service and roll it back.
   [Compatibility]($link.page('reference/compatibility')) for other image
   architectures, backends, and precisions.
 - Place the complete checkpoint in a directory for the selected revision. Keep
-  that directory available for restarts and rollback. For remote storage, use
-  the URI and credential options in [Supported Models]($link.page('llmd/models')) and
-  [Environment variables]($link.page('reference/environment')).
+  that directory available for restarts and rollback. For a remote model URI,
+  see [Checkpoint storage]($link.page('llmd/quickstart').ref('checkpoint-storage')).
 
 Record the image digest, model repository and commit or local artifact hash,
 model ID, driver and device, and the exact startup flags. Record which
