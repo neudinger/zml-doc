@@ -1,33 +1,31 @@
 (() => {
   const backends = {
     metal: { requirements: "Use an Apple Silicon Mac with macOS Tahoe or later and Homebrew. On M1 and M2, use LLMD 20261112.0 or later." },
-    cuda: { defaultRelease: "20261106.0", shm: "256GB", devices: [], requirements: "Use Linux with Docker, a supported NVIDIA GPU and driver, and NVIDIA Container Toolkit." },
-    rocm: { defaultRelease: "20261029.0", shm: "256GB", devices: ["--device=/dev/kfd", "--device=/dev/dri"], requirements: "Use Linux with Docker, a supported AMD GPU and driver, and access to /dev/kfd and /dev/dri." },
-    oneapi: { defaultRelease: "20261029.0", shm: "", devices: ["--device=/dev/dri"], requirements: "Use Linux with Docker, a supported Intel GPU and driver, and access to /dev/dri." },
+    cuda: { shm: "256GB", devices: [], requirements: "Use Linux with Docker, a supported NVIDIA GPU and driver, and NVIDIA Container Toolkit." },
+    rocm: { shm: "256GB", devices: ["--device=/dev/kfd", "--device=/dev/dri"], requirements: "Use Linux with Docker, a supported AMD GPU and driver, and access to /dev/kfd and /dev/dri." },
+    oneapi: { devices: ["--device=/dev/dri"], requirements: "Use Linux with Docker, a supported Intel GPU and driver, and access to /dev/dri." },
     tpu: {
-      defaultRelease: "20261029.0",
       hostNetwork: true,
       devices: ["--privileged"],
       requirements: "Use an x86-64 Google TPU VM running Linux with Docker and access to its attached TPUs.",
     },
     furiosa: {
-      defaultRelease: "20261106.0",
       devices: ["--device=furiosa.ai/npu=npu0", "--device=/dev/dma_heap/system", "--security-opt=seccomp=unconfined"],
       requirements: "Use Linux x86-64 with the Furiosa RNGD driver, Docker with CDI enabled, and /dev/dma_heap/system available on the host.",
     },
   };
   const presets = [
     { id: "lfm3-fp8-metal", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "metal", batchSize: 4 },
-    { id: "lfm3-fp8-cuda", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "cuda", release: "20261106.0" },
-    { id: "lfm3-fp8-rocm", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "rocm", release: "20261029.0" },
-    { id: "lfm3-oneapi", checkpoint: "LiquidAI/LFM3-1.7B", backend: "oneapi", release: "20261029.0" },
-    { id: "lfm3-tpu", checkpoint: "LiquidAI/LFM3-1.7B", backend: "tpu", release: "20261029.0" },
-    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", release: "20261106.0", batchSize: 1 },
+    { id: "lfm3-fp8-cuda", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "cuda" },
+    { id: "lfm3-fp8-rocm", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "rocm" },
+    { id: "lfm3-oneapi", checkpoint: "LiquidAI/LFM3-1.7B", backend: "oneapi" },
+    { id: "lfm3-tpu", checkpoint: "LiquidAI/LFM3-1.7B", backend: "tpu" },
+    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", batchSize: 1 },
     { id: "qwen3-8-27b-fp8-metal", checkpoint: "Qwen/Qwen3.8-27B-FP8", backend: "metal", batchSize: 1 },
-    { id: "qwen3-8-27b-cuda", checkpoint: "Qwen/Qwen3.8-27B", backend: "cuda", release: "20261112.0", dspine: true },
-    { id: "qwen3-8-27b-rocm", checkpoint: "Qwen/Qwen3.8-27B", backend: "rocm", release: "20261112.0", dspine: true },
-    { id: "qwen3-8-27b-oneapi", checkpoint: "Qwen/Qwen3.8-27B", backend: "oneapi", release: "20261112.0" },
-    { id: "qwen3-8-27b-tpu", checkpoint: "Qwen/Qwen3.8-27B", backend: "tpu", release: "20261106.0" },
+    { id: "qwen3-8-27b-cuda", checkpoint: "Qwen/Qwen3.8-27B", backend: "cuda", dspine: true },
+    { id: "qwen3-8-27b-rocm", checkpoint: "Qwen/Qwen3.8-27B", backend: "rocm", dspine: true },
+    { id: "qwen3-8-27b-oneapi", checkpoint: "Qwen/Qwen3.8-27B", backend: "oneapi" },
+    { id: "qwen3-8-27b-tpu", checkpoint: "Qwen/Qwen3.8-27B", backend: "tpu" },
   ];
   const gemmaPreset = { id: "gemma-4-31b-it-cuda", checkpoint: "google/gemma-4-31B-it", backend: "cuda" };
   const stepFragments = {
@@ -330,7 +328,6 @@
       field("listenPort").disabled = hostListener;
       batchField.placeholder = defaultBatch ? String(defaultBatch) : native ? "LLMD default" : "Image default";
       const settings = Object.fromEntries(new FormData(form));
-      const gemmaCuda = checkpoint === gemmaPreset.checkpoint && backend === gemmaPreset.backend;
       const listenAddress = hostListener ? parseListenAddress(settings.listenAddress) : "0.0.0.0";
       const errors = {
         directory: source === "hub" ? "" : directoryError(settings.directory),
@@ -357,7 +354,7 @@
       const clientAddress = listenAddress === "0.0.0.0" || listenAddress === "[::]" ? loopback : listenAddress;
       const endpoint = clientAddress && !errors.port ? clientAddress + ":" + Number(settings.port) : "";
       const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true, models: true, chat: true };
-      const image = native ? "" : "zmlai/llmd:" + (gemmaCuda ? "cuda" : `${preset?.release ?? backendOptions.defaultRelease}-${backend}`);
+      const image = native ? "" : "zmlai/llmd:" + backend;
       let launch = "";
       if (!hasErrors) {
         launch = native ? nativeLaunchCommand(settings, listener, defaultBatch)
@@ -384,7 +381,7 @@
       for (const element of root.querySelectorAll("[data-docker]")) element.hidden = native;
       show("error", hasErrors);
       setText("setup-title", native ? "Install LLMD" : "Pull the LLMD image");
-      setText("setup-hint", native ? "Run once to install LLMD with Homebrew." : "Run once for this image tag.");
+      setText("setup-hint", native ? "Run once to install LLMD with Homebrew." : "Run to download or refresh the image for this backend.");
       setText("launch-hint", hasErrors ? "Server command unavailable until the launch settings are valid." : "Run each time you start the server.");
       show("launch-ready", !hasErrors);
       setText("hint", source === "hub"
@@ -396,9 +393,6 @@
       setText("fit", !preset ? "Confirm compatibility for this checkpoint and run target."
         : furiosa ? "Tested upstream on Furiosa. Docker recipe pending hardware validation."
           : "Published recipe for this checkpoint and accelerator.");
-      setText("recipe", gemmaCuda ? "Base-model launch with the rolling CUDA image."
-        : native ? "Native launch with the version from the ZML Homebrew tap."
-          : preset ? `${settings.dspine ? "DSpine" : "Base-model"} launch with LLMD ${preset.release}.` : "");
       setText("endpoint", listener || "Enter a valid listener");
       setText("client-endpoint", endpoint || "Enter a valid host port");
       for (const element of root.querySelectorAll("[data-connect]")) element.hidden = hostListener && listener === endpoint;

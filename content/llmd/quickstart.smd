@@ -81,7 +81,7 @@ for published recipes.
           <label class="llmd-launch-checkbox">
             <input name="dspine" type="checkbox" aria-describedby="llmd-dspine-hint" disabled> DSpine speculative decoding
           </label>
-          <p class="llmd-launch-hint" id="llmd-dspine-hint">Off by default. Enabling DSpine sets batch size to 1.</p>
+          <p class="llmd-launch-hint" id="llmd-dspine-hint">Off by default. DSpine requires LLMD 20261112.0 or later and sets batch size to 1 when enabled.</p>
           <fieldset class="llmd-launch-drafter" data-drafter-source disabled>
             <legend>Drafter source</legend>
             <label class="llmd-launch-checkbox">
@@ -227,7 +227,6 @@ for published recipes.
           <p data-requirements>Use Apple Silicon, macOS Tahoe or later, and Homebrew. Use LLMD 20261112.0 or later on M1 and M2.</p>
           <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Run Verify and Chat from the TPU VM using the host port.</p>
           <p data-furiosa-requirements hidden>Set up <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html">Furiosa container device access</a> for <code>npu0</code>. The command uses the documented unconfined seccomp option to allow the RNGD driver's <code>io_uring</code> calls.</p>
-          <p data-recipe>Published Apple Metal recipe.</p>
         </details>
         <div class="llmd-launch-step">
           <h2 id="install-llmd"><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></h2>

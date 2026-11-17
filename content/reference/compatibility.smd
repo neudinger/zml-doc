@@ -35,18 +35,15 @@ and models its examples recognize.
 | Intel oneAPI | Linux amd64 | `zmlai/llmd:oneapi` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-oneapi')) |
 | Google TPU | Google TPU VM, Linux amd64 | `zmlai/llmd:tpu` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-tpu')) |
 | Apple Metal | macOS Tahoe or later on Apple Silicon | `brew install zml/zml/llmd` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-metal')) |
-| Furiosa RNGD | Linux amd64 | `zmlai/llmd:20261106.0-furiosa` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
+| Furiosa RNGD | Linux amd64 | `zmlai/llmd:furiosa` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
 
-The [Docker Hub tags](https://hub.docker.com/r/zmlai/llmd/tags) identify image
-architectures and versioned tags. See the [LLMD product page](https://zml.ai/llmd/)
-for device access options and native installation. Choose a release tag or digest
-for a deployment you need to reproduce.
+Check the architectures available for each backend on [Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags).
+See the [LLMD product page](https://zml.ai/llmd/) for device access options and
+native installation.
 
 # [Checkpoint examples]($heading.id('checkpoint-examples'))
 
-These combinations come from the upstream LLMD release recipes. The
-[20261106.0 release](https://zml.ai/posts/llmd-20261106.0/) also lists LFM3
-support and supplies the version pinned by the LFM3 CUDA recipe. See
+These combinations come from the upstream LLMD release recipes. See
 [Model compatibility]($link.page('llmd/models')) for additional checkpoints and
 backend-specific launch recipes.
 
@@ -58,9 +55,9 @@ backend-specific launch recipes.
 # [Verification status]($heading.id('verification-status'))
 
 The tables are source-reviewed. Local hardware runs for the quickstart recipes
-are pending. For a result you can reproduce, record the ZML commit, LLMD image digest,
-or installed LLMD version, along with the host OS and device, model revision and
-precision, and observed prediction or completion.
+are pending. When documenting a run, record the ZML commit or LLMD version,
+along with the host OS and device, model revision and precision, and observed
+prediction or completion.
 
 See [Environment variables]($link.page('reference/environment')) for model
 credentials and backend settings.

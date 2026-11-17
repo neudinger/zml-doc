@@ -5,7 +5,7 @@
 .layout = "content.shtml",
 ---
 Start with [Deploy LLMD with Docker]($link.page('operations/deployment')) for
-a pinned image, readiness checks, and rollback. Use
+image setup, readiness checks, and rollback. Use
 [Monitoring and troubleshooting]($link.page('operations/monitoring')) to
 inspect startup, service metrics, and accelerator state.
 

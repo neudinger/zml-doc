@@ -99,11 +99,11 @@ benchmark and profile options and
 | Requests exhaust memory after startup | Compare `requests_rejected_oom` with device usage and the request sizes. Reduce concurrency or context length and retest the same workload. See [batching and memory settings]($link.page('llmd/cli')). |
 | `400` with `context_length_exceeded` | Shorten the conversation, then retry the request. The configured context must accommodate the tokenized prompt, including the chat template. See the [API reference]($link.page('llmd/api')). |
 
-Record the image digest, checkpoint revision, accelerator and driver, model
-ID, relevant timestamps, and the exact error before changing settings. Remove
-tokens, credential values, and sensitive prompt or output text from shared
-logs. The commands and metrics above are source-reviewed. Live checks against
-a deployed LLMD instance remain pending.
+Record the LLMD version, backend tag, checkpoint revision, accelerator and
+driver, model ID, relevant timestamps, and the exact error before changing
+settings. Remove tokens, credential values, and sensitive prompt or output
+text from shared logs. The commands and metrics above are source-reviewed.
+Live checks against a deployed LLMD instance remain pending.
 
 # [Next steps]($heading.id('next-steps'))
 

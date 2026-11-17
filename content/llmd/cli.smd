@@ -8,7 +8,7 @@ This reference records LLMD defaults from the source reviewed on 16 November
 2026. Check the help from your installed binary or container for the options
 it exposes. The CUDA recipe in the
 [LLMD quickstart]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda')) uses
-the `20261106.0-cuda` image. Sampling controls described in the
+`zmlai/llmd:cuda`. Sampling controls described in the
 [20261112.0 release notes](https://zml.ai/posts/llmd-20261112.0/#sampling-controls)
 are release-dependent.
 
@@ -17,7 +17,7 @@ are release-dependent.
 llmd --help
 
 # CUDA container
-docker run --rm zmlai/llmd:20261106.0-cuda --help
+docker run --rm zmlai/llmd:cuda --help
 ```
 
 Use `--name=value` for an LLMD option with a value and a bare flag for a
@@ -121,7 +121,7 @@ the model configuration, tokenizer, and weight files.
 docker run --rm --name llmd \
   -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
   --mount type=bind,source=/absolute/path/to/checkpoint,target=/model,readonly \
-  zmlai/llmd:20261106.0-cuda --model=/model
+  zmlai/llmd:cuda --model=/model
 ```
 
 For other platforms, see [Compatibility]($link.page('reference/compatibility'))

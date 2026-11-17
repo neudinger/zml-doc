@@ -25,7 +25,7 @@ Use **Build with ZML** and **Serve models with LLMD** on the homepage and as the
 | 8 | `llmd/api.smd` | Document `GET /v1/models` and `POST /v1/chat/completions` first. Expand with streaming, sampling, tool calling, and supported schema fields as verified per release and model. |
 | 9 | `llmd/cli.smd` | List startup flags by networking, memory and batching, sampling, parallelism, and speculative decoding. Include defaults, value types, and release scope. |
 | 10 | `reference/environment.smd` | Document model-storage credentials, runtime and diagnostics variables, CLI forwarding into containers, and telemetry opt-outs. |
-| 11 | `operations/deployment.smd` | Cover pinned Docker images, hardware access, network exposure, local weights, readiness, and upgrade and rollback. Update `operations/index.smd` to lead into these tasks. |
+| 11 | `operations/deployment.smd` | Cover Docker backend tags, hardware access, network exposure, local weights, readiness, and upgrade and rollback. Update `operations/index.smd` to lead into these tasks. |
 | 12 | `operations/monitoring.smd` | Add Prometheus, logs, device checks, and a troubleshooting flow for checkpoint access, startup, unavailable devices, and out-of-memory failures. Link zml-smi and profiling from here. |
 
 Write pages 2–4 first. The homepage can promise **classify an image with ZML** and **serve a checkpoint and receive a chat response with LLMD**. The documentation entry should link to these quickstarts plus Compatibility. The CUDA article supplies prerequisites, copyable commands, expected results, and troubleshooting.
@@ -107,15 +107,15 @@ Sources for install channels and architecture are the [LLMD product page](https:
 
 ### CUDA quickstart draft
 
-The commands below combine a registry-listed release tag with the smaller FP8 checkpoint in Liquid AI's CUDA recipe. They are source-reviewed, with execution pending on a CUDA host. Record an immutable digest, checkpoint revision, and successful response before publishing the tested recipe. [Liquid AI guide](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd) · [Registry tags](https://hub.docker.com/r/zmlai/llmd/tags)
+The commands below use the CUDA backend tag with the smaller FP8 checkpoint in Liquid AI's CUDA recipe. They are source-reviewed, with execution pending on a CUDA host. Record the LLMD version, checkpoint revision, and successful response before publishing the tested recipe. [Liquid AI guide](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd) · [Registry tags](https://hub.docker.com/r/zmlai/llmd/tags)
 
 Prerequisites are a Linux host with a compatible NVIDIA GPU, its driver, Docker, NVIDIA Container Toolkit, and access to the public checkpoint. For gated models, obtain repository access and forward `HF_TOKEN` into the container.
 
 ```sh
-docker pull zmlai/llmd:20261106.0-cuda
+docker pull zmlai/llmd:cuda
 docker run --rm --name llmd \
   -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
-  zmlai/llmd:20261106.0-cuda --model=hf://LiquidAI/LFM3-1.7B-FP8
+  zmlai/llmd:cuda --model=hf://LiquidAI/LFM3-1.7B-FP8
 ```
 
 Run the request in a second terminal once the server accepts connections. Use the returned model identifier in the JSON body. The example assumes the server reports the default name derived from the checkpoint path.

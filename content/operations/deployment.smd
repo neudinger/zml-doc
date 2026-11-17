@@ -1,13 +1,13 @@
 ---
 .title = "Deploy LLMD with Docker",
-.description = "Pin a CUDA image and model, verify inference, and retain a rollback path on one host.",
+.description = "Deploy the LLMD CUDA container, verify inference, and retain a rollback path on one host.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 ---
 Deploy a single LLMD instance on a Linux x86-64 host with an NVIDIA GPU.
 Use the [LLMD quickstart]($link.page('llmd/quickstart')) for a first chat
-request. This guide uses a local checkpoint and a retained container so you
-can reproduce the service and roll it back.
+request. This guide uses a local checkpoint and shows how to retain the
+running container for rollback when you upgrade.
 
 # [1. Prepare the host and model]($heading.id('prepare-the-host-and-model'))
 
@@ -22,33 +22,29 @@ can reproduce the service and roll it back.
   that directory available for restarts and rollback. For a remote model URI,
   see [Checkpoint storage]($link.page('llmd/quickstart').ref('checkpoint-storage')).
 
-Record the image digest, model repository and commit or local artifact hash,
-model ID, driver and device, and the exact startup flags. Record which
-credentials the deployment uses separately from their values.
+Record the LLMD version, checkpoint revision, model ID, driver and device,
+and the exact startup flags. Record which credentials the deployment uses
+separately from their values.
 
 # [2. Start the container]($heading.id('start-the-container'))
 
-The digest below selects the Linux amd64 image listed under
-`20261106.0-cuda`. Replace `/srv/models/lfm3-fp8` with the absolute path to
-your checkpoint. The bound port is on the Docker host.
+Pull the CUDA image from Docker Hub. Replace `/srv/models/lfm3-fp8` with the
+absolute path to your checkpoint. The bound port is on the Docker host.
 
 ```sh
-LLMD_IMAGE='zmlai/llmd@sha256:9c9742eb0eaa2a3c7f6b895b206f7b9a193ef2c11ba6224562b69e8cfac08646'
 LLMD_MODEL_DIR='/srv/models/lfm3-fp8'
 
-docker pull "$LLMD_IMAGE"
+docker pull zmlai/llmd:cuda &&
 docker run -d --name llmd --restart unless-stopped \
   --gpus=all --shm-size=256GB \
   -p 127.0.0.1:8000:8000 \
   --mount "type=bind,source=${LLMD_MODEL_DIR},target=/model,readonly" \
-  "$LLMD_IMAGE" --model=/model --model-name=lfm3
+  zmlai/llmd:cuda --model=/model --model-name=lfm3
 ```
 
-Use the [image registry](https://hub.docker.com/r/zmlai/llmd/tags) to select a
-digest for another release or architecture. This command requests every
-available NVIDIA GPU and sets the `/dev/shm` limit from the published CUDA
-recipe. To select devices or change the server's context and memory limits,
-see the [CLI reference]($link.page('llmd/cli')). The container and its logs
+This command requests every available NVIDIA GPU and sets the `/dev/shm`
+limit from the published CUDA recipe. To select devices or change the server's
+context and memory limits, see the [CLI reference]($link.page('llmd/cli')). The container and its logs
 remain available after it exits. Docker's restart policy starts the container
 again after an unexpected exit, subject to
 [restart policy behavior](https://docs.docker.com/engine/containers/start-containers-automatically/).
@@ -99,11 +95,12 @@ streaming request and response formats.
 
 # [5. Upgrade or roll back]($heading.id('upgrade-or-roll-back'))
 
-Record the previous image digest, checkpoint revision, and launch options.
-Pull the candidate digest before the maintenance window. On a spare host or
-GPU, start the candidate with a distinct container name and port, then repeat
-the readiness checks and compare representative requests. If the same GPU is
-needed, drain client traffic before stopping the previous container.
+Record the running LLMD version, checkpoint revision, and launch options.
+Pull `zmlai/llmd:cuda` on the deployment host before the maintenance window.
+If you have a spare GPU, start the candidate with a distinct container name
+and port, expose only that GPU, then repeat the readiness checks and compare
+representative requests. Drain client traffic before stopping the previous
+container.
 
 For an in-place replacement, stop the running container and reserve the name
 `llmd-previous` for rollback. Use a different name for any older retained
@@ -114,13 +111,14 @@ docker stop --timeout 30 llmd
 docker rename llmd llmd-previous
 ```
 
-Start the candidate with the launch command above using its digest and
-checkpoint. Restore traffic only after the model ID and chat completion
-checks succeed. Retain the previous container and its checkpoint until the
-upgrade is accepted.
+Use the `docker run` command above to start the candidate with the image you
+already pulled and the selected checkpoint. Restore traffic only after the
+model ID and chat completion checks succeed. Retain the previous container
+and its checkpoint until the upgrade is accepted.
 
 To roll back, drain traffic again. If the candidate container exists, stop it
-and remove it before restoring the retained container.
+and remove it before restoring the retained container. The retained container
+uses its original image even after a new pull of the `cuda` tag.
 
 ```sh
 docker stop --timeout 30 llmd
