@@ -77,6 +77,23 @@
     return "";
   }
 
+  function cacheDirectoryError(directory) {
+    if (!directory.startsWith("/")) {
+      return "Enter an absolute path, such as /tmp/furiosa-tcc-cache.";
+    }
+    if (directory.includes(":")) {
+      return "Remove colons. Docker uses : to separate the host path from the container path.";
+    }
+    if (/[\u0000-\u001f\u007f]|\p{White_Space}$/u.test(directory)) {
+      return "Remove control characters or whitespace at the end of the path.";
+    }
+    const parts = directory.split("/");
+    if (parts.includes("..") || !parts.some(part => part && part !== ".")) {
+      return "Choose a subdirectory of / and remove any .. path component.";
+    }
+    return "";
+  }
+
   function integerError(value, max, required = false) {
     if (!value && !required) return "";
     if (/^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= max) return "";
@@ -163,7 +180,7 @@
   }
 
   function dockerLaunchCommand(settings, image, backendOptions, listener, defaultBatch) {
-    const { backend, checkpoint, directory, source } = settings;
+    const { backend, checkpoint, directory, source, cacheDirectory } = settings;
     const localCheckpoint = source !== "hub";
     const localDrafter = settings.drafterSource === "local";
     const mounts = [];
@@ -182,10 +199,14 @@
     for (const { name } of mounts) {
       lines.push('  --mount "type=bind,\\"source=${' + name + '_src}\\",target=/' + name + ',readonly"');
     }
+    if (cacheDirectory) {
+      lines.push("  -v " + shellQuote(cacheDirectory + ":/cache/furiosa"), "  -e FURIOSA_COMPILER_CACHE=/cache/furiosa");
+    }
     if (settings.hfToken) lines.push("  -e HF_TOKEN");
     const model = localCheckpoint ? "/model" : "hf://" + checkpoint;
     lines.push("  " + image, "  --listen=" + shellQuote(listener), ...llmdArguments(settings, shellQuote(model), defaultBatch));
-    const command = lines.join(continuation);
+    const createCacheDirectory = cacheDirectory ? "mkdir -p -- " + shellQuote(cacheDirectory) + " &&\n" : "";
+    const command = createCacheDirectory + lines.join(continuation);
     if (!mounts.length) return command;
 
     const setup = mounts.map(({ name, directory }) =>
@@ -229,6 +250,8 @@
     const dspineField = field("dspine");
     const drafterSourceField = field("drafterSource");
     const hfTokenField = field("hfToken");
+    const persistCacheField = field("persistCompilerCache");
+    const cacheDirectoryField = field("cacheDirectory");
     const batchField = field("batch");
     let checkpoint = checkpointField.value;
     let useDefaultCheckpoint = true;
@@ -330,11 +353,14 @@
       field("shm").disabled = native;
       field("listenAddress").disabled = !hostListener;
       field("listenPort").disabled = hostListener;
+      persistCacheField.disabled = !furiosa;
+      cacheDirectoryField.disabled = !furiosa || !persistCacheField.checked;
       batchField.placeholder = defaultBatch ? String(defaultBatch) : native ? "LLMD default" : "Image default";
       const settings = Object.fromEntries(new FormData(form));
       const listenAddress = hostListener ? parseListenAddress(settings.listenAddress) : "0.0.0.0";
       const errors = {
         directory: source === "hub" ? "" : directoryError(settings.directory),
+        cacheDirectory: cacheDirectoryField.disabled ? "" : cacheDirectoryError(settings.cacheDirectory),
         port: integerError(settings.port, 65535, true),
         listenAddress: listenAddress ? "" : "Enter an IPv4 or IPv6 address without a port, such as 127.0.0.1 or ::1.",
         listenPort: hostListener ? "" : integerError(settings.listenPort, 65535, true),
@@ -378,6 +404,8 @@
       show("drafter-path", drafterSource === "local");
       show("hub", !hfTokenField.disabled);
       show("cuda", backend === "cuda");
+      show("furiosa-cache", furiosa);
+      show("cache-directory", !cacheDirectoryField.disabled);
       show("furiosa-requirements", furiosa);
       show("tpu-requirements", backend === "tpu");
       show("host-listener", hostListener);

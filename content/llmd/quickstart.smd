@@ -164,6 +164,20 @@ for published recipes.
                 </select>
                 <span class="llmd-launch-field-hint" id="llmd-launch-shm-hint" data-shm-hint>Use the recipe or Docker default, or choose 1, 8, 32, or 256 GiB.</span>
               </div>
+              <div class="llmd-launch-options-grid" data-furiosa-cache hidden>
+                <div>
+                  <label class="llmd-launch-checkbox">
+                    <input name="persistCompilerCache" type="checkbox" aria-controls="llmd-launch-cache-path" aria-describedby="llmd-launch-cache-hint"> Persist compiler cache
+                  </label>
+                  <span class="llmd-launch-field-hint" id="llmd-launch-cache-hint">Save compiled artifacts on the Docker host for reuse across container launches.</span>
+                </div>
+                <div class="llmd-launch-field" id="llmd-launch-cache-path" data-cache-directory hidden>
+                  <label for="llmd-launch-cache-directory">Host cache directory</label>
+                  <input id="llmd-launch-cache-directory" name="cacheDirectory" type="text" value="/tmp/furiosa-tcc-cache" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-cache-directory-hint llmd-launch-cache-directory-error">
+                  <span class="llmd-launch-field-hint" id="llmd-launch-cache-directory-hint">Absolute directory writable by the container, such as /tmp/furiosa-tcc-cache. The host may clear /tmp.</span>
+                  <span class="llmd-launch-field-error" id="llmd-launch-cache-directory-error" data-field-error="cacheDirectory" aria-live="polite"></span>
+                </div>
+              </div>
             </div>
           </fieldset>
           <fieldset>
@@ -236,7 +250,27 @@ for published recipes.
           <summary>Before you run</summary>
           <p data-requirements>Use Apple Silicon, macOS Tahoe or later, and Homebrew. Use LLMD 20261112.0 or later on M1 and M2.</p>
           <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Run the model check and chat request from the TPU VM using the host port.</p>
-          <p data-furiosa-requirements hidden>Set up <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html">Furiosa container device access</a> for <code>npu0</code>. The command uses the documented unconfined seccomp option to allow the RNGD driver's <code>io_uring</code> calls.</p>
+          <div data-furiosa-requirements hidden>
+            <p><strong>Install the device tools.</strong> Furiosa supports Docker Engine 25 or later. The Container Device Interface (CDI) tools require Linux kernel 6.3 or later and administrator access. On Ubuntu 22.04 LTS, Debian 12, or later, add Furiosa's package repository and install the RNGD driver first. See the <a href="https://developer.furiosa.ai/latest/en/get_started/prerequisites.html">host prerequisites</a>.</p>
+            <pre><code class="sh">sudo apt update
+sudo apt install furiosa-cdi
+sudo furiosa-cdi generate
+furiosa-cdi list</code></pre>
+            <p><code>furiosa-cdi generate</code> writes the device specification in <code>/etc/cdi</code>. Docker Engine 28.3.0 and later enable CDI by default. If CDI is disabled, merge these settings into <code>/etc/docker/daemon.json</code>, restart Docker, then check the configuration with <code>docker info</code>. See <a href="https://docs.docker.com/reference/cli/dockerd/#configure-cdi-devices">Configure CDI devices in Docker</a>.</p>
+            <pre><code class="json">{
+  "features": { "cdi": true },
+  "cdi-spec-dirs": ["/etc/cdi", "/var/run/cdi"]
+}</code></pre>
+            <p><strong>Choose the accelerators.</strong> <code>furiosa-cdi list</code> shows the available device names under <code>furiosa.ai/npu</code>. Use those names if you edit the launch command.</p>
+            <ul>
+              <li>For one NPU, use <code>--device=furiosa.ai/npu=npu0</code>. This is the generated default.</li>
+              <li>For multiple NPUs, repeat <code>--device</code>. For example, use <code>--device=furiosa.ai/npu=npu0</code> and <code>--device=furiosa.ai/npu=npu1</code> if both are listed.</li>
+              <li>For all available NPUs, use <code>--device=furiosa.ai/npu=all</code>.</li>
+            </ul>
+            <p><strong>Expose the DMA allocator.</strong> <code>--device=/dev/dma_heap/system</code> passes the Linux DMA-BUF system heap into the container. The runtime uses it to allocate host buffers for transfers to and from RNGD. See the <a href="https://docs.kernel.org/userspace-api/dma-buf-heaps.html">Linux DMA-BUF heap documentation</a>.</p>
+            <p><strong>Allow the driver syscalls.</strong> <code>--security-opt=seccomp=unconfined</code> disables Docker's seccomp filter for this container. The RNGD driver needs <code>io_uring_setup</code>, <code>io_uring_enter</code>, and <code>io_uring_register</code>, which the default filter can block. To retain syscall filtering, replace the option with <code>--security-opt seccomp=/path/to/profile.json</code> using a profile that allows those calls. See <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#container-runtime-support">Furiosa container runtime support</a>.</p>
+            <p>With containerd (<code>ctr</code> or <code>nerdctl</code>) and CRI-O, use that runtime's CDI syntax. For details, see <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-using-cdi">Furiosa's CDI device assignment guide</a> or its <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-manually">manual device mapping</a>.</p>
+          </div>
         </details>
         <div class="llmd-launch-step">
           <h2 id="install-llmd"><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></h2>
