@@ -1,0 +1,123 @@
+---
+.title = "Supported Models",
+.description = "Find LLMD checkpoints by backend, weight precision, and release, with launch recipes and storage instructions.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Match an exact checkpoint to your accelerator and LLMD release. Check the
+[host and backend requirements]($link.page('reference/compatibility'))
+and allow memory for both the model weights and KV cache.
+
+# [Checkpoint catalog]($heading.id('choose-a-checkpoint'))
+
+Precision describes the checkpoint weights. The LLMD release comes from the
+pinned quickstart or the upstream post that published the recipe. On narrow
+screens, scroll the table sideways to see all columns.
+
+> []($block.attrs('model-catalog-table'))
+>
+> | Checkpoint | Backend | Precision | LLMD release | Launch recipe |
+> | --- | --- | --- | --- | --- |
+> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | NVIDIA CUDA | FP8 | `20261106.0` | [CUDA quickstart]($link.page('llmd/quickstart')) |
+> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | AMD ROCm | FP8 | `20261029.0` | [ROCm recipe](https://zml.ai/posts/llmd-20261029.0/#amd) |
+> | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | Apple Metal | FP8 | `20261106.0` | [Apple Silicon quickstart]($link.page('llmd/quickstart-apple-silicon')) |
+> | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | Intel oneAPI | BF16 | `20261029.0` | [oneAPI recipe](https://zml.ai/posts/llmd-20261029.0/#intel) |
+> | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | Google TPU | BF16 | `20261029.0` | [TPU recipe](https://zml.ai/posts/llmd-20261029.0/#google-tpu) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | NVIDIA CUDA | BF16 | `20261112.0` | [CUDA with DSpine](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | AMD ROCm | BF16 | `20261112.0` | [ROCm with DSpine](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | Intel oneAPI | BF16 | `20261112.0` | [oneAPI recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
+> | [`Qwen/Qwen3.8-27B`](https://huggingface.co/Qwen/Qwen3.8-27B) | Google TPU | BF16 | `20261112.0` | [TPU recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
+> | [`Qwen/Qwen3.8-27B-FP8`](https://huggingface.co/Qwen/Qwen3.8-27B-FP8) | Apple Metal | FP8 | `20261112.0` | [Metal recipe](https://zml.ai/posts/llmd-20261112.0/#try-it-today) |
+> | [`nvidia/Qwen3.8-27B-NVFP4`](https://huggingface.co/nvidia/Qwen3.8-27B-NVFP4) | Apple Metal | NVFP4 + FP8 | `20260929.0` | [Metal recipe](https://zml.ai/posts/llmd-20260929.0/#quantization-support-on-metal) |
+> | [`Qwen/Qwen3.8-Flash-Next`](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) | NVIDIA CUDA | BF16 | `20261023.0` | [CUDA recipe](https://zml.ai/posts/llmd-20261023.0/#try-it-today) |
+> | [`Qwen/Qwen3.8-Flash-Next`](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) | AMD ROCm | BF16 | `20261023.0` | [ROCm recipe](https://zml.ai/posts/llmd-20261023.0/#try-it-today) |
+> | [`deepseek-ai/DeepSeek-V4.1-Flash`](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash) | NVIDIA CUDA | MXFP4 + FP8 | `20260929.0` | [CUDA recipe](https://zml.ai/posts/llmd-20260929.0/#try-it-today) |
+> | [`deepseek-ai/DeepSeek-V4.1-Flash`](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash) | AMD ROCm | MXFP4 + FP8 | `20260929.0` | [ROCm recipe](https://zml.ai/posts/llmd-20260929.0/#try-it-today) |
+> | [`mistralai/Mistral-Large-4-1T-A52B`](https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B) | NVIDIA CUDA | FP8 | `20261029.0` | [CUDA recipe](https://zml.ai/posts/llmd-20261029.0/#mistral-large-4--le-chonk) |
+
+For the Docker recipes, pin the release by replacing the rolling tag with
+`<release>-<backend>`. For example, use `zmlai/llmd:20261112.0-cuda` for the
+Qwen3.8-27B CUDA recipe. Find versioned tags and digests on
+[Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags). For Metal, `brew install`
+uses the version currently in the [ZML tap](https://github.com/zml/homebrew-zml).
+The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/) list
+additional model families. This catalog covers specific combinations with
+published launch instructions.
+
+# [Keep the checkpoint files together]($heading.id('keep-the-checkpoint-files-together'))
+
+Point `--model` at the directory containing `config.json`. LLMD reads
+`model_type` from this file to select a model implementation. Keep the files
+from the same revision together.
+
+- Include `tokenizer.json` and the published tokenizer configuration.
+- Include the Safetensors weights. Keep any supplied Safetensors index and
+  every shard it references in the same relative locations.
+- Keep ancillary files from the checkpoint, such as `chat_template.jinja`
+  or `generation_config.json`. Chat templates can also be supplied through
+  `tokenizer_config.json`.
+
+See the [LFM3-1.7B FP8 files](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8/tree/main)
+for an example of a complete checkpoint.
+
+# [Load from Hugging Face]($heading.id('load-from-hugging-face'))
+
+Use `--model=hf://LiquidAI/LFM3-1.7B-FP8` for the public checkpoint in the
+quickstart. LLMD reads the files directly. The repository defaults to `main`.
+Use `--model=hf://org/repo@revision` with an exact commit when reproducing a
+deployment.
+
+For a [gated repository](https://huggingface.co/docs/hub/models-gated), request
+access on the model page and export `HF_TOKEN` for an account with read
+access. Add `-e HF_TOKEN` before the Docker image name to forward it. Pass the
+repository URI as `--model` after the image name. See
+[Environment variables]($link.page('reference/environment')) for token lookup
+order.
+
+# [Load from a local directory]($heading.id('load-from-a-local-directory'))
+
+On a CUDA host configured as in the quickstart, replace the source path with
+the absolute path to your complete checkpoint directory. The bind mount makes
+the files available read-only at `/model` inside the container.
+
+```sh
+docker run --rm --name llmd \
+  -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
+  --mount type=bind,source=/absolute/path/to/checkpoint,target=/model,readonly \
+  zmlai/llmd:20261106.0-cuda --model=/model
+```
+
+For a native installation, pass the local path directly with
+`llmd --model=/absolute/path/to/checkpoint`.
+
+# [Load from S3 or Google Cloud Storage]($heading.id('load-from-s3-or-google-cloud-storage'))
+
+Keep the checkpoint directory structure under the bucket prefix. Replace the
+`--model` value in your platform's startup command with the corresponding URI.
+
+| Storage | Model argument | Docker credentials |
+| --- | --- | --- |
+| S3 | `--model=s3://my-bucket/llm/checkpoint` | For a private bucket, export `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` and pass both with `-e` before the image. Forward endpoint or region overrides if your store needs them. |
+| Google Cloud Storage | `--model=gs://my-bucket/llm/checkpoint` | For file-based credentials, mount a supported credentials file read-only and set `GOOGLE_APPLICATION_CREDENTIALS` to its path inside the container. |
+
+See [Environment variables]($link.page('reference/environment')) for credential
+precedence, supported credential types, and an example credentials mount.
+The [LLMD product page](https://zml.ai/llmd/) describes the supported storage
+URI schemes.
+
+# [Verify the loaded model]($heading.id('verify-the-loaded-model'))
+
+Check `GET /v1/models` after startup and use the returned ID in a chat request.
+Use `--model-name=<name>` to keep that ID stable when changing storage paths.
+
+The catalog recipes were checked against their published sources. Local
+hardware validation is pending. Record the LLMD version or image digest,
+checkpoint revision, accelerator and driver, and a successful request when
+validating a deployment.
+
+# [Next steps]($heading.id('next-steps'))
+
+- [Connect a client through the API]($link.page('llmd/api')) to send or stream
+  requests with the loaded model.
+- [Configure the server]($link.page('llmd/cli')) to choose options such as
+  the listener, batching, and context length.

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "toolchain": {
+    "zig": "0.17.0",
+    "pagefind": "1.6.0",
+    "zine": {
+      "repository": "https://github.com/kristoff-it/zine",
+      "commit": "6c9782957f46cf1162aa6fe8e881162b2d31480e",
+      "package_hash": "zine-0.14.1-ou6nIJKIFwBEjCLNI4Hryh9YWa73Rm_DCsypWHbEp5l8"
+    }
+  },
+  "products": {}
+}

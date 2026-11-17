@@ -1,0 +1,128 @@
+---
+.title = "LLMD CLI reference",
+.description = "Look up LLMD server flags and Docker run options, including defaults.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+This reference records LLMD defaults from the source reviewed on 16 November
+2026. Check the help from your installed binary or container for the options
+it exposes. The [LLMD quickstart]($link.page('llmd/quickstart')) uses the
+`20261106.0-cuda` image. Sampling controls described in the
+[20261112.0 release notes](https://zml.ai/posts/llmd-20261112.0/#sampling-controls)
+are release-dependent.
+
+```sh
+# Native installation
+llmd --help
+
+# Container from the quickstart
+docker run --rm zmlai/llmd:20261106.0-cuda --help
+```
+
+Use `--name=value` for an LLMD option with a value and a bare flag for a
+boolean switch. Docker options go before the image name. LLMD options go
+after it. See [Environment variables]($link.page('reference/environment'))
+for model credentials, proxy settings, and diagnostics.
+
+# [Model and listener]($heading.id('model-and-listener'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--model=<path>` | Required | Path to a checkpoint directory or supported model URI. |
+| `--model-name=<text>` | Basename of the model path | Set the identifier reported by `/v1/models` and used in requests. |
+| `--listen=<address>` | `0.0.0.0:8000` | Bind HTTP to an IP address and port. A bare IPv4 address uses port `8000`. |
+| `-h`, `--help` | Off | Print the supported usage. |
+
+# [Batching, context, and memory]($heading.id('batching-context-and-memory'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--batch-size=<requests>` | `16` | Limit concurrent requests in a batch. |
+| `--token-batch-size=<tokens>` | `1024` | Limit the number of tokens processed in one inference step. |
+| `--max-context-len=<tokens>` | `128000` | Set the server context cap. Check the checkpoint limit and memory available. |
+| `--prefill-chunk-size=<tokens>` | `256` | Limit the prefill chunk for each sequence. |
+| `--page-chunk-size=<tokens>` | `16` | Set the number of tokens per KV-cache page. |
+| `--gpu-memory-fraction=<fraction>` | `0.9` | Set an allocator limit on CUDA, ROCm, oneAPI, and Metal. Accepted values are greater than `0` and at most `1`. |
+| `--cache-memory-fraction=<fraction>` | `0.95` | Scale the smallest reported per-device memory limit. The cache planner subtracts fixed allocations before sizing pages. Accepted values are greater than `0` and at most `1`. |
+| `--data-parallel=<groups>` | `1` | Set the number of groups that share request and KV-cache work in supported configurations. |
+| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight for each SystemOne request. |
+
+The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/#data-parallelism-beta)
+describe data parallelism on Llama as a beta feature.
+
+# [Sampling and speculative decoding]($heading.id('sampling-and-speculative-decoding'))
+
+| LLMD option | Default or fallback | Effect |
+| --- | --- | --- |
+| `--top-k=<number>` | Unset, fallback `50` | Limit sampling to the highest-ranked tokens. |
+| `--top-p=<fraction>` | Unset, fallback `1.0` | Keep tokens within a cumulative probability threshold. Accepted values are `0` through `1`. |
+| `--min-p=<fraction>` | Unset, fallback `0.0` | Set a minimum probability threshold relative to the most probable token. Accepted values are `0` through `1`. |
+| `--temperature=<number>` | Unset, fallback `1.0` | Scale the sampling distribution. |
+| `--speculative-drafter-model=<path>` | Unset | Enable speculative decoding with a compatible drafter checkpoint or `native` where supported. |
+| `--speculative-draft-count=<tokens>` | Derived from the model configuration | Override the number of draft tokens to verify. |
+
+For chat requests that support `temperature` or `top_p`, the request value
+wins. The CLI value comes next, followed by the model's recommendation and
+then the listed fallback. `top_k` and `min_p` start at the CLI level.
+
+# [Advanced and benchmark flags]($heading.id('advanced-and-benchmark-flags'))
+
+These options are present in the reviewed source. Availability can vary by
+model, backend, and release.
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--async-scheduling` | Off | Enable asynchronous scheduling on supported models. The initial beta covers Llama and Gemma 4 without speculative decoding. |
+| `--speculative-synthetic-acceptance-rates=<rates>` | Unset | Supply comma-separated probabilities per draft position for benchmarks. It replaces normal draft verification. |
+| `--attnd-workers=<count>`, `--attnd-memory=<GiB>` | Both unset | Set both to enable the attention daemon backend with the given worker count and memory budget. |
+| `--io-impl=<name>` | `zio` | Choose the I/O implementation. `threaded` is also available in the reviewed source. |
+| `--bench` | Off | Run the local prompt benchmark. |
+| `--bench-prompt=<text>` | Unset | Supply a benchmark prompt. The built-in prompt is `write a story` when no prompt option is set. |
+| `--bench-prompt-len=<words>` | Unset | Generate benchmark prompts of this length. Choose either this option or `--bench-prompt`. |
+| `--bench-prompt-file=<path>` | Unset | Read words for generated prompts from a file. Requires `--bench-prompt-len`. |
+| `--bench-concurrency=<requests>` | Batch size | Set the number of concurrent benchmark requests. |
+| `--bench-warmup-requests=<requests>` | Benchmark concurrency | Set the warm-up request count. |
+| `--bench-max-tokens=<tokens>` | `2048` | Set the completion token cap per benchmark request. |
+| `--bench-temperature=<number>` | `1.0` | Set benchmark sampling temperature. |
+| `--bench-stop-on-eos` | Off | Finish a benchmark generation when it emits an end-of-sequence token. |
+| `--bench-profile` | Off | Capture a profile during the prompt benchmark. |
+| `--bench-profiler=<name>` | `nsys` on CUDA, `xprof` elsewhere | Choose the profiler. `nsys` requires CUDA. |
+| `--profile-dir=<path>` | `/tmp/xprof` | Set the profile output directory. |
+
+# [Docker run options]($heading.id('docker-run-options'))
+
+These are Docker defaults. An image or daemon configuration can also provide
+settings. See the [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/)
+and [daemon defaults](https://docs.docker.com/reference/cli/dockerd/).
+
+| Docker option | Default | Use with LLMD |
+| --- | --- | --- |
+| `-p`, `--publish` | No published host ports | `-p 127.0.0.1:8000:8000` maps LLMD's port to host loopback. An omitted bind address usually publishes to all host interfaces. |
+| `--gpus` | No explicit request | `--gpus=all` makes GPUs available to the CUDA image with NVIDIA container integration. |
+| `--device` | No additional devices | Grant access to specific host devices. The ROCm recipe uses `/dev/kfd` and `/dev/dri`. The oneAPI recipe uses `/dev/dri`. |
+| `--shm-size` | Daemon default, normally `64 MiB` | Configure `/dev/shm`. The published CUDA recipe sets `256GB`. |
+| `--network` or `--net` | Default bridge on a standard Linux Docker host | The published TPU recipe uses `--net=host` to share the host network. |
+| `--privileged` | Off | The published TPU recipe enables this to grant broad host-device access. |
+| `-e`, `--env` | No explicit override | `-e HF_TOKEN` forwards a value from the invoking environment. |
+| `--mount` | No explicit mount | Mount a local checkpoint and pass the container path to `--model`. Bind mounts are writable by default. Add `readonly` for weights. |
+| `--name` | Automatically generated | Use a fixed name for `docker logs` and `docker stop`. |
+| `--rm` | Off | Remove the container when it exits. |
+| `-d`, `--detach` | Off | Run in the background. Inspect startup with `docker logs <name>`. |
+| `-i`, `-t` | Both off | Keep stdin open or allocate a terminal. Use them for interactive terminal sessions. |
+| `--pull` | `missing` | Pull the image when it is absent locally. |
+| `--restart` | `no` | Set a restart policy for a retained container. Docker rejects `--rm` with a restart policy. |
+
+The following CUDA example serves weights from a local checkpoint directory.
+Replace `/absolute/path/to/checkpoint` with an existing host path containing
+the model configuration, tokenizer, and weight files.
+
+```sh
+docker run --rm --name llmd \
+  -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
+  --mount type=bind,source=/absolute/path/to/checkpoint,target=/model,readonly \
+  zmlai/llmd:20261106.0-cuda --model=/model
+```
+
+For other platforms, see [Compatibility]($link.page('reference/compatibility'))
+and the [published startup commands](https://zml.ai/llmd/). For running and
+monitoring the service, see [Operations]($link.page('operations')).

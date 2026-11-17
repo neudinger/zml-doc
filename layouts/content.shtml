@@ -1,0 +1,33 @@
+<extend template="base.shtml">
+<head id="site-head">
+  <ctx :if="$page.content().contains('<pre><code')">
+    <script defer src="$site.asset('code-copy.js').link()"></script>
+  </ctx>
+  <ctx :if="$page.content().contains('<pre><code class=')">
+    <script defer data-manual src="$site.asset('prism/prism.min.js').link()"></script>
+    <script defer src="$site.asset('code-highlight.js').link()"></script>
+  </ctx>
+</head>
+<main id="site-content">
+  <article class="document">
+    <header class="document-header">
+      <p class="eyebrow">ZML / LLMD</p>
+      <h1 :text="$page.title"></h1>
+      <p class="description" :text="$page.description"></p>
+    </header>
+    <ctx :if="$site.index().isCurrent().not()">
+      <ctx toc="$page.toc()">
+        <ctx :if="$ctx.toc.contains('href=')">
+          <nav class="page-toc" aria-labelledby="page-toc-heading">
+            <p id="page-toc-heading">On this page</p>
+            <div :html="$ctx.toc"></div>
+          </nav>
+        </ctx>
+      </ctx>
+      <div class="prose" data-pagefind-body :html="$page.content()"></div>
+    </ctx>
+    <ctx :if="$site.index().isCurrent()">
+      <div class="prose" :html="$page.content()"></div>
+    </ctx>
+  </article>
+</main>

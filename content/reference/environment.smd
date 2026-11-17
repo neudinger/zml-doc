@@ -1,0 +1,115 @@
+---
+.title = "Environment variables",
+.description = "Configure model access, proxies, reporting, and diagnostics for ZML and LLMD.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Set these variables in the environment of the process that loads the model or
+initializes the backend. The defaults refer to the ZML revision used in the
+[ZML quickstart]($link.page('zml/quickstart')) and the source snapshot covered
+by the [LLMD CLI reference]($link.page('llmd/cli')).
+
+# [Pass variables to Docker]($heading.id('pass-variables-to-docker'))
+
+Put `-e NAME` before the image name to copy an exported host value into the
+container. If that variable is absent from the invoking environment, Docker
+leaves it unset in the container. For example, add `-e HF_TOKEN` to the
+`docker run` command in the [LLMD quickstart]($link.page('llmd/quickstart'))
+when the model repository requires authentication. Keep credential values
+out of command examples and logs.
+
+File and directory values must use paths visible to the process. For example,
+to use a gcloud application default credentials file with LLMD in Docker,
+add these options before the image name and replace the host path.
+
+```sh
+--mount type=bind,source=/absolute/path/to/adc.json,target=/run/gcs-adc.json,readonly \
+-e GOOGLE_APPLICATION_CREDENTIALS=/run/gcs-adc.json
+```
+
+See [Docker environment options](https://docs.docker.com/reference/cli/docker/container/run/#env)
+and [bind mounts](https://docs.docker.com/engine/storage/bind-mounts/).
+
+# [Model storage and credentials]($heading.id('model-storage-and-credentials'))
+
+| Storage | Variable | Default or precedence |
+| --- | --- | --- |
+| Hugging Face | `HF_TOKEN` | An explicit value takes precedence, including an empty string. When unset, the loader checks `$HOME/.cache/huggingface/token`, then uses anonymous access if no token is available. |
+| S3 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | The loader uses both keys to sign requests. If either is unset, requests are anonymous. |
+| S3 | `AWS_ENDPOINT_URL`, `AWS_ENDPOINT_URL_S3` | The first set value wins in this order. When both are unset, the endpoint is `https://s3.amazonaws.com`. |
+| S3 | `AWS_REGION`, `AWS_DEFAULT_REGION` | The first set value wins in this order. When both are unset, the region is `us-east-1`. |
+| Google Cloud Storage | `GOOGLE_APPLICATION_CREDENTIALS` | When set, the loader tries that file. When unset, it tries `$HOME/.config/gcloud/application_default_credentials.json` on Linux and macOS. With no usable file, it can try GCE metadata, then anonymous access. |
+
+Use `hf://org/repo` for a Hugging Face checkpoint. The loader defaults to the
+`main` revision. Use `hf://org/repo@revision` to select a revision. For ZML,
+`bazel run //tools/hf -- auth login` writes the token file. Use `s3://` and
+`gs://` for the corresponding object stores.
+
+The S3 loader reads the explicit access-key pair. Use a local checkpoint
+mount if your setup requires an AWS session token. The GCS loader supports
+authorized-user application default credentials and GCE metadata. Service
+account key refresh is unimplemented in the reviewed snapshot.
+
+See the pinned ZML loaders for
+[Hugging Face](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/hf.zig),
+[S3](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/s3.zig),
+and [GCS](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/gcs.zig).
+
+# [LLMD outbound proxies]($heading.id('llmd-outbound-proxies'))
+
+LLMD initializes an HTTP client for remote model access. With the reviewed
+Zig 0.17.1 toolchain, the first nonempty proxy value in each row wins.
+
+| Traffic | Precedence | Default |
+| --- | --- | --- |
+| HTTP | `http_proxy`, `HTTP_PROXY`, `all_proxy`, `ALL_PROXY` | Direct connection |
+| HTTPS | `https_proxy`, `HTTPS_PROXY`, `all_proxy`, `ALL_PROXY` | Direct connection |
+
+The precedence applies to LLMD's model-loading client. Bazel's dependency
+downloads and Docker's image pulls use their own proxy settings.
+
+# [LLMD reporting controls]($heading.id('llmd-reporting-controls'))
+
+| Variable | Default and effect |
+| --- | --- |
+| `DO_NOT_TRACK` | Unset unless configured. `DO_NOT_TRACK=1` disables crash reporting and usage statistics. |
+| `LLMD_NO_USAGE_STATS` | Unset unless configured. `LLMD_NO_USAGE_STATS=1` disables usage statistics. |
+
+Reporting configuration can vary by package. The reviewed source requires
+`SENTRY_DSN` to enable crash reporting and both `LLMD_USAGE_STATS_ENDPOINT`
+and `LLMD_POSTHOG_TOKEN` to enable usage statistics. Maintainers can override
+the packaged crash handler path with `LLMD_SENTRY_HANDLER_PATH`. See the
+[LLMD release notes](https://zml.ai/posts/llmd-20261106.0/) for the reporting
+controls documented for that release.
+
+# [Runtime diagnostics]($heading.id('runtime-diagnostics'))
+
+| Variable | Default and effect |
+| --- | --- |
+| `ZML_AUTOTUNE_CACHE_DIR` | Unset. Selects the per-fusion autotune cache directory for CUDA, ROCm, and oneAPI. For persistence in Docker, point it to a writable mounted directory. |
+| `XLA_FLAGS` | Uses the selected backend's defaults when unset. Pass supported compiler flags for the plugin shipped with your build. |
+| `TF_CPP_MIN_LOG_LEVEL` | `3` in the pinned ZML platform setup. Sets the compiler runtime log threshold. |
+| `SKIP_PJRT_PROFILER` | Unset. `true` skips nested backend profiling and keeps local host tracing. |
+| `LLMD_PROFILE_DEVICE_ONLY` | `0` when unset. `1` selects device-only tracing in LLMD. |
+| `NO_COLOR`, `CLICOLOR_FORCE` | Unset by default. A nonempty `NO_COLOR` disables logo color and takes precedence over `CLICOLOR_FORCE`. A nonempty `CLICOLOR_FORCE` requests color. |
+| `COLORTERM`, `TERM` | Supplied by the terminal. Used to select the logo's color depth. |
+| `BUILD_WORKING_DIRECTORY` | Set by `bazel run` to the caller's working directory. The ZML LLM example uses it to resolve relative paths. |
+
+On a plugin that supports HLO dumps, set
+`XLA_FLAGS="--xla_dump_to=/path/to/dumps --xla_dump_hlo_as_text"` before
+launching. Choose a writable output directory inside the runtime. See the
+[OpenXLA HLO dump guide](https://openxla.org/xla/hlo_dumps).
+
+# [Backend-specific settings]($heading.id('backend-specific-settings'))
+
+| Backend | Variable | Default or use |
+| --- | --- | --- |
+| CUDA | `LD_LIBRARY_PATH` | Supplied by the host or image. The ZML loader checks it for library paths during CUDA diagnostics. |
+| ROCm | `ROCPROFILER_LOG_LEVEL` | `error` when unset. Controls profiler logging. |
+| Intel oneAPI | `CCL_LOG_LEVEL` | `error` when unset. Controls collective library logging. |
+| AWS Neuron | `NEURON_RT_LOG_LEVEL` | `error` when unset. Controls Neuron runtime logging. |
+| AWS Neuron | `NEURON_CC_FLAGS` | Generated from the backend configuration when unset. An explicit value overrides those compiler flags. |
+| Furiosa | `FURIOSA_SDK_ROOT` | Set by the pinned loader to the packaged SDK location. |
+
+Use [Compatibility]($link.page('reference/compatibility')) to identify the
+runtime and artifact before applying backend-specific settings.

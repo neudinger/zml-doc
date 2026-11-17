@@ -1,0 +1,87 @@
+---
+.title = "LLMD quickstart on Apple Silicon",
+.description = "Install LLMD with Homebrew, serve LFM3-1.7B-FP8 on Apple Metal, and send your first chat request.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Run LLMD on your Mac's GPU and call its OpenAI-compatible chat endpoint
+from a second terminal.
+
+# [Before you start]($heading.id('before-you-start'))
+
+- Use an Apple Silicon Mac running macOS Tahoe or later, as required by
+  the [ZML Homebrew formula](https://github.com/zml/homebrew-zml/blob/master/Formula/llmd.rb).
+- Install [Homebrew](https://brew.sh/) and have `curl` and network access
+  for the LLMD installation and first checkpoint download.
+- Have enough available unified memory for the checkpoint and KV cache.
+  This guide uses the public [LFM3-1.7B-FP8 checkpoint](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8).
+
+# [1. Install LLMD]($heading.id('install-llmd'))
+
+Install the current build from ZML's tap and check the installed version.
+
+```sh
+brew install zml/zml/llmd
+brew list --versions llmd
+```
+
+On an M1 or M2, use LLMD `20261112.0` or later for the
+[Metal decode fix](https://zml.ai/posts/llmd-20261112.0/#apple-m1-and-m2-support).
+If your installation is older, run `brew update` and
+`brew upgrade zml/zml/llmd`.
+
+# [2. Start the server]($heading.id('start-the-server'))
+
+```sh
+llmd --listen=127.0.0.1:8000 \
+  --model=hf://LiquidAI/LFM3-1.7B-FP8 \
+  --batch-size=4
+```
+
+This follows the [published Apple Metal recipe](https://zml.ai/posts/llmd-20261106.0/#try-it-today)
+with an explicit loopback address that limits access to this Mac.
+Keep this terminal open while LLMD loads the checkpoint and starts listening.
+
+# [3. Check the loaded model]($heading.id('check-the-loaded-model'))
+
+In a second terminal, request the model list once the server is listening.
+
+```sh
+curl -fsS http://127.0.0.1:8000/v1/models
+```
+
+Use `data[0].id` as the `model` in your request. For this launch command,
+the expected ID is `LFM3-1.7B-FP8`.
+
+# [4. Send a chat request]($heading.id('send-a-chat-request'))
+
+```sh
+curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "LFM3-1.7B-FP8",
+    "messages": [{"role": "user", "content": "Reply with one short greeting."}]
+  }'
+```
+
+Look for the greeting in `choices[0].message.content` in the JSON response.
+Press Ctrl+C in the server terminal when you are finished.
+
+# [Troubleshooting]($heading.id('troubleshooting'))
+
+- **The connection is refused.** Check the server terminal for checkpoint
+  access, loading, or compilation errors. Retry after LLMD starts listening.
+- **Port 8000 is already in use.** Change `--listen` to `127.0.0.1:8001`
+  and use port `8001` in both requests.
+- **LLMD runs out of memory.** Retry with `--batch-size=1` to reduce the
+  number of sequences the server allocates space for.
+- **The request fails after startup.** Check the model ID returned by `/v1/models`
+  and match it exactly in the chat request.
+
+The launch command and API were checked against the published recipe and
+LLMD source. An end-to-end run on a recorded Mac is pending.
+
+# [Next steps]($heading.id('next-steps'))
+
+- [Browse Supported Models]($link.page('llmd/models')) for other Metal checkpoints.
+- [Use the LLMD API]($link.page('llmd/api')) to stream responses or call tools.

@@ -1,0 +1,66 @@
+---
+.title = "Compatibility",
+.description = "Choose a ZML build target or an LLMD artifact and checkpoint for your hardware.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Choose the product and then check the host, backend, and model together. A
+framework build setting describes which runtime can be included. A server image
+specifies its host architecture and packaged runtime. The checkpoint and its
+precision determine what the selected runtime needs to serve.
+
+# [Build with ZML]($heading.id('build-with-zml'))
+
+Start with the [ZML quickstart]($link.page('zml/quickstart')) to run the
+pretrained MNIST example on CPU. For another backend, pass
+`--@zml//platforms:<backend>=true` to Bazel. CPU is enabled by default.
+
+| Backend | Build setting | Source requirements |
+| --- | --- | --- |
+| CPU | `cpu` | Use the toolchain and host target selected by the checkout. |
+| NVIDIA CUDA | `cuda` | See the CUDA plugin and driver requirements for your build target. |
+| AMD ROCm, Google TPU, AWS Neuron, Intel oneAPI, Furiosa | `rocm`, `tpu`, `neuron`, `oneapi`, `furiosa` | Linux x86-64 in the upstream build definitions. |
+| Apple Metal | `metal` | macOS on Apple Silicon. |
+
+See the [ZML platform build definitions](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/platforms/BUILD.bazel)
+at the revision used by the quickstart. The checkout determines which backends
+and models its examples recognize.
+
+# [Serve models with LLMD]($heading.id('serve-models-with-llmd'))
+
+| Platform | Host architecture | Distribution |
+| --- | --- | --- |
+| NVIDIA CUDA | Linux amd64 or arm64 | `zmlai/llmd:cuda` · [CUDA quickstart]($link.page('llmd/quickstart')) |
+| AMD ROCm | Linux amd64 | `zmlai/llmd:rocm` |
+| Intel oneAPI | Linux amd64 | `zmlai/llmd:oneapi` |
+| Google TPU | Linux amd64 | `zmlai/llmd:tpu` |
+| Apple Metal | macOS Tahoe or later on Apple Silicon | `brew install zml/zml/llmd` · [Apple Silicon quickstart]($link.page('llmd/quickstart-apple-silicon')) |
+| Furiosa | Linux amd64 | `zmlai/llmd:furiosa` · Device setup and checkpoint validation pending. |
+
+The [Docker Hub tags](https://hub.docker.com/r/zmlai/llmd/tags) identify image
+architectures and versioned tags. See the [LLMD product page](https://zml.ai/llmd/)
+for device access options and native installation. Choose a release tag or digest
+for a deployment you need to reproduce.
+
+# [Checkpoint examples]($heading.id('checkpoint-examples'))
+
+These combinations come from the upstream LLMD release recipes. The
+[20261106.0 release](https://zml.ai/posts/llmd-20261106.0/) also lists LFM3
+support and supplies the version used by the CUDA quickstart. See
+[Supported Models]($link.page('llmd/models')) for additional checkpoints and
+backend-specific launch recipes.
+
+| Checkpoint | Precision | Backends in the published recipe | Evidence |
+| --- | --- | --- | --- |
+| [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | FP8 | CUDA, ROCm, Apple Metal | [LLMD 20261029.0](https://zml.ai/posts/llmd-20261029.0/#try-it-today) |
+| [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | BF16 | Intel oneAPI, Google TPU | [LLMD 20261029.0](https://zml.ai/posts/llmd-20261029.0/#try-it-today) |
+
+# [Verification status]($heading.id('verification-status'))
+
+The tables are source-reviewed. Local hardware runs for the quickstarts are
+pending. For a result you can reproduce, record the ZML commit, LLMD image digest,
+or installed LLMD version, along with the host OS and device, model revision and
+precision, and observed prediction or completion.
+
+See [Environment variables]($link.page('reference/environment')) for model
+credentials and backend settings.

@@ -1,0 +1,146 @@
+---
+.title = "Write your first ZML model",
+.description = "Define a tagged linear layer, compile it for CPU, and read its output back on the host.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Build a linear layer with three input features and two output scores. The
+example uses fixed weights so you can calculate the expected scores by hand.
+Use the checkout and Bazel version from the
+[ZML quickstart]($link.page('zml/quickstart')).
+
+# [1. Describe the computation]($heading.id('describe-the-computation'))
+
+The model is a Zig struct with `zml.Tensor` fields and a `forward` method.
+Each tensor describes a shape and data type. Assigning a tag to an axis lets
+the operation select that axis by name.
+
+| Tensor | Type and shape | Axis tags |
+| --- | --- | --- |
+| `input` | `f32[3]` | `feature` |
+| `weight` | `f32[2, 3]` | `output`, `feature` |
+| `bias` | `f32[2]` | `output` |
+| Result | `f32[2]` | `output` |
+
+`weight.dot(input, .feature)` sums along the three features for each weight
+row. The result has two output scores. Adding `bias` adds one value to each
+score.
+
+# [2. Compile and call the layer]($heading.id('compile-and-call-the-layer'))
+
+In your ZML checkout, create `examples/first_model/main.zig` with this code.
+
+```zig
+const std = @import("std");
+const zml = @import("zml");
+
+const Linear = struct {
+    weight: zml.Tensor,
+    bias: zml.Tensor,
+
+    pub fn forward(self: Linear, input: zml.Tensor) zml.Tensor {
+        return self.weight.dot(input, .feature).add(self.bias);
+    }
+};
+
+pub fn main(init: std.process.Init) !void {
+    const allocator = init.gpa;
+    const io = init.io;
+    const platform: *zml.Platform = try .auto(allocator, io, .{});
+    defer platform.deinit(allocator, io);
+
+    const layer: Linear = .{
+        .weight = zml.Tensor.init(.{ 2, 3 }, .f32).withTags(.{ .output, .feature }),
+        .bias = zml.Tensor.init(.{2}, .f32).withTags(.{.output}),
+    };
+    const input = zml.Tensor.init(.{3}, .f32).withTags(.{.feature});
+    var executable = try platform.compile(allocator, io, layer, .forward, .{input}, .{});
+    defer executable.deinit();
+
+    const weights = [2][3]f32{ .{ 1, 2, 3 }, .{ 4, 5, 6 } };
+    const biases = [2]f32{ 1, -1 };
+    const features = [3]f32{ 1, 2, 1 };
+    const weight_values = zml.Slice.init(layer.weight.shape(), std.mem.asBytes(&weights));
+    const bias_values = zml.Slice.init(layer.bias.shape(), std.mem.asBytes(&biases));
+    const input_values = zml.Slice.init(input.shape(), std.mem.asBytes(&features));
+
+    var weight_buffer = try zml.Buffer.fromSlice(io, platform, weight_values);
+    defer weight_buffer.deinit();
+    var bias_buffer = try zml.Buffer.fromSlice(io, platform, bias_values);
+    defer bias_buffer.deinit();
+    var input_buffer = try zml.Buffer.fromSlice(io, platform, input_values);
+    defer input_buffer.deinit();
+    const layer_buffers: zml.Bufferized(Linear) = .{
+        .weight = weight_buffer,
+        .bias = bias_buffer,
+    };
+
+    var args = try executable.args(allocator);
+    defer args.deinit(allocator);
+    args.set(.{ layer_buffers, input_buffer });
+
+    var results = try executable.results(allocator);
+    defer results.deinit(allocator);
+    executable.call(io, args, &results, .{ .wait = true });
+
+    var output_buffer = results.get(zml.Buffer);
+    defer output_buffer.deinit();
+    const scores = try output_buffer.getValue([2]f32, io);
+    std.debug.print("Scores: {d:.1}, {d:.1}\n", .{ scores[0], scores[1] });
+}
+```
+
+`platform.compile` traces `forward` using symbolic tensors and returns an
+executable for the platform. After compilation, each `zml.Slice` borrows the
+host bytes for a concrete tensor. `Buffer.fromSlice` copies those bytes into
+a platform buffer. `zml.Bufferized(Linear)` keeps the model's structure and
+places `zml.Buffer` handles in its tensor fields.
+
+The caller owns the input and weight buffers. `args.set` uses those handles
+and `results.get` retrieves the output buffer. Release each buffer once, as
+shown by the `defer` statements. Keep the platform alive until the executable
+and its buffers have been released. `getValue` copies the two scores back to
+the host.
+
+# [3. Run the model]($heading.id('run-the-model'))
+
+Add `examples/first_model/BUILD.bazel` next to the Zig file.
+
+```starlark
+load("@rules_zig//zig:defs.bzl", "zig_binary")
+
+zig_binary(
+    name = "first_model",
+    main = "main.zig",
+    deps = ["//zml"],
+)
+```
+
+From the checkout root, run the new target. The quickstart configuration
+enables CPU by default.
+
+```sh
+bazel run //examples/first_model
+```
+
+The expected output line is `Scores: 9.0, 19.0`. Those values come from the
+dot products `1 + 4 + 3` and `4 + 10 + 6`, with biases of `1` and `-1`.
+Try a different `features` array and calculate the new scores before running
+the target again.
+
+# [Load weights from a checkpoint]($heading.id('load-weights-from-a-checkpoint'))
+
+The [MNIST example](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist.zig)
+uses the same sequence for a pretrained model. It opens a Safetensors registry,
+uses `TensorStore` to create tagged weight tensors from the checkpoint shapes,
+then compiles `forward`. A loader fills the model's buffers with the weight
+data. It waits for those transfers before passing the buffers to the
+executable. The output is a predicted digit read back as `u8`.
+
+The example above follows the pinned ZML source APIs. Execution of the new
+target remains pending.
+
+# [Next steps]($heading.id('next-steps'))
+
+[Build and run with Bazel]($link.page('zml/build-and-run')) to select target
+flags or package a build for another host.

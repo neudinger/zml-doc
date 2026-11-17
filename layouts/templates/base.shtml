@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head id="site-head">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="$page.description">
+  <meta name="theme-color" content="#ffffff">
+  <title :text="$page.title"></title>
+  <link rel="icon" type="image/svg+xml" href="$site.asset('zml-mark.svg').link()">
+  <script src="$site.asset('site-theme.js').link()"></script>
+  <ctx :if="$build.development.not()">
+    <link rel="stylesheet" href="$site.index().link().addPath('pagefind/pagefind-component-ui.css')">
+    <script type="module" src="$site.index().link().addPath('pagefind/pagefind-component-ui.js')"></script>
+  </ctx>
+  <link rel="stylesheet" href="$site.asset('site.css').link()">
+  <ctx :if="$site.index().isCurrent().not()">
+    <script defer src="$site.asset('docs-navigation.js').link()"></script>
+  </ctx>
+  <super>
+</head>
+<body class="$site.index().isCurrent().then('homepage', '')" data-site-root="$site.index().link()">
+  <a class="skip-link" href="#site-content">Skip to content</a>
+  <ctx :if="$build.development.not()">
+    <pagefind-config base-url="$site.index().link()" bundle-path="$site.index().link().addPath('pagefind/')"></pagefind-config>
+  </ctx>
+  <header class="site-header">
+    <div class="page-width header-inner">
+      <a class="brand" href="$site.index().link()" aria-label="ZML documentation home">
+        <img src="$site.asset('zml-mark.svg').link()" alt="" width="32" height="32">
+        <strong>ZML</strong> <span>/ documentation</span>
+      </a>
+      <div class="header-actions">
+        <nav aria-label="Main navigation">
+          <a href="$site.page('start').link()" aria-current="$site.page('start').isCurrent().then('page', 'false')">Start</a>
+        </nav>
+        <ctx :if="$build.development.not()">
+          <pagefind-modal-trigger class="site-search" placeholder="Search docs"></pagefind-modal-trigger>
+        </ctx>
+        <button class="theme-toggle" type="button" aria-label="Night mode" aria-pressed="false" title="Night mode" hidden></button>
+      </div>
+    </div>
+    <nav class="page-width product-tabs" aria-label="Product documentation">
+      <ctx zml="$page.link().startsWith($site.page('zml').link())"
+           llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
+        <a href="$site.page('zml').link()"
+           aria-current="$site.page('zml').isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
+        <a href="$site.page('llmd').link()"
+           aria-current="$site.page('llmd').isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+      </ctx>
+    </nav>
+  </header>
+  <main id="site-content" class="$site.index().isCurrent().then('page-width', 'page-width docs-layout')" tabindex="-1">
+    <ctx :if="$site.index().isCurrent().not()">
+      <details class="docs-sidebar" open>
+        <summary>Documentation navigation</summary>
+        <nav aria-label="Documentation sidebar">
+          <ctx zml="$page.link().startsWith($site.page('zml').link())"
+               llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
+            <ctx :if="$ctx.zml">
+              <div class="sidebar-group">
+                <p class="sidebar-heading icon-book">Get started</p>
+                <ul>
+                  <li><a href="$site.page('zml').link()"
+                         aria-current="$site.page('zml').isCurrent().then('page', 'false')">Overview</a></li>
+                  <li><a href="$site.page('zml/quickstart').link()"
+                         aria-current="$site.page('zml/quickstart').isCurrent().then('page', 'false')">Quickstart</a></li>
+                  <li><a href="$site.page('zml/concepts').link()"
+                         aria-current="$site.page('zml/concepts').isCurrent().then('page', 'false')">Concepts</a></li>
+                </ul>
+              </div>
+              <div class="sidebar-group">
+                <p class="sidebar-heading icon-file">Guides</p>
+                <ul>
+                  <li><a href="$site.page('zml/first-model').link()"
+                         aria-current="$site.page('zml/first-model').isCurrent().then('page', 'false')">Write your first model</a></li>
+                  <li><a href="$site.page('zml/build-and-run').link()"
+                         aria-current="$site.page('zml/build-and-run').isCurrent().then('page', 'false')">Build and run with Bazel</a></li>
+                </ul>
+              </div>
+              <div class="sidebar-group">
+                <p class="sidebar-heading icon-code">Reference</p>
+                <ul>
+                  <li><a href="$site.page('zml/api').link()"
+                         aria-current="$site.page('zml/api').isCurrent().then('page', 'false')">API reference</a></li>
+                </ul>
+              </div>
+            </ctx>
+            <ctx :if="$ctx.llmd">
+              <div class="sidebar-group">
+                <p class="sidebar-heading icon-book">Get started</p>
+                <ul>
+                  <li><a href="$site.page('llmd').link()"
+                         aria-current="$site.page('llmd').isCurrent().then('page', 'false')">Overview</a></li>
+                  <li><a href="$site.page('llmd/quickstart').link()"
+                         aria-current="$site.page('llmd/quickstart').isCurrent().then('page', 'false')">Quickstart</a></li>
+                  <li><a href="$site.page('llmd/quickstart-apple-silicon').link()"
+                         aria-current="$site.page('llmd/quickstart-apple-silicon').isCurrent().then('page', 'false')">Apple Silicon quickstart</a></li>
+                  <li><a href="$site.page('llmd/models').link()"
+                         aria-current="$site.page('llmd/models').isCurrent().then('page', 'false')">Supported Models</a></li>
+                </ul>
+              </div>
+              <div class="sidebar-group">
+                <p class="sidebar-heading icon-code">Reference</p>
+                <ul>
+                  <li><a href="$site.page('llmd/api').link()"
+                         aria-current="$site.page('llmd/api').isCurrent().then('page', 'false')">API reference</a></li>
+                  <li><a href="$site.page('llmd/cli').link()"
+                         aria-current="$site.page('llmd/cli').isCurrent().then('page', 'false')">CLI reference</a></li>
+                </ul>
+              </div>
+              <div class="sidebar-group">
+                <p class="sidebar-heading icon-sliders">Operations</p>
+                <ul>
+                  <li><a href="$site.page('operations').link()"
+                         aria-current="$site.page('operations').isCurrent().then('page', 'false')">Operations overview</a></li>
+                  <li><a href="$site.page('operations/deployment').link()"
+                         aria-current="$site.page('operations/deployment').isCurrent().then('page', 'false')">Deploy LLMD</a></li>
+                  <li><a href="$site.page('operations/monitoring').link()"
+                         aria-current="$site.page('operations/monitoring').isCurrent().then('page', 'false')">Monitoring and troubleshooting</a></li>
+                </ul>
+              </div>
+            </ctx>
+          </ctx>
+          <div class="sidebar-group">
+            <p class="sidebar-heading icon-link">Shared</p>
+            <ul>
+              <li><a href="$site.page('start').link()"
+                     aria-current="$site.page('start').isCurrent().then('page', 'false')">Start</a></li>
+              <li><a href="$site.page('reference/compatibility').link()"
+                     aria-current="$site.page('reference/compatibility').isCurrent().then('page', 'false')">Compatibility</a></li>
+              <li><a href="$site.page('reference/environment').link()"
+                     aria-current="$site.page('reference/environment').isCurrent().then('page', 'false')">Environment variables</a></li>
+            </ul>
+          </div>
+        </nav>
+      </details>
+    </ctx>
+    <super>
+  </main>
+  <footer class="site-footer page-width">
+    <span>ZML documentation</span>
+    <a href="https://zml.ai/">ZML website</a>
+    <a href="https://github.com/zml/zml">ZML source</a>
+    <a href="https://zine-ssg.io/">Built with Zine</a>
+  </footer>
+  <ctx :if="$build.development.not()">
+    <pagefind-modal class="site-search"></pagefind-modal>
+  </ctx>
+</body>
+</html>

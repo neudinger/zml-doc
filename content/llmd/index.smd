@@ -1,0 +1,33 @@
+---
+.title = "Run models with LLMD",
+.description = "The server path: load a model and connect an application.",
+.date = .date("2026-11-06T00:00:00"),
+.layout = "content.shtml",
+---
+LLMD serves model inference to clients. Running the server and connecting to an
+existing server are separate starting points.
+
+# [Start a server]($heading.id('start-a-server'))
+
+Serve a model and send a chat request with the
+[CUDA quickstart]($link.page('llmd/quickstart')) for Docker or the
+[Apple Silicon quickstart]($link.page('llmd/quickstart-apple-silicon')) for Homebrew.
+See the [CLI reference]($link.page('llmd/cli')) for server flags and Docker options,
+and [Supported Models]($link.page('llmd/models')) to find a checkpoint and launch
+recipe for your hardware.
+
+A complete first-run procedure needs a compatible installation, an accessible
+model, an explicit model name, and a readiness check. Success means receiving a
+model response, not just observing that the process has started.
+
+# [Connect an application]($heading.id('connect-an-application'))
+
+Identify the server endpoint and exposed model name before sending a request.
+The client and server must agree on the request format and model identifier.
+Use the [API reference]($link.page('llmd/api')) to list the loaded model,
+send chat requests, and read streaming responses.
+
+# [Operate the service]($heading.id('operate-the-service'))
+
+Continue to [Operations]($link.page('operations')) for deployment concerns, or
+[compare the ecosystem projects]($link.page('start')) to choose another path.

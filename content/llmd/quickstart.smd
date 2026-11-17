@@ -1,0 +1,82 @@
+---
+.title = "LLMD quickstart",
+.description = "Start LLMD in a CUDA container and send your first chat request with curl.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Serve Liquid AI's LFM3-1.7B FP8 checkpoint on a local port, then confirm that
+LLMD can generate a reply through its OpenAI-compatible chat endpoint.
+
+# [Before you start]($heading.id('before-you-start'))
+
+Use a Linux host with an NVIDIA GPU that supports this FP8 checkpoint and has
+enough available memory to serve it. Install the NVIDIA driver, Docker, and the
+[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
+Have `curl` and network access to Docker Hub and Hugging Face. See
+[Compatibility]($link.page('reference/compatibility')) for other platforms and
+checkpoint formats.
+
+# [1. Start the server]($heading.id('start-the-server'))
+
+```sh
+docker pull zmlai/llmd:20261106.0-cuda
+docker run --rm --name llmd \
+  --gpus=all --shm-size=256GB -p 127.0.0.1:8000:8000 \
+  zmlai/llmd:20261106.0-cuda --model=hf://LiquidAI/LFM3-1.7B-FP8
+```
+
+Keep this terminal open. `--gpus=all` exposes the NVIDIA devices to the
+container. `--shm-size=256GB` sets the shared-memory limit used in the upstream
+example. The host port is bound to loopback. Docker reads arguments before the
+image name, and LLMD reads `--model` after it. LLMD loads the checkpoint
+directly from [Hugging Face](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8).
+
+# [2. Check the loaded model]($heading.id('check-the-loaded-model'))
+
+In a second terminal, query the model list after the startup logs show loading
+has finished.
+
+```sh
+curl -fsS http://127.0.0.1:8000/v1/models
+```
+
+Use the `id` in `data[0]` as the request's `model`. For this command, the
+default model ID is `LFM3-1.7B-FP8`.
+
+# [3. Send a chat request]($heading.id('send-a-chat-request'))
+
+```sh
+curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "LFM3-1.7B-FP8",
+    "messages": [{"role": "user", "content": "Reply with one short greeting."}]
+  }'
+```
+
+Look for `choices[0].message.content` in the JSON response. The generated text
+varies. If you already have an LLMD endpoint, use its URL, model ID, and any
+authentication headers required by the deployment. To stop the local example,
+press Ctrl+C in the server terminal.
+
+# [Troubleshooting]($heading.id('troubleshooting'))
+
+- **Docker cannot access the GPU.** Check that `nvidia-smi` works on the host
+  and that Docker is configured for the NVIDIA Container Toolkit.
+- **The endpoint refuses connections.** Check the startup output for model
+  access, compilation, or memory errors. Retry `/v1/models` once loading
+  completes.
+- **The request fails after startup.** Compare the request's model ID with the
+  one returned by `/v1/models`.
+
+The [release notes](https://zml.ai/posts/llmd-20261106.0/) list LFM3 support and
+the [CUDA recipe](https://zml.ai/posts/llmd-20261029.0/#nvidia) uses this
+checkpoint. Execution of this guide on a recorded GPU host is pending.
+
+# [Next steps]($heading.id('next-steps'))
+
+- [Browse Supported Models]($link.page('llmd/models')) to find recipes for
+  different checkpoints and backends.
+- [Use the LLMD API]($link.page('llmd/api')) to stream responses and call tools.
+- [Deploy LLMD with Docker]($link.page('operations/deployment')) to set up and
+  verify a service for your clients.

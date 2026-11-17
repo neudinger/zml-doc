@@ -1,0 +1,69 @@
+---
+.title = "ZML quickstart",
+.description = "Build the MNIST example with Bazel and classify a handwritten digit on your CPU.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Start with a pretrained model. Bazel fetches the example's weights and test
+images, then ZML compiles the model and predicts the digit in one image.
+
+# [Before you start]($heading.id('before-you-start'))
+
+- Use a Linux or macOS development machine with Git and internet access for the
+  first build. See [Compatibility]($link.page('reference/compatibility')) for the
+  framework's build targets.
+- Install [Bazelisk](https://github.com/bazelbuild/bazelisk#installation) as
+  `bazel` on your `PATH`. On macOS with Homebrew, run `brew install bazelisk`.
+  Bazelisk reads `.bazelversion` from the ZML checkout and selects Bazel for you.
+
+# [1. Get the ZML source]($heading.id('get-the-zml-source'))
+
+```sh
+git clone https://github.com/zml/zml.git
+cd zml
+git checkout --detach 8fcff8c462070d06056f8a85ba0c8a81f0f3a636
+```
+
+The [selected revision](https://github.com/zml/zml/commit/8fcff8c462070d06056f8a85ba0c8a81f0f3a636)
+selects Bazel 9.3.0 through `.bazelversion`. Run the remaining commands from
+the checkout root.
+
+# [2. Build and run MNIST]($heading.id('build-and-run-mnist'))
+
+```sh
+bazel build --@zml//platforms:cpu=true //examples/mnist
+bazel run --@zml//platforms:cpu=true //examples/mnist
+```
+
+`bazel build` compiles the example. `bazel run` launches it with the weights and
+test image data supplied by the target. The first build can take longer while
+Bazel downloads dependencies and compiles them.
+
+# [3. Read the prediction]($heading.id('read-the-prediction'))
+
+The program prints a handwritten digit in the terminal, followed by
+`RECOGNIZED DIGIT` and its prediction. Compare the predicted digit with the
+image. The example chooses a random image each run.
+
+To check the framework after a code change, run its test target separately.
+
+```sh
+bazel test //zml:test
+```
+
+# [Troubleshooting]($heading.id('troubleshooting'))
+
+- **`bazel` command missing.** Check that the Bazelisk executable is on `PATH`.
+  If you installed it as `bazelisk`, use that name in the commands.
+- **Repository or dependency download fails.** Read the first Bazel error for
+  the failing repository. Check access to that host, then retry the same target.
+
+This procedure follows the upstream source and CLI. Execution on a recorded
+host is pending.
+
+# [Next steps]($heading.id('next-steps'))
+
+- [Write your first ZML model]($link.page('zml/first-model')) to define, compile,
+  and run a small model.
+- [Build and run with Bazel]($link.page('zml/build-and-run')) to select a backend
+  or run an LLM example.

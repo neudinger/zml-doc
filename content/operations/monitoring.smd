@@ -1,0 +1,113 @@
+---
+.title = "Monitor and troubleshoot LLMD",
+.description = "Check service readiness, scrape Prometheus metrics, and diagnose startup and request failures.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Use the container name and port from [Deploy LLMD]($link.page('operations/deployment')).
+The examples use `llmd` and a host port bound to `127.0.0.1:8000`.
+
+# [Check startup and readiness]($heading.id('check-startup-and-readiness'))
+
+Inspect the container, its exit state, and its latest startup logs.
+
+```sh
+docker container ls -a --filter 'name=^/llmd$'
+docker inspect --format '{{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' llmd
+docker logs --timestamps --tail 200 llmd
+```
+
+Follow the startup logs with `docker logs --follow llmd`. When Docker runs
+LLMD with `--rm`, capture the startup output before Docker removes the exited
+container. Keep a stopped container while investigating its exit state and
+logs. See [Docker logs](https://docs.docker.com/reference/cli/docker/container/logs/).
+
+Check the HTTP listener and advertised model once startup has completed.
+
+```sh
+curl --max-time 5 -fsS http://127.0.0.1:8000/health
+curl --max-time 5 -fsS http://127.0.0.1:8000/v1/models
+```
+
+`/health` returns `OK` when its handler responds. Check the expected model ID in
+`/v1/models`, then send a [short chat request]($link.page('llmd/api')) and verify
+that it generates a reply before routing traffic to the instance.
+
+# [Scrape service metrics]($heading.id('scrape-service-metrics'))
+
+LLMD exposes Prometheus metrics at `/metrics`. Inspect the raw export before
+using metric names in a dashboard or alert.
+
+```sh
+curl --max-time 5 -fsS http://127.0.0.1:8000/metrics
+```
+
+For Prometheus running directly on the LLMD host, add a job under
+`scrape_configs` in [its configuration](https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config).
+
+```yaml
+scrape_configs:
+  - job_name: llmd
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['127.0.0.1:8000']
+```
+
+For a separate scraper, use a target reachable from its network and restrict
+access to the metrics route to operators.
+
+| Metric in the reviewed LLMD source | What to check |
+| --- | --- |
+| `requests_waiting`, `requests_running` | Queue depth and the number of requests already scheduled. |
+| `request_queue_time_seconds` | Time from entering the queue to first scheduling. |
+| `gen_ai_server_time_to_first_token` | Server time to first token, in seconds. |
+| `gen_ai_server_request_duration` | End-to-end server request duration, in seconds. |
+| `output_tokens_total` | Completion tokens emitted. Use a rate over time to measure throughput. |
+| `requests_finished_total` | Finished enqueued requests by outcome. Use `reason="error"` to inspect failures during generation. |
+| `requests_rejected_oom` | Requests the server rejected to avoid running out of memory. |
+
+For a job named `llmd`, use this [PromQL rate expression](https://prometheus.io/docs/prometheus/latest/querying/functions/#rate)
+for average output tokens per second by served model over five minutes.
+
+```promql
+sum by (model_name) (rate(output_tokens_total{job="llmd"}[5m]))
+```
+
+Validate the series and labels against `/metrics` for the deployed release.
+Use the queue depth alongside latency and throughput. A growing queue with
+longer waits indicates that requests are reaching the service faster than it
+can schedule them.
+
+# [Inspect accelerator usage]($heading.id('inspect-accelerator-usage'))
+
+Use [zml-smi](https://zml.ai/posts/zml-smi/) on a supported host to list
+devices, and run `zml-smi --top` to view available utilization, memory, and
+temperature readings. With CUDA, `nvidia-smi` provides a host-side device and
+driver check. Compare those readings with the LLMD queue and token metrics for
+the same time window. See the [CLI reference]($link.page('llmd/cli')) for
+benchmark and profile options and
+[Environment variables]($link.page('reference/environment')) for runtime diagnostics.
+
+# [Diagnose common failures]($heading.id('diagnose-common-failures'))
+
+| Symptom | Checks and next action |
+| --- | --- |
+| Connection refused or health check times out | Inspect startup logs and run `docker port llmd 8000/tcp` to confirm the mapping. Allow time for loading and compilation. If startup fails, resolve the first error in the logs. |
+| Checkpoint access fails | Check the URI, revision, and credential scope. For gated Hugging Face models, confirm repository access and forward `HF_TOKEN` to the container. For local weights, check the mount target and checkpoint files. See [Supported Models]($link.page('llmd/models')). |
+| Device unavailable | Check the host driver and device visibility, then confirm the image backend and Docker device options. On CUDA, use the [NVIDIA Container Toolkit sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html) to verify access from a container. Compare other backends with [Compatibility]($link.page('reference/compatibility')). |
+| Out of memory during startup | Inspect device memory and check Docker's `OOMKilled` state for a container memory kill. Compare checkpoint precision, weights, and available memory. Try a smaller compatible checkpoint if weights cannot fit. |
+| Requests exhaust memory after startup | Compare `requests_rejected_oom` with device usage and the request sizes. Reduce concurrency or context length and retest the same workload. See [batching and memory settings]($link.page('llmd/cli')). |
+| `400` with `context_length_exceeded` | Shorten the conversation, then retry the request. The configured context must accommodate the tokenized prompt, including the chat template. See the [API reference]($link.page('llmd/api')). |
+
+Record the image digest, checkpoint revision, accelerator and driver, model
+ID, relevant timestamps, and the exact error before changing settings. Remove
+tokens, credential values, and sensitive prompt or output text from shared
+logs. The commands and metrics above are source-reviewed. Live checks against
+a deployed LLMD instance remain pending.
+
+# [Next steps]($heading.id('next-steps'))
+
+- [Review LLMD server options]($link.page('llmd/cli')) when tuning batching,
+  context length, or memory use.
+- [Review runtime diagnostics]($link.page('reference/environment')) for
+  environment variables that control logging and backend behavior.

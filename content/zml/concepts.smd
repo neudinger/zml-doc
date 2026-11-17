@@ -1,0 +1,74 @@
+---
+.title = "ZML concepts",
+.description = "Understand tensors, shapes, and dimension tags in ZML, then use a named axis in a dot product.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+A ZML model describes its computation with tensors. Their shapes tell ZML
+how many values to expect, and dimension tags give meaningful names to axes.
+The examples follow the revision in the [ZML quickstart]($link.page('zml/quickstart')).
+
+# [Tensors]($heading.id('tensors'))
+
+A `zml.Tensor` represents a symbolic value, such as a model weight, an input,
+or an intermediate result. `zml.Tensor.init(.{ 2, 3 }, .f32)` declares a
+tensor with two rows, three columns, and 32-bit floating-point elements.
+During compilation, operations in `forward` describe how the model computes
+its output. At runtime, `zml.Buffer` holds the concrete weights, inputs, and
+results for the selected backend. See the
+[execution diagram]($link.page('zml').ref('follow-the-model-lifecycle')).
+
+# [Shapes]($heading.id('shapes'))
+
+`tensor.shape()` returns a `zml.Shape`. It records the element type and
+ordered dimension sizes. The **rank** is the number of axes. For a matrix
+of shape `f32[2, 3]`, axis `0` has size `2` and axis `1` has size `3`.
+
+| Shape | Rank | Elements |
+| --- | --- | --- |
+| `f32[]` | 0 (scalar) | 1 |
+| `f32[1]` | 1 (vector) | 1 |
+| `f32[2, 3]` | 2 (matrix) | 6 |
+
+Use `zml.Shape.scalar(.f32)` for the scalar and `zml.Shape.init(.{1}, .f32)`
+for the one-element vector. Call `rank()` to count the axes, `dim(0)` to read
+the size of the first axis of a non-scalar, and `dtype()` to read the element
+type.
+
+# [Dimension tags]($heading.id('dimension-tags'))
+
+A **dimension tag** names an axis. On the weight matrix below, `.output`
+names the first axis and `.feature` names the second. Pass one tag per axis
+to `withTags` in the existing axis order. Tagging preserves the order,
+sizes, and element type of the tensor.
+
+For a weight matrix tagged in this order, `weights.axis(.feature)` returns
+`1`, the axis index. `weights.dim(.feature)` returns `3`, the size of that
+axis. Named selectors let a calculation refer to the feature axis even when
+it occupies different positions in two tensors.
+
+# [A dot product over a named axis]($heading.id('tagged-dot-product'))
+
+This `forward` function expects weights of shape `f32[2, 3]` and an input of
+shape `f32[3]`. It runs as part of model compilation.
+
+```zig
+const zml = @import("zml");
+
+pub fn forward(weights: zml.Tensor, input: zml.Tensor) zml.Tensor {
+    const tagged_weights = weights.withTags(.{ .output, .feature });
+    const tagged_input = input.withTags(.{.feature});
+    return tagged_weights.dot(tagged_input, .feature);
+}
+```
+
+`dot` selects `.feature` in each tensor and sums the products across its
+three elements for each weight row. The result has shape `f32[2]` and keeps
+the `.output` tag. The contracted axes must have the same size. With batched
+inputs, `dot` pairs any other tags shared by both tensors as batch axes.
+
+# [Next steps]($heading.id('next-steps'))
+
+- [Write your first ZML model]($link.page('zml/first-model')) to compile a
+  tagged linear layer, provide its weight and input buffers, and read the scores.
+- [ZML API reference]($link.page('zml/api')) for call forms and ownership.

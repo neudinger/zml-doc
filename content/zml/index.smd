@@ -1,0 +1,63 @@
+---
+.title = "Build with ZML",
+.description = "The framework path: from a runnable example to your own model.",
+.date = .date("2026-11-06T00:00:00"),
+.layout = "content.shtml",
+---
+ZML provides the inference framework and compilation machinery for model
+applications. Its public project uses Zig, MLIR, and Bazel.
+
+Follow the [ZML quickstart]($link.page('zml/quickstart')) to build and run MNIST
+on CPU. Continue to [Build and run with Bazel]($link.page('zml/build-and-run'))
+for accelerator flags, LLM examples, and packaging.
+
+# [Follow the model lifecycle]($heading.id('follow-the-model-lifecycle'))
+
+Read [ZML concepts]($link.page('zml/concepts')) for tensors, shapes, and dimension tags.
+The [ZML API reference]($link.page('zml/api')) lists model and execution calls.
+Use the [first model guide]($link.page('zml/first-model')) to build a tagged
+linear layer and see how MNIST loads pretrained weights.
+
+```=html
+<figure class="execution-diagram" aria-label="ZML model execution">
+  <div class="execution-paths">
+    <ol class="execution-path" role="list" aria-label="Compile the model">
+      <li class="execution-node">
+        <strong>Zig model code</strong>
+        <span><code>forward</code> and symbolic tensor shapes and types</span>
+      </li>
+      <li class="execution-node">
+        <strong>Compile for the selected backend</strong>
+        <span>Trace to StableHLO and compile through PJRT</span>
+      </li>
+      <li class="execution-artifact">Executable</li>
+    </ol>
+    <ol class="execution-path" role="list" aria-label="Prepare runtime data">
+      <li class="execution-node">
+        <strong>Checkpoint weights and inputs</strong>
+        <span>Weight values from Safetensors and input data</span>
+      </li>
+      <li class="execution-node">
+        <strong>Fill backend buffers</strong>
+        <span>Load weight values and transfer inputs to the selected backend</span>
+      </li>
+      <li class="execution-artifact">Buffers</li>
+    </ol>
+  </div>
+  <div class="execution-run">
+    <strong>Run on the selected backend</strong>
+    <span>Call the executable with the weight and input buffers to produce output tensors.</span>
+  </div>
+  <figcaption>Checkpoint metadata can supply weight shapes and data types for the symbolic tensors used during compilation.</figcaption>
+</figure>
+```
+
+The [upstream ZML repository](https://github.com/zml/zml) contains examples and
+framework documentation. A reproducible procedure needs a selected source
+revision and a recorded environment.
+
+# [Choose the server path when appropriate]($heading.id('choose-the-server-path-when-appropriate'))
+
+For an application that calls a model over HTTP, continue to
+[LLMD]($link.page('llmd')). For service management, continue to
+[Operations]($link.page('operations')).

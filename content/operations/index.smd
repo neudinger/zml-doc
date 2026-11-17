@@ -1,0 +1,36 @@
+---
+.title = "Operate deployments",
+.description = "Prepare, observe, and maintain an LLMD service.",
+.date = .date("2026-11-06T00:00:00"),
+.layout = "content.shtml",
+---
+Start with [Deploy LLMD with Docker]($link.page('operations/deployment')) for
+a pinned image, readiness checks, and rollback. Use
+[Monitoring and troubleshooting]($link.page('operations/monitoring')) to
+inspect startup, service metrics, and accelerator state.
+
+# [Establish a known configuration]($heading.id('establish-a-known-configuration'))
+
+Record the server version, host operating system and architecture, accelerator
+and driver, model revision, and precision. Validate that combination before
+expanding deployment coverage.
+
+# [Separate startup from readiness]($heading.id('separate-startup-from-readiness'))
+
+Model access, storage, loading, and compilation can affect startup. A process
+that is running is not sufficient evidence that requests can succeed. Confirm
+readiness with a successful request using the configured model name.
+
+# [Observe the service and its hardware]($heading.id('observe-the-service-and-its-hardware'))
+
+Use service metrics to understand request behavior and hardware metrics to
+understand resource usage. zml-smi provides hardware diagnostics; its available
+backends must be checked separately from LLMD's inference support.
+
+# [Measure changes and retain a rollback path]($heading.id('measure-changes-and-retain-a-rollback-path'))
+
+Compare benchmark results made under declared, comparable conditions. Preserve
+the previous release and configuration so an upgrade can be reversed.
+
+Return to [LLMD]($link.page('llmd')) for the server path or
+[Start]($link.page('start')) for the ecosystem overview.
