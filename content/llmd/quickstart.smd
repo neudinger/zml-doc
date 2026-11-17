@@ -13,6 +13,9 @@ for published recipes.
   <div id="lfm3-fp8-metal"></div>
   <div id="lfm3-fp8-cuda"></div>
   <div id="lfm3-fp8-rocm"></div>
+  <div id="lfm3-bf16-metal"></div>
+  <div id="lfm3-bf16-cuda"></div>
+  <div id="lfm3-bf16-rocm"></div>
   <div id="lfm3-oneapi"></div>
   <div id="lfm3-tpu"></div>
   <div id="lfm3-furiosa"></div>
@@ -21,6 +24,12 @@ for published recipes.
   <div id="qwen3-8-27b-rocm"></div>
   <div id="qwen3-8-27b-oneapi"></div>
   <div id="qwen3-8-27b-tpu"></div>
+  <div id="qwen3-8-27b-nvfp4-metal"></div>
+  <div id="qwen3-8-flash-next-cuda"></div>
+  <div id="qwen3-8-flash-next-rocm"></div>
+  <div id="deepseek-v4-1-flash-cuda"></div>
+  <div id="deepseek-v4-1-flash-rocm"></div>
+  <div id="mistral-large-4-cuda"></div>
   <div id="gemma-4-31b-it-cuda"></div>
   <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
   <div class="llmd-launch-layout">
@@ -46,6 +55,10 @@ for published recipes.
             <option>LiquidAI/LFM3-1.7B</option>
             <option>Qwen/Qwen3.8-27B</option>
             <option>Qwen/Qwen3.8-27B-FP8</option>
+            <option>nvidia/Qwen3.8-27B-NVFP4</option>
+            <option>Qwen/Qwen3.8-Flash-Next</option>
+            <option>deepseek-ai/DeepSeek-V4.1-Flash</option>
+            <option>mistralai/Mistral-Large-4-1T-A52B</option>
             <option>google/gemma-4-31B-it</option>
             <option>meta-llama/Llama-3.1-8B-Instruct</option>
             <option>Qwen/Qwen3.5-9B</option>
@@ -115,7 +128,7 @@ for published recipes.
               <div class="llmd-launch-field" data-container-listener hidden>
                 <label for="llmd-launch-listen-port">Container listen port (<code>--listen</code>)</label>
                 <input id="llmd-launch-listen-port" name="listenPort" type="text" inputmode="numeric" value="8000" aria-required="true" aria-describedby="llmd-launch-listen-port-hint llmd-launch-listen-port-error">
-                <span class="llmd-launch-field-hint" id="llmd-launch-listen-port-hint">Whole number from 1 to 65535. LLMD listens on 0.0.0.0 inside Docker. Verify and Chat use the host port.</span>
+                <span class="llmd-launch-field-hint" id="llmd-launch-listen-port-hint">Whole number from 1 to 65535. LLMD listens on 0.0.0.0 inside Docker. The requests below use the host port.</span>
                 <span class="llmd-launch-field-error" id="llmd-launch-listen-port-error" data-field-error="listenPort" aria-live="polite"></span>
               </div>
             </div>
@@ -149,7 +162,7 @@ for published recipes.
                   <option value="32g">32 GiB</option>
                   <option value="256g">256 GiB</option>
                 </select>
-                <span class="llmd-launch-field-hint" id="llmd-launch-shm-hint">Use the recipe or Docker default, or choose 1, 8, 32, or 256 GiB.</span>
+                <span class="llmd-launch-field-hint" id="llmd-launch-shm-hint" data-shm-hint>Use the recipe or Docker default, or choose 1, 8, 32, or 256 GiB.</span>
               </div>
             </div>
           </fieldset>
@@ -196,13 +209,10 @@ for published recipes.
         <button type="button" data-command-choice="download" aria-controls="download-checkpoint" aria-pressed="false" hidden>Download</button>
         <button type="button" data-command-choice="drafter-download" aria-controls="download-drafter" aria-pressed="false" hidden>Drafter</button>
         <button type="button" data-command-choice="launch" aria-controls="llmd-launch-steps" aria-pressed="true">Launch</button>
-        <button type="button" data-command-choice="models" aria-controls="check-the-loaded-model" aria-pressed="false">Verify</button>
-        <button type="button" data-command-choice="chat" aria-controls="send-a-chat-request" aria-pressed="false">Chat</button>
       </div>
-      <dl class="llmd-launch-context" aria-label="Selected endpoint and model">
+      <dl class="llmd-launch-context" aria-label="Server connection">
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
         <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
-        <div><dt>Model ID</dt><dd><code data-expected-model-id>LFM3-1.7B-FP8</code></dd></div>
       </dl>
       <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the fields with errors to update the affected commands.</p>
       <section id="download-checkpoint" data-command-panel="download" data-pagefind-ignore hidden>
@@ -221,11 +231,11 @@ for published recipes.
           <pre><code class="sh" data-command="drafter-download"></code></pre>
         </div>
       </section>
-      <section id="llmd-launch-steps" data-command-panel="launch" aria-label="Launch commands">
+      <section id="llmd-launch-steps" data-command-panel="launch" aria-label="Launch commands" tabindex="-1">
         <details id="before-you-start" class="llmd-launch-requirements">
           <summary>Before you run</summary>
           <p data-requirements>Use Apple Silicon, macOS Tahoe or later, and Homebrew. Use LLMD 20261112.0 or later on M1 and M2.</p>
-          <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Run Verify and Chat from the TPU VM using the host port.</p>
+          <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Run the model check and chat request from the TPU VM using the host port.</p>
           <p data-furiosa-requirements hidden>Set up <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html">Furiosa container device access</a> for <code>npu0</code>. The command uses the documented unconfined seccomp option to allow the RNGD driver's <code>io_uring</code> calls.</p>
         </details>
         <div class="llmd-launch-step">
@@ -245,27 +255,29 @@ for published recipes.
   --model=hf://LiquidAI/LFM3-1.7B-FP8 \
   --model-name=LFM3-1.7B-FP8 --batch-size=4</code></pre>
           </div>
-          <p class="llmd-launch-hint" data-launch-ready>Wait until LLMD finishes loading before running the verification command.</p>
         </div>
       </section>
-      <section id="check-the-loaded-model" data-command-panel="models">
-        <h2>Check the loaded model</h2>
-        <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Compare <code>data[0].id</code> with the model ID shown above.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="models">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
-        </div>
-      </section>
-      <section id="send-a-chat-request" data-command-panel="chat">
-        <h2>Send a chat request</h2>
-        <p class="llmd-launch-hint">Run this after verification. Look for the reply in <code>choices[0].message.content</code>.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="chat">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+      <div class="llmd-launch-requests">
+        <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
+        <section id="check-the-loaded-model">
+          <h2><span class="llmd-launch-step-number">3</span> Check the loaded model</h2>
+          <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Expect <code data-expected-model-id>LFM3-1.7B-FP8</code> in <code>data[0].id</code>.</p>
+          <div class="command-shell">
+            <span class="command-language icon-code">Host shell</span>
+            <pre><code class="sh" data-command="models" data-copy-label="Copy model check command">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
+          </div>
+        </section>
+        <section id="send-a-chat-request">
+          <h2><span class="llmd-launch-step-number">4</span> Send a chat request</h2>
+          <p class="llmd-launch-hint">Run this after verification. Look for the reply in <code>choices[0].message.content</code>.</p>
+          <div class="command-shell">
+            <span class="command-language icon-code">Host shell</span>
+            <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{"model":"LFM3-1.7B-FP8","messages":[{"role":"user","content":"Reply with one short greeting."}]}'</code></pre>
-        </div>
-      </section>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 </div>
@@ -309,11 +321,11 @@ and [passing variables and credential files to Docker]($link.page('reference/env
 # [Troubleshooting]($heading.id('troubleshooting'))
 
 - **The connection is refused.** Check the startup output for model access,
-  compilation, or memory errors. Retry Verify once LLMD starts listening.
-- **The port is in use.** Change Host port in Launch options. Verify and Chat
-  use the same port.
-- **The request fails.** Compare the ID returned by Verify with the model ID
-  in Chat.
+  compilation, or memory errors. Retry the model check once LLMD starts listening.
+- **The port is in use.** Change Host port in Launch options. Both requests
+  update to use that port.
+- **The chat request fails.** Compare the ID returned by the model check with
+  the model ID in the chat request.
 - **LLMD runs out of memory.** Check the checkpoint and accelerator
   [requirements]($link.page('reference/compatibility')). Try a smaller
   checkpoint or reduce batch size in Launch options.

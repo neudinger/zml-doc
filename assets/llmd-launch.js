@@ -14,27 +14,31 @@
       requirements: "Use Linux x86-64 with the Furiosa RNGD driver, Docker with CDI enabled, and /dev/dma_heap/system available on the host.",
     },
   };
+  const lfm3Bf16DockerEvidence = "Tested upstream with BF16 weights. The Docker command is adapted from the published FP8 recipe.";
   const presets = [
     { id: "lfm3-fp8-metal", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "metal", batchSize: 4 },
     { id: "lfm3-fp8-cuda", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "cuda" },
     { id: "lfm3-fp8-rocm", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "rocm" },
+    { id: "lfm3-bf16-metal", checkpoint: "LiquidAI/LFM3-1.7B", backend: "metal", batchSize: 1, evidence: "Benchmarked upstream with this BF16 checkpoint on M3 Max." },
+    { id: "lfm3-bf16-cuda", checkpoint: "LiquidAI/LFM3-1.7B", backend: "cuda", evidence: lfm3Bf16DockerEvidence },
+    { id: "lfm3-bf16-rocm", checkpoint: "LiquidAI/LFM3-1.7B", backend: "rocm", evidence: lfm3Bf16DockerEvidence },
     { id: "lfm3-oneapi", checkpoint: "LiquidAI/LFM3-1.7B", backend: "oneapi" },
     { id: "lfm3-tpu", checkpoint: "LiquidAI/LFM3-1.7B", backend: "tpu" },
-    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", batchSize: 1 },
+    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", batchSize: 1, evidence: "Tested upstream on Furiosa. Docker recipe pending hardware validation." },
     { id: "qwen3-8-27b-fp8-metal", checkpoint: "Qwen/Qwen3.8-27B-FP8", backend: "metal", batchSize: 1 },
     { id: "qwen3-8-27b-cuda", checkpoint: "Qwen/Qwen3.8-27B", backend: "cuda", dspine: true },
     { id: "qwen3-8-27b-rocm", checkpoint: "Qwen/Qwen3.8-27B", backend: "rocm", dspine: true },
     { id: "qwen3-8-27b-oneapi", checkpoint: "Qwen/Qwen3.8-27B", backend: "oneapi" },
     { id: "qwen3-8-27b-tpu", checkpoint: "Qwen/Qwen3.8-27B", backend: "tpu" },
+    { id: "qwen3-8-27b-nvfp4-metal", checkpoint: "nvidia/Qwen3.8-27B-NVFP4", backend: "metal", batchSize: 1 },
+    { id: "qwen3-8-flash-next-cuda", checkpoint: "Qwen/Qwen3.8-Flash-Next", backend: "cuda" },
+    { id: "qwen3-8-flash-next-rocm", checkpoint: "Qwen/Qwen3.8-Flash-Next", backend: "rocm" },
+    { id: "deepseek-v4-1-flash-cuda", checkpoint: "deepseek-ai/DeepSeek-V4.1-Flash", backend: "cuda" },
+    { id: "deepseek-v4-1-flash-rocm", checkpoint: "deepseek-ai/DeepSeek-V4.1-Flash", backend: "rocm" },
+    { id: "mistral-large-4-cuda", checkpoint: "mistralai/Mistral-Large-4-1T-A52B", backend: "cuda", shm: "32GB" },
   ];
   const gemmaPreset = { id: "gemma-4-31b-it-cuda", checkpoint: "google/gemma-4-31B-it", backend: "cuda" };
-  const stepFragments = {
-    "before-you-start": "launch",
-    "install-llmd": "launch",
-    "start-the-server": "launch",
-    "check-the-loaded-model": "models",
-    "send-a-chat-request": "chat",
-  };
+  const launchFragments = ["before-you-start", "install-llmd", "start-the-server"];
   const overrides = [
     ["context", "max-context-len"],
     ["batch", "batch-size"],
@@ -267,22 +271,22 @@
     function applyFragment() {
       const fragment = window.location.hash.slice(1);
       applyPreset(fragment);
-      if (Object.hasOwn(stepFragments, fragment)) activeCommand = stepFragments[fragment];
+      if (launchFragments.includes(fragment)) activeCommand = "launch";
       if (fragment === "before-you-start") {
         const requirements = part("requirements")?.closest("details");
         if (requirements) requirements.open = true;
       }
     }
 
-    function showCommands(commands, available, errors) {
+    function showCommands(commands, available) {
       const focus = document.activeElement;
       const focusedButton = commandButtons.find(button => button === focus);
       const focusedPanel = Object.values(commandPanels).find(panel => panel.contains(focus));
-      const focusedShell = focusedPanel && focus.closest(".command-shell");
-      const canShow = key => Boolean(commands[key] || (key === "launch" && commands.setup));
-      if (!canShow(activeCommand)) {
-        activeCommand = canShow("launch") ? "launch" : Object.keys(commandPanels).find(canShow) ?? "launch";
-      }
+      const focusedShell = root.contains(focus) ? focus.closest(".command-shell") : null;
+      const canShow = key => key === "launch" || Boolean(commands[key]);
+      if (!canShow(activeCommand)) activeCommand = "launch";
+      const hasChoices = available.download || available["drafter-download"];
+      show("command-choices", hasChoices);
       let activeButton;
       for (const button of commandButtons) {
         const key = button.dataset.commandChoice;
@@ -294,9 +298,8 @@
         if (active) activeButton = button;
       }
       for (const code of codeBlocks) updateCode(code, commands[code.dataset.command]);
-      if ((focusedButton && (focusedButton.hidden || focusedButton.disabled)) || focusedPanel?.hidden || focusedShell?.hidden) {
-        const invalidField = Object.keys(errors).find(name => errors[name]);
-        const destination = activeButton?.disabled && invalidField ? field(invalidField) : activeButton;
+      if ((focusedButton && (!hasChoices || focusedButton.hidden || focusedButton.disabled)) || focusedPanel?.hidden || focusedShell?.hidden) {
+        const destination = hasChoices ? activeButton : commandPanels.launch;
         destination?.focus();
       }
     }
@@ -310,6 +313,7 @@
       const checkpoint = checkpointField.value;
       const preset = presets.find(item => item.checkpoint === checkpoint && item.backend === backend);
       const defaultBatch = preset?.batchSize;
+      const recipeShm = preset?.shm ?? backendOptions.shm;
       const supportsDspine = !!preset?.dspine;
       if (!supportsDspine) dspineField.checked = false;
       dspineField.disabled = !supportsDspine;
@@ -353,12 +357,12 @@
       const loopback = listenAddress === "[::]" ? "[::1]" : "127.0.0.1";
       const clientAddress = listenAddress === "0.0.0.0" || listenAddress === "[::]" ? loopback : listenAddress;
       const endpoint = clientAddress && !errors.port ? clientAddress + ":" + Number(settings.port) : "";
-      const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true, models: true, chat: true };
+      const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true };
       const image = native ? "" : "zmlai/llmd:" + backend;
       let launch = "";
       if (!hasErrors) {
         launch = native ? nativeLaunchCommand(settings, listener, defaultBatch)
-          : dockerLaunchCommand(settings, image, backendOptions, listener, defaultBatch);
+          : dockerLaunchCommand(settings, image, { ...backendOptions, shm: recipeShm }, listener, defaultBatch);
       }
       const commands = {
         download: available.download && !errors.directory ? downloadCommand(settings) : "",
@@ -380,24 +384,25 @@
       show("container-listener", !hostListener);
       for (const element of root.querySelectorAll("[data-docker]")) element.hidden = native;
       show("error", hasErrors);
+      show("request-error", !endpoint);
       setText("setup-title", native ? "Install LLMD" : "Pull the LLMD image");
       setText("setup-hint", native ? "Run once to install LLMD with Homebrew." : "Run to download or refresh the image for this backend.");
+      setText("shm-hint", (recipeShm ? "Recipe setting passes --shm-size=" + recipeShm + "." : "Recipe setting uses the Docker default.")
+        + " You can choose the Docker default or 1, 8, 32, or 256 GiB.");
       setText("launch-hint", hasErrors ? "Server command unavailable until the launch settings are valid." : "Run each time you start the server.");
-      show("launch-ready", !hasErrors);
       setText("hint", source === "hub"
         ? "LLMD reads the checkpoint from Hugging Face at startup."
         : native ? "Use the checkpoint directory directly on this Mac."
           : "Mount the checkpoint directory read-only from the Docker host.");
       setText("requirements", backendOptions.requirements);
       setText("selected-checkpoint", checkpoint);
-      setText("fit", !preset ? "Confirm compatibility for this checkpoint and run target."
-        : furiosa ? "Tested upstream on Furiosa. Docker recipe pending hardware validation."
-          : "Published recipe for this checkpoint and accelerator.");
+      setText("fit", preset ? preset.evidence ?? "Published recipe for this checkpoint and accelerator."
+        : "Confirm compatibility for this checkpoint and run target.");
       setText("endpoint", listener || "Enter a valid listener");
       setText("client-endpoint", endpoint || "Enter a valid host port");
       for (const element of root.querySelectorAll("[data-connect]")) element.hidden = hostListener && listener === endpoint;
       setText("expected-model-id", servedModelName(checkpoint));
-      showCommands(commands, available, errors);
+      showCommands(commands, available);
     }
 
     form.addEventListener("submit", event => event.preventDefault());
@@ -427,6 +432,5 @@
     setText("drafter-directory", drafterDirectory);
     render();
     form.hidden = false;
-    show("command-choices", true);
   }
 })();

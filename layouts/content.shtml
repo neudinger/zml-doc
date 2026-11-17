@@ -13,6 +13,9 @@
   <ctx :if="$page.content().contains('data-llmd-launch')">
     <script defer src="$site.asset('llmd-launch.js').link()"></script>
   </ctx>
+  <ctx :if="$page.content().contains('data-model-catalog')">
+    <script defer src="$site.asset('model-catalog.js').link()"></script>
+  </ctx>
 </head>
 <main id="site-content">
   <article class="document">
