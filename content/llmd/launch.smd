@@ -159,7 +159,7 @@ repositories, see [Hugging Face credentials]($link.page('reference/environment')
       </details>
     </form>
     <div class="llmd-launch-commands">
-      <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the fields with errors to generate the launch and chat commands.</p>
+      <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the fields with errors to generate the launch and API commands.</p>
       <section data-download-step>
         <h2>Download checkpoint</h2>
         <div class="command-shell">
@@ -201,9 +201,18 @@ repositories, see [Hugging Face credentials]($link.page('reference/environment')
 </code></pre>
         </div>
       </section>
+      <section data-models-step>
+        <h2>Check the loaded model</h2>
+        <p>After LLMD finishes loading, run this in a second terminal on the Docker host.</p>
+        <div class="command-shell">
+          <span class="command-language icon-code">Host shell</span>
+          <pre><code class="sh" data-command="models">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
+        </div>
+        <p>Confirm that <code>data[0].id</code> in the response is <code data-expected-model-id>gemma-4-31B-it</code>.</p>
+      </section>
       <section data-chat-step>
         <h2>Send a first chat request</h2>
-        <p>After LLMD finishes loading the model, run this in a second terminal on the Docker host. Look for <code>choices[0].message.content</code> in the response.</p>
+        <p>After the model check succeeds, run this in the same terminal. Look for <code>choices[0].message.content</code> in the response.</p>
         <div class="command-shell">
           <span class="command-language icon-code">Host shell</span>
           <pre><code class="sh" data-command="chat">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -224,6 +233,6 @@ repositories, see [Hugging Face credentials]($link.page('reference/environment')
 </div>
 ```
 
-See the Docker quickstart for [startup checks]($link.page('llmd/quickstart').ref('check-the-loaded-model')),
+See the Docker quickstart for [startup troubleshooting]($link.page('llmd/quickstart').ref('troubleshooting')),
 the [CLI reference]($link.page('llmd/cli')) for more flags, and
 [Deployment]($link.page('operations/deployment')) for pinned images and readiness checks.

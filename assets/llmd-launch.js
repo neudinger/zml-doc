@@ -87,6 +87,10 @@
     return checkpoint.split("/").at(-1);
   }
 
+  function localApiUrl(port, endpoint) {
+    return "http://127.0.0.1:" + Number(port) + "/v1/" + endpoint;
+  }
+
   function launchCommand(settings, image, backendOptions) {
     const { backend, checkpoint, directory, source, revision } = settings;
     const localCheckpoint = source !== "hub";
@@ -140,7 +144,7 @@
       messages: [{ role: "user", content: "Reply with one short greeting." }],
     }, null, 2);
     return [
-      "curl -fsS http://127.0.0.1:" + Number(port) + "/v1/chat/completions",
+      "curl -fsS " + localApiUrl(port, "chat/completions"),
       "  -H 'Content-Type: application/json'",
       "  -d " + shellQuote(payload.replaceAll("\n", "\n  ")),
     ].join(continuation);
@@ -158,6 +162,7 @@
     const download = root.querySelector('code[data-command="download"]');
     const drafterDownload = root.querySelector('code[data-command="drafter-download"]');
     const launch = root.querySelector('code[data-command="launch"]');
+    const models = root.querySelector('code[data-command="models"]');
     const chat = root.querySelector('code[data-command="chat"]');
     const checkpointField = form.elements.namedItem("checkpoint");
     const backendField = form.elements.namedItem("backend");
@@ -239,6 +244,7 @@
       part("download-step").hidden = !showDownload;
       part("drafter-download-step").hidden = !showDrafterDownload;
       part("launch-output").hidden = hasErrors;
+      part("models-step").hidden = hasErrors;
       part("chat-step").hidden = hasErrors;
       part("error").hidden = !hasErrors;
       part("hint").textContent = sourceNotes[source];
@@ -251,6 +257,8 @@
       updateCode(drafterDownload, showDrafterDownload
         ? downloadCommand({ checkpoint: drafterCheckpoint, directory: drafterDirectory }) : "");
       updateCode(launch, hasErrors ? "" : launchCommand(settings, image, backendOptions));
+      updateCode(models, hasErrors ? "" : "curl -fsS " + localApiUrl(settings.port, "models"));
+      part("expected-model-id").textContent = hasErrors ? "" : servedModelName(checkpoint);
       updateCode(chat, hasErrors ? "" : chatCommand(settings));
     }
 
