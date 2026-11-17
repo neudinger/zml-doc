@@ -8,6 +8,11 @@
       lookbehind: true,
       alias: "function",
     },
+    "zml-backend-flag": {
+      pattern: /(^|[ \t])--@zml\/\/platforms:[a-z]+=(?:true|false)(?=\s|$)/m,
+      lookbehind: true,
+      alias: "attr-name",
+    },
   });
 
   function appendTokens(parent, tokens) {

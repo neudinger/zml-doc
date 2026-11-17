@@ -1,6 +1,6 @@
 ---
 .title = "ZML quickstart",
-.description = "Build the MNIST example with Bazel and classify a handwritten digit on your CPU.",
+.description = "Build the MNIST example with Bazel and classify a handwritten digit on your chosen backend.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 ---
@@ -30,9 +30,21 @@ the checkout root.
 
 # [2. Build and run MNIST]($heading.id('build-and-run-mnist'))
 
-```sh
-bazel build --@zml//platforms:cpu=true //examples/mnist
-bazel run --@zml//platforms:cpu=true //examples/mnist
+```=html
+<div class="bazel-platforms" data-bazel-target="//examples/mnist">
+  <p class="bazel-platform-host" role="status">Linux x86-64 or macOS (Intel or Apple Silicon). CPU is enabled by default.</p>
+  <div class="bazel-platform-shell">
+    <span class="bazel-platform-language icon-code">Shell</span>
+    <pre><code class="sh">bazel build \
+  --@zml//platforms:cpu=true \
+  //examples/mnist
+
+bazel run \
+  --@zml//platforms:cpu=true \
+  //examples/mnist
+</code></pre>
+  </div>
+</div>
 ```
 
 `bazel build` compiles the example. `bazel run` launches it with the weights and

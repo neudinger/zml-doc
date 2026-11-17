@@ -125,6 +125,7 @@ pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
 .homepage h2#serve-models-with-llmd { --icon: url("icons/server.svg"); }
 .sidebar-heading::before,
 .prose h2::before,
+.bazel-platform-language::before,
 .theme-toggle::before {
   content: "";
   display: inline-block;
@@ -134,7 +135,8 @@ pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
   mask: var(--icon) center / contain no-repeat;
 }
 .sidebar-heading::before,
-.prose h2::before { margin-inline-end: 0.45rem; vertical-align: -0.13em; }
+.prose h2::before,
+.bazel-platform-language::before { margin-inline-end: 0.45rem; vertical-align: -0.13em; }
 .prose h2::before { inline-size: 1.25rem; block-size: 1.25rem; }
 .sidebar-group ul { list-style: none; margin: 0; padding: 0; }
 .sidebar-group a { display: block; border-radius: 0.25rem; padding: 0.38rem 0.65rem; }
@@ -206,11 +208,78 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   overflow: hidden;
   clip-path: inset(50%);
 }
+.bazel-platform-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.bazel-platform-tabs legend {
+  margin-block-end: 0.25rem;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.bazel-platform-tab { position: relative; cursor: pointer; }
+.bazel-platform-tab input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  clip-path: inset(50%);
+}
+.bazel-platform-tab span {
+  display: grid;
+  place-items: center;
+  min-block-size: 2rem;
+  padding-inline: 0.55rem;
+  border-block-end: 2px solid transparent;
+  border-radius: 0.25rem 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.bazel-platform-tab:hover span, .bazel-platform-tab input:checked + span {
+  background: var(--selection);
+  color: var(--accent);
+}
+.bazel-platform-tab input:checked + span {
+  border-image: linear-gradient(90deg, var(--neon)) 1;
+}
+.bazel-platform-tab input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
+.bazel-platform-shell { position: relative; }
+.bazel-platform-shell .code-block { margin-block: 0; }
+.prose .bazel-platform-shell pre {
+  margin-block: 0;
+  padding: 3.1rem 0.75rem 0.75rem;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+.bazel-platform-language {
+  position: absolute;
+  z-index: 1;
+  inset: 1px 1px auto;
+  padding: 0.55rem 0.75rem;
+  border-block-end: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+  pointer-events: none;
+}
+.bazel-platform-language::before { background: currentColor; }
 .prose pre code .token:is(.keyword, .boolean, .constant, .important) { color: var(--code-keyword); }
 .prose pre code .token:is(.string, .char, .attr-value) { color: var(--code-string); }
 .prose pre code .token:is(.number, .duration) { color: var(--code-number); }
 .prose pre code .token:is(.function, .builtin, .class-name, .property, .key, .attr-name, .variable) { color: var(--code-name); }
 .prose pre code .token:is(.comment, .shebang) { color: var(--code-comment); }
+.prose .bazel-platform-shell .token.zml-command { color: var(--code-keyword); }
 .prose blockquote { margin-inline: 0; padding-left: 1.25rem; border-left: 3px solid var(--accent); color: var(--muted); }
 .prose table { width: 100%; border-collapse: collapse; }
 .prose th, .prose td { text-align: left; vertical-align: top; padding: 0.65rem; border-bottom: 1px solid var(--border); }
@@ -320,6 +389,11 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 
 @media (forced-colors: active) {
   .product-tabs a[aria-current="page"], .product-tabs a[aria-current="location"] { border-image: none; border-block-end-color: Highlight; }
+  .bazel-platform-tab input:checked + span { border-image: none; border-block-end-color: Highlight; }
   .sidebar-group a[aria-current="page"] { outline: 1px solid Highlight; }
   .theme-toggle::before { forced-color-adjust: none; background: ButtonText; }
+}
+
+@media (pointer: coarse) {
+  .bazel-platform-tab span { min-block-size: 44px; }
 }

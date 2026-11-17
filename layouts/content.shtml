@@ -1,5 +1,8 @@
 <extend template="base.shtml">
 <head id="site-head">
+  <ctx :if="$page.content().contains('data-bazel-target=')">
+    <script defer src="$site.asset('bazel-platforms.js').link()"></script>
+  </ctx>
   <ctx :if="$page.content().contains('<pre><code')">
     <script defer src="$site.asset('code-copy.js').link()"></script>
   </ctx>
