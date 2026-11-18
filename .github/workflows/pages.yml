@@ -55,6 +55,25 @@ jobs:
         id: pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
 
+      - name: Prefetch Zine dependencies from GitHub
+        run: |
+          # These GitHub commits match the Codeberg revisions pinned by Zine.
+          fetch_package() {
+            local url="$1" expected_hash="$2" actual_hash
+
+            actual_hash=$(zig fetch "$url")
+            if [[ "$actual_hash" != "$expected_hash" ]]; then
+              printf 'Zig package hash mismatch for %s\nExpected: %s\nActual: %s\n' \
+                "$url" "$expected_hash" "$actual_hash" >&2
+              return 1
+            fi
+          }
+
+          fetch_package 'git+https://github.com/Vexu/arocc#0871ead15c976711d98d302a601af3568703ee51' \
+            aro-0.0.0-JSD1QhOCNwCW5o94op15fl8SHmCMJbBf1cSWXUcpicml
+          fetch_package 'git+https://github.com/ziglang/translate-c#5c31f38abf3aba28535ea545a2f393716c553d2c' \
+            translate_c-0.0.0-Q_BUWo5NBwB68fI9lsRU6WtgtSy9jS5M3hCFAjSrnY78
+
       - name: Build the site
         env:
           PAGES_ORIGIN: ${{ steps.pages.outputs.origin }}
