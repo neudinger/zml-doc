@@ -1,0 +1,90 @@
+name: Deploy GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - name: Check out the site
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install Zig 0.17.0
+        env:
+          ZIG_VERSION: 0.17.0
+          # Official checksum from https://ziglang.org/download/index.json.
+          ZIG_SHA256: 1cbe9df9f27e6b78d14ccbca43b6703a404ef79ef1c463de901d7f088d4e2026
+        run: |
+          archive="zig-x86_64-linux-${ZIG_VERSION}.tar.xz"
+          curl --fail --silent --show-error --location \
+            "https://ziglang.org/download/${ZIG_VERSION}/${archive}" \
+            --output "$RUNNER_TEMP/$archive"
+          echo "$ZIG_SHA256  $RUNNER_TEMP/$archive" | sha256sum --check --status
+          tar -xf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/zig-x86_64-linux-${ZIG_VERSION}" >> "$GITHUB_PATH"
+
+      - name: Install Pagefind 1.6.0
+        env:
+          PAGEFIND_VERSION: 1.6.0
+          # Checksum from the official Pagefind release assets.
+          PAGEFIND_SHA256: 004d40c9a644c995dadc42b8031196c6f17e7a6dacf9a6c15c63286dd6ead5f2
+        run: |
+          archive="pagefind-v${PAGEFIND_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+          curl --fail --silent --show-error --location \
+            "https://github.com/Pagefind/pagefind/releases/download/v${PAGEFIND_VERSION}/${archive}" \
+            --output "$RUNNER_TEMP/$archive"
+          echo "$PAGEFIND_SHA256  $RUNNER_TEMP/$archive" | sha256sum --check --status
+          mkdir -p "$RUNNER_TEMP/pagefind-bin"
+          tar -xf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/pagefind-bin"
+          echo "$RUNNER_TEMP/pagefind-bin" >> "$GITHUB_PATH"
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+
+      - name: Build the site
+        env:
+          PAGES_ORIGIN: ${{ steps.pages.outputs.origin }}
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          sed "/^    \.host_url = /c\\
+              .host_url = \"$PAGES_ORIGIN\",\\
+              .url_path_prefix = \"${PAGES_BASE_PATH#/}\"," zine.ziggy > zine.pages.ziggy
+          mv zine.pages.ziggy zine.ziggy
+          zig build --summary all
+
+      - name: Test the site
+        run: zig build test --summary all
+
+      - name: Upload the website
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

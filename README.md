@@ -39,9 +39,12 @@ run `zig build` and serve `dist/` over HTTP. With the default site prefix, use
 `zig build check` explicitly rebuilds and validates the output. `zig build test`
 also checks failure cases and preservation of the previous build.
 
-The configuration uses a local host URL. Set `host_url` and, if needed,
-`url_path_prefix` in `zine.ziggy` before deployment. Publish all of `dist/`,
-including `dist/pagefind/`, under that prefix. No hosting is configured.
+## Publish to GitHub Pages
+
+Set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**.
+Run **Deploy GitHub Pages** from the **Actions** tab on `main`. The workflow
+builds and tests the site using the configured Pages URL, then deploys `dist/`
+including the Pagefind search index. Local builds use the URL in `zine.ziggy`.
 
 ## Directory layout
 
