@@ -1,0 +1,45 @@
+---
+.title = "Batching and memory",
+.description = "Set request concurrency, context length, and the memory budget for the KV cache.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "CLI Reference" },
+---
+These defaults come from the LLMD source reviewed on 16 November 2026.
+
+# [Batching and context length]($heading.id('batching-context-and-memory'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--batch-size=<requests>` | `16` | Limit concurrent requests in a batch. |
+| `--token-batch-size=<tokens>` | `1024` | Limit the number of tokens processed in one inference step. |
+| `--max-context-len=<tokens>` | `128000` | Set the server context cap. Check the checkpoint limit and memory available. |
+| `--prefill-chunk-size=<tokens>` | `256` | Limit the prefill chunk for each sequence. |
+
+# [KV-cache pages and memory limits]($heading.id('kv-cache-and-memory-limits'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--page-chunk-size=<tokens>` | `16` | Set the number of tokens per KV-cache page. |
+| `--gpu-memory-fraction=<fraction>` | `0.9` | Set an allocator limit on CUDA, ROCm, oneAPI, and Metal. Accepted values are greater than `0` and at most `1`. |
+| `--cache-memory-fraction=<fraction>` | `0.95` | Scale the smallest reported per-device memory limit. The cache planner subtracts fixed allocations before sizing pages. Accepted values are greater than `0` and at most `1`. |
+
+# [Parallel work and Decision requests]($heading.id('parallel-work-and-decision-requests'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--data-parallel=<groups>` | `1` | Set the number of groups that share request and KV-cache work in supported configurations. |
+| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight within one [Decision request]($link.page('llmd/api/decision').ref('decision')). |
+
+The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/#data-parallelism-beta)
+describe data parallelism on Llama as a beta feature.
+
+# [Scheduling and attention workers]($heading.id('scheduling-and-attention-workers'))
+
+These options are present in the reviewed source. Availability can vary by
+model, backend, and release.
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--async-scheduling` | Off | Enable asynchronous scheduling on supported models. The initial beta covers Llama and Gemma 4 without speculative decoding. |
+| `--attnd-workers=<count>`, `--attnd-memory=<GiB>` | Both unset | Set both to enable the attention daemon backend with the given worker count and memory budget. |

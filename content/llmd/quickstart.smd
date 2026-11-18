@@ -409,7 +409,7 @@ To route traffic to a verified instance, follow the
 The published **DSpine** recipe for Qwen3.8-27B on CUDA and ROCm uses its own
 drafter and batch size 1. The routine DFlash and native MTP configurations leave
 batch size and draft count at LLMD's defaults. See the
-[CLI examples]($link.page('llmd/cli').ref('choose-a-decoding-mode')) or
+[CLI examples]($link.page('llmd/cli/sampling-and-decoding').ref('choose-a-decoding-mode')) or
 [compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes'))
 on the same hardware.
 

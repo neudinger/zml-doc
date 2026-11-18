@@ -12,7 +12,8 @@ existing server are separate starting points.
 Serve a model and send a chat, Decision, or embeddings request with the
 [LLMD quickstart]($link.page('llmd/quickstart')). Choose a checkpoint, backend,
 and decoding mode to generate launch and request commands for Docker or Homebrew.
-See the [CLI reference]($link.page('llmd/cli')) for server flags and Docker options,
+See [Model and listener flags]($link.page('llmd/cli/model-and-listener')) for server startup,
+[Docker options]($link.page('llmd/cli/docker-options')) for container settings,
 and [Model compatibility]($link.page('llmd/models')) for routine test
 configurations and published recipes.
 

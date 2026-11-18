@@ -129,7 +129,11 @@
                 .{
                     .label = "CLI Reference",
                     .pages = [
-                        .{ .path = "llmd/cli", .label = "LLMD CLI reference", .icon = "icon-terminal" },
+                        .{ .path = "llmd/cli/model-and-listener", .label = "Model and listener flags", .icon = "icon-server" },
+                        .{ .path = "llmd/cli/batching-and-memory", .label = "Batching and memory", .icon = "icon-cpu" },
+                        .{ .path = "llmd/cli/sampling-and-decoding", .label = "Sampling and decoding", .icon = "icon-sliders" },
+                        .{ .path = "llmd/cli/benchmarking", .label = "Benchmarking", .icon = "icon-activity" },
+                        .{ .path = "llmd/cli/docker-options", .label = "Docker options", .icon = "icon-container" },
                         .{ .path = "llmd/reference/cli-environment", .label = "Environment variables", .icon = "icon-sliders" },
                     ],
                 },

@@ -1,0 +1,81 @@
+---
+.title = "Sampling and decoding",
+.description = "Look up sampling defaults, configure speculative decoding, and launch LLMD with a native or external drafter.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "CLI Reference" },
+---
+# [Sampling controls]($heading.id('sampling-and-speculative-decoding'))
+
+The following [sampling controls](https://zml.ai/posts/llmd-20261112.0/#sampling-controls)
+were documented for LLMD release `20261112.0`. Check your installed build for
+the options it exposes.
+
+| LLMD option | Default or fallback | Effect |
+| --- | --- | --- |
+| `--top-k=<number>` | Unset, fallback `50` | Limit sampling to the highest-ranked tokens. |
+| `--top-p=<fraction>` | Unset, fallback `1.0` | Keep tokens within a cumulative probability threshold. Accepted values are `0` through `1`. |
+| `--min-p=<fraction>` | Unset, fallback `0.0` | Set a minimum probability threshold relative to the most probable token. Accepted values are `0` through `1`. |
+| `--temperature=<number>` | Unset, fallback `1.0` | Scale the sampling distribution. |
+
+For chat requests that support `temperature` or `top_p`, the request value
+wins. The CLI value comes next, followed by the model's recommendation and
+then the listed fallback. `top_k` and `min_p` start at the CLI level.
+
+# [Speculative decoding flags]($heading.id('speculative-decoding-flags'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--speculative-drafter-model=<path>` | Unset | Enable speculative decoding with a compatible drafter checkpoint or `native` where supported. |
+| `--speculative-draft-count=<tokens>` | Derived from the model configuration | Override the number of draft tokens to verify. |
+
+# [Choose a decoding mode]($heading.id('choose-a-decoding-mode'))
+
+Choose a checkpoint and decoding mode in [Model compatibility]($link.page('llmd/models')).
+Run one server command at a time. These examples use LLMD's default batch
+size, context length, and sampling settings.
+
+**Standard decoding.** Pass only the target checkpoint.
+
+```sh
+llmd --model=hf://Qwen/Qwen3.8-27B
+```
+
+**Native multi-token prediction (MTP).** The target checkpoint supplies its
+own drafter. Both `deepseek-ai/DeepSeek-V4-Flash` and
+`Qwen/Qwen3.8-Flash-Next` have a routine native MTP configuration.
+
+```sh
+llmd --model=hf://Qwen/Qwen3.8-Flash-Next \
+  --speculative-drafter-model=native
+```
+
+**External drafter.** Pass the exact drafter paired with the target checkpoint.
+For Qwen3.8-27B, load the DFlash2 drafter from Hugging Face at launch.
+
+```sh
+llmd --model=hf://Qwen/Qwen3.8-27B \
+  --speculative-drafter-model=hf://incoai/Qwen3.8-27B-DFlash2
+```
+
+For a local copy, use the quickstart's [checkpoint storage instructions]($link.page('llmd/quickstart').ref('checkpoint-storage'))
+to download both repositories under `${HOME}/models`. A native installation
+accepts the host directory for each.
+
+```sh
+llmd --model="${HOME}/models/Qwen/Qwen3.8-27B" \
+  --speculative-drafter-model="${HOME}/models/incoai/Qwen3.8-27B-DFlash2"
+```
+
+On a CUDA Docker host, mount the two directories read-only and pass their
+container paths to LLMD.
+
+```sh
+docker run --rm --gpus=all --shm-size=256GB -p 127.0.0.1:8000:8000 \
+  --mount "type=bind,source=${HOME}/models/Qwen/Qwen3.8-27B,target=/model,readonly" \
+  --mount "type=bind,source=${HOME}/models/incoai/Qwen3.8-27B-DFlash2,target=/drafter,readonly" \
+  zmlai/llmd:cuda --model=/model --speculative-drafter-model=/drafter
+```
+
+Omit `--speculative-draft-count` to use the count derived from the model
+configuration. To measure the effect, [compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')).

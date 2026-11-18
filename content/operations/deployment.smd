@@ -43,8 +43,9 @@ docker run -d --name llmd --restart unless-stopped \
 ```
 
 This command requests every available NVIDIA GPU and sets the `/dev/shm`
-limit from the published CUDA recipe. To select devices or change the server's
-context and memory limits, see the [CLI reference]($link.page('llmd/cli')). The container and its logs
+limit from the published CUDA recipe. See [Docker options]($link.page('llmd/cli/docker-options'))
+for device selection and [Batching and memory]($link.page('llmd/cli/batching-and-memory'))
+for the server’s context and memory limits. The container and its logs
 remain available after it exits. Docker's restart policy starts the container
 again after an unexpected exit, subject to
 [restart policy behavior](https://docs.docker.com/engine/containers/start-containers-automatically/).

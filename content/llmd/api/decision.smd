@@ -78,5 +78,5 @@ object. For `DuplicateOptionToken`, choose labels whose first tokens differ.
 LLMD revision `ca575167` limits the request body to 4 MiB, accepts 1–1,024
 questions, and scores 2–16 options per question. Its Decision path is enabled
 for the LFM3 model implementation. See the [Decision catalog]($link.page('llmd/models').unsafeRef('decision-checkpoints'))
-for checkpoint and build evidence, and the [CLI reference]($link.page('llmd/cli').ref('batching-context-and-memory'))
+for checkpoint and build evidence, and [Parallel work and Decision requests]($link.page('llmd/cli/batching-and-memory').ref('parallel-work-and-decision-requests'))
 for the per-request concurrency control `--systemone-window`.

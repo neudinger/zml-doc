@@ -8,7 +8,7 @@
 Set these variables in the environment of the process that loads the model or
 initializes the backend. The defaults refer to the ZML revision used in the
 [ZML quickstart]($link.page('zml/quickstart')) and the source snapshot covered
-by the [LLMD CLI reference]($link.page('llmd/cli')).
+by the [LLMD CLI reference]($link.page('llmd/cli/model-and-listener')).
 
 # [Pass variables to Docker]($heading.id('pass-variables-to-docker'))
 

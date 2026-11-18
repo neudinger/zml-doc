@@ -133,7 +133,7 @@ the rendered prompt and generated output. `--batch-size` controls how many
 requests the server can schedule together. `--bench-concurrency` controls how
 many requests the benchmark submits together, so setting it above the server
 batch size can introduce queueing.
-The [CLI reference]($link.page('llmd/cli').ref('batching-context-and-memory'))
+The [Batching and memory reference]($link.page('llmd/cli/batching-and-memory'))
 lists the accepted values and memory fractions.
 
 In the reviewed source, LFM3 requires `--data-parallel=1`, the default. It
