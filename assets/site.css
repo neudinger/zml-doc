@@ -201,6 +201,31 @@ pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
 .page-toc a { display: block; padding-block: 0.2rem; }
 .page-toc a:hover { text-decoration: underline; }
 .page-toc a:focus-visible { outline-offset: 1px; }
+.article-pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-block-start: 2.5rem;
+}
+.article-pager a {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  color: var(--text);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.article-pager a[rel="next"] { grid-column: 2; text-align: end; }
+.article-pager a:is(:hover, :focus-visible) { border-color: var(--accent); background: var(--selection); }
+.pager-direction { color: var(--accent); font-size: 0.8rem; font-weight: 650; }
+@media (max-width: 30rem) {
+  .article-pager { grid-template-columns: 1fr; }
+  .article-pager a[rel="next"] { grid-column: 1; }
+}
 .eyebrow { margin: 0 0 0.75rem; color: var(--accent); font: 0.8rem ui-monospace, monospace; letter-spacing: 0.09em; }
 h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter-spacing: -0.04em; font-weight: 760; }
 .description { margin-top: 1.25rem; font-size: 1.2rem; color: var(--muted); }
@@ -212,12 +237,18 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .prose code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 0.9em; }
 .prose :not(pre) > code { background: var(--code); padding: 0.15em 0.35em; border-radius: 0.2rem; }
 .prose pre { padding: 1.2rem; overflow: auto; background: var(--code); border: 1px solid var(--border); border-radius: 0.4rem; }
-.code-block { position: relative; margin-block: 1em; }
-.code-block > pre { margin: 0; padding-block-start: 3.1rem; }
+.code-block { margin-block: 1em; border: 1px solid var(--border); border-radius: 0.4rem; background: var(--code); }
+.code-block-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  padding: 0.3rem 0.5rem 0.3rem 0.75rem;
+  border-block-end: 1px solid var(--border);
+}
+.code-block > pre { margin: 0; border: 0; }
 .code-copy {
-  position: absolute;
-  inset-block-start: 0.5rem;
-  inset-inline-end: 0.5rem;
+  margin-inline-start: auto;
   min-block-size: 2rem;
   min-inline-size: 4rem;
   padding-inline: 0.55rem;
@@ -282,24 +313,17 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   outline-offset: 2px;
 }
 .prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
-.command-shell { position: relative; }
 .command-shell .code-block { margin-block: 0; }
 .prose .command-shell pre {
   margin-block: 0;
-  padding: 3.1rem 0.75rem 0.75rem;
+  padding: 0.75rem;
   white-space: pre-wrap;
   line-height: 1.5;
 }
 .command-language {
-  position: absolute;
-  z-index: 1;
-  inset: 1px 1px auto;
-  padding: 0.55rem 0.75rem;
-  border-block-end: 1px solid var(--border);
   color: var(--muted);
   font-size: 0.85rem;
   font-weight: 650;
-  pointer-events: none;
 }
 .command-language::before { background: currentColor; }
 .prose pre code .token:is(.keyword, .boolean, .constant, .important) { color: var(--code-keyword); }
@@ -664,6 +688,16 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .site-footer { display: flex; flex-wrap: wrap; gap: 0.65rem 1.5rem; border-top: 1px solid var(--border); padding-block: 1.5rem 2.5rem; font-size: 0.85rem; color: var(--muted); }
 .site-footer span { margin-right: auto; }
 
+@media (width > 48rem) {
+  .docs-sidebar {
+    position: sticky;
+    inset-block-start: 0;
+    max-block-size: 100dvh;
+    overflow-y: auto;
+  }
+  .docs-sidebar a:focus-visible { outline-offset: -2px; }
+}
+
 @media (min-width: 64rem) {
   .document:has(> .page-toc):not(:has(> .prose .llmd-launch)) {
     display: grid;
@@ -671,7 +705,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
     grid-template-columns: minmax(0, 1fr) 12rem;
     column-gap: clamp(1.5rem, 3vw, 2.5rem);
   }
-  .document:has(> .page-toc):not(:has(> .prose .llmd-launch)) > :is(.document-header, .prose) { grid-column: 1; }
+  .document:has(> .page-toc):not(:has(> .prose .llmd-launch)) > :is(.document-header, .prose, .article-pager) { grid-column: 1; }
   .document:has(> .page-toc):not(:has(> .prose .llmd-launch)) > .page-toc {
     grid-column: 2;
     grid-row: 1 / span 2;

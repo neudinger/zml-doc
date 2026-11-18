@@ -16,7 +16,9 @@ for accelerator flags, LLM examples, and packaging.
 Read [ZML concepts]($link.page('zml/concepts')) for tensors, shapes, and dimension tags.
 The [ZML API reference]($link.page('zml/api')) lists model and execution calls.
 Use the [first model guide]($link.page('zml/first-model')) to build a tagged
-linear layer and see how MNIST loads pretrained weights.
+linear layer. Then [load and inspect checkpoints]($link.page('zml/checkpoints'))
+for pretrained weights and [run ZML across devices]($link.page('zml/sharding'))
+to partition work across a device mesh.
 
 ```=html
 <figure class="execution-diagram" aria-label="ZML model execution">

@@ -19,6 +19,8 @@ bazel test //zml:test
 `build` produces build artifacts. `run` builds the target and launches it with
 its declared data and runtime files. `test` builds and runs the selected test
 target. Use `bazel query '//examples/...'` to find example targets.
+The [data-parallel MNIST example]($link.page('zml/sharding').ref('run-data-parallel-mnist'))
+distributes a batch of images across a device mesh.
 
 # [Choose a backend and target platform]($heading.id('choose-a-backend-and-target-platform'))
 
@@ -80,6 +82,7 @@ startup output, then look for generated text. Omit `--prompt` to open an
 interactive prompt. To use weights already on disk, pass the checkpoint
 directory, for example `--model=/path/to/model`. The example selects the
 implementation from `model_type` in `config.json`.
+To serve a checkpoint over HTTP, [start an LLMD server]($link.page('llmd/quickstart')).
 
 | Example flag | Default | Effect |
 | --- | --- | --- |
@@ -135,8 +138,3 @@ for the weights and image data paths.
 
 The commands are source-reviewed. Build and accelerator execution checks for
 these examples are pending.
-
-# [Next steps]($heading.id('next-steps'))
-
-If your application needs an HTTP endpoint, [start an LLMD server]($link.page('llmd/quickstart'))
-and send a first chat request.

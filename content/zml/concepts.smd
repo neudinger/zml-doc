@@ -23,6 +23,8 @@ results for the selected backend. See the
 `tensor.shape()` returns a `zml.Shape`. It records the element type and
 ordered dimension sizes. The **rank** is the number of axes. For a matrix
 of shape `f32[2, 3]`, axis `0` has size `2` and axis `1` has size `3`.
+The [Shape API reference]($link.page('zml/api').ref('shape')) lists the
+calls for reading these values.
 
 | Shape | Rank | Elements |
 | --- | --- | --- |
@@ -66,9 +68,3 @@ pub fn forward(weights: zml.Tensor, input: zml.Tensor) zml.Tensor {
 three elements for each weight row. The result has shape `f32[2]` and keeps
 the `.output` tag. The contracted axes must have the same size. With batched
 inputs, `dot` pairs any other tags shared by both tensors as batch axes.
-
-# [Next steps]($heading.id('next-steps'))
-
-- [Write your first ZML model]($link.page('zml/first-model')) to compile a
-  tagged linear layer, provide its weight and input buffers, and read the scores.
-- [ZML API reference]($link.page('zml/api')) for call forms and ownership.

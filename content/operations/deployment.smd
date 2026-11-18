@@ -133,8 +133,3 @@ docker start llmd
 Repeat the readiness checks against the restored instance. The commands are
 source-reviewed. Deployment and rollback execution on the described host
 remain pending.
-
-# [Next steps]($heading.id('next-steps'))
-
-[Monitor and troubleshoot LLMD]($link.page('operations/monitoring')) to scrape
-metrics, check accelerator usage, and diagnose failures.

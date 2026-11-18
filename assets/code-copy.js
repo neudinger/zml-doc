@@ -1,4 +1,8 @@
 (() => {
+  const languageNames = new Map([
+    ["bash", "Bash"], ["sh", "Shell"], ["json", "JSON"], ["promql", "PromQL"],
+    ["starlark", "Starlark"], ["yaml", "YAML"], ["zig", "Zig"], ["text", "Plain text"],
+  ]);
   const status = document.createElement("span");
   status.className = "code-copy-status";
   status.setAttribute("role", "status");
@@ -8,6 +12,15 @@
     const pre = code.parentElement;
     const block = document.createElement("div");
     block.className = "code-block";
+    const header = document.createElement("div");
+    header.className = "code-block-header";
+    const previous = pre.previousElementSibling;
+    const label = previous?.matches(".command-language") ? previous : document.createElement("span");
+    if (!label.textContent.trim()) {
+      const language = code.classList[0]?.replace(/^language-/, "") || "text";
+      label.textContent = languageNames.get(language) ?? language;
+    }
+    label.classList.add("command-language", "icon-code");
 
     const button = document.createElement("button");
     button.type = "button";
@@ -49,6 +62,7 @@
     });
 
     pre.replaceWith(block);
-    block.append(button, pre);
+    header.append(label, button);
+    block.append(header, pre);
   }
 })();

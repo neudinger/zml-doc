@@ -29,8 +29,9 @@ backends must be checked separately from LLMD's inference support.
 
 # [Measure changes and retain a rollback path]($heading.id('measure-changes-and-retain-a-rollback-path'))
 
-Compare benchmark results made under declared, comparable conditions. Preserve
-the previous release and configuration so an upgrade can be reversed.
+[Tune and benchmark LLMD]($link.page('operations/benchmarking')) to compare
+latency and throughput under the same workload. Preserve the previous release
+and configuration so an upgrade can be reversed.
 
 Return to [LLMD]($link.page('llmd')) for the server path or
 [Start]($link.page('start')) for the ecosystem overview.

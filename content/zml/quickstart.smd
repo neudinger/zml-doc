@@ -49,13 +49,16 @@ bazel run \
 
 `bazel build` compiles the example. `bazel run` launches it with the weights and
 test image data supplied by the target. The first build can take longer while
-Bazel downloads dependencies and compiles them.
+Bazel downloads dependencies and compiles them. See the
+[Bazel guide]($link.page('zml/build-and-run').ref('choose-a-backend-and-target-platform'))
+for backend flags and target platforms.
 
 # [3. Read the prediction]($heading.id('read-the-prediction'))
 
 The program prints a handwritten digit in the terminal, followed by
 `RECOGNIZED DIGIT` and its prediction. Compare the predicted digit with the
-image. The example chooses a random image each run.
+image. The example chooses a random image each run. To try inputs and weights
+you choose yourself, [write your first ZML model]($link.page('zml/first-model')).
 
 To check the framework after a code change, run its test target separately.
 
@@ -72,10 +75,3 @@ bazel test //zml:test
 
 This procedure follows the upstream source and CLI. Execution on a recorded
 host is pending.
-
-# [Next steps]($heading.id('next-steps'))
-
-- [Write your first ZML model]($link.page('zml/first-model')) to define, compile,
-  and run a small model.
-- [Build and run with Bazel]($link.page('zml/build-and-run')) to select a backend
-  or run an LLM example.

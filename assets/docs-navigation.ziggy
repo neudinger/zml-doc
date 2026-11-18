@@ -1,0 +1,40 @@
+[
+    .{
+        .track = "zml",
+        .groups = ["Get started", "Guides", "Reference"],
+        .pages = [
+            .{ .group = "Get started", .path = "zml", .label = "Overview", .icon = "icon-book" },
+            .{ .group = "Get started", .path = "zml/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
+            .{ .group = "Get started", .path = "zml/concepts", .label = "Concepts", .icon = "icon-shapes" },
+            .{ .group = "Guides", .path = "zml/first-model", .label = "Write your first model", .icon = "icon-pencil" },
+            .{ .group = "Guides", .path = "zml/build-and-run", .label = "Build and run with Bazel", .icon = "icon-hammer" },
+            .{ .group = "Guides", .path = "zml/checkpoints", .label = "Load and inspect checkpoints", .icon = "icon-boxes" },
+            .{ .group = "Guides", .path = "zml/sharding", .label = "Run ZML across devices", .icon = "icon-cpu" },
+            .{ .group = "Reference", .path = "zml/api", .label = "API reference", .icon = "icon-code" },
+        ],
+    },
+    .{
+        .track = "llmd",
+        .groups = ["Get started", "Reference", "Operations"],
+        .pages = [
+            .{ .group = "Get started", .path = "llmd", .label = "Overview", .icon = "icon-book" },
+            .{ .group = "Get started", .path = "llmd/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
+            .{ .group = "Get started", .path = "llmd/models", .label = "Model compatibility", .icon = "icon-boxes" },
+            .{ .group = "Reference", .path = "llmd/api", .label = "API reference", .icon = "icon-code" },
+            .{ .group = "Reference", .path = "llmd/cli", .label = "CLI reference", .icon = "icon-terminal" },
+            .{ .group = "Operations", .path = "operations", .label = "Operations overview", .icon = "icon-server" },
+            .{ .group = "Operations", .path = "operations/deployment", .label = "Deploy LLMD", .icon = "icon-rocket" },
+            .{ .group = "Operations", .path = "operations/monitoring", .label = "Monitoring and troubleshooting", .icon = "icon-activity" },
+            .{ .group = "Operations", .path = "operations/benchmarking", .label = "Tune and benchmark LLMD", .icon = "icon-sliders" },
+        ],
+    },
+    .{
+        .track = "shared",
+        .groups = ["Shared"],
+        .pages = [
+            .{ .group = "Shared", .path = "start", .label = "Start", .icon = "icon-signpost" },
+            .{ .group = "Shared", .path = "reference/compatibility", .label = "Compatibility", .icon = "icon-check" },
+            .{ .group = "Shared", .path = "reference/environment", .label = "Environment variables", .icon = "icon-sliders" },
+        ],
+    },
+]

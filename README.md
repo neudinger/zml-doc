@@ -91,6 +91,11 @@ from the **On this page** list. Use Zine page links such as
 deployment prefix. Assets are published when referenced; static asset directories
 can be declared explicitly in `zine.ziggy` when needed.
 
+Add each documentation page to its reading order in
+[`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Its position
+sets the Previous and Next destinations. Its group, label, and icon set its
+sidebar entry. Operations pages belong to the LLMD reading order.
+
 ## Validation and scope
 
 The build checks local links and fragments, duplicate HTML IDs, a single H1 per

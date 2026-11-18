@@ -104,10 +104,3 @@ driver, model ID, relevant timestamps, and the exact error before changing
 settings. Remove tokens, credential values, and sensitive prompt or output
 text from shared logs. The commands and metrics above are source-reviewed.
 Live checks against a deployed LLMD instance remain pending.
-
-# [Next steps]($heading.id('next-steps'))
-
-- [Review LLMD server options]($link.page('llmd/cli')) when tuning batching,
-  context length, or memory use.
-- [Review runtime diagnostics]($link.page('reference/environment')) for
-  environment variables that control logging and backend behavior.

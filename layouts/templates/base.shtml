@@ -56,80 +56,26 @@
         <nav aria-label="Documentation sidebar">
           <ctx zml="$page.link().startsWith($site.page('zml').link())"
                llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
-            <ctx :if="$ctx.zml">
-              <div class="sidebar-group">
-                <p class="sidebar-heading">Get started</p>
-                <ul>
-                  <li><a class="icon-book" href="$site.page('zml').link()"
-                         aria-current="$site.page('zml').isCurrent().then('page', 'false')">Overview</a></li>
-                  <li><a class="icon-bolt" href="$site.page('zml/quickstart').link()"
-                         aria-current="$site.page('zml/quickstart').isCurrent().then('page', 'false')">Quickstart</a></li>
-                  <li><a class="icon-shapes" href="$site.page('zml/concepts').link()"
-                         aria-current="$site.page('zml/concepts').isCurrent().then('page', 'false')">Concepts</a></li>
-                </ul>
-              </div>
-              <div class="sidebar-group">
-                <p class="sidebar-heading">Guides</p>
-                <ul>
-                  <li><a class="icon-pencil" href="$site.page('zml/first-model').link()"
-                         aria-current="$site.page('zml/first-model').isCurrent().then('page', 'false')">Write your first model</a></li>
-                  <li><a class="icon-hammer" href="$site.page('zml/build-and-run').link()"
-                         aria-current="$site.page('zml/build-and-run').isCurrent().then('page', 'false')">Build and run with Bazel</a></li>
-                </ul>
-              </div>
-              <div class="sidebar-group">
-                <p class="sidebar-heading">Reference</p>
-                <ul>
-                  <li><a class="icon-code" href="$site.page('zml/api').link()"
-                         aria-current="$site.page('zml/api').isCurrent().then('page', 'false')">API reference</a></li>
-                </ul>
-              </div>
-            </ctx>
-            <ctx :if="$ctx.llmd">
-              <div class="sidebar-group">
-                <p class="sidebar-heading">Get started</p>
-                <ul>
-                  <li><a class="icon-book" href="$site.page('llmd').link()"
-                         aria-current="$site.page('llmd').isCurrent().then('page', 'false')">Overview</a></li>
-                  <li><a class="icon-bolt" href="$site.page('llmd/quickstart').link()"
-                         aria-current="$site.page('llmd/quickstart').isCurrent().then('page', 'false')">Quickstart</a></li>
-                  <li><a class="icon-boxes" href="$site.page('llmd/models').link()"
-                         aria-current="$site.page('llmd/models').isCurrent().then('page', 'false')">Model compatibility</a></li>
-                </ul>
-              </div>
-              <div class="sidebar-group">
-                <p class="sidebar-heading">Reference</p>
-                <ul>
-                  <li><a class="icon-code" href="$site.page('llmd/api').link()"
-                         aria-current="$site.page('llmd/api').isCurrent().then('page', 'false')">API reference</a></li>
-                  <li><a class="icon-terminal" href="$site.page('llmd/cli').link()"
-                         aria-current="$site.page('llmd/cli').isCurrent().then('page', 'false')">CLI reference</a></li>
-                </ul>
-              </div>
-              <div class="sidebar-group">
-                <p class="sidebar-heading">Operations</p>
-                <ul>
-                  <li><a class="icon-server" href="$site.page('operations').link()"
-                         aria-current="$site.page('operations').isCurrent().then('page', 'false')">Operations overview</a></li>
-                  <li><a class="icon-rocket" href="$site.page('operations/deployment').link()"
-                         aria-current="$site.page('operations/deployment').isCurrent().then('page', 'false')">Deploy LLMD</a></li>
-                  <li><a class="icon-activity" href="$site.page('operations/monitoring').link()"
-                         aria-current="$site.page('operations/monitoring').isCurrent().then('page', 'false')">Monitoring and troubleshooting</a></li>
-                </ul>
-              </div>
+            <ctx track="$ctx.zml.then('zml', $ctx.llmd.then('llmd', 'shared'))">
+              <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy()">
+                <ctx :if="$loop.it.get('track').eql($ctx.track).or($loop.it.get('track').eql('shared'))">
+                  <ctx pages="$loop.it.get('pages')" :loop="$loop.it.get('groups')">
+                    <div class="sidebar-group">
+                      <p class="sidebar-heading" :text="$loop.it"></p>
+                      <ul :loop="$ctx.pages">
+                        <ctx :if="$loop.it.get('group').eql($loop.up().it)">
+                          <ctx target="$site.page($loop.it.get('path'))">
+                            <li><a class="$loop.it.get('icon')" href="$ctx.target.link()"
+                                   aria-current="$ctx.target.isCurrent().then('page', 'false')" :text="$loop.it.get('label')"></a></li>
+                          </ctx>
+                        </ctx>
+                      </ul>
+                    </div>
+                  </ctx>
+                </ctx>
+              </ctx>
             </ctx>
           </ctx>
-          <div class="sidebar-group">
-            <p class="sidebar-heading">Shared</p>
-            <ul>
-              <li><a class="icon-signpost" href="$site.page('start').link()"
-                     aria-current="$site.page('start').isCurrent().then('page', 'false')">Start</a></li>
-              <li><a class="icon-check" href="$site.page('reference/compatibility').link()"
-                     aria-current="$site.page('reference/compatibility').isCurrent().then('page', 'false')">Compatibility</a></li>
-              <li><a class="icon-sliders" href="$site.page('reference/environment').link()"
-                     aria-current="$site.page('reference/environment').isCurrent().then('page', 'false')">Environment variables</a></li>
-            </ul>
-          </div>
         </nav>
       </details>
     </ctx>

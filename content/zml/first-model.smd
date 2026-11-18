@@ -131,7 +131,8 @@ the target again.
 # [Load weights from a checkpoint]($heading.id('load-weights-from-a-checkpoint'))
 
 The [MNIST example](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist.zig)
-uses the same sequence for a pretrained model. It opens a Safetensors registry,
+uses the same sequence for a pretrained model. It opens a
+[Safetensors registry]($link.page('zml/checkpoints').ref('load-weights-for-execution')),
 uses `TensorStore` to create tagged weight tensors from the checkpoint shapes,
 then compiles `forward`. A loader fills the model's buffers with the weight
 data. It waits for those transfers before passing the buffers to the
@@ -139,8 +140,3 @@ executable. The output is a predicted digit read back as `u8`.
 
 The example above follows the pinned ZML source APIs. Execution of the new
 target remains pending.
-
-# [Next steps]($heading.id('next-steps'))
-
-[Build and run with Bazel]($link.page('zml/build-and-run')) to select target
-flags or package a build for another host.

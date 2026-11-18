@@ -11,7 +11,9 @@ and allow memory for both the model weights and KV cache.
 # [Checkpoint catalog]($heading.id('choose-a-checkpoint'))
 
 Precision describes the checkpoint weights. A dash marks a combination that
-is unlisted under the active filters.
+is unlisted under the active filters. Choose **Configure launch** to open the
+[LLMD quickstart]($link.page('llmd/quickstart')) with the checkpoint and
+backend selected.
 
 ```=html
 <div data-model-catalog hidden>
@@ -76,9 +78,3 @@ The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/)
 list additional model families. Check [Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags)
 for backend tags or the [ZML tap](https://github.com/zml/homebrew-zml)
 for the current Metal package.
-
-# [Next steps]($heading.id('next-steps'))
-
-Choose **Configure launch** for a recipe to preselect its checkpoint and
-backend in the [LLMD quickstart]($link.page('llmd/quickstart')). There you can
-choose a model source and generate the commands.

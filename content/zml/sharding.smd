@@ -1,0 +1,87 @@
+---
+.title = "Run ZML across devices",
+.description = "Map tensor dimensions to a device mesh and run the sharding and data-parallel MNIST examples with Bazel.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+---
+Run these examples from the checkout in the
+[ZML quickstart]($link.page('zml/quickstart')). The default CPU backend
+exposes multiple logical devices on one host, so you can try both examples
+without accelerator hardware.
+
+# [Map tensor dimensions to devices]($heading.id('map-tensor-dimensions-to-devices'))
+
+A **physical mesh** describes the devices the runtime can address and how
+they are connected. A **logical mesh** names the axes the model uses to
+distribute work. For example, `.data` can split a batch across groups of
+devices and `.model` can split a weight dimension within each group.
+`platform.registerMesh` maps the named axes to the physical topology using
+their requested sizes and communication preferences.
+
+Apply the mapping to a tagged shape with `Shape.withPartitioning`. The
+sharding demo uses these mappings for its dense layer.
+
+| Tensor | Global shape | Placement |
+| --- | --- | --- |
+| Input | `batch=16, feature=32` | Split `batch` over `.data`. Each device gets all features for its batch slice. |
+| Weights | `feature=32, hidden=64` | Split `hidden` over `.model`. The same weight shards are available to each data group. |
+| Bias | `hidden=64` | Split `hidden` over `.model` to match the weight shards. |
+| Output | `batch=16, hidden=64` | Split `batch` over `.data` and `hidden` over `.model`. |
+
+```zig
+const input_shape = zml.Shape.init(.{ .batch = 16, .feature = 32 }, .f32)
+    .withPartitioning(mesh, .{ .batch = .data, .feature = .replicated });
+```
+
+Here `mesh` is the registered device mesh. A replicated dimension stays
+whole on each shard that holds it. Replication therefore preserves the full
+feature dimension while the batch can still be partitioned. For a graph
+value inside `forward`, `Tensor.withPartitioning` emits a sharding constraint.
+See the [tagged-shape guide]($link.page('zml/concepts')) and the
+[sharding example source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/sharding/main.zig#L204-L236).
+
+# [Run the sharding demo]($heading.id('run-the-sharding-demo'))
+
+Start with automatic topology discovery. The default partitioner at this
+revision is Shardy. The program also accepts `--partitioner=gspmd` to select
+the GSPMD partitioner.
+
+```sh
+bazel run //examples/sharding -- --mesh=auto
+```
+
+Run on CPU with a mock topology to see data and model partitions on a
+simulated eight-device grid.
+
+```sh
+bazel run //examples/sharding -- --mesh=mock --partitioner=shardy
+```
+
+Compare the physical topology, logical coordinates, and placement of the
+input, weights, and bias in the logs. The demo applies a dense layer followed
+by a per-shard computation and prints `output preview` with up to 16 values.
+The discovered topology determines the actual split sizes.
+
+# [Run data-parallel MNIST]($heading.id('run-data-parallel-mnist'))
+
+```sh
+bazel run //examples/mnist:mnist_dp
+```
+
+Bazel supplies the pretrained weights and test images. This variant fixes
+`.data` to two groups and lets ZML infer the size of `.model`. It splits a
+batch of four images so each data group receives two. When `.model` has
+more than one device per group, the first layer is partitioned along its
+output dimension and the second along its input dimension. The second
+layer's bias is replicated.
+
+Look for the printed mesh, a weight-transfer message, and four
+`Shard … RECOGNIZED DIGIT` entries. Each entry is labeled by its index in
+the batch. If you enable an accelerator backend, the available device
+topology must support a data axis of size two. Use the CPU commands above
+to try the examples on a machine with a single accelerator.
+See [Bazel backend flags]($link.page('zml/build-and-run').ref('choose-a-backend-and-target-platform'))
+and the [MNIST source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist_data_parallel.zig).
+
+The commands and expected output follow the pinned source. Device execution
+checks are pending.
