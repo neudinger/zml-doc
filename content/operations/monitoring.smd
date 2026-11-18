@@ -86,7 +86,7 @@ temperature readings. With CUDA, `nvidia-smi` provides a host-side device and
 driver check. Compare those readings with the LLMD queue and token metrics for
 the same time window. See the [CLI reference]($link.page('llmd/cli')) for
 benchmark and profile options and
-[Environment variables]($link.page('reference/environment')) for runtime diagnostics.
+[Environment variables]($link.page('llmd/reference/environment')) for runtime diagnostics.
 
 # [Diagnose common failures]($heading.id('diagnose-common-failures'))
 
@@ -94,7 +94,7 @@ benchmark and profile options and
 | --- | --- |
 | Connection refused or health check times out | Inspect startup logs and run `docker port llmd 8000/tcp` to confirm the mapping. Allow time for loading and compilation. If startup fails, resolve the first error in the logs. |
 | Checkpoint access fails | Check the URI, revision, and credential scope. For gated Hugging Face models, confirm repository access and forward `HF_TOKEN` to the container. For local weights, check the mount target and checkpoint files. See [Checkpoint storage]($link.page('llmd/quickstart').ref('checkpoint-storage')). |
-| Device unavailable | Check the host driver and device visibility, then confirm the image backend and Docker device options. On CUDA, use the [NVIDIA Container Toolkit sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html) to verify access from a container. Compare other backends with [Compatibility]($link.page('reference/compatibility')). |
+| Device unavailable | Check the host driver and device visibility, then confirm the image backend and Docker device options. On CUDA, use the [NVIDIA Container Toolkit sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html) to verify access from a container. Compare other backends with [Hardware compatibility]($link.page('llmd/reference/compatibility')). |
 | Out of memory during startup | Inspect device memory and check Docker's `OOMKilled` state for a container memory kill. Compare checkpoint precision, weights, and available memory. Try a smaller compatible checkpoint if weights cannot fit. |
 | Requests exhaust memory after startup | Compare `requests_rejected_oom` with device usage and the request sizes. Reduce concurrency or context length and retest the same workload. See [batching and memory settings]($link.page('llmd/cli')). |
 | `400` with `context_length_exceeded` | Shorten the conversation, then retry the request. The configured context must accommodate the tokenized prompt, including the chat template. See the [API reference]($link.page('llmd/api')). |

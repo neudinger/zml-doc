@@ -16,7 +16,7 @@ running container for rollback when you upgrade.
   [NVIDIA's sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html).
 - Choose a device with memory for the checkpoint and its KV cache. The example
   uses `LiquidAI/LFM3-1.7B-FP8`. Check
-  [Compatibility]($link.page('reference/compatibility')) for other image
+  [Hardware compatibility]($link.page('llmd/reference/compatibility')) for other image
   architectures, backends, and precisions.
 - Place the complete checkpoint in a directory for the selected revision. Keep
   that directory available for restarts and rollback. For a remote model URI,

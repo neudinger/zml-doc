@@ -5,7 +5,7 @@
 .layout = "content.shtml",
 ---
 Match an exact checkpoint to your accelerator. Check the
-[host and backend requirements]($link.page('reference/compatibility'))
+[host and backend requirements]($link.page('llmd/reference/compatibility'))
 and allow memory for both the model weights and KV cache.
 
 # [Checkpoint catalog]($heading.id('choose-a-checkpoint'))

@@ -22,7 +22,7 @@ docker run --rm zmlai/llmd:cuda --help
 
 Use `--name=value` for an LLMD option with a value and a bare flag for a
 boolean switch. Docker options go before the image name. LLMD options go
-after it. See [Environment variables]($link.page('reference/environment'))
+after it. See [Environment variables]($link.page('llmd/reference/environment'))
 for model credentials, proxy settings, and diagnostics.
 
 # [Model and listener]($heading.id('model-and-listener'))
@@ -124,6 +124,6 @@ docker run --rm --name llmd \
   zmlai/llmd:cuda --model=/model
 ```
 
-For other platforms, see [Compatibility]($link.page('reference/compatibility'))
+For other platforms, see [Hardware compatibility]($link.page('llmd/reference/compatibility'))
 and the [published startup commands](https://zml.ai/llmd/). For running and
 monitoring the service, see [Operations]($link.page('operations')).

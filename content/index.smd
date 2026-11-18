@@ -4,18 +4,21 @@
 .date = .date("2026-11-06T00:00:00"),
 .layout = "content.shtml",
 ---
-[Choose your path]($link.page('start')) and check
-[Compatibility]($link.page('reference/compatibility')) for your hardware and model.
+[Choose your path]($link.page('start')) to get started.
 
 # [Build with ZML]($heading.id('build-with-zml'))
 
 Use the inference framework to implement, compile, and run models in Zig.
 Follow the [ZML quickstart]($link.page('zml/quickstart')) to build MNIST with
-Bazel and classify a handwritten digit on CPU.
+Bazel and classify a handwritten digit on CPU. Check
+[ZML hardware compatibility]($link.page('zml/reference/compatibility').unsafeRef('build-with-zml'))
+for other build targets.
 
 # [Serve models with LLMD]($heading.id('serve-models-with-llmd'))
 
 Serve a checkpoint over HTTP. Follow the
 [LLMD quickstart]($link.page('llmd/quickstart')) to start a server
-and receive your first chat response. See [Operations]($link.page('operations'))
+and receive your first chat response. Check
+[LLMD hardware compatibility]($link.page('llmd/reference/compatibility').unsafeRef('serve-models-with-llmd'))
+for available runtimes. See [Operations]($link.page('operations'))
 to deploy, monitor, and troubleshoot the service.

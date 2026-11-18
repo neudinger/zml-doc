@@ -10,7 +10,7 @@ images, then ZML compiles the model and predicts the digit in one image.
 # [Before you start]($heading.id('before-you-start'))
 
 - Use a Linux or macOS development machine with Git and internet access for the
-  first build. See [Compatibility]($link.page('reference/compatibility')) for the
+  first build. See [Hardware compatibility]($link.page('zml/reference/compatibility')) for the
   framework's build targets.
 - Install [Bazelisk](https://github.com/bazelbuild/bazelisk#installation) as
   `bazel` on your `PATH`. On macOS with Homebrew, run `brew install bazelisk`.

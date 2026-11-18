@@ -4,14 +4,12 @@
 .date = .date("2026-11-06T00:00:00"),
 .layout = "content.shtml",
 ---
-Use the [Compatibility reference]($link.page('reference/compatibility')) to
-check the build target or server artifact for your host, accelerator,
-checkpoint, and precision.
-
 # [Build with ZML]($heading.id('build-with-zml'))
 
 Choose ZML when you want to write or change model code. The framework handles
 tensor operations, weight loading, compilation, and execution.
+Check [hardware compatibility]($link.page('zml/reference/compatibility').unsafeRef('build-with-zml'))
+to choose a build target for your host and accelerator.
 
 - [Run MNIST with Bazel]($link.page('zml/quickstart')) to classify a digit on CPU.
 - [Write your first model]($link.page('zml/first-model')) to define a tagged
@@ -24,6 +22,8 @@ tensor operations, weight loading, compilation, and execution.
 Choose LLMD when you want applications to call a model through an
 OpenAI-compatible HTTP API. Start a server yourself or connect to an existing
 LLMD endpoint.
+Check [hardware compatibility]($link.page('llmd/reference/compatibility').unsafeRef('serve-models-with-llmd'))
+for the server package or image that runs on your host.
 
 - [Start LLMD]($link.page('llmd/quickstart')) with a recipe for your hardware
   and send a chat request.

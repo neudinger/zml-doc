@@ -1,68 +1,96 @@
 <extend template="base.shtml">
 <head id="site-head">
-  <ctx :if="$page.content().contains('data-bazel-target=')">
-    <script defer src="$site.asset('bazel-platforms.js').link()"></script>
-  </ctx>
-  <ctx :if="$page.content().contains('<pre><code')">
-    <script defer src="$site.asset('code-copy.js').link()"></script>
-  </ctx>
-  <ctx :if="$page.content().contains('<pre><code class=')">
-    <script defer data-manual src="$site.asset('prism/prism.min.js').link()"></script>
-    <script defer src="$site.asset('code-highlight.js').link()"></script>
-  </ctx>
-  <ctx :if="$page.content().contains('data-llmd-launch')">
-    <script defer src="$site.asset('llmd-launch.js').link()"></script>
-  </ctx>
-  <ctx :if="$page.content().contains('data-model-catalog')">
-    <script defer src="$site.asset('model-catalog.js').link()"></script>
+  <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
+    <meta name="description" content="$ctx.article.description">
+    <ctx title="$ctx.article.title.suffix($page.custom.has('product').then(' · '), $page.custom.getOr('product', ''))">
+      <title :text="$ctx.title"></title>
+      <ctx :if="$page.custom.has('product')">
+        <meta data-pagefind-meta="title[content]" content="$ctx.title">
+      </ctx>
+    </ctx>
+    <ctx html="$ctx.article.content()">
+      <ctx :if="$ctx.html.contains('data-bazel-target=')">
+        <script defer src="$site.asset('bazel-platforms.js').link()"></script>
+      </ctx>
+      <ctx :if="$ctx.html.contains('<pre><code')">
+        <script defer src="$site.asset('code-copy.js').link()"></script>
+      </ctx>
+      <ctx :if="$ctx.html.contains('<pre><code class=')">
+        <script defer data-manual src="$site.asset('prism/prism.min.js').link()"></script>
+        <script defer src="$site.asset('code-highlight.js').link()"></script>
+      </ctx>
+      <ctx :if="$ctx.html.contains('data-llmd-launch')">
+        <script defer src="$site.asset('llmd-launch.js').link()"></script>
+      </ctx>
+      <ctx :if="$ctx.html.contains('data-model-catalog')">
+        <script defer src="$site.asset('model-catalog.js').link()"></script>
+      </ctx>
+    </ctx>
   </ctx>
 </head>
 <main id="site-content">
-  <article class="document">
-    <header class="document-header">
-      <p class="eyebrow">ZML / LLMD</p>
-      <h1 :text="$page.title"></h1>
-      <p class="description" :text="$page.description"></p>
-    </header>
-    <ctx :if="$site.index().isCurrent().not()">
-      <ctx toc="$page.toc()">
-        <ctx :if="$ctx.toc.contains('href=')">
-          <nav class="page-toc" aria-labelledby="page-toc-heading">
-            <p id="page-toc-heading">On this page</p>
-            <div :html="$ctx.toc"></div>
-          </nav>
+  <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
+    <article class="document">
+      <header class="document-header">
+        <p class="eyebrow" :text="$page.custom.has('product').then($page.custom.getOr('product', '').suffix(' / Reference'), 'ZML / LLMD')"></p>
+        <h1 :text="$ctx.article.title"></h1>
+        <p class="description" :text="$ctx.article.description"></p>
+      </header>
+      <ctx :if="$site.index().isCurrent().not()">
+        <ctx toc="$ctx.article.toc()">
+          <ctx :if="$ctx.toc.contains('href=')">
+            <nav class="page-toc" aria-labelledby="page-toc-heading">
+              <p id="page-toc-heading">On this page</p>
+              <div :html="$ctx.toc"></div>
+            </nav>
+          </ctx>
         </ctx>
-      </ctx>
-      <div class="prose" data-pagefind-body :html="$page.content()"></div>
-      <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy()">
-        <ctx pages="$loop.it.get('pages')">
-          <ctx :loop="$ctx.pages">
-            <ctx :if="$site.page($loop.it.get('path')).isCurrent()">
-              <nav id="next-steps" class="article-pager" aria-label="Previous and next pages" data-pagefind-ignore>
-                <ctx :if="$loop.first.not()">
-                  <ctx previous="$site.page($ctx.pages.at($loop.idx.minus(2)).get('path'))">
-                    <a rel="prev" href="$ctx.previous.link()">
-                      <span class="pager-direction"><span aria-hidden="true">←</span> Previous</span>
-                      <strong :text="$ctx.previous.title"></strong>
-                    </a>
+        <ctx legacy="$page.custom.has('reference_source').and($page.custom.has('product').not())">
+          <ctx :if="$ctx.legacy.not()">
+            <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
+          </ctx>
+          <ctx :if="$ctx.legacy">
+            <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
+            <nav id="next-steps" class="article-pager" aria-label="Read this reference in a product">
+              <a href="$site.page('zml', $page.custom.get('reference_source')).link()">Read in ZML →</a>
+              <a href="$site.page('llmd', $page.custom.get('reference_source')).link()">Read in LLMD →</a>
+            </nav>
+          </ctx>
+        </ctx>
+        <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy()">
+          <ctx pages="$loop.it.get('pages')">
+            <ctx :loop="$ctx.pages">
+              <ctx :if="$site.page($loop.it.get('path')).isCurrent()">
+                <nav id="next-steps" class="article-pager" aria-label="Previous and next pages" data-pagefind-ignore>
+                  <ctx :if="$loop.first.not()">
+                    <ctx entry="$ctx.pages.at($loop.idx.minus(2))">
+                      <ctx previous="$site.page($ctx.entry.get('path'))">
+                        <a rel="prev" href="$ctx.previous.link()">
+                          <span class="pager-direction"><span aria-hidden="true">←</span> Previous</span>
+                          <strong :text="$ctx.previous.custom.has('reference_source').then($ctx.entry.get('label'), $ctx.previous.title)"></strong>
+                        </a>
+                      </ctx>
+                    </ctx>
                   </ctx>
-                </ctx>
-                <ctx :if="$loop.last.not()">
-                  <ctx next="$site.page($ctx.pages.at($loop.idx).get('path'))">
-                    <a rel="next" href="$ctx.next.link()">
-                      <span class="pager-direction">Next <span aria-hidden="true">→</span></span>
-                      <strong :text="$ctx.next.title"></strong>
-                    </a>
+                  <ctx :if="$loop.last.not()">
+                    <ctx entry="$ctx.pages.at($loop.idx)">
+                      <ctx next="$site.page($ctx.entry.get('path'))">
+                        <a rel="next" href="$ctx.next.link()">
+                          <span class="pager-direction">Next <span aria-hidden="true">→</span></span>
+                          <strong :text="$ctx.next.custom.has('reference_source').then($ctx.entry.get('label'), $ctx.next.title)"></strong>
+                        </a>
+                      </ctx>
+                    </ctx>
                   </ctx>
-                </ctx>
-              </nav>
+                </nav>
+              </ctx>
             </ctx>
           </ctx>
         </ctx>
       </ctx>
-    </ctx>
-    <ctx :if="$site.index().isCurrent()">
-      <div class="prose" :html="$page.content()"></div>
-    </ctx>
-  </article>
+      <ctx :if="$site.index().isCurrent()">
+        <div class="prose" :html="$ctx.article.content()"></div>
+      </ctx>
+    </article>
+  </ctx>
 </main>

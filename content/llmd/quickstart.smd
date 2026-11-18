@@ -344,7 +344,7 @@ Request access on the Hugging Face model page and export `HF_TOKEN` with read
 access. For a download, `uvx --from huggingface_hub hf auth login` can also
 save the token on the host. To load from Hugging Face at launch in Docker,
 enable **Forward HF_TOKEN** under **Launch options**. See
-[Model storage and credentials]($link.page('reference/environment').ref('model-storage-and-credentials'))
+[Model storage and credentials]($link.page('llmd/reference/environment').unsafeRef('model-storage-and-credentials'))
 for token lookup and how to pin a Hugging Face revision at launch.
 
 ## [S3 or Google Cloud Storage]($heading.id('cloud-checkpoints'))
@@ -353,8 +353,8 @@ Keep the complete checkpoint under one bucket prefix. Choose **Load at launch**,
 then replace `--model` in the generated launch command with
 `--model=s3://my-bucket/llm/checkpoint` or `--model=gs://my-bucket/llm/checkpoint`.
 Configure credentials for the process that runs LLMD. See
-[Model storage and credentials]($link.page('reference/environment').ref('model-storage-and-credentials'))
-and [passing variables and credential files to Docker]($link.page('reference/environment').ref('pass-variables-to-docker')).
+[Model storage and credentials]($link.page('llmd/reference/environment').unsafeRef('model-storage-and-credentials'))
+and [passing variables and credential files to Docker]($link.page('llmd/reference/environment').unsafeRef('pass-variables-to-docker')).
 
 # [Troubleshooting]($heading.id('troubleshooting'))
 
@@ -365,5 +365,5 @@ and [passing variables and credential files to Docker]($link.page('reference/env
 - **The chat request fails.** Compare the ID returned by the model check with
   the model ID in the chat request.
 - **LLMD runs out of memory.** Check the checkpoint and accelerator
-  [requirements]($link.page('reference/compatibility')). Try a smaller
+  [requirements]($link.page('llmd/reference/compatibility')). Try a smaller
   checkpoint or reduce batch size in Launch options.

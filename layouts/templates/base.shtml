@@ -3,9 +3,7 @@
 <head id="site-head">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="$page.description">
   <meta name="theme-color" content="#ffffff">
-  <title :text="$page.title"></title>
   <link rel="icon" type="image/svg+xml" href="$site.asset('zml-mark.svg').link()">
   <script src="$site.asset('site-theme.js').link()"></script>
   <ctx :if="$build.development.not()">
@@ -41,24 +39,28 @@
     </div>
     <nav class="page-width product-tabs" aria-label="Product documentation">
       <ctx zml="$page.link().startsWith($site.page('zml').link())"
-           llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
-        <a href="$site.page('zml').link()"
-           aria-current="$site.page('zml').isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
-        <a href="$site.page('llmd').link()"
-           aria-current="$site.page('llmd').isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+           llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))"
+           reference="$page.custom.getOr('reference_source', '')">
+        <ctx zml_target="$site.page('zml', $ctx.reference)"
+             llmd_target="$site.page('llmd', $ctx.reference)">
+          <a href="$ctx.zml_target.link()"
+             aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
+          <a href="$ctx.llmd_target.link()"
+             aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+        </ctx>
       </ctx>
     </nav>
   </header>
   <main id="site-content" class="$site.index().isCurrent().then('page-width', 'page-width docs-layout')" tabindex="-1">
-    <ctx :if="$site.index().isCurrent().not()">
-      <details class="docs-sidebar" open>
-        <summary>Documentation navigation</summary>
-        <nav aria-label="Documentation sidebar">
-          <ctx zml="$page.link().startsWith($site.page('zml').link())"
-               llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
-            <ctx track="$ctx.zml.then('zml', $ctx.llmd.then('llmd', 'shared'))">
+    <ctx zml="$page.link().startsWith($site.page('zml').link())"
+         llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
+      <ctx :if="$ctx.zml.or($ctx.llmd)">
+        <details class="docs-sidebar" open>
+          <summary>Documentation navigation</summary>
+          <nav aria-label="Documentation sidebar">
+            <ctx track="$ctx.zml.then('zml', 'llmd')">
               <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy()">
-                <ctx :if="$loop.it.get('track').eql($ctx.track).or($loop.it.get('track').eql('shared'))">
+                <ctx :if="$loop.it.get('track').eql($ctx.track)">
                   <ctx pages="$loop.it.get('pages')" :loop="$loop.it.get('groups')">
                     <div class="sidebar-group">
                       <p class="sidebar-heading" :text="$loop.it"></p>
@@ -75,9 +77,9 @@
                 </ctx>
               </ctx>
             </ctx>
-          </ctx>
-        </nav>
-      </details>
+          </nav>
+        </details>
+      </ctx>
     </ctx>
     <super>
   </main>

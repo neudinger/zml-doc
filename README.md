@@ -50,7 +50,7 @@ including the Pagefind search index. Local builds use the URL in `zine.ziggy`.
 
 | Directory or file | Purpose |
 | --- | --- |
-| `content/` | Authored SuperMD pages: Start, ZML, LLMD, Operations; reserved Tools, Recipes, and Reference sections |
+| `content/` | SuperMD pages for Start, ZML, LLMD and Operations, including the reference articles |
 | `layouts/` | Shared SuperHTML content layout and base template |
 | `assets/` | CSS, favicon, and future published recordings |
 | `examples/` | Complete runnable example files, checked separately |
@@ -96,6 +96,12 @@ Add each documentation page to its reading order in
 sets the Previous and Next destinations. Its group, label, and icon set its
 sidebar entry. Operations pages belong to the LLMD reading order.
 
+Edit Hardware compatibility and Environment variables in [`content/reference/`](content/reference/).
+The entries in `content/zml/reference/` and `content/llmd/reference/` point to
+those sources through `reference_source`. Each product renders the same article
+and section IDs with its own sidebar and Previous/Next links. The original
+`/reference/` URLs also render the full articles for existing bookmarks.
+
 ## Validation and scope
 
 The build checks local links and fragments, duplicate HTML IDs, a single H1 per
@@ -103,7 +109,8 @@ page, duplicate routes, page/asset collisions, and missing assets. The native
 validator inspects Zine's generated, double-quoted `id`, `href`, and `src`
 attributes; it is not a general HTML, CSS URL, or external-link checker.
 
-**Search docs** covers ZML, LLMD, Operations, Start, and shared reference pages.
+**Search docs** covers ZML, LLMD, Operations, and Start. Reference results
+include the product name so readers can open the corresponding navigation.
 The article layout marks the content to index. Navigation and the homepage are
 outside the index. Recipe components, recordings, upstream imports, API
 generation, and the command builder are subsequent roadmap work.

@@ -44,7 +44,7 @@ Set `--platforms=@zml//platforms:linux_amd64` to target Linux x86-64. Other
 labels with the same prefix are `linux_arm64`, `macos_amd64`, and
 `macos_arm64`. Bazel uses the host platform by default for these commands
 unless a configuration selects another target platform. Check
-[Compatibility]($link.page('reference/compatibility')) for backend and host
+[Hardware compatibility]($link.page('zml/reference/compatibility')) for backend and host
 constraints before cross-building.
 
 At runtime, the examples using `Platform.auto()` try compiled-in backends in
@@ -59,7 +59,7 @@ runtime.
 Use a compatible Hugging Face checkpoint, such as Llama 3.2 1B Instruct.
 Request access to the gated model on Hugging Face, then authenticate with
 `bazel run //tools/hf -- auth login` or set `HF_TOKEN` in the environment.
-See [Environment variables]($link.page('reference/environment')) for storage
+See [Environment variables]($link.page('zml/reference/environment')) for storage
 and credentials.
 
 ```sh

@@ -32,6 +32,7 @@
     "Furiosa RNGD": "RNGD",
   };
   table.setAttribute("aria-label", "Checkpoint compatibility by backend");
+  table.setAttribute("role", "table");
   table.createTHead().append(header);
   header.cells[0].scope = "col";
   header.cells[1].remove();
@@ -57,11 +58,18 @@
     heading.append(...label.childNodes);
     label.replaceWith(heading);
     const cells = backendCells.map((cell, index) => {
+      const { backend } = columns[index];
+      const caption = document.createElement("span");
+      caption.className = "model-catalog-backend";
+      caption.textContent = shortNames[backend] ?? backend;
+      caption.setAttribute("aria-hidden", "true");
       const precision = cell.querySelector("code")?.textContent.trim();
-      if (!precision) return { cell };
+      if (!precision) {
+        cell.prepend(caption);
+        return { cell };
+      }
 
       precisions.add(precision);
-      const { backend } = columns[index];
       const links = Array.from(cell.querySelectorAll("a"));
       const button = document.createElement("button");
       button.type = "button";
@@ -69,18 +77,12 @@
       button.setAttribute("aria-label", `${name}, ${backend}, ${precision}`);
       button.setAttribute("aria-controls", panel.id);
       button.setAttribute("aria-pressed", "false");
-      const weight = document.createElement("span");
-      weight.className = "model-catalog-precision";
-      weight.textContent = precision;
-      const check = document.createElement("span");
-      check.className = "model-catalog-check";
-      check.textContent = "✓";
-      button.append(weight, check);
+      button.textContent = precision;
 
       const dash = document.createElement("span");
       dash.textContent = "—";
       dash.hidden = true;
-      cell.replaceChildren(button, dash);
+      cell.replaceChildren(caption, button, dash);
       const recipe = { name, backend, precision, links, button, dash };
       button.addEventListener("click", () => selectRecipe(recipe));
       return { cell, recipe };
@@ -207,7 +209,6 @@
   backendFilter.addEventListener("change", updateFilters);
   precisionFilter.addEventListener("change", updateFilters);
   familySelect.addEventListener("change", () => chooseFamily(families.get(familySelect.value)));
-  matrix.prepend(panel);
   familyResults.append(matrix);
   matrix.classList.add("is-interactive");
   updateFilters();

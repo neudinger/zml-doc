@@ -1,8 +1,9 @@
 ---
-.title = "Compatibility",
+.title = "Hardware compatibility",
 .description = "Choose a ZML build target or an LLMD artifact and checkpoint for your hardware.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .reference_source = "reference/compatibility" },
 ---
 Choose the product and then check the host, backend, and model together. A
 framework build setting describes which runtime can be included. A server image
@@ -59,5 +60,6 @@ are pending. When documenting a run, record the ZML commit or LLMD version,
 along with the host OS and device, model revision and precision, and observed
 prediction or completion.
 
-See [Environment variables]($link.page('reference/environment')) for model
-credentials and backend settings.
+~~~=html
+<p>See <a href="../environment/">Environment variables</a> for model credentials and backend settings.</p>
+~~~
