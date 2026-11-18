@@ -1,0 +1,5 @@
+---
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .reference_source = "reference/environment", .product = "ZML", .doc_section = "CLI Reference", .reference_route = "reference/cli-environment" },
+---

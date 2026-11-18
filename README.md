@@ -2,7 +2,8 @@
 
 Static documentation built with Zine, SuperMD, and SuperHTML. The base site
 contains the Build with ZML and Serve models with LLMD entry paths. The
-documentation tabs select a product sidebar, with Operations under LLMD.
+product tabs keep the selected section when switching between ZML and LLMD.
+Each section has its own sidebar. Operations is in the LLMD User Guide.
 The implementation roadmap is in [plan.md](plan.md).
 
 ## Requirements
@@ -91,16 +92,19 @@ from the **On this page** list. Use Zine page links such as
 deployment prefix. Assets are published when referenced; static asset directories
 can be declared explicitly in `zine.ziggy` when needed.
 
-Add each documentation page to its reading order in
-[`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Its position
-sets the Previous and Next destinations. Its group, label, and icon set its
-sidebar entry. Operations pages belong to the LLMD reading order.
+Set `custom.doc_section` to the section label in the page front matter. It defaults
+to `User Guide`. Add the page to its product’s reading order in
+[`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Its position sets
+the Previous and Next destinations. An optional group places it under a sidebar
+heading such as Operations. Use `topics` to link to individual heading IDs on a
+long article. The `sections` list sets the tab order and each product’s entry page.
 
 Edit Hardware compatibility and Environment variables in [`content/reference/`](content/reference/).
 The entries in `content/zml/reference/` and `content/llmd/reference/` point to
 those sources through `reference_source`. Each product renders the same article
-and section IDs with its own sidebar and Previous/Next links. The original
-`/reference/` URLs also render the full articles for existing bookmarks.
+and section IDs with its own sidebar and Previous/Next links. The CLI Reference
+also links to Environment variables in its own section. Pagefind indexes one
+copy per product. The original `/reference/` URLs preserve existing bookmarks.
 
 ## Validation and scope
 

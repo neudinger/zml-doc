@@ -3,6 +3,7 @@
 .description = "Choose a ZML backend, run a model example, and package a build for another machine.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
 ---
 Run these commands from the ZML checkout in the
 [ZML quickstart]($link.page('zml/quickstart')). The flags and defaults below

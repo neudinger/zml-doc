@@ -1,0 +1,57 @@
+---
+.title = "Connect an application to LLMD",
+.description = "Discover the served model, send a chat request, and handle streaming responses and tool calls.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
+---
+Start with a running server from the [LLMD quickstart]($link.page('llmd/quickstart')).
+The example below uses Python 3 and its standard library.
+
+# [Connect an application]($heading.id('connect-an-application'))
+
+Set the base URL to your server's address with the `/v1` suffix. Read the
+model ID from the server so the client also works when the operator sets a
+custom model name.
+
+```python
+import json
+from urllib.request import Request, urlopen
+
+base_url = "http://127.0.0.1:8000/v1"
+with urlopen(f"{base_url}/models") as response:
+    model_id = json.load(response)["data"][0]["id"]
+
+payload = {
+    "model": model_id,
+    "messages": [{"role": "user", "content": "Reply with a short greeting."}],
+}
+request = Request(
+    f"{base_url}/chat/completions",
+    data=json.dumps(payload).encode(),
+    headers={"Content-Type": "application/json"},
+)
+with urlopen(request) as response:
+    print(json.load(response)["choices"][0]["message"]["content"])
+```
+
+For a deployment that requires authentication, supply its credentials on both
+requests. See the [chat completion reference]($link.page('llmd/api').ref('create-a-chat-completion'))
+for response fields and generation settings.
+
+# [Stream a chat completion]($heading.id('stream-a-chat-completion'))
+
+Set `stream` to `true` to receive server-sent events. Read events as they
+arrive and append each `choices[0].delta.content` value when present.
+An optional usage event has an empty `choices` array. Stop at `[DONE]`.
+The [streaming request example]($link.page('llmd/api').ref('stream-a-chat-completion'))
+shows how to inspect the event stream with curl.
+
+# [Call tools from a client]($heading.id('call-tools-from-a-client'))
+
+Use a checkpoint and chat template that support tool calls. Pass function
+definitions in `tools`. When the assistant returns a tool call, validate its
+name and arguments, run the function in the client, and send the result in a
+new completion. Include the original assistant message and a `tool` message
+with the matching `tool_call_id`. The [tool call reference]($link.page('llmd/api').ref('call-tools-from-a-client'))
+includes a function schema and the expected message fields.

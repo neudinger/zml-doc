@@ -1,12 +1,13 @@
 ---
 .title = "LLMD quickstart",
-.description = "Serve a model and send your first chat request.",
+.description = "Serve a model and send your first chat, Decision, or embeddings request.",
 .date = .date("2026-11-17T00:00:00"),
 .layout = "content.shtml",
 ---
-Choose where LLMD will run, select a checkpoint and model source, then use the
-generated commands on that host. See [Model compatibility]($link.page('llmd/models'))
-for published recipes.
+Choose a checkpoint and run target. Use **Launch** to serve chat, Decision,
+or embeddings requests. Text generation checkpoints also offer **Benchmark**. The
+[model catalog]($link.page('llmd/models')) lists routine test configurations
+and links to published recipes.
 
 ```=html
 <div class="llmd-launch" data-llmd-launch>
@@ -22,6 +23,8 @@ for published recipes.
   <div id="qwen3-8-27b-fp8-metal"></div>
   <div id="qwen3-8-27b-cuda"></div>
   <div id="qwen3-8-27b-rocm"></div>
+  <div id="qwen3-8-27b-cuda-dspine"></div>
+  <div id="qwen3-8-27b-rocm-dspine"></div>
   <div id="qwen3-8-27b-oneapi"></div>
   <div id="qwen3-8-27b-tpu"></div>
   <div id="qwen3-8-27b-nvfp4-metal"></div>
@@ -33,7 +36,7 @@ for published recipes.
   <div id="gemma-4-31b-it-cuda"></div>
   <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
   <div class="llmd-launch-layout">
-    <form class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
+    <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
       <h2 id="llmd-launch-settings-heading">Configure launch</h2>
       <div class="llmd-launch-recipe">
         <div class="llmd-launch-field">
@@ -51,24 +54,25 @@ for published recipes.
         <div class="llmd-launch-field llmd-launch-checkpoint">
           <label for="llmd-launch-checkpoint">Checkpoint model</label>
           <select id="llmd-launch-checkpoint" name="checkpoint" aria-describedby="llmd-launch-checkpoint-hint">
-            <option>LiquidAI/LFM3-1.7B-FP8</option>
-            <option>LiquidAI/LFM3-1.7B</option>
-            <option>Qwen/Qwen3.8-27B</option>
-            <option>Qwen/Qwen3.8-27B-FP8</option>
-            <option>nvidia/Qwen3.8-27B-NVFP4</option>
-            <option>Qwen/Qwen3.8-Flash-Next</option>
-            <option>deepseek-ai/DeepSeek-V4.1-Flash</option>
-            <option>mistralai/Mistral-Large-4-1T-A52B</option>
-            <option>google/gemma-4-31B-it</option>
-            <option>meta-llama/Llama-3.1-8B-Instruct</option>
-            <option>Qwen/Qwen3.5-9B</option>
-            <option>Qwen/Qwen3.5-35B-A3B</option>
-            <option>Qwen/Qwen3.6-35B-A3B-FP8</option>
-            <option>google/gemma-4-12B-it</option>
-            <option>google/gemma-4-26B-A4B-it</option>
-            <option>meta-models/Muse-Glimmer-30B</option>
-            <option>poolside/Laguna-XS-2.1</option>
-            <option>mistralai/Ministral-3-14B-Reasoning-2512</option>
+            <optgroup label="Routine test checkpoints" data-routine-options>
+              <option selected>LiquidAI/LFM3-1.7B</option>
+            </optgroup>
+            <optgroup label="Decision checkpoints" data-decision-options></optgroup>
+            <optgroup label="Embedding checkpoints" data-embeddings-options></optgroup>
+            <optgroup label="Additional checkpoints">
+              <option>LiquidAI/LFM3-1.7B-FP8</option>
+              <option>nvidia/Qwen3.8-27B-NVFP4</option>
+              <option>deepseek-ai/DeepSeek-V4.1-Flash</option>
+              <option>mistralai/Mistral-Large-4-1T-A52B</option>
+              <option>meta-llama/Llama-3.1-8B-Instruct</option>
+              <option>Qwen/Qwen3.5-9B</option>
+              <option>Qwen/Qwen3.5-35B-A3B</option>
+              <option>Qwen/Qwen3.6-35B-A3B-FP8</option>
+              <option>google/gemma-4-12B-it</option>
+              <option>meta-models/Muse-Glimmer-30B</option>
+              <option>poolside/Laguna-XS-2.1</option>
+              <option>mistralai/Ministral-3-14B-Reasoning-2512</option>
+            </optgroup>
           </select>
           <span class="llmd-launch-field-hint llmd-launch-checkpoint-value" aria-hidden="true" data-selected-checkpoint></span>
           <span class="llmd-launch-field-hint" id="llmd-launch-checkpoint-hint" role="status" data-fit></span>
@@ -86,22 +90,23 @@ for published recipes.
       <div class="llmd-launch-storage">
         <div class="llmd-launch-field" data-local hidden>
           <label for="llmd-launch-directory">Host checkpoint directory</label>
-          <textarea id="llmd-launch-directory" name="directory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-directory-error">${HOME}/models/LiquidAI/LFM3-1.7B-FP8</textarea>
+          <textarea id="llmd-launch-directory" name="directory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-directory-error">${HOME}/models/LiquidAI/LFM3-1.7B</textarea>
           <span class="llmd-launch-field-hint" id="llmd-launch-directory-hint">Enter one path, such as ${HOME}/models/org/checkpoint. Omit <code>..</code> and trailing spaces.</span>
           <span class="llmd-launch-field-error" id="llmd-launch-directory-error" data-field-error="directory" aria-live="polite"></span>
         </div>
-        <div data-dspine hidden>
-          <label class="llmd-launch-checkbox">
-            <input name="dspine" type="checkbox" aria-describedby="llmd-dspine-hint" disabled> DSpine speculative decoding
-          </label>
-          <p class="llmd-launch-hint" id="llmd-dspine-hint">Off by default. DSpine requires LLMD 20261112.0 or later and sets batch size to 1 when enabled.</p>
-          <fieldset class="llmd-launch-drafter" data-drafter-source disabled>
+        <div class="llmd-launch-field" data-decoding-field>
+          <label for="llmd-launch-decoding">Decoding mode</label>
+          <select id="llmd-launch-decoding" name="decoding" aria-describedby="llmd-decoding-hint">
+            <option value="standard">Standard</option>
+          </select>
+          <span class="llmd-launch-field-hint" id="llmd-decoding-hint" data-decoding-hint></span>
+          <fieldset class="llmd-launch-drafter" data-drafter-source hidden disabled>
             <legend>Drafter source</legend>
             <label class="llmd-launch-checkbox">
               <input type="radio" name="drafterSource" value="hub" checked> Hugging Face at launch
             </label>
             <label class="llmd-launch-checkbox">
-              <input type="radio" name="drafterSource" value="local" aria-describedby="llmd-launch-drafter-path"> Mount local drafter
+              <input type="radio" name="drafterSource" value="local" aria-describedby="llmd-launch-drafter-path"> Use a local drafter
             </label>
             <p class="llmd-launch-field-hint" id="llmd-launch-drafter-path" data-drafter-path hidden>Download the drafter from the Drafter tab or reuse an existing copy at <code data-drafter-directory></code>.</p>
           </fieldset>
@@ -185,25 +190,25 @@ for published recipes.
             <div class="llmd-launch-options-grid">
               <div class="llmd-launch-field">
                 <label for="llmd-launch-context">Context tokens</label>
-                <input id="llmd-launch-context" name="context" type="text" inputmode="numeric" placeholder="Recipe default" aria-describedby="llmd-launch-context-hint llmd-launch-context-error">
+                <input id="llmd-launch-context" name="context" type="text" inputmode="numeric" placeholder="LLMD default" aria-describedby="llmd-launch-context-hint llmd-launch-context-error">
                 <span class="llmd-launch-field-hint" id="llmd-launch-context-hint">Whole number from 1 to 4,294,967,295, or blank.</span>
                 <span class="llmd-launch-field-error" id="llmd-launch-context-error" data-field-error="context" aria-live="polite"></span>
               </div>
               <div class="llmd-launch-field" data-batch>
                 <label for="llmd-launch-batch">Batch size</label>
-                <input id="llmd-launch-batch" name="batch" type="text" inputmode="numeric" placeholder="Recipe default" aria-describedby="llmd-launch-batch-hint llmd-launch-batch-error">
+                <input id="llmd-launch-batch" name="batch" type="text" inputmode="numeric" placeholder="LLMD default" aria-describedby="llmd-launch-batch-hint llmd-launch-batch-error">
                 <span class="llmd-launch-field-hint" id="llmd-launch-batch-hint">Whole number from 1 to 4,294,967,295, or blank.</span>
                 <span class="llmd-launch-field-error" id="llmd-launch-batch-error" data-field-error="batch" aria-live="polite"></span>
               </div>
               <div class="llmd-launch-field">
                 <label for="llmd-launch-tokens">Token batch size</label>
-                <input id="llmd-launch-tokens" name="tokens" type="text" inputmode="numeric" placeholder="Recipe default" aria-describedby="llmd-launch-tokens-hint llmd-launch-tokens-error">
+                <input id="llmd-launch-tokens" name="tokens" type="text" inputmode="numeric" placeholder="LLMD default" aria-describedby="llmd-launch-tokens-hint llmd-launch-tokens-error">
                 <span class="llmd-launch-field-hint" id="llmd-launch-tokens-hint">Whole number from 1 to 4,294,967,295, or blank.</span>
                 <span class="llmd-launch-field-error" id="llmd-launch-tokens-error" data-field-error="tokens" aria-live="polite"></span>
               </div>
               <div class="llmd-launch-field">
                 <label for="llmd-launch-memory">GPU memory fraction</label>
-                <input id="llmd-launch-memory" name="memory" type="text" inputmode="decimal" placeholder="Recipe default" aria-describedby="llmd-launch-memory-hint llmd-launch-memory-error">
+                <input id="llmd-launch-memory" name="memory" type="text" inputmode="decimal" placeholder="LLMD default" aria-describedby="llmd-launch-memory-hint llmd-launch-memory-error">
                 <span class="llmd-launch-field-hint" id="llmd-launch-memory-hint">Decimal greater than 0 and at most 1, such as 0.5, or blank.</span>
                 <span class="llmd-launch-field-error" id="llmd-launch-memory-error" data-field-error="memory" aria-live="polite"></span>
               </div>
@@ -223,8 +228,9 @@ for published recipes.
         <button type="button" data-command-choice="download" aria-controls="download-checkpoint" aria-pressed="false" hidden>Download</button>
         <button type="button" data-command-choice="drafter-download" aria-controls="download-drafter" aria-pressed="false" hidden>Drafter</button>
         <button type="button" data-command-choice="launch" aria-controls="llmd-launch-steps" aria-pressed="true">Launch</button>
+        <button type="button" data-command-choice="benchmark" aria-controls="llmd-benchmark" aria-pressed="false">Benchmark</button>
       </div>
-      <dl class="llmd-launch-context" aria-label="Server connection">
+      <dl class="llmd-launch-context" aria-label="Server connection" data-server-context>
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
         <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
       </dl>
@@ -238,7 +244,7 @@ for published recipes.
         </div>
       </section>
       <section id="download-drafter" data-command-panel="drafter-download" data-pagefind-ignore hidden>
-        <h2>Download DSpine drafter</h2>
+        <h2>Download drafter</h2>
         <p class="llmd-launch-hint">Download once on the LLMD host, or reuse an existing copy at this path.</p>
         <div class="command-shell">
           <span class="command-language icon-code">Host shell</span>
@@ -249,7 +255,7 @@ for published recipes.
         <details id="before-you-start" class="llmd-launch-requirements">
           <summary>Before you run</summary>
           <p data-requirements>Use Apple Silicon, macOS Tahoe or later, and Homebrew. Use LLMD 20261112.0 or later on M1 and M2.</p>
-          <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Run the model check and chat request from the TPU VM using the host port.</p>
+          <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Send requests from the TPU VM using the host port.</p>
           <div data-furiosa-requirements hidden>
             <p><strong>Install the device tools.</strong> Furiosa supports Docker Engine 25 or later. The Container Device Interface (CDI) tools require Linux kernel 6.3 or later and administrator access. On Ubuntu 22.04 LTS, Debian 12, or later, add Furiosa's package repository and install the RNGD driver first. See the <a href="https://developer.furiosa.ai/latest/en/get_started/prerequisites.html">host prerequisites</a>.</p>
             <pre><code class="sh">sudo apt update
@@ -286,40 +292,125 @@ furiosa-cdi list</code></pre>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
             <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
-  --model=hf://LiquidAI/LFM3-1.7B-FP8 \
-  --model-name=LFM3-1.7B-FP8 --batch-size=4</code></pre>
+  --model=hf://LiquidAI/LFM3-1.7B</code></pre>
           </div>
         </div>
       </section>
-      <div class="llmd-launch-requests">
+      <div class="llmd-launch-requests" data-server-requests>
         <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
         <section id="check-the-loaded-model">
           <h2><span class="llmd-launch-step-number">3</span> Check the loaded model</h2>
-          <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Expect <code data-expected-model-id>LFM3-1.7B-FP8</code> in <code>data[0].id</code>.</p>
+          <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Expect <code data-expected-model-id>LFM3-1.7B</code> in <code>data[0].id</code>.</p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
             <pre><code class="sh" data-command="models" data-copy-label="Copy model check command">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
           </div>
         </section>
-        <section id="send-a-chat-request">
-          <h2><span class="llmd-launch-step-number">4</span> Send a chat request</h2>
-          <p class="llmd-launch-hint">Run this after verification. Look for the reply in <code>choices[0].message.content</code>.</p>
-          <div class="command-shell">
-            <span class="command-language icon-code">Host shell</span>
-            <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+        <section id="first-request">
+          <h2><span class="llmd-launch-step-number">4</span> Send a request</h2>
+          <div class="llmd-launch-field" data-request-type hidden>
+            <label for="llmd-request-type">Request type</label>
+            <select id="llmd-request-type" name="request" form="llmd-launch-form" aria-describedby="llmd-request-hint">
+              <option value="chat">Chat</option>
+              <option value="decision">Decision</option>
+            </select>
+            <span class="llmd-launch-field-hint" id="llmd-request-hint">Choose the endpoint for the first request to this checkpoint.</span>
+          </div>
+          <div id="send-a-chat-request" data-chat-request>
+            <h3>Chat request</h3>
+            <p class="llmd-launch-hint">Run this after verification. Look for the reply in <code>choices[0].message.content</code>.</p>
+            <div class="command-shell">
+              <span class="command-language icon-code">Host shell</span>
+              <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -d '{"model":"LFM3-1.7B-FP8","messages":[{"role":"user","content":"Reply with one short greeting."}]}'</code></pre>
+  -d '{"model":"LFM3-1.7B","messages":[{"role":"user","content":"Reply with one short greeting."}]}'</code></pre>
+            </div>
+          </div>
+          <div id="send-a-decision-request" data-decision-request>
+            <h3>Decision request</h3>
+            <p class="llmd-launch-hint">Send the state and questions to the loaded checkpoint. Read the selected animal in <code>answers.animal.label</code>. To format a successful JSON response, append <code>| jq .</code>.</p>
+            <div class="command-shell">
+              <span class="command-language icon-code">Host shell</span>
+              <pre><code class="sh" data-command="decision" data-copy-label="Copy Decision request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "state": "The animal sits on the mat, purrs and chases a red laser dot.",
+    "questions": {
+      "animal": {"kind": "choice", "instructions": "Which animal is it?", "criteria": {"cat": null, "dog": "barks"}},
+      "cute": {"kind": "noul", "instructions": "Is it cute?", "ask_if": {"animal": ["cat"]}},
+      "rating": {"kind": "score", "instructions": "How playful is it?", "criteria": ["low", "medium", "high"], "depends_on": ["cute"]}
+    }
+  }'</code></pre>
+            </div>
+          </div>
+          <div id="send-an-embeddings-request" data-embeddings-request>
+            <h3>Embeddings request</h3>
+            <p class="llmd-launch-hint">With <code>Qwen/Qwen3-Embedding-8B</code> loaded, send text to <code>POST /v1/embeddings</code>. The first vector is in <code>data[0].embedding</code>. To inspect its length and first four values, append <code>| jq '.data[0].embedding | {length: length, first_four: .[:4]}'</code>.</p>
+            <noscript><p>For this example, use <code>--model=hf://Qwen/Qwen3-Embedding-8B</code> in the launch command above.</p></noscript>
+            <div class="command-shell">
+              <span class="command-language icon-code">Host shell</span>
+              <pre><code class="sh" data-command="embeddings" data-copy-label="Copy embeddings request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "input": "The quick brown fox jumps over the lazy dog.",
+    "encoding_format": "float"
+  }'</code></pre>
+            </div>
           </div>
         </section>
       </div>
+      <section id="llmd-benchmark" data-command-panel="benchmark" aria-label="Benchmark commands" tabindex="-1">
+        <h2>Benchmark decoding</h2>
+        <p class="llmd-launch-hint">After installing LLMD or pulling the image, run on an idle accelerator. Each command uses a free local port (<code>127.0.0.1:0</code>), prints results, and exits. The benchmark uses LLMD’s default batch size, context length, and workload.</p>
+        <p class="llmd-launch-error" data-benchmark-error role="status" hidden>Correct the highlighted storage path to generate the benchmark commands.</p>
+        <div class="llmd-launch-step" data-benchmark-standard>
+          <h3>Standard decoding</h3>
+          <div class="command-shell">
+            <span class="command-language icon-code">Host shell</span>
+            <pre><code class="sh" data-command="benchmark-standard" data-copy-label="Copy standard benchmark command">llmd --listen=127.0.0.1:0 \
+  --model=hf://LiquidAI/LFM3-1.7B \
+  --bench</code></pre>
+          </div>
+        </div>
+        <div class="llmd-launch-step" data-benchmark-speculative hidden>
+          <h3 data-benchmark-mode>Speculative decoding</h3>
+          <p class="llmd-launch-hint">Run this after the standard run finishes. Compare time to first token (TTFT) and completion tokens per second.</p>
+          <div class="command-shell">
+            <span class="command-language icon-code">Host shell</span>
+            <pre><code class="sh" data-command="benchmark-speculative" data-copy-label="Copy speculative benchmark command"></code></pre>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </div>
 ```
 
+To build a Decision request, see [Ask structured questions]($link.page('llmd/decision'))
+and the [Decision API reference]($link.page('llmd/api').ref('decision')).
+To use embedding vectors, see [Compare texts with embeddings]($link.page('llmd/text-similarity'))
+and the [Embeddings API reference]($link.page('llmd/api').ref('embeddings')).
 For streaming and tool calls, see the [LLMD API reference]($link.page('llmd/api')).
 To route traffic to a verified instance, follow the
 [deployment guide]($link.page('operations/deployment').ref('route-client-traffic')).
+
+# [Decoding mode]($heading.id('decoding-mode'))
+
+- **Standard** leaves speculative decoding off. Leave the LLMD overrides blank
+  to use its default batch size, context length, and memory settings.
+- **Native MTP** uses the drafter bundled with the checkpoint. LLMD receives
+  `--speculative-drafter-model=native`, and only the main checkpoint needs to be downloaded.
+- **External drafter** uses the companion checkpoint shown for the selected
+  model. Load it from Hugging Face at launch or download it under
+  `${HOME}/models/<org>/<drafter>`. Docker mounts a local drafter read-only at
+  `/drafter`. On Apple Silicon, LLMD opens the host directory directly.
+
+The published **DSpine** recipe for Qwen3.8-27B on CUDA and ROCm uses its own
+drafter and batch size 1. The routine DFlash and native MTP configurations leave
+batch size and draft count at LLMD's defaults. See the
+[CLI examples]($link.page('llmd/cli').ref('choose-a-decoding-mode')) or
+[compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes'))
+on the same hardware.
 
 # [Checkpoint storage]($heading.id('checkpoint-storage'))
 
@@ -335,6 +426,8 @@ To route traffic to a verified instance, follow the
 For either local option, select the directory containing `config.json`. Keep
 the tokenizer, Safetensors weights, any weight index and shards, and any
 provided chat template or generation settings together from the same revision.
+For Qwen3-Embedding-8B, download the complete checkpoint, including the
+sentence-transformers module and pooling configuration files.
 To pin a download, add `--revision <commit>` to the generated download command
 and use a separate directory for that revision.
 

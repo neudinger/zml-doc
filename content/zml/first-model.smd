@@ -3,6 +3,7 @@
 .description = "Define a tagged linear layer, compile it for CPU, and read its output back on the host.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
 ---
 Build a linear layer with three input features and two output scores. The
 example uses fixed weights so you can calculate the expected scores by hand.

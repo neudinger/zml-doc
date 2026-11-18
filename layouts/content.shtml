@@ -1,6 +1,9 @@
 <extend template="base.shtml">
 <head id="site-head">
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
+    <ctx :if="$page.custom.has('reference_route')">
+      <link rel="canonical" href="$site.page($page.custom.get('product').lower(), $page.custom.get('reference_source')).link()">
+    </ctx>
     <meta name="description" content="$ctx.article.description">
     <ctx title="$ctx.article.title.suffix($page.custom.has('product').then(' · '), $page.custom.getOr('product', ''))">
       <title :text="$ctx.title"></title>
@@ -32,7 +35,10 @@
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
     <article class="document">
       <header class="document-header">
-        <p class="eyebrow" :text="$page.custom.has('product').then($page.custom.getOr('product', '').suffix(' / Reference'), 'ZML / LLMD')"></p>
+        <ctx zml="$page.link().startsWith($site.page('zml').link())"
+             llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
+          <p class="eyebrow" :text="$ctx.zml.or($ctx.llmd).then($ctx.zml.then('ZML', 'LLMD').suffix(' / ', $page.custom.getOr('doc_section', 'User Guide')), 'ZML / LLMD')"></p>
+        </ctx>
         <h1 :text="$ctx.article.title"></h1>
         <p class="description" :text="$ctx.article.description"></p>
       </header>
@@ -46,18 +52,122 @@
           </ctx>
         </ctx>
         <ctx legacy="$page.custom.has('reference_source').and($page.custom.has('product').not())">
-          <ctx :if="$ctx.legacy.not()">
+          <ctx :if="$ctx.legacy.or($page.custom.has('reference_route'))">
+            <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
+          </ctx>
+          <ctx :if="$ctx.legacy.not().and($page.custom.has('reference_route').not())">
             <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
           </ctx>
+          <ctx :if="$site.page('llmd/quickstart').isCurrent()">
+            <div hidden data-llmd-routines data-pagefind-ignore>
+              <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()">
+                <ctx :loop="$ctx.routines.get('checkpoints')">
+                  <ctx model="$loop.it" :if="$loop.it.has('modes')">
+                    <div data-checkpoint="$ctx.model.get('id')">
+                      <ctx :loop="$ctx.model.get('modes')">
+                        <span data-decoding="$loop.it" data-drafter="$loop.it.eql('external').then($ctx.model.getOr('drafter', ''), '')"
+                              :text="$ctx.routines.get('modes').get($loop.it)"></span>
+                      </ctx>
+                    </div>
+                  </ctx>
+                </ctx>
+              </ctx>
+            </div>
+            <div hidden data-llmd-decision data-pagefind-ignore>
+              <ctx :loop="$site.asset('llmd-routines.ziggy').ziggy().get('checkpoints')">
+                <ctx :if="$loop.it.getOr('decision', false)">
+                  <span data-checkpoint="$loop.it.get('id')"></span>
+                </ctx>
+              </ctx>
+            </div>
+            <div hidden data-llmd-embeddings data-pagefind-ignore>
+              <ctx :loop="$site.asset('llmd-routines.ziggy').ziggy().get('checkpoints')">
+                <ctx :if="$loop.it.getOr('embeddings', false)">
+                  <span data-checkpoint="$loop.it.get('id')"></span>
+                </ctx>
+              </ctx>
+            </div>
+          </ctx>
+          <ctx :if="$site.page('llmd/models').isCurrent()">
+            <section data-llmd-routine-list class="prose" data-pagefind-body aria-labelledby="routine-configurations">
+              <h2 id="routine-configurations">Routine test configurations</h2>
+              <p>Expand a decoding mode and choose a backend to configure its launch. These combinations are routine test targets. A linked recipe or recorded result gives evidence for its specific configuration.</p>
+              <table data-llmd-routines>
+                <thead><tr><th scope="col">Checkpoint</th><th scope="col">Decoding and launch</th></tr></thead>
+                <tbody>
+                  <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()" quickstart="$site.page('llmd/quickstart').link()">
+                    <ctx :loop="$ctx.routines.get('checkpoints')">
+                      <ctx model="$loop.it" :if="$loop.it.has('modes')">
+                        <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
+                          <th scope="row"><a href="$ctx.model.get('id').prefix('https://huggingface.co/')"
+                              data-pagefind-index-attrs="data-name" data-name="$ctx.model.get('id').basename()" :text="$ctx.model.get('id')"></a></th>
+                          <td>
+                            <p :if="$ctx.model.has('drafter')">External drafter <code data-pagefind-index-attrs="data-name"
+                                data-name="$ctx.model.get('drafter').basename()" :text="$ctx.model.get('drafter')"></code></p>
+                            <ctx :loop="$ctx.model.get('modes')">
+                              <ctx mode="$loop.it" drafter="$loop.it.eql('external').then($ctx.model.getOr('drafter', ''), '')">
+                                <details data-decoding="$ctx.mode" data-drafter="$ctx.drafter">
+                                  <summary :text="$ctx.routines.get('modes').get($ctx.mode)"></summary>
+                                  <ul data-pagefind-ignore>
+                                    <ctx :loop="$ctx.routines.get('backends')">
+                                      <li><a data-backend="$loop.it.get('id')"
+                                             href="$ctx.quickstart.suffix('?checkpoint=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=', $ctx.mode)"
+                                             :text="$loop.it.get('name')"></a></li>
+                                    </ctx>
+                                  </ul>
+                                </details>
+                              </ctx>
+                            </ctx>
+                          </td>
+                        </tr>
+                      </ctx>
+                    </ctx>
+                  </ctx>
+                </tbody>
+              </table>
+            </section>
+            <ctx inventory="$site.asset('llmd-routines.ziggy').ziggy()" quickstart="$site.page('llmd/quickstart').link()">
+              <ctx :loop="$ctx.inventory.get('capabilities')">
+                <ctx capability="$loop.it">
+                  <section data-llmd-capability-list data-request="$ctx.capability.get('id')" class="prose" data-pagefind-body aria-labelledby="$ctx.capability.get('anchor')">
+                    <h2 id="$ctx.capability.get('anchor')" :text="$ctx.capability.get('heading')"></h2>
+                    <p :text="$ctx.capability.get('description')"></p>
+                    <table>
+                      <thead><tr><th scope="col">Checkpoint</th><th scope="col">Configure launch</th></tr></thead>
+                      <tbody>
+                        <ctx :loop="$ctx.inventory.get('checkpoints')">
+                          <ctx model="$loop.it" :if="$loop.it.getOr($ctx.capability.get('id'), false)">
+                            <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
+                              <th scope="row"><a href="$ctx.model.get('id').prefix('https://huggingface.co/')"
+                                  data-pagefind-index-attrs="data-name" data-name="$ctx.model.get('id').basename()" :text="$ctx.model.get('id')"></a></th>
+                              <td><details>
+                                <summary :text="$ctx.capability.get('label')"></summary>
+                                <ul data-pagefind-ignore>
+                                  <ctx :loop="$ctx.inventory.get('backends')">
+                                    <li><a data-backend="$loop.it.get('id')"
+                                           href="$ctx.quickstart.suffix('?checkpoint=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=standard&request=', $ctx.capability.get('id'))"
+                                           :text="$loop.it.get('name')"></a></li>
+                                  </ctx>
+                                </ul>
+                              </details></td>
+                            </tr>
+                          </ctx>
+                        </ctx>
+                      </tbody>
+                    </table>
+                  </section>
+                </ctx>
+              </ctx>
+            </ctx>
+          </ctx>
           <ctx :if="$ctx.legacy">
-            <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
             <nav id="next-steps" class="article-pager" aria-label="Read this reference in a product">
               <a href="$site.page('zml', $page.custom.get('reference_source')).link()">Read in ZML →</a>
               <a href="$site.page('llmd', $page.custom.get('reference_source')).link()">Read in LLMD →</a>
             </nav>
           </ctx>
         </ctx>
-        <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy()">
+        <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy().get('tracks')">
           <ctx pages="$loop.it.get('pages')">
             <ctx :loop="$ctx.pages">
               <ctx :if="$site.page($loop.it.get('path')).isCurrent()">

@@ -3,6 +3,7 @@
 .description = "Map tensor dimensions to a device mesh and run the sharding and data-parallel MNIST examples with Bazel.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
 ---
 Run these examples from the checkout in the
 [ZML quickstart]($link.page('zml/quickstart')). The default CPU backend

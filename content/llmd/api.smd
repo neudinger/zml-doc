@@ -1,8 +1,9 @@
 ---
 .title = "LLMD API reference",
-.description = "List the loaded model and call LLMD's OpenAI-compatible chat endpoint with JSON or streaming responses.",
+.description = "List the loaded model, send chat and Decision requests, and create text embeddings.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
 ---
 Use `http://127.0.0.1:8000` for the server in the
 [LLMD quickstart]($link.page('llmd/quickstart')). A client that accepts an
@@ -12,7 +13,7 @@ deployment, use its base URL and any authentication it requires.
 # [List the loaded model]($heading.id('list-the-loaded-model'))
 
 `GET /v1/models` returns the model served by this LLMD instance in `data`.
-Use its `id` in subsequent requests. The CLI's `--model-name` sets the ID.
+Use its `id` in chat requests. The CLI's `--model-name` sets the ID.
 When omitted, LLMD uses the basename of `--model`. Start a server with a
 different checkpoint to serve a different model. See
 [Checkpoint storage]($link.page('llmd/quickstart').ref('checkpoint-storage'))
@@ -24,8 +25,8 @@ curl -fsS http://127.0.0.1:8000/v1/models
 
 # [Create a chat completion]($heading.id('create-a-chat-completion'))
 
-Send JSON to `POST /v1/chat/completions`. The example uses the ID from the
-quickstart. Substitute the ID returned by your server.
+Send JSON to `POST /v1/chat/completions` with the ID returned by your server.
+This chat example uses `LiquidAI/LFM3-1.7B-FP8`.
 
 ```sh
 curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -129,6 +130,118 @@ encoded as a JSON string. The client validates and executes the function.
 For the next completion, include the assistant message with its tool calls,
 followed by a message with `role` set to `tool`, `tool_call_id` set to the
 matching ID, and `content` set to the tool result.
+
+# [Decision]($heading.id('decision'))
+
+`POST /v1/systemone` accepts a JSON object and returns scored labels for the
+requested questions. The loaded checkpoint must support Decision. Use the
+[worked request]($link.page('llmd/decision').ref('send-a-decision-request'))
+or copy one from the [quickstart]($link.page('llmd/quickstart').unsafeRef('send-a-decision-request')).
+
+| Request field | Type | Meaning |
+| --- | --- | --- |
+| `state` | String or object, required | Input shared by every question. The server renders an object as compact JSON. |
+| `questions` | Object, required | Maps question IDs to definitions. IDs must be nonempty and exclude the colon character. Send dependencies before the questions that reference them. |
+| `instructions` | String, optional | System instructions shared by all questions. |
+| `ask` | Array of question IDs, optional | Select the questions to answer. Include every dependency of the selected questions. Omitting this field asks all questions. |
+| `model` | String, optional | The endpoint uses the checkpoint already loaded by LLMD. The field can be omitted. |
+
+Each question requires `kind` and a string `instructions`. Its `criteria`
+describe the possible labels.
+
+| `kind` | `criteria` | Successful `label` |
+| --- | --- | --- |
+| `choice` | Required object mapping labels to descriptions. Use a string or `null` for each description. | One of the object keys. |
+| `noul` | Optional object with descriptions under `"true"` and `"false"`. | The string `"true"` or `"false"`. |
+| `score` | Required array of scale labels, such as `["low","medium","high"]`. | One of the supplied strings. |
+
+Use `depends_on` to supply a list of earlier question IDs whose available
+labels become context. Use `ask_if` to gate execution. Its keys are earlier
+question IDs and its values are arrays of acceptable labels. Every named
+question must return a label in its corresponding array for the question to run.
+
+**Response.** `answers` maps each requested ID to a result. A successful entry
+contains the winning `label`, a `scores` array, and `prompt_contribution`.
+Each score gives the label, its first `token_id`, its full-vocabulary
+`logprob`, and its `probability` normalized over the offered labels.
+`prompt_contribution` is the total probability mass of the offered label
+tokens before this normalization. `usage` totals prompt and cached tokens
+across the questions that ran.
+
+This illustrative response uses `"ask": ["animal"]` with the guide's
+request. Token IDs, counts and scores depend on the tokenizer, model and run.
+
+```json
+{
+  "answers": {
+    "animal": {
+      "label": "cat",
+      "scores": [
+        {"label": "cat", "token_id": 7, "logprob": -0.916291, "probability": 0.8},
+        {"label": "dog", "token_id": 9, "logprob": -2.302585, "probability": 0.2}
+      ],
+      "prompt_contribution": 0.5
+    }
+  },
+  "usage": {"prompt_tokens": 48, "cached_tokens": 0}
+}
+```
+
+**Errors.** A false condition produces `{"skipped":true}` for that question.
+A question can also return an `error` field with `prompt_too_long`,
+`unsupported_chat_template`, `resource_exhausted`, or `aborted`.
+Check individual entries even after HTTP 200. An unsupported
+model or invalid request produces HTTP 400 with a plain-text explanation.
+For `ForwardDependency`, put the referenced question earlier in the JSON
+object. For `DuplicateOptionToken`, choose labels whose first tokens differ.
+
+LLMD revision `ca575167` limits the request body to 4 MiB, accepts 1–1,024
+questions, and scores 2–16 options per question. Its Decision path is enabled
+for the LFM3 model implementation. See the [Decision catalog]($link.page('llmd/models').unsafeRef('decision-checkpoints'))
+for checkpoint and build evidence, and the [CLI reference]($link.page('llmd/cli').ref('batching-context-and-memory'))
+for the per-request concurrency control `--systemone-window`.
+
+# [Create embeddings]($heading.id('embeddings'))
+
+`POST /v1/embeddings` maps input text to a numeric vector using the loaded
+embedding checkpoint. Choose `Qwen/Qwen3-Embedding-8B` in the
+[Embeddings catalog]($link.page('llmd/models').unsafeRef('embedding-checkpoints')).
+The [quickstart]($link.page('llmd/quickstart').unsafeRef('send-an-embeddings-request'))
+generates this request with the selected host port.
+
+```sh
+curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "input": "The quick brown fox jumps over the lazy dog.",
+    "encoding_format": "float"
+  }'
+```
+
+| Request field | Type and default | Behavior |
+| --- | --- | --- |
+| `input` | String or array of strings, required | Send one nonempty string per vector. Token ID arrays are rejected. |
+| `encoding_format` | String, `"float"` | Choose `"float"` for a JSON array of numbers or `"base64"` for encoded little-endian float32 bytes. |
+| `dimensions` | Integer, model maximum | Sets the length of each vector. Qwen3-Embedding-8B supports 32 through 4,096 dimensions. |
+| `model` | String, optional | May be omitted. LLMD embeds with the checkpoint loaded by the server. |
+
+**Read the response.** `object` is `"list"` and `model` is the served
+model ID. Each `data` entry has `object: "embedding"`, the zero-based input
+`index`, and the vector in `embedding`. Entries follow input order.
+`usage.prompt_tokens` and `usage.total_tokens` both count the tokens
+embedded across all inputs. To inspect a float response, append
+`| jq '.data[0].embedding | {dimensions: length, first_four: .[:4]}'` to
+the command. See [Compare texts with embeddings]($link.page('llmd/text-similarity'))
+for a client that ranks passages using the returned vectors.
+
+**Limits and errors.** LLMD revision `fe922cff` accepts up to 2,048 strings
+per request, up to 8,192 tokens per string, and up to 300,000 tokens in
+total. Each tokenized string must also be shorter than the server's context
+limit. An HTTP 400 response includes an `error.code`, such as
+`model_not_supported` for a checkpoint without embedding support,
+`invalid_dimensions` for a vector size outside the model's range, or
+`too_many_tokens` for exceeding the endpoint's token limits.
+A batch that LLMD cannot finish can return HTTP 503 with `resource_exhausted`.
 
 # [Check service health and errors]($heading.id('check-service-health-and-errors'))
 

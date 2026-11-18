@@ -1,6 +1,6 @@
 (() => {
   const languageNames = new Map([
-    ["bash", "Bash"], ["sh", "Shell"], ["json", "JSON"], ["promql", "PromQL"],
+    ["bash", "Bash"], ["sh", "Shell"], ["json", "JSON"], ["promql", "PromQL"], ["python", "Python"],
     ["starlark", "Starlark"], ["yaml", "YAML"], ["zig", "Zig"], ["text", "Plain text"],
   ]);
   const status = document.createElement("span");

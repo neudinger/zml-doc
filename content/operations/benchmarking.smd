@@ -3,6 +3,7 @@
 .description = "Measure time to first token and generation throughput, then tune concurrency and KV-cache capacity.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Benchmarking" },
 ---
 Run the [LLMD quickstart]($link.page('llmd/quickstart')) first to verify that
 your checkpoint loads and answers a request. The built-in benchmark starts its
@@ -17,6 +18,8 @@ throughput reporting. The LFM3 commands below are source-reviewed.
 
 # [Run a baseline]($heading.id('run-a-baseline'))
 
+This baseline uses a fixed workload and explicit server limits. For a
+comparison at LLMD defaults, see [Compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')).
 Use the complete `LiquidAI/LFM3-1.7B-FP8` checkpoint under `${HOME}/models`.
 The [quickstart]($link.page('llmd/quickstart').ref('checkpoint-storage'))
 explains how to download and pin a checkpoint revision. This checkpoint has
@@ -55,6 +58,49 @@ after tokenization and varies the prompts to exercise prefill. Use
 prompt and measure a workload that can reuse cached prefixes. The benchmark
 ignores end-of-sequence tokens by default. Add `--bench-stop-on-eos` to allow
 early stopping. Keep this choice consistent across runs.
+
+# [Compare decoding modes]($heading.id('compare-decoding-modes'))
+
+Benchmark a checkpoint twice on the same devices with the same LLMD build.
+Start with standard decoding, then add only the drafter flag. The following
+pairs use the default server and benchmark settings. Run them sequentially
+with port `8000` available.
+
+**Built-in drafter.** Compare standard decoding and native MTP on
+`Qwen/Qwen3.8-Flash-Next` using the same local checkpoint.
+
+```sh
+model="${HOME}/models/Qwen/Qwen3.8-Flash-Next"
+llmd --model="$model" --bench > flash-next-standard.log 2>&1 &&
+llmd --model="$model" --bench --speculative-drafter-model=native \
+  > flash-next-native.log 2>&1
+```
+
+**Separate drafter.** Compare standard decoding and DFlash2 on
+`Qwen/Qwen3.8-27B`. Download the target and drafter under
+`${HOME}/models` before starting.
+
+```sh
+model="${HOME}/models/Qwen/Qwen3.8-27B"
+drafter="${HOME}/models/incoai/Qwen3.8-27B-DFlash2"
+llmd --model="$model" --bench > qwen-27b-standard.log 2>&1 &&
+llmd --model="$model" --bench --speculative-drafter-model="$drafter" \
+  > qwen-27b-dflash2.log 2>&1
+```
+
+For another backend or checkpoint, choose **Configure launch** in the
+[catalog]($link.page('llmd/models')), then open the quickstart’s
+[Benchmark tab]($link.page('llmd/quickstart').unsafeRef('llmd-benchmark')).
+It generates the standard command and, when a drafter is selected, the
+matching speculative command. Run them in order on the same devices.
+Keep the LLMD build or image ID, target revision, and workload fixed.
+Record the drafter revision for an external drafter. Leave draft count at
+the model default.
+
+Compare `TTFT` (milliseconds) and completion throughput (tokens per second)
+from the two logs. Record the prompt and completion token counts and measured
+concurrency with each result. If a run fails, record the checkpoint, backend,
+mode, and error alongside the completed runs.
 
 # [Read and compare the results]($heading.id('read-and-compare-the-results'))
 

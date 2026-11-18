@@ -3,6 +3,20 @@ const sidebar = document.querySelector(".docs-sidebar");
 if (sidebar) {
   const summary = sidebar.querySelector("summary");
   const narrowViewport = window.matchMedia("(max-width: 48rem)");
+  const topics = Array.from(sidebar.querySelectorAll('a[href*="#"]')).filter(
+    link => link.pathname === location.pathname
+  );
+
+  if (topics.length) {
+    function syncTopic() {
+      const current = topics.find(link => link.hash === location.hash) ?? topics[0];
+      for (const link of topics) {
+        link.setAttribute("aria-current", link === current ? "location" : "false");
+      }
+    }
+    window.addEventListener("hashchange", syncTopic);
+    syncTopic();
+  }
 
   function syncSidebar() {
     if (narrowViewport.matches) {
@@ -12,7 +26,7 @@ if (sidebar) {
 
     sidebar.open = true;
     if (document.activeElement === summary) {
-      const nextLink = sidebar.querySelector('a[aria-current="page"]') ?? sidebar.querySelector("a");
+      const nextLink = sidebar.querySelector('a[aria-current]:not([aria-current="false"])') ?? sidebar.querySelector("a");
       nextLink?.focus();
     }
   }

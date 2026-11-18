@@ -3,6 +3,7 @@
 .description = "Call forms, return types, and ownership for Tensor, Shape, Buffer, Platform, and Exe.",
 .date = .date("2026-11-17T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
 ---
 These are the core calls for defining, compiling, and running a model at the
 revision used in the [ZML quickstart]($link.page('zml/quickstart')). All five

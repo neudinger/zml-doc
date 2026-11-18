@@ -3,6 +3,7 @@
 .description = "Look up LLMD server flags and Docker run options, including defaults.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "CLI Reference" },
 ---
 This reference records LLMD defaults from the source reviewed on 16 November
 2026. Check the help from your installed binary or container for the options
@@ -46,7 +47,7 @@ for model credentials, proxy settings, and diagnostics.
 | `--gpu-memory-fraction=<fraction>` | `0.9` | Set an allocator limit on CUDA, ROCm, oneAPI, and Metal. Accepted values are greater than `0` and at most `1`. |
 | `--cache-memory-fraction=<fraction>` | `0.95` | Scale the smallest reported per-device memory limit. The cache planner subtracts fixed allocations before sizing pages. Accepted values are greater than `0` and at most `1`. |
 | `--data-parallel=<groups>` | `1` | Set the number of groups that share request and KV-cache work in supported configurations. |
-| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight for each SystemOne request. |
+| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight within one [Decision request]($link.page('llmd/api').ref('decision')). |
 
 The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/#data-parallelism-beta)
 describe data parallelism on Llama as a beta feature.
@@ -65,6 +66,57 @@ describe data parallelism on Llama as a beta feature.
 For chat requests that support `temperature` or `top_p`, the request value
 wins. The CLI value comes next, followed by the model's recommendation and
 then the listed fallback. `top_k` and `min_p` start at the CLI level.
+
+## [Choose a decoding mode]($heading.id('choose-a-decoding-mode'))
+
+Choose a checkpoint and decoding mode in [Model compatibility]($link.page('llmd/models')).
+Run one server command at a time. These examples use LLMD's default batch
+size, context length, and sampling settings.
+
+**Standard decoding.** Pass only the target checkpoint.
+
+```sh
+llmd --model=hf://Qwen/Qwen3.8-27B
+```
+
+**Native multi-token prediction (MTP).** The target checkpoint supplies its
+own drafter. Both `deepseek-ai/DeepSeek-V4-Flash` and
+`Qwen/Qwen3.8-Flash-Next` have a routine native MTP configuration.
+
+```sh
+llmd --model=hf://Qwen/Qwen3.8-Flash-Next \
+  --speculative-drafter-model=native
+```
+
+**External drafter.** Pass the exact drafter paired with the target checkpoint.
+For Qwen3.8-27B, load the DFlash2 drafter from Hugging Face at launch.
+
+```sh
+llmd --model=hf://Qwen/Qwen3.8-27B \
+  --speculative-drafter-model=hf://incoai/Qwen3.8-27B-DFlash2
+```
+
+For a local copy, use the quickstart's [checkpoint storage instructions]($link.page('llmd/quickstart').ref('checkpoint-storage'))
+to download both repositories under `${HOME}/models`. A native installation
+accepts the host directory for each.
+
+```sh
+llmd --model="${HOME}/models/Qwen/Qwen3.8-27B" \
+  --speculative-drafter-model="${HOME}/models/incoai/Qwen3.8-27B-DFlash2"
+```
+
+On a CUDA Docker host, mount the two directories read-only and pass their
+container paths to LLMD.
+
+```sh
+docker run --rm --gpus=all --shm-size=256GB -p 127.0.0.1:8000:8000 \
+  --mount "type=bind,source=${HOME}/models/Qwen/Qwen3.8-27B,target=/model,readonly" \
+  --mount "type=bind,source=${HOME}/models/incoai/Qwen3.8-27B-DFlash2,target=/drafter,readonly" \
+  zmlai/llmd:cuda --model=/model --speculative-drafter-model=/drafter
+```
+
+Omit `--speculative-draft-count` to use the count derived from the model
+configuration. To measure the effect, [compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')).
 
 # [Advanced and benchmark flags]($heading.id('advanced-and-benchmark-flags'))
 

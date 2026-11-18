@@ -1,0 +1,54 @@
+---
+.title = "Ask structured questions with Decision",
+.description = "Send a state and typed questions to LLMD, use conditional questions, and read scored labels.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
+---
+Send a shared state and typed questions to `POST /v1/systemone`. LLMD returns
+a scored label for each question it answers. This example classifies an animal,
+asks a follow-up for cats, and rates playfulness on a three-label scale.
+
+# [Send a Decision request]($heading.id('send-a-decision-request'))
+
+In the [Decision catalog]($link.page('llmd/models').unsafeRef('decision-checkpoints')),
+choose `LiquidAI/LFM3-1.7B` and your backend, then choose **Configure launch**.
+The catalog also lists the StartLux Decision v1.1 Instant and AutoThink
+checkpoints. Use the [quickstart]($link.page('llmd/quickstart')) to start LLMD
+and check the loaded model with `GET /v1/models`.
+
+In a second terminal, send this request to the running server. The command
+uses the default host port. The quickstart generates the same request for
+your selected port.
+
+```sh
+curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "state": "The animal sits on the mat, purrs and chases a red laser dot.",
+    "questions": {
+      "animal": {"kind": "choice", "instructions": "Which animal is it?", "criteria": {"cat": null, "dog": "barks"}},
+      "cute":   {"kind": "noul", "instructions": "Is it cute?", "ask_if": {"animal": ["cat"]}},
+      "rating": {"kind": "score", "instructions": "How playful is it?", "criteria": ["low", "medium", "high"], "depends_on": ["cute"]}
+    }
+  }'
+```
+
+Append `| jq .` to format a successful JSON response if you have jq installed.
+
+# [Read the answers]($heading.id('read-the-answers'))
+
+The `answers` object uses the question IDs from your request.
+
+- `answers.animal.label` is `"cat"` or `"dog"` when the question succeeds.
+  The optional description `"barks"` gives the model context for the dog label.
+- `cute` runs only when `animal` returns `"cat"`. A `noul` answer is the string
+  `"true"` or `"false"`. When the condition fails, the entry is `{"skipped":true}`.
+- `rating` runs after `cute`. Its prompt includes the earlier label when
+  available. If `cute` was skipped, `rating` can still return `"low"`,
+  `"medium"`, or `"high"`. To rate only cats, add
+  `"ask_if": {"animal": ["cat"]}` to `rating`.
+
+Check each entry for `error` or `skipped` before reading its label and
+scores. See the [Decision API reference]($link.page('llmd/api').ref('decision'))
+for label probabilities, token usage, and request validation.

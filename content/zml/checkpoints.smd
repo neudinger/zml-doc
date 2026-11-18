@@ -3,6 +3,7 @@
 .description = "Inspect local or remote Safetensors weights and load them into buffers for a ZML executable.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
 ---
 Inspect the names, shapes, and sizes of checkpoint tensors before binding them
 to a ZML model. Run the commands from the checkout in the

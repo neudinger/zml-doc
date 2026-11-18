@@ -37,38 +37,66 @@
         <button class="theme-toggle" type="button" aria-label="Night mode" aria-pressed="false" title="Night mode" hidden></button>
       </div>
     </div>
-    <nav class="page-width product-tabs" aria-label="Product documentation">
-      <ctx zml="$page.link().startsWith($site.page('zml').link())"
-           llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))"
-           reference="$page.custom.getOr('reference_source', '')">
-        <ctx zml_target="$site.page('zml', $ctx.reference)"
-             llmd_target="$site.page('llmd', $ctx.reference)">
-          <a href="$ctx.zml_target.link()"
-             aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
-          <a href="$ctx.llmd_target.link()"
-             aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+    <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
+         section="$page.custom.getOr('doc_section', 'User Guide')"
+         zml="$page.link().startsWith($site.page('zml').link())"
+         llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))"
+         reference="$page.custom.getOr('reference_route', $page.custom.getOr('reference_source', ''))">
+      <nav class="page-width product-tabs" aria-label="Product documentation">
+        <ctx :loop="$ctx.catalog.get('sections')">
+          <ctx :if="$loop.it.get('label').eql($ctx.section)">
+            <ctx zml_target="$site.page($ctx.reference.eql('').then($loop.it.get('zml'), $ctx.reference.prefix('zml/')))"
+                 llmd_target="$site.page($ctx.reference.eql('').then($loop.it.get('llmd'), $ctx.reference.prefix('llmd/')))">
+              <a href="$ctx.zml_target.link()"
+                 aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
+              <a href="$ctx.llmd_target.link()"
+                 aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+            </ctx>
+          </ctx>
         </ctx>
-      </ctx>
-    </nav>
+      </nav>
+      <div class="section-nav" :if="$ctx.zml.or($ctx.llmd)">
+        <nav class="page-width section-tabs" aria-label="Documentation sections">
+          <ctx :loop="$ctx.catalog.get('sections')">
+            <ctx tab="$loop.it" target="$site.page($loop.it.get($ctx.zml.then('zml', 'llmd')))">
+              <a href="$ctx.target.link()" :text="$ctx.tab.get('label')"
+                 aria-current="$ctx.target.isCurrent().then('page', $ctx.tab.get('label').eql($ctx.section).then('location', 'false'))"></a>
+            </ctx>
+          </ctx>
+        </nav>
+      </div>
+    </ctx>
   </header>
   <main id="site-content" class="$site.index().isCurrent().then('page-width', 'page-width docs-layout')" tabindex="-1">
-    <ctx zml="$page.link().startsWith($site.page('zml').link())"
+    <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
+         section="$page.custom.getOr('doc_section', 'User Guide')"
+         zml="$page.link().startsWith($site.page('zml').link())"
          llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
-      <ctx :if="$ctx.zml.or($ctx.llmd)">
-        <details class="docs-sidebar" open>
-          <summary>Documentation navigation</summary>
-          <nav aria-label="Documentation sidebar">
-            <ctx track="$ctx.zml.then('zml', 'llmd')">
-              <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy()">
-                <ctx :if="$loop.it.get('track').eql($ctx.track)">
-                  <ctx pages="$loop.it.get('pages')" :loop="$loop.it.get('groups')">
+      <details class="docs-sidebar" open :if="$ctx.zml.or($ctx.llmd)">
+        <summary>Documentation navigation</summary>
+        <nav aria-label="Documentation sidebar">
+          <ctx :loop="$ctx.catalog.get('tracks')">
+            <ctx :if="$loop.it.get('track').eql($ctx.zml.then('zml', 'llmd'))" pages="$loop.it.get('pages')">
+              <ctx :loop="$ctx.catalog.get('sections')">
+                <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.getOr($ctx.llmd.then('llmd_groups', 'groups'), $loop.it.get('groups'))">
+                  <ctx :loop="$ctx.groups">
                     <div class="sidebar-group">
                       <p class="sidebar-heading" :text="$loop.it"></p>
-                      <ul :loop="$ctx.pages">
-                        <ctx :if="$loop.it.get('group').eql($loop.up().it)">
-                          <ctx target="$site.page($loop.it.get('path'))">
-                            <li><a class="$loop.it.get('icon')" href="$ctx.target.link()"
-                                   aria-current="$ctx.target.isCurrent().then('page', 'false')" :text="$loop.it.get('label')"></a></li>
+                      <ul>
+                        <ctx group="$loop.it" :loop="$ctx.pages">
+                          <ctx entry="$loop.it" target="$site.page($loop.it.get('path'))">
+                            <ctx :if="$ctx.entry.getOr('group', $ctx.target.custom.getOr('doc_section', 'User Guide')).eql($ctx.group)">
+                              <ctx :if="$ctx.entry.has('topics').not()">
+                                <li><a class="$ctx.entry.get('icon')" href="$ctx.target.link()"
+                                       aria-current="$ctx.target.isCurrent().then('page', 'false')" :text="$ctx.entry.get('label')"></a></li>
+                              </ctx>
+                              <ctx :if="$ctx.entry.get?('topics')">
+                                <ctx :loop="$if">
+                                  <li><a class="$loop.it.get('icon')" href="$ctx.target.linkRef($loop.it.get('id'))"
+                                         aria-current="$ctx.target.isCurrent().and($loop.first).then('location', 'false')" :text="$loop.it.get('label')"></a></li>
+                                </ctx>
+                              </ctx>
+                            </ctx>
                           </ctx>
                         </ctx>
                       </ul>
@@ -77,9 +105,9 @@
                 </ctx>
               </ctx>
             </ctx>
-          </nav>
-        </details>
-      </ctx>
+          </ctx>
+        </nav>
+      </details>
     </ctx>
     <super>
   </main>

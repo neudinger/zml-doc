@@ -1,35 +1,101 @@
-[
-    .{
-        .track = "zml",
-        .groups = ["Get started", "Guides", "Reference"],
-        .pages = [
-            .{ .group = "Get started", .path = "zml", .label = "Overview", .icon = "icon-book" },
-            .{ .group = "Get started", .path = "zml/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
-            .{ .group = "Get started", .path = "zml/concepts", .label = "Concepts", .icon = "icon-shapes" },
-            .{ .group = "Guides", .path = "zml/first-model", .label = "Write your first model", .icon = "icon-pencil" },
-            .{ .group = "Guides", .path = "zml/build-and-run", .label = "Build and run with Bazel", .icon = "icon-hammer" },
-            .{ .group = "Guides", .path = "zml/checkpoints", .label = "Load and inspect checkpoints", .icon = "icon-boxes" },
-            .{ .group = "Guides", .path = "zml/sharding", .label = "Run ZML across devices", .icon = "icon-cpu" },
-            .{ .group = "Reference", .path = "zml/api", .label = "API reference", .icon = "icon-code" },
-            .{ .group = "Reference", .path = "zml/reference/compatibility", .label = "Hardware compatibility", .icon = "icon-check" },
-            .{ .group = "Reference", .path = "zml/reference/environment", .label = "Environment variables", .icon = "icon-sliders" },
-        ],
-    },
-    .{
-        .track = "llmd",
-        .groups = ["Get started", "Reference", "Operations"],
-        .pages = [
-            .{ .group = "Get started", .path = "llmd", .label = "Overview", .icon = "icon-book" },
-            .{ .group = "Get started", .path = "llmd/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
-            .{ .group = "Get started", .path = "llmd/models", .label = "Model compatibility", .icon = "icon-boxes" },
-            .{ .group = "Reference", .path = "llmd/api", .label = "API reference", .icon = "icon-code" },
-            .{ .group = "Reference", .path = "llmd/cli", .label = "CLI reference", .icon = "icon-terminal" },
-            .{ .group = "Reference", .path = "llmd/reference/compatibility", .label = "Hardware compatibility", .icon = "icon-check" },
-            .{ .group = "Reference", .path = "llmd/reference/environment", .label = "Environment variables", .icon = "icon-sliders" },
-            .{ .group = "Operations", .path = "operations", .label = "Operations overview", .icon = "icon-server" },
-            .{ .group = "Operations", .path = "operations/deployment", .label = "Deploy LLMD", .icon = "icon-rocket" },
-            .{ .group = "Operations", .path = "operations/monitoring", .label = "Monitoring and troubleshooting", .icon = "icon-activity" },
-            .{ .group = "Operations", .path = "operations/benchmarking", .label = "Tune and benchmark LLMD", .icon = "icon-sliders" },
-        ],
-    },
-]
+.{
+    .sections = [
+        .{ .label = "User Guide", .zml = "zml", .llmd = "llmd", .groups = ["User Guide", "Reference"], .llmd_groups = ["User Guide", "Reference", "Operations"] },
+        .{ .label = "Developer Guide", .zml = "zml/first-model", .llmd = "llmd/developer-guide", .groups = ["Developer Guide"] },
+        .{ .label = "Benchmarking", .zml = "zml/benchmarking", .llmd = "operations/benchmarking", .groups = ["Benchmarking"] },
+        .{ .label = "API Reference", .zml = "zml/api", .llmd = "llmd/api", .groups = ["API Reference"] },
+        .{ .label = "CLI Reference", .zml = "zml/cli", .llmd = "llmd/cli", .groups = ["CLI Reference"] },
+    ],
+    .tracks = [
+        .{
+            .track = "zml",
+            .pages = [
+                .{ .path = "zml", .label = "Overview", .icon = "icon-book" },
+                .{ .path = "zml/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
+                .{ .path = "zml/reference/compatibility", .label = "Hardware compatibility", .icon = "icon-check", .group = "Reference" },
+                .{ .path = "zml/reference/environment", .label = "Environment variables", .icon = "icon-sliders", .group = "Reference" },
+                .{ .path = "zml/first-model", .label = "Write your first model", .icon = "icon-pencil" },
+                .{ .path = "zml/concepts", .label = "Tensors and shapes", .icon = "icon-shapes" },
+                .{ .path = "zml/build-and-run", .label = "Build and run with Bazel", .icon = "icon-hammer" },
+                .{ .path = "zml/checkpoints", .label = "Load and inspect checkpoints", .icon = "icon-boxes" },
+                .{ .path = "zml/sharding", .label = "Run across devices", .icon = "icon-cpu" },
+                .{ .path = "zml/benchmarking", .label = "Profiling configurations", .icon = "icon-activity" },
+                .{
+                    .path = "zml/api", .label = "ZML API reference", .icon = "icon-code",
+                    .topics = [
+                        .{ .id = "tensor", .label = "Tensor", .icon = "icon-code" },
+                        .{ .id = "shape", .label = "Shape", .icon = "icon-code" },
+                        .{ .id = "buffer", .label = "Buffer", .icon = "icon-code" },
+                        .{ .id = "platform", .label = "Platform", .icon = "icon-code" },
+                        .{ .id = "exe", .label = "Exe", .icon = "icon-code" },
+                    ],
+                },
+                .{
+                    .path = "zml/cli", .label = "ZML CLI reference", .icon = "icon-terminal",
+                    .topics = [
+                        .{ .id = "build-run-or-test-a-target", .label = "Bazel commands", .icon = "icon-terminal" },
+                        .{ .id = "choose-a-backend-and-target-platform", .label = "Backend and platform flags", .icon = "icon-cpu" },
+                        .{ .id = "run-an-llm-example", .label = "Model example flags", .icon = "icon-sliders" },
+                    ],
+                },
+                .{ .path = "zml/reference/cli-environment", .label = "Environment variables", .icon = "icon-sliders" },
+            ],
+        },
+        .{
+            .track = "llmd",
+            .pages = [
+                .{ .path = "llmd", .label = "Overview", .icon = "icon-book" },
+                .{ .path = "llmd/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
+                .{ .path = "llmd/models", .label = "Model compatibility", .icon = "icon-boxes" },
+                .{ .path = "llmd/reference/compatibility", .label = "Hardware compatibility", .icon = "icon-check", .group = "Reference" },
+                .{ .path = "llmd/reference/environment", .label = "Environment variables", .icon = "icon-sliders", .group = "Reference" },
+                .{ .path = "operations", .label = "Operations overview", .icon = "icon-server", .group = "Operations" },
+                .{ .path = "operations/deployment", .label = "Deploy LLMD", .icon = "icon-rocket", .group = "Operations" },
+                .{ .path = "operations/monitoring", .label = "Monitoring and troubleshooting", .icon = "icon-activity", .group = "Operations" },
+                .{
+                    .path = "llmd/developer-guide", .label = "Connect an application to LLMD", .icon = "icon-code",
+                    .topics = [
+                        .{ .id = "connect-an-application", .label = "Connect an application", .icon = "icon-code" },
+                        .{ .id = "stream-a-chat-completion", .label = "Stream a response", .icon = "icon-activity" },
+                        .{ .id = "call-tools-from-a-client", .label = "Call tools from a client", .icon = "icon-link" },
+                    ],
+                },
+                .{ .path = "llmd/decision", .label = "Ask structured questions", .icon = "icon-code" },
+                .{ .path = "llmd/text-similarity", .label = "Compare texts with embeddings", .icon = "icon-code" },
+                .{
+                    .path = "operations/benchmarking", .label = "Tune and benchmark LLMD", .icon = "icon-activity",
+                    .topics = [
+                        .{ .id = "run-a-baseline", .label = "Run a baseline", .icon = "icon-activity" },
+                        .{ .id = "compare-decoding-modes", .label = "Compare decoding modes", .icon = "icon-sliders" },
+                        .{ .id = "read-and-compare-the-results", .label = "Compare results", .icon = "icon-sliders" },
+                        .{ .id = "tune-context-and-concurrency", .label = "Tune context and concurrency", .icon = "icon-cpu" },
+                    ],
+                },
+                .{
+                    .path = "llmd/api", .label = "LLMD API reference", .icon = "icon-code",
+                    .topics = [
+                        .{ .id = "list-the-loaded-model", .label = "List loaded models", .icon = "icon-boxes" },
+                        .{ .id = "create-a-chat-completion", .label = "Create a chat completion", .icon = "icon-code" },
+                        .{ .id = "stream-a-chat-completion", .label = "Stream a response", .icon = "icon-activity" },
+                        .{ .id = "call-tools-from-a-client", .label = "Tool calls", .icon = "icon-link" },
+                        .{ .id = "decision", .label = "Decision API", .icon = "icon-code" },
+                        .{ .id = "embeddings", .label = "Create embeddings", .icon = "icon-code" },
+                        .{ .id = "check-service-health-and-errors", .label = "Health and errors", .icon = "icon-check" },
+                    ],
+                },
+                .{
+                    .path = "llmd/cli", .label = "LLMD CLI reference", .icon = "icon-terminal",
+                    .topics = [
+                        .{ .id = "model-and-listener", .label = "Model and listener", .icon = "icon-server" },
+                        .{ .id = "batching-context-and-memory", .label = "Batching and memory", .icon = "icon-cpu" },
+                        .{ .id = "sampling-and-speculative-decoding", .label = "Sampling and decoding", .icon = "icon-sliders" },
+                        .{ .id = "choose-a-decoding-mode", .label = "Decoding examples", .icon = "icon-terminal" },
+                        .{ .id = "advanced-and-benchmark-flags", .label = "Benchmark flags", .icon = "icon-activity" },
+                        .{ .id = "docker-run-options", .label = "Docker run options", .icon = "icon-container" },
+                    ],
+                },
+                .{ .path = "llmd/reference/cli-environment", .label = "Environment variables", .icon = "icon-sliders" },
+            ],
+        },
+    ],
+}

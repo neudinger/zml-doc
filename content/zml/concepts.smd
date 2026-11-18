@@ -3,6 +3,7 @@
 .description = "Understand tensors, shapes, and dimension tags in ZML, then use a named axis in a dot product.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
 ---
 A ZML model describes its computation with tensors. Their shapes tell ZML
 how many values to expect, and dimension tags give meaningful names to axes.
