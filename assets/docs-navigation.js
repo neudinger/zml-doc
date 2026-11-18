@@ -1,38 +1,134 @@
-const sidebar = document.querySelector(".docs-sidebar");
-
-if (sidebar) {
-  const summary = sidebar.querySelector("summary");
-  const narrowViewport = window.matchMedia("(max-width: 48rem)");
-  const topics = Array.from(sidebar.querySelectorAll('a[href*="#"]')).filter(
-    link => link.pathname === location.pathname
-  );
-
-  if (topics.length) {
-    function syncTopic() {
-      const current = topics.find(link => link.hash === location.hash) ?? topics[0];
-      for (const link of topics) {
-        link.setAttribute("aria-current", link === current ? "location" : "false");
-      }
-    }
-    window.addEventListener("hashchange", syncTopic);
-    syncTopic();
+const header = document.querySelector(".site-header");
+if (header) {
+  function measureHeader() {
+    document.documentElement.style.setProperty("--docs-header-height", header.getBoundingClientRect().height + "px");
   }
+  measureHeader();
+  new ResizeObserver(measureHeader).observe(header);
+}
 
-  function syncSidebar() {
-    if (narrowViewport.matches) {
-      if (!sidebar.contains(document.activeElement)) sidebar.open = false;
+function syncDisclosure(details, wideViewport) {
+  if (!details) return;
+  function update() {
+    if (!wideViewport.matches) {
+      if (!details.contains(document.activeElement)) details.open = false;
       return;
     }
+    details.open = true;
+    if (document.activeElement === details.querySelector("summary")) {
+      const active = details.querySelector('a[aria-current="page"], a[aria-current="location"]');
+      (active ?? details.querySelector("a"))?.focus({ preventScroll: true });
+    }
+  }
+  wideViewport.addEventListener("change", update);
+  update();
+}
 
-    sidebar.open = true;
-    if (document.activeElement === summary) {
-      const nextLink = sidebar.querySelector('a[aria-current]:not([aria-current="false"])') ?? sidebar.querySelector("a");
-      nextLink?.focus();
+syncDisclosure(document.querySelector(".docs-sidebar"), window.matchMedia("(width > 48rem)"));
+
+const contents = document.querySelector(".page-toc");
+if (contents) {
+  const disclosure = contents.querySelector("details");
+  const wideViewport = window.matchMedia("(min-width: 68rem)");
+  const article = contents.closest("article");
+  const conditionalItems = new Map();
+  for (const group of article.querySelectorAll("[data-toc-parent]")) {
+    const parentLink = contents.querySelector(`a[href="#${CSS.escape(group.dataset.tocParent)}"]`);
+    if (!parentLink) continue;
+    const children = document.createElement("ul");
+    for (const target of group.querySelectorAll("[id][data-toc-label]")) {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = "#" + encodeURIComponent(target.id);
+      link.textContent = target.dataset.tocLabel;
+      conditionalItems.set(link, item);
+      item.append(link);
+      children.append(item);
+    }
+    parentLink.closest("li").append(children);
+    new MutationObserver(scheduleSection).observe(group, {
+      subtree: true, attributes: true, attributeFilter: ["hidden", "open"],
+    });
+  }
+  const sections = Array.from(contents.querySelectorAll('a[href^="#"]'), link => ({
+    link, id: decodeURIComponent(link.hash.slice(1)),
+  }));
+  let currentLink;
+  let requestedHash = location.hash;
+  let landedAt = null;
+  let frame = 0;
+  syncDisclosure(disclosure, wideViewport);
+
+  function syncSection() {
+    frame = 0;
+    const viewport = document.scrollingElement;
+    const y = viewport.scrollTop;
+    const maxY = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+    const inset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    let first, passed, last, anchor;
+    // Several sections near the footer can share a single attainable scroll position.
+    // Honor the chosen anchor there until the reader scrolls away.
+    if (landedAt !== null && Math.abs(y - landedAt) > 1) requestedHash = "";
+    for (const { link, id } of sections) {
+      const heading = document.getElementById(id);
+      const hidden = !heading?.getClientRects().length;
+      const item = conditionalItems.get(link);
+      if (item && item.hidden !== hidden) item.hidden = hidden;
+      if (hidden) continue;
+      const top = heading.getBoundingClientRect().top;
+      first ??= link;
+      last = link;
+      if (top <= inset + 1) passed = link;
+      if (link.hash === requestedHash) {
+        const destination = Math.max(0, Math.min(maxY, y + top - inset));
+        if (Math.abs(y - destination) <= 1) {
+          anchor = link;
+          landedAt = y;
+        }
+      }
+    }
+    const active = anchor ?? (y > 0 && y >= maxY - 1 ? last : passed ?? first);
+    if (currentLink === active) return;
+    currentLink?.removeAttribute("aria-current");
+    active?.setAttribute("aria-current", "location");
+    currentLink = active;
+    if (active && wideViewport.matches && contents.scrollHeight > contents.clientHeight) {
+      const rail = contents.getBoundingClientRect();
+      const link = active.getBoundingClientRect();
+      if (link.top < rail.top) contents.scrollTop += link.top - rail.top;
+      else if (link.bottom > rail.bottom) contents.scrollTop += link.bottom - rail.bottom;
     }
   }
 
-  narrowViewport.addEventListener("change", syncSidebar);
-  syncSidebar();
+  function scheduleSection() {
+    if (!frame) frame = requestAnimationFrame(syncSection);
+  }
+  function followHash() {
+    requestedHash = location.hash;
+    landedAt = null;
+    scheduleSection();
+  }
+  contents.addEventListener("click", event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    requestedHash = link.hash;
+    landedAt = null;
+    if (disclosure && !wideViewport.matches) {
+      const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)));
+      disclosure.open = false;
+      if (heading) {
+        if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
+        heading.focus({ preventScroll: true });
+      }
+    }
+    scheduleSection();
+  });
+  window.addEventListener("scroll", scheduleSection, { passive: true });
+  window.addEventListener("resize", scheduleSection);
+  window.addEventListener("hashchange", followHash);
+  window.addEventListener("pageshow", followHash);
+  new ResizeObserver(scheduleSection).observe(article);
+  scheduleSection();
 }
 
 const referenceTables = document.querySelectorAll(".prose > table");

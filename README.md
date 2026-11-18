@@ -93,11 +93,12 @@ deployment prefix. Assets are published when referenced; static asset directorie
 can be declared explicitly in `zine.ziggy` when needed.
 
 Set `custom.doc_section` to the section label in the page front matter. It defaults
-to `User Guide`. Add the page to its product’s reading order in
-[`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Its position sets
-the Previous and Next destinations. An optional group places it under a sidebar
-heading such as Operations. Use `topics` to link to individual heading IDs on a
-long article. The `sections` list sets the tab order and each product’s entry page.
+to `User Guide`. Add the page to a group under its section and product in
+[`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Each section’s
+first page is its header tab destination. The sidebar and Previous/Next follow
+the same group and page order within that section. Put LLMD operations pages
+in the User Guide’s Operations group. Article headings supply the anchors for
+the On this page navigation.
 
 Edit Hardware compatibility and Environment variables in [`content/reference/`](content/reference/).
 The entries in `content/zml/reference/` and `content/llmd/reference/` point to

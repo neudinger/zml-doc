@@ -9,8 +9,10 @@ or embeddings requests. Text generation checkpoints also offer **Benchmark**. Th
 [model catalog]($link.page('llmd/models')) lists routine test configurations
 and links to published recipes.
 
+# [Configure launch]($heading.id('llmd-launch-settings-heading'))
+
 ```=html
-<div class="llmd-launch" data-llmd-launch>
+<div class="llmd-launch" data-llmd-launch data-toc-parent="llmd-launch-settings-heading">
   <div id="lfm3-fp8-metal"></div>
   <div id="lfm3-fp8-cuda"></div>
   <div id="lfm3-fp8-rocm"></div>
@@ -37,7 +39,6 @@ and links to published recipes.
   <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
   <div class="llmd-launch-layout">
     <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
-      <h2 id="llmd-launch-settings-heading">Configure launch</h2>
       <div class="llmd-launch-recipe">
         <div class="llmd-launch-field">
           <label for="llmd-launch-backend">Run on</label>
@@ -235,7 +236,7 @@ and links to published recipes.
         <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
       </dl>
       <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the fields with errors to update the affected commands.</p>
-      <section id="download-checkpoint" data-command-panel="download" data-pagefind-ignore hidden>
+      <section id="download-checkpoint" data-toc-label="Download checkpoint" data-command-panel="download" data-pagefind-ignore hidden>
         <h2>Download checkpoint</h2>
         <p class="llmd-launch-hint">Run on the LLMD host. This requires uv and access to Hugging Face.</p>
         <div class="command-shell">
@@ -243,7 +244,7 @@ and links to published recipes.
           <pre><code class="sh" data-command="download"></code></pre>
         </div>
       </section>
-      <section id="download-drafter" data-command-panel="drafter-download" data-pagefind-ignore hidden>
+      <section id="download-drafter" data-toc-label="Download drafter" data-command-panel="drafter-download" data-pagefind-ignore hidden>
         <h2>Download drafter</h2>
         <p class="llmd-launch-hint">Download once on the LLMD host, or reuse an existing copy at this path.</p>
         <div class="command-shell">
@@ -279,7 +280,7 @@ furiosa-cdi list</code></pre>
           </div>
         </details>
         <div class="llmd-launch-step">
-          <h2 id="install-llmd"><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></h2>
+          <h2 id="install-llmd" data-toc-label="Install LLMD or pull the image"><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></h2>
           <p class="llmd-launch-hint" data-setup-hint>Run once to install LLMD with Homebrew.</p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
@@ -287,7 +288,7 @@ furiosa-cdi list</code></pre>
           </div>
         </div>
         <div class="llmd-launch-step">
-          <h2 id="start-the-server"><span class="llmd-launch-step-number">2</span> Start LLMD</h2>
+          <h2 id="start-the-server" data-toc-label="Start LLMD"><span class="llmd-launch-step-number">2</span> Start LLMD</h2>
           <p class="llmd-launch-hint" data-launch-hint>Run each time you start the server.</p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
@@ -298,7 +299,7 @@ furiosa-cdi list</code></pre>
       </section>
       <div class="llmd-launch-requests" data-server-requests>
         <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
-        <section id="check-the-loaded-model">
+        <section id="check-the-loaded-model" data-toc-label="Check the loaded model">
           <h2><span class="llmd-launch-step-number">3</span> Check the loaded model</h2>
           <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Expect <code data-expected-model-id>LFM3-1.7B</code> in <code>data[0].id</code>.</p>
           <div class="command-shell">
@@ -306,7 +307,7 @@ furiosa-cdi list</code></pre>
             <pre><code class="sh" data-command="models" data-copy-label="Copy model check command">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
           </div>
         </section>
-        <section id="first-request">
+        <section id="first-request" data-toc-label="Send a request">
           <h2><span class="llmd-launch-step-number">4</span> Send a request</h2>
           <div class="llmd-launch-field" data-request-type hidden>
             <label for="llmd-request-type">Request type</label>
@@ -359,7 +360,7 @@ furiosa-cdi list</code></pre>
           </div>
         </section>
       </div>
-      <section id="llmd-benchmark" data-command-panel="benchmark" aria-label="Benchmark commands" tabindex="-1">
+      <section id="llmd-benchmark" data-toc-label="Benchmark decoding" data-command-panel="benchmark" aria-label="Benchmark commands" tabindex="-1">
         <h2>Benchmark decoding</h2>
         <p class="llmd-launch-hint">After installing LLMD or pulling the image, run on an idle accelerator. Each command uses a free local port (<code>127.0.0.1:0</code>), prints results, and exits. The benchmark uses LLMD’s default batch size, context length, and workload.</p>
         <p class="llmd-launch-error" data-benchmark-error role="status" hidden>Correct the highlighted storage path to generate the benchmark commands.</p>

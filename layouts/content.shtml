@@ -46,8 +46,10 @@
         <ctx toc="$ctx.article.toc()">
           <ctx :if="$ctx.toc.contains('href=')">
             <nav class="page-toc" aria-labelledby="page-toc-heading">
-              <p id="page-toc-heading">On this page</p>
-              <div :html="$ctx.toc"></div>
+              <details open>
+                <summary id="page-toc-heading">On this page</summary>
+                <div :html="$ctx.toc"></div>
+              </details>
             </nav>
           </ctx>
         </ctx>
@@ -161,38 +163,44 @@
             </ctx>
           </ctx>
           <ctx :if="$ctx.legacy">
-            <nav id="next-steps" class="article-pager" aria-label="Read this reference in a product">
+            <nav id="next-steps" class="reference-products" aria-label="Read this reference in a product">
               <a href="$site.page('zml', $page.custom.get('reference_source')).link()">Read in ZML →</a>
               <a href="$site.page('llmd', $page.custom.get('reference_source')).link()">Read in LLMD →</a>
             </nav>
           </ctx>
         </ctx>
-        <ctx :loop="$site.asset('docs-navigation.ziggy').ziggy().get('tracks')">
-          <ctx pages="$loop.it.get('pages')">
-            <ctx :loop="$ctx.pages">
-              <ctx :if="$site.page($loop.it.get('path')).isCurrent()">
-                <nav id="next-steps" class="article-pager" aria-label="Previous and next pages" data-pagefind-ignore>
-                  <ctx :if="$loop.first.not()">
-                    <ctx entry="$ctx.pages.at($loop.idx.minus(2))">
-                      <ctx previous="$site.page($ctx.entry.get('path'))">
-                        <a rel="prev" href="$ctx.previous.link()">
-                          <span class="pager-direction"><span aria-hidden="true">←</span> Previous</span>
-                          <strong :text="$ctx.previous.custom.has('reference_source').then($ctx.entry.get('label'), $ctx.previous.title)"></strong>
-                        </a>
+        <ctx section="$page.custom.getOr('doc_section', 'User Guide')"
+             product="$page.link().startsWith($site.page('zml').link()).then('zml', 'llmd')"
+             :loop="$site.asset('docs-navigation.ziggy').ziggy().get('sections')">
+          <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.get($ctx.product)">
+            <ctx :loop="$ctx.groups">
+              <ctx groupIndex="$loop.idx.minus(1)" firstGroup="$loop.first" lastGroup="$loop.last" pages="$loop.it.get('pages')">
+                <ctx :loop="$ctx.pages">
+                  <ctx :if="$site.page($loop.it.get('path')).isCurrent().and($ctx.groups.len.gt(1).or($ctx.pages.len.gt(1)))">
+                    <nav id="next-steps" class="article-pager" aria-label="Previous and next pages" data-pagefind-ignore>
+                      <ctx :if="$ctx.firstGroup.and($loop.first).not()">
+                        <ctx neighbors="$ctx.groups.at($loop.first.then($ctx.groupIndex.minus(1), $ctx.groupIndex)).get('pages')">
+                          <ctx previous="$ctx.neighbors.at($loop.first.then($ctx.neighbors.len.minus(1), $loop.idx.minus(2)))">
+                            <a rel="prev" href="$site.page($ctx.previous.get('path')).link()">
+                              <span class="pager-direction"><span aria-hidden="true">←</span> Previous</span>
+                              <strong :text="$ctx.previous.get('label')"></strong>
+                            </a>
+                          </ctx>
+                        </ctx>
                       </ctx>
-                    </ctx>
-                  </ctx>
-                  <ctx :if="$loop.last.not()">
-                    <ctx entry="$ctx.pages.at($loop.idx)">
-                      <ctx next="$site.page($ctx.entry.get('path'))">
-                        <a rel="next" href="$ctx.next.link()">
-                          <span class="pager-direction">Next <span aria-hidden="true">→</span></span>
-                          <strong :text="$ctx.next.custom.has('reference_source').then($ctx.entry.get('label'), $ctx.next.title)"></strong>
-                        </a>
+                      <ctx :if="$ctx.lastGroup.and($loop.last).not()">
+                        <ctx neighbors="$ctx.groups.at($loop.last.then($ctx.groupIndex.plus(1), $ctx.groupIndex)).get('pages')">
+                          <ctx next="$ctx.neighbors.at($loop.last.then(0, $loop.idx))">
+                            <a rel="next" href="$site.page($ctx.next.get('path')).link()">
+                              <span class="pager-direction">Next <span aria-hidden="true">→</span></span>
+                              <strong :text="$ctx.next.get('label')"></strong>
+                            </a>
+                          </ctx>
+                        </ctx>
                       </ctx>
-                    </ctx>
+                    </nav>
                   </ctx>
-                </nav>
+                </ctx>
               </ctx>
             </ctx>
           </ctx>
