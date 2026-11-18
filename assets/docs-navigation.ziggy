@@ -94,7 +94,11 @@
                 .{
                     .label = "API Reference",
                     .pages = [
-                        .{ .path = "zml/api", .label = "ZML API reference", .icon = "icon-code" },
+                        .{ .path = "zml/api/tensor", .label = "Tensor", .icon = "icon-boxes" },
+                        .{ .path = "zml/api/shape", .label = "Shape", .icon = "icon-shapes" },
+                        .{ .path = "zml/api/buffer", .label = "Buffer", .icon = "icon-container" },
+                        .{ .path = "zml/api/platform", .label = "Platform", .icon = "icon-cpu" },
+                        .{ .path = "zml/api/exe", .label = "Exe", .icon = "icon-bolt" },
                     ],
                 },
             ],

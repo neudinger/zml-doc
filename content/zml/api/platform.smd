@@ -1,0 +1,36 @@
+---
+.title = "Platform",
+.description = "Select a runtime and its devices, compile model code, and release the platform.",
+.date = .date("2026-11-17T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
+---
+[`zml.Platform`](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/platform.zig)
+holds the backend runtime and devices. The initializer options are
+`zml.platform.CreateOptions`. Pass a `std.mem.Allocator` for `allocator`
+and a `std.Io` for `io`. A return type with `!` can carry an error.
+
+# [Initialize a platform]($heading.id('platform'))
+
+- `zml.Platform.auto(allocator, io, options)`\
+  `!*Platform`. Try backends in priority order and return the first one that initializes. Return `error.Unavailable` if none initialize.
+- `zml.Platform.init(allocator, io, target, options)`\
+  `!*Platform`. Initialize a specific `zml.Target`, such as `.cpu` or `.cuda`, when present in the build.
+
+See [Build and run with Bazel]($link.page('zml/build-and-run')) for backend flags
+and the selection order used by `auto`.
+
+# [Compile a model or function]($heading.id('compile-a-model-or-function'))
+
+Both compile calls take `zml.Compiler.Options` and return a loaded
+[Exe]($link.page('zml/api/exe')).
+
+- `platform.compile(allocator, io, model, .forward, .{input}, options)`\
+  `!Exe`. Trace the named method of `model`. Pass the remaining method arguments in a tuple, as with `input` here.
+- `platform.compileFn(allocator, io, function, args, options)`\
+  `!Exe`. Trace a function with the full tuple of its arguments.
+
+# [Release the platform]($heading.id('release-the-platform'))
+
+- `platform.deinit(allocator, io)`\
+  `void`. Release the platform after its buffers and executables have been released.

@@ -1,0 +1,14 @@
+---
+.title = "ZML API reference",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "api-redirect.shtml",
+.custom = .{
+    .anchors = [
+        .{ .path = "zml/api/tensor", .id = "tensor", .label = "Tensor" },
+        .{ .path = "zml/api/shape", .id = "shape", .label = "Shape" },
+        .{ .path = "zml/api/buffer", .id = "buffer", .label = "Buffer" },
+        .{ .path = "zml/api/platform", .id = "platform", .label = "Platform" },
+        .{ .path = "zml/api/exe", .id = "exe", .label = "Exe" },
+    ],
+},
+---

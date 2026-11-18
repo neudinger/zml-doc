@@ -1,0 +1,42 @@
+---
+.title = "Buffer",
+.description = "Create device buffers from host data, wait for transfers, read results, and release buffers.",
+.date = .date("2026-11-17T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
+---
+[`zml.Buffer`](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/buffer.zig)
+holds backend handles for a concrete tensor. Create the inputs on the platform
+used to compile your executable. The `io` argument is a `std.Io`, and
+`allocator` is a `std.mem.Allocator`. A return type with `!` can carry an error.
+
+# [Create device buffers]($heading.id('buffer'))
+
+- `zml.Buffer.fromSlice(io, platform, slice)`\
+  `!Buffer`. Copy a `zml.Slice` from host memory and wait for transfer.
+- `zml.Buffer.fromBytes(io, platform, shape, bytes)`\
+  `!Buffer`. Copy host bytes using the supplied `Shape`. The bytes must match its element type and size.
+
+# [Inspect the shape and wait for transfers]($heading.id('shape-and-readiness'))
+
+- `buffer.shape()`\
+  `Shape`. Read the buffer's metadata.
+- `buffer.await(io)`\
+  `!void`. Wait for the backend buffer to become ready.
+
+When using `fromSliceOpts` or `fromBytesOpts` with `.wait = false`, keep the
+source bytes alive and unchanged until `buffer.await(io)` completes successfully.
+
+# [Read back to host memory]($heading.id('read-back-to-host-memory'))
+
+- `buffer.getValue(T, io)`\
+  `!T`. Read back into a host type with matching representation and byte size. It copies bytes without converting the element type.
+- `buffer.toSliceAlloc(allocator, io)`\
+  `!Slice`. Read back into an owned host slice. Release it with `slice.free(allocator)`.
+
+# [Release the buffer]($heading.id('release-the-buffer'))
+
+- `buffer.deinit()`\
+  `void`. Release the buffer through a mutable handle.
+
+See [Load and inspect checkpoints]($link.page('zml/checkpoints')) for an example of loading weights into device buffers.

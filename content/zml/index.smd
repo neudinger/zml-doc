@@ -14,7 +14,8 @@ for accelerator flags, LLM examples, and packaging.
 # [Follow the model lifecycle]($heading.id('follow-the-model-lifecycle'))
 
 Read [ZML concepts]($link.page('zml/concepts')) for tensors, shapes, and dimension tags.
-The [ZML API reference]($link.page('zml/api')) lists model and execution calls.
+Use the [Tensor reference]($link.page('zml/api/tensor')) to look up model operations
+and the [Exe reference]($link.page('zml/api/exe')) for calls that run a compiled model.
 Use the [first model guide]($link.page('zml/first-model')) to build a tagged
 linear layer. Then [load and inspect checkpoints]($link.page('zml/checkpoints'))
 for pretrained weights and [run ZML across devices]($link.page('zml/sharding'))

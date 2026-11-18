@@ -24,7 +24,7 @@ results for the selected backend. See the
 `tensor.shape()` returns a `zml.Shape`. It records the element type and
 ordered dimension sizes. The **rank** is the number of axes. For a matrix
 of shape `f32[2, 3]`, axis `0` has size `2` and axis `1` has size `3`.
-The [Shape API reference]($link.page('zml/api').ref('shape')) lists the
+The [Shape API reference]($link.page('zml/api/shape')) lists the
 calls for reading these values.
 
 | Shape | Rank | Elements |

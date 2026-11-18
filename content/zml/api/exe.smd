@@ -1,0 +1,44 @@
+---
+.title = "Exe",
+.description = "Bind device buffers, run a compiled executable, retrieve its outputs, and handle ownership.",
+.date = .date("2026-11-17T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
+---
+[`zml.Exe`](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/exe.zig)
+is the loaded executable returned by [Platform compilation]($link.page('zml/api/platform').ref('compile-a-model-or-function')).
+Pass buffers in the structure and order of the compiled arguments, using the
+expected sizes, types, and shards.
+The [linear layer example]($link.page('zml/first-model').ref('compile-and-call-the-layer'))
+shows how to bind buffers and read back the output. The call forms below
+use a `std.mem.Allocator` for `allocator` and a `std.Io` for `io`.
+A return type with `!` can carry an error.
+
+# [Bind arguments and allocate results]($heading.id('exe'))
+
+- `exe.args(allocator)`\
+  `!Exe.Arguments`. Allocate argument slots for the executable.
+- `arguments.set(buffers)`\
+  `void`. Bind the provided buffers to the argument slots.
+- `exe.results(allocator)`\
+  `!Exe.Results`. Allocate result slots for the executable.
+
+# [Run the executable and read results]($heading.id('run-and-read-results'))
+
+- `exe.call(io, arguments, &results, .{ .wait = true })`\
+  `void`. Run with the bound buffers and fill the result slots. `wait` defaults to `false` when omitted.
+- `results.get(zml.Buffer)`\
+  `Buffer`. Retrieve the output of a single-output call. For multiple outputs, pass the matching structure of buffers.
+- `exe.eval(allocator, io, buffers)`\
+  `!Buffer`. Run a single-output executable, wait, and return an owned result buffer.
+
+# [Release slots and buffers]($heading.id('ownership-and-cleanup'))
+
+- `exe.deinit()`\
+  `void`. Release the loaded executable.
+
+Release argument and result slots with `deinit(allocator)`. Retrieve each
+output once per execution and release each owned buffer with `buffer.deinit()`.
+When the compiled computation donates an input, execution invalidates its
+previous contents. A raw `call` leaves cleanup of its input handles to the
+caller. `eval` consumes donated handles.

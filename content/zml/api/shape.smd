@@ -1,0 +1,33 @@
+---
+.title = "Shape",
+.description = "Create shape metadata and read dimension sizes, tags, rank, and element count.",
+.date = .date("2026-11-17T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
+---
+# [Create a shape]($heading.id('shape'))
+
+`zml.Shape` holds metadata including the element type, dimension sizes, and tags.
+[Shape source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/shape.zig)
+
+- `zml.Shape.init(dimensions, dtype)`\
+  `Shape`. Use a tuple such as `.{ 2, 3 }` for sizes or named fields such as `.{ .output = 2, .feature = 3 }` to assign tags as well.
+- `zml.Shape.scalar(dtype)`\
+  `Shape`. Describe one element with zero axes.
+
+# [Read the element type and axes]($heading.id('element-type-and-axes'))
+
+- `shape.rank()` / `shape.dtype()`\
+  `u4` number of axes / `DataType` element type.
+- `shape.dim(axis)` / `shape.axis(axis)`\
+  `i64` size / `u3` index. Accept a numeric axis or a tag.
+
+See [Dimension tags]($link.page('zml/concepts').ref('dimension-tags')) for an
+example of selecting axes by name.
+
+# [Read sizes and element count]($heading.id('sizes-and-element-count'))
+
+- `shape.dims()`\
+  `[]const i64`. Borrow the ordered sizes from the shape. Keep the shape alive while using the slice.
+- `shape.count()`\
+  `usize`. Return the number of elements.
