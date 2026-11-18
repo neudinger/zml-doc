@@ -30,8 +30,9 @@ to rank passages by their similarity to a query.
 Identify the server endpoint and exposed model name before sending a request.
 The client and server must agree on the request format and model identifier.
 Follow [Connect an application to LLMD]($link.page('llmd/developer-guide')) for a
-Python client that discovers the model ID and sends a chat request. The
-[API reference]($link.page('llmd/api')) documents the endpoints and streaming responses.
+Python client that discovers the model ID and sends a chat request. See
+[Models]($link.page('llmd/api/models')) for model discovery and
+[Chat completions]($link.page('llmd/api/chat-completions')) for streaming responses.
 
 # [Operate the service]($heading.id('operate-the-service'))
 

@@ -50,5 +50,5 @@ The `answers` object uses the question IDs from your request.
   `"ask_if": {"animal": ["cat"]}` to `rating`.
 
 Check each entry for `error` or `skipped` before reading its label and
-scores. See the [Decision API reference]($link.page('llmd/api').ref('decision'))
+scores. See the [Decision API reference]($link.page('llmd/api/decision').ref('decision'))
 for label probabilities, token usage, and request validation.

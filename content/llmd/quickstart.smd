@@ -388,10 +388,10 @@ furiosa-cdi list</code></pre>
 ```
 
 To build a Decision request, see [Ask structured questions]($link.page('llmd/decision'))
-and the [Decision API reference]($link.page('llmd/api').ref('decision')).
+and the [Decision API reference]($link.page('llmd/api/decision').ref('decision')).
 To use embedding vectors, see [Compare texts with embeddings]($link.page('llmd/text-similarity'))
-and the [Embeddings API reference]($link.page('llmd/api').ref('embeddings')).
-For streaming and tool calls, see the [LLMD API reference]($link.page('llmd/api')).
+and the [Embeddings API reference]($link.page('llmd/api/embeddings').ref('embeddings')).
+For streaming and tool calls, see [Chat completions]($link.page('llmd/api/chat-completions')).
 To route traffic to a verified instance, follow the
 [deployment guide]($link.page('operations/deployment').ref('route-client-traffic')).
 

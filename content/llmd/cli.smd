@@ -47,7 +47,7 @@ for model credentials, proxy settings, and diagnostics.
 | `--gpu-memory-fraction=<fraction>` | `0.9` | Set an allocator limit on CUDA, ROCm, oneAPI, and Metal. Accepted values are greater than `0` and at most `1`. |
 | `--cache-memory-fraction=<fraction>` | `0.95` | Scale the smallest reported per-device memory limit. The cache planner subtracts fixed allocations before sizing pages. Accepted values are greater than `0` and at most `1`. |
 | `--data-parallel=<groups>` | `1` | Set the number of groups that share request and KV-cache work in supported configurations. |
-| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight within one [Decision request]($link.page('llmd/api').ref('decision')). |
+| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight within one [Decision request]($link.page('llmd/api/decision').ref('decision')). |
 
 The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/#data-parallelism-beta)
 describe data parallelism on Llama as a beta feature.

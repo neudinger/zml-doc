@@ -1,0 +1,82 @@
+---
+.title = "Decision",
+.description = "Score typed questions about a shared input with POST /v1/systemone. Read labels, probabilities, and conditional results.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
+---
+# [Send a Decision request]($heading.id('decision'))
+
+`POST /v1/systemone` accepts a JSON object and returns scored labels for the
+requested questions. The loaded checkpoint must support Decision. Use the
+[worked request]($link.page('llmd/decision').ref('send-a-decision-request'))
+or copy one from the [quickstart]($link.page('llmd/quickstart').unsafeRef('send-a-decision-request')).
+
+| Request field | Type | Meaning |
+| --- | --- | --- |
+| `state` | String or object, required | Input shared by every question. The server renders an object as compact JSON. |
+| `questions` | Object, required | Maps question IDs to definitions. IDs must be nonempty and exclude the colon character. Send dependencies before the questions that reference them. |
+| `instructions` | String, optional | System instructions shared by all questions. |
+| `ask` | Array of question IDs, optional | Select the questions to answer. Include every dependency of the selected questions. Omitting this field asks all questions. |
+| `model` | String, optional | The endpoint uses the checkpoint already loaded by LLMD. The field can be omitted. |
+
+# [Question kinds and dependencies]($heading.id('question-kinds-and-dependencies'))
+
+Each question requires `kind` and a string `instructions`. Its `criteria`
+describe the possible labels.
+
+| `kind` | `criteria` | Successful `label` |
+| --- | --- | --- |
+| `choice` | Required object mapping labels to descriptions. Use a string or `null` for each description. | One of the object keys. |
+| `noul` | Optional object with descriptions under `"true"` and `"false"`. | The string `"true"` or `"false"`. |
+| `score` | Required array of scale labels, such as `["low","medium","high"]`. | One of the supplied strings. |
+
+Use `depends_on` to supply a list of earlier question IDs whose available
+labels become context. Use `ask_if` to gate execution. Its keys are earlier
+question IDs and its values are arrays of acceptable labels. Every named
+question must return a label in its corresponding array for the question to run.
+
+# [Read the response]($heading.id('decision-response'))
+
+`answers` maps each requested ID to a result. A successful entry
+contains the winning `label`, a `scores` array, and `prompt_contribution`.
+Each score gives the label, its first `token_id`, its full-vocabulary
+`logprob`, and its `probability` normalized over the offered labels.
+`prompt_contribution` is the total probability mass of the offered label
+tokens before this normalization. `usage` totals prompt and cached tokens
+across the questions that ran.
+
+This illustrative response uses `"ask": ["animal"]` with the guide's
+request. Token IDs, counts and scores depend on the tokenizer, model and run.
+
+```json
+{
+  "answers": {
+    "animal": {
+      "label": "cat",
+      "scores": [
+        {"label": "cat", "token_id": 7, "logprob": -0.916291, "probability": 0.8},
+        {"label": "dog", "token_id": 9, "logprob": -2.302585, "probability": 0.2}
+      ],
+      "prompt_contribution": 0.5
+    }
+  },
+  "usage": {"prompt_tokens": 48, "cached_tokens": 0}
+}
+```
+
+# [Limits and errors]($heading.id('decision-limits-and-errors'))
+
+A false condition produces `{"skipped":true}` for that question.
+A question can also return an `error` field with `prompt_too_long`,
+`unsupported_chat_template`, `resource_exhausted`, or `aborted`.
+Check individual entries even after HTTP 200. An unsupported
+model or invalid request produces HTTP 400 with a plain-text explanation.
+For `ForwardDependency`, put the referenced question earlier in the JSON
+object. For `DuplicateOptionToken`, choose labels whose first tokens differ.
+
+LLMD revision `ca575167` limits the request body to 4 MiB, accepts 1–1,024
+questions, and scores 2–16 options per question. Its Decision path is enabled
+for the LFM3 model implementation. See the [Decision catalog]($link.page('llmd/models').unsafeRef('decision-checkpoints'))
+for checkpoint and build evidence, and the [CLI reference]($link.page('llmd/cli').ref('batching-context-and-memory'))
+for the per-request concurrency control `--systemone-window`.

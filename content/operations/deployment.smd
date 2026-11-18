@@ -90,8 +90,8 @@ when configuring the host network.
 
 Set proxy timeouts for your expected inference duration and allow streaming
 events to pass through as they arrive. Repeat the chat request through the
-client-facing endpoint. See the [API reference]($link.page('llmd/api')) for
-streaming request and response formats.
+client-facing endpoint. See [Stream a chat completion]($link.page('llmd/api/chat-completions').ref('stream-a-chat-completion'))
+for streaming request and response formats.
 
 # [5. Upgrade or roll back]($heading.id('upgrade-or-roll-back'))
 

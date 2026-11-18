@@ -71,4 +71,4 @@ The first vector belongs to the query. Indices 1 and 2 identify the
 passages. A higher cosine similarity means that a passage's vector points
 closer to the query vector. Read the highest-scoring passage first.
 For encoding options, vector sizes, and request limits, see the
-[Embeddings API reference]($link.page('llmd/api').ref('embeddings')).
+[Embeddings API reference]($link.page('llmd/api/embeddings').ref('embeddings')).
