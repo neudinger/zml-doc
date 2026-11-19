@@ -53,6 +53,20 @@ if (contents) {
   const sections = Array.from(contents.querySelectorAll('a[href^="#"]'), link => ({
     link, id: decodeURIComponent(link.hash.slice(1)),
   }));
+  const walkthrough = article.querySelector(".model-walkthrough");
+  function revealWalkthroughTarget(hash) {
+    if (!walkthrough) return;
+    const target = document.getElementById(hash.slice(1));
+    if (target === walkthrough) walkthrough.querySelector("input").checked = true;
+    else if (target?.control?.type === "radio" && walkthrough.contains(target)) target.control.checked = true;
+    else if (target?.matches("details.model-source")) target.open = true;
+  }
+  walkthrough?.addEventListener("change", event => {
+    const label = event.target.closest("label[id]");
+    if (!label) return;
+    history.replaceState(history.state, "", "#" + label.id);
+    followHash();
+  });
   let currentLink;
   let requestedHash = location.hash;
   let landedAt = null;
@@ -76,6 +90,8 @@ if (contents) {
       if (item && item.hidden !== hidden) item.hidden = hidden;
       // Bookmarks inside a closed disclosure can open it, but cannot mark the current section.
       if (hidden || heading.closest("details:not([open]) > :not(summary)")) continue;
+      // Stage labels share a row. Only the selected stage represents the visible content.
+      if (heading.control?.type === "radio" && !heading.control.checked) continue;
       const top = heading.getBoundingClientRect().top;
       first ??= link;
       last = link;
@@ -106,6 +122,7 @@ if (contents) {
   }
   function followHash() {
     requestedHash = location.hash;
+    revealWalkthroughTarget(requestedHash);
     landedAt = null;
     scheduleSection();
   }
@@ -113,13 +130,15 @@ if (contents) {
     const link = event.target.closest('a[href^="#"]');
     if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     requestedHash = link.hash;
+    revealWalkthroughTarget(requestedHash);
     landedAt = null;
     if (disclosure && !wideViewport.matches) {
       const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)));
       disclosure.open = false;
       if (heading) {
-        if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
-        heading.focus({ preventScroll: true });
+        const focusTarget = heading.matches("details.model-source") ? heading.querySelector("summary") : heading.control ?? heading;
+        if (!focusTarget.hasAttribute("tabindex") && focusTarget.tabIndex < 0) focusTarget.tabIndex = -1;
+        focusTarget.focus({ preventScroll: true });
       }
     }
     scheduleSection();
@@ -129,7 +148,19 @@ if (contents) {
   window.addEventListener("hashchange", followHash);
   window.addEventListener("pageshow", followHash);
   new ResizeObserver(scheduleSection).observe(article);
-  scheduleSection();
+  followHash();
+}
+
+for (const heading of document.querySelectorAll(".prose :is(h2, h3, h4, h5, h6)")) {
+  // Some configurator sections keep the bookmark on their enclosing panel.
+  const id = heading.id || heading.parentElement.id;
+  const title = heading.textContent.trim();
+  if (!id || !title) continue;
+  const link = document.createElement("a");
+  link.className = "section-permalink icon-link";
+  link.href = "#" + encodeURIComponent(id);
+  link.setAttribute("aria-label", "Link to " + title);
+  heading.append(link);
 }
 
 const referenceTables = document.querySelectorAll(".prose > table");

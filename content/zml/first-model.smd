@@ -10,32 +10,32 @@ Use the checkout and Bazel version from the [ZML quickstart]($link.page('zml/qui
 # [Inside main.zig]($heading.id('compile-and-call-the-layer'))
 
 ```=html
-<fieldset class="command-tabs model-walkthrough" id="describe-the-computation">
+<fieldset class="command-tabs model-walkthrough" id="describe-the-computation" data-toc-parent="compile-and-call-the-layer">
   <legend>Model stage</legend>
   <div class="model-stage">
-    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-describe" checked><span>Describe</span></label>
-    <div class="model-stage-panel" id="stage-describe">
+    <label id="stage-describe" class="command-tab" data-toc-label="Describe"><input type="radio" name="model-stage" aria-controls="describe-code" checked><span>Describe</span></label>
+    <div class="model-stage-panel" id="describe-code">
       <pre><code class="zig">return self.weight.dot(input, .feature).add(self.bias);</code></pre>
       <p>Each weight row has three features. <code>dot</code> sums their products with the input along <code>.feature</code>. Adding one bias per row gives two output scores.</p>
     </div>
   </div>
   <div class="model-stage">
-    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-compile"><span>Compile</span></label>
-    <div class="model-stage-panel" id="stage-compile">
+    <label id="stage-compile" class="command-tab" data-toc-label="Compile"><input type="radio" name="model-stage" aria-controls="compile-code"><span>Compile</span></label>
+    <div class="model-stage-panel" id="compile-code">
       <pre><code class="zig">var executable = try platform.compile(allocator, io, layer, .forward, .{input}, .{});</code></pre>
       <p>ZML traces <code>forward</code> with the shapes and types of the symbolic tensors. It produces an executable for the selected platform.</p>
     </div>
   </div>
   <div class="model-stage">
-    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-bind"><span>Bind</span></label>
-    <div class="model-stage-panel" id="stage-bind">
+    <label id="stage-bind" class="command-tab" data-toc-label="Bind"><input type="radio" name="model-stage" aria-controls="bind-code"><span>Bind</span></label>
+    <div class="model-stage-panel" id="bind-code">
       <pre><code class="zig">args.set(.{ layer_buffers, input_buffer });</code></pre>
       <p><code>Buffer.fromSlice</code> copies the weights, biases and input from host memory into device buffers. <code>args.set</code> binds those buffers to the executable. The caller owns them.</p>
     </div>
   </div>
   <div class="model-stage">
-    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-call"><span>Call</span></label>
-    <div class="model-stage-panel" id="stage-call">
+    <label id="stage-call" class="command-tab" data-toc-label="Call"><input type="radio" name="model-stage" aria-controls="call-code"><span>Call</span></label>
+    <div class="model-stage-panel" id="call-code">
       <pre><code class="zig">executable.call(io, args, &amp;results, .{ .wait = true });</code></pre>
       <p>Wait for execution to finish, retrieve the output buffer with <code>results.get</code>, then copy its two scores back to the host with <code>getValue</code>.</p>
     </div>
@@ -48,7 +48,8 @@ Use the checkout and Bazel version from the [ZML quickstart]($link.page('zml/qui
 Create `examples/first_model/` in your ZML checkout. Save both files there.
 
 ```=html
-<details class="model-source">
+<div data-toc-parent="run-the-model">
+<details class="model-source" id="main-zig" data-toc-label="main.zig">
   <summary>main.zig</summary>
   <pre><code class="zig" data-copy-label="Copy main.zig">const std = @import("std");
 const zml = @import("zml");
@@ -109,7 +110,7 @@ pub fn main(init: std.process.Init) !void {
 }
 </code></pre>
 </details>
-<details class="model-source">
+<details class="model-source" id="build-bazel" data-toc-label="BUILD.bazel">
   <summary>BUILD.bazel</summary>
   <pre><code class="starlark" data-copy-label="Copy BUILD.bazel">load("@rules_zig//zig:defs.bzl", "zig_binary")
 
@@ -120,16 +121,11 @@ zig_binary(
 )
 </code></pre>
 </details>
-```
-
-Run from the checkout root. CPU is enabled by default.
-
-```sh
-bazel run //examples/first_model
-```
-
-```=html
-<p class="model-expected-output"><strong>Expected output</strong><br><code>Scores: 9.0, 19.0</code></p>
+<p id="bazel-command" data-toc-label="Bazel command">Run from the checkout root. CPU is enabled by default.</p>
+<pre><code class="sh">bazel run //examples/first_model
+</code></pre>
+<p class="model-expected-output" id="expected-output" data-toc-label="Expected output"><strong>Expected output</strong><br><code>Scores: 9.0, 19.0</code></p>
+</div>
 ```
 
 # [Load pretrained model weights]($heading.id('load-weights-from-a-checkpoint'))

@@ -290,6 +290,26 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .prose { min-inline-size: 0; overflow-wrap: anywhere; }
 .prose h2 { margin-top: 2.25rem; margin-bottom: 0.75rem; font-size: 1.35rem; line-height: 1.3; letter-spacing: -0.02em; }
 .prose h3 { font-size: 1.1rem; margin-top: 1.75rem; }
+.section-permalink {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  margin-inline-start: 0.25rem;
+  vertical-align: middle;
+  color: var(--muted);
+}
+.section-permalink::before {
+  content: "";
+  inline-size: 0.95rem;
+  block-size: 0.95rem;
+  background: currentColor;
+  mask: var(--icon) center / contain no-repeat;
+}
+.section-permalink:is(:hover, :focus-visible) { color: var(--accent); }
+@media (forced-colors: active) {
+  .section-permalink::before { background: LinkText; forced-color-adjust: none; }
+}
 .prose p, .prose ul, .prose ol { margin-block: 1rem; }
 .prose li + li { margin-top: 0.45rem; }
 .prose code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-size: 0.9em; }
