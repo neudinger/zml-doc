@@ -404,6 +404,54 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   cursor: pointer;
 }
 .model-expected-output { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.75rem; }
+.decision-example { display: flex; flex-wrap: wrap; align-items: start; gap: 1.25rem; }
+.decision-example > .command-shell { flex: 1.3 1 23rem; min-inline-size: 0; }
+.decision-map { flex: 1 1 16rem; min-inline-size: 0; }
+.decision-map h3 { margin: 0 0 0.5rem; }
+.decision-map fieldset { margin-block-end: 0.8rem; }
+.decision-node {
+  display: grid;
+  align-content: center;
+  padding: 0.5rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  text-align: center;
+  line-height: 1.4;
+}
+.decision-node span { color: var(--muted); font-size: 0.85rem; }
+.decision-gate { padding-top: 0.25rem; text-align: center; font-size: 0.85rem; }
+.decision-gate::after, .decision-branches::after {
+  content: "";
+  display: block;
+  block-size: 0.65rem;
+  inline-size: 0;
+  margin: auto;
+  border-inline-start: 1px solid var(--muted);
+}
+.decision-branches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.decision-branches::after { grid-column: 1 / -1; }
+.decision-branch { position: relative; display: grid; text-align: center; padding: 0.7rem 0.2rem; }
+.decision-branch::before, .decision-branch::after {
+  content: "";
+  position: absolute;
+  height: 0.5rem;
+  width: 50%;
+  border: 0 solid var(--branch-color, var(--muted));
+}
+.decision-branch::before { top: 0; border-top-width: 1px; }
+.decision-branch::after { bottom: 0; border-bottom-width: 1px; }
+.decision-branch:first-child::before, .decision-branch:first-child::after { left: 50%; border-left-width: 1px; }
+.decision-branch:last-child::before, .decision-branch:last-child::after { right: 50%; border-right-width: 1px; }
+.decision-map:has(input[value="cat"]:checked) [data-animal="cat"],
+.decision-map:has(input[value="dog"]:checked) [data-animal="dog"] {
+  --branch-color: var(--accent);
+  --branch-fill: var(--selection);
+}
+.decision-branch .decision-node { border-color: var(--branch-color, var(--border)); background: var(--branch-fill, var(--surface)); }
+.decision-rating { border-block-end: 2px solid var(--accent); }
+.decision-context { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.65rem; font-size: 0.9rem; }
+.decision-map:has(input[value="cat"]:checked) [data-context="dog"],
+.decision-map:has(input[value="dog"]:checked) [data-context="cat"] { display: none; }
 .prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
 .command-shell .code-block { margin-block: 0; }
 .prose .command-shell pre {
