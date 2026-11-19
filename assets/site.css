@@ -371,6 +371,19 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+.model-stage { display: contents; }
+.model-stage-panel { order: 1; flex: 0 0 100%; min-inline-size: 0; }
+.model-stage:has(input:not(:checked)) > .model-stage-panel { display: none; }
+.model-stage-panel .code-block { margin-block: 0.55rem; }
+.model-stage-panel p { margin: 0; }
+.model-source { border-block-end: 1px solid var(--border); }
+.model-source summary {
+  padding-block: 0.65rem;
+  color: var(--accent);
+  font: 600 0.95rem ui-monospace, monospace;
+  cursor: pointer;
+}
+.model-expected-output { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.75rem; }
 .prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
 .command-shell .code-block { margin-block: 0; }
 .prose .command-shell pre {

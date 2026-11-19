@@ -5,34 +5,52 @@
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Developer Guide" },
 ---
-Build a linear layer with three input features and two output scores. The
-example uses fixed weights so you can calculate the expected scores by hand.
-Use the checkout and Bazel version from the
-[ZML quickstart]($link.page('zml/quickstart')).
+Use the checkout and Bazel version from the [ZML quickstart]($link.page('zml/quickstart')).
 
-# [1. Describe the computation]($heading.id('describe-the-computation'))
+# [Inside main.zig]($heading.id('compile-and-call-the-layer'))
 
-The model is a Zig struct with `zml.Tensor` fields and a `forward` method.
-Each tensor describes a shape and data type. Assigning a tag to an axis lets
-the operation select that axis by name.
+```=html
+<fieldset class="command-tabs model-walkthrough" id="describe-the-computation">
+  <legend>Model stage</legend>
+  <div class="model-stage">
+    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-describe" checked><span>Describe</span></label>
+    <div class="model-stage-panel" id="stage-describe">
+      <pre><code class="zig">return self.weight.dot(input, .feature).add(self.bias);</code></pre>
+      <p>Each weight row has three features. <code>dot</code> sums their products with the input along <code>.feature</code>. Adding one bias per row gives two output scores.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-compile"><span>Compile</span></label>
+    <div class="model-stage-panel" id="stage-compile">
+      <pre><code class="zig">var executable = try platform.compile(allocator, io, layer, .forward, .{input}, .{});</code></pre>
+      <p>ZML traces <code>forward</code> with the shapes and types of the symbolic tensors. It produces an executable for the selected platform.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-bind"><span>Bind</span></label>
+    <div class="model-stage-panel" id="stage-bind">
+      <pre><code class="zig">args.set(.{ layer_buffers, input_buffer });</code></pre>
+      <p><code>Buffer.fromSlice</code> copies the weights, biases and input from host memory into device buffers. <code>args.set</code> binds those buffers to the executable. The caller owns them.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label class="command-tab"><input type="radio" name="model-stage" aria-controls="stage-call"><span>Call</span></label>
+    <div class="model-stage-panel" id="stage-call">
+      <pre><code class="zig">executable.call(io, args, &amp;results, .{ .wait = true });</code></pre>
+      <p>Wait for execution to finish, retrieve the output buffer with <code>results.get</code>, then copy its two scores back to the host with <code>getValue</code>.</p>
+    </div>
+  </div>
+</fieldset>
+```
 
-| Tensor | Type and shape | Axis tags |
-| --- | --- | --- |
-| `input` | `f32[3]` | `feature` |
-| `weight` | `f32[2, 3]` | `output`, `feature` |
-| `bias` | `f32[2]` | `output` |
-| Result | `f32[2]` | `output` |
+# [Run the complete example]($heading.id('run-the-model'))
 
-`weight.dot(input, .feature)` sums along the three features for each weight
-row. The result has two output scores. Adding `bias` adds one value to each
-score.
+Create `examples/first_model/` in your ZML checkout. Save both files there.
 
-# [2. Compile and call the layer]($heading.id('compile-and-call-the-layer'))
-
-In your ZML checkout, create `examples/first_model/main.zig` with this code.
-
-```zig
-const std = @import("std");
+```=html
+<details class="model-source">
+  <summary>main.zig</summary>
+  <pre><code class="zig" data-copy-label="Copy main.zig">const std = @import("std");
 const zml = @import("zml");
 
 const Linear = struct {
@@ -61,9 +79,9 @@ pub fn main(init: std.process.Init) !void {
     const weights = [2][3]f32{ .{ 1, 2, 3 }, .{ 4, 5, 6 } };
     const biases = [2]f32{ 1, -1 };
     const features = [3]f32{ 1, 2, 1 };
-    const weight_values = zml.Slice.init(layer.weight.shape(), std.mem.asBytes(&weights));
-    const bias_values = zml.Slice.init(layer.bias.shape(), std.mem.asBytes(&biases));
-    const input_values = zml.Slice.init(input.shape(), std.mem.asBytes(&features));
+    const weight_values = zml.Slice.init(layer.weight.shape(), std.mem.asBytes(&amp;weights));
+    const bias_values = zml.Slice.init(layer.bias.shape(), std.mem.asBytes(&amp;biases));
+    const input_values = zml.Slice.init(input.shape(), std.mem.asBytes(&amp;features));
 
     var weight_buffer = try zml.Buffer.fromSlice(io, platform, weight_values);
     defer weight_buffer.deinit();
@@ -82,62 +100,43 @@ pub fn main(init: std.process.Init) !void {
 
     var results = try executable.results(allocator);
     defer results.deinit(allocator);
-    executable.call(io, args, &results, .{ .wait = true });
+    executable.call(io, args, &amp;results, .{ .wait = true });
 
     var output_buffer = results.get(zml.Buffer);
     defer output_buffer.deinit();
     const scores = try output_buffer.getValue([2]f32, io);
     std.debug.print("Scores: {d:.1}, {d:.1}\n", .{ scores[0], scores[1] });
 }
-```
-
-`platform.compile` traces `forward` using symbolic tensors and returns an
-executable for the platform. After compilation, each `zml.Slice` borrows the
-host bytes for a concrete tensor. `Buffer.fromSlice` copies those bytes into
-a platform buffer. `zml.Bufferized(Linear)` keeps the model's structure and
-places `zml.Buffer` handles in its tensor fields.
-
-The caller owns the input and weight buffers. `args.set` uses those handles
-and `results.get` retrieves the output buffer. Release each buffer once, as
-shown by the `defer` statements. Keep the platform alive until the executable
-and its buffers have been released. `getValue` copies the two scores back to
-the host.
-
-# [3. Run the model]($heading.id('run-the-model'))
-
-Add `examples/first_model/BUILD.bazel` next to the Zig file.
-
-```starlark
-load("@rules_zig//zig:defs.bzl", "zig_binary")
+</code></pre>
+</details>
+<details class="model-source">
+  <summary>BUILD.bazel</summary>
+  <pre><code class="starlark" data-copy-label="Copy BUILD.bazel">load("@rules_zig//zig:defs.bzl", "zig_binary")
 
 zig_binary(
     name = "first_model",
     main = "main.zig",
     deps = ["//zml"],
 )
+</code></pre>
+</details>
 ```
 
-From the checkout root, run the new target. The quickstart configuration
-enables CPU by default.
+Run from the checkout root. CPU is enabled by default.
 
 ```sh
 bazel run //examples/first_model
 ```
 
-The expected output line is `Scores: 9.0, 19.0`. Those values come from the
-dot products `1 + 4 + 3` and `4 + 10 + 6`, with biases of `1` and `-1`.
-Try a different `features` array and calculate the new scores before running
-the target again.
+```=html
+<p class="model-expected-output"><strong>Expected output</strong><br><code>Scores: 9.0, 19.0</code></p>
+```
 
 # [Load pretrained model weights]($heading.id('load-weights-from-a-checkpoint'))
 
 The [MNIST example](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist.zig)
-uses the same sequence for a pretrained model. It opens a
-[Safetensors registry]($link.page('zml/checkpoints').ref('load-weights-for-execution')),
-uses `TensorStore` to create tagged weight tensors with the shapes recorded in the model file,
-then compiles `forward`. A loader fills the model's buffers with the weight
-data. It waits for those transfers before passing the buffers to the
-executable. The output is a predicted digit read back as `u8`.
+uses the same steps with pretrained weights. See how to
+[load model weights into device buffers]($link.page('zml/checkpoints').ref('load-weights-for-execution')).
 
 The example above follows the pinned ZML source APIs. Execution of the new
 target remains pending.
