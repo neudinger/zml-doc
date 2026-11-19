@@ -1,42 +1,37 @@
 ---
 .title = "Run models with LLMD",
-.description = "The server path: load a model and connect an application.",
+.description = "Applications send HTTP requests to LLMD, which runs the model.",
 .date = .date("2026-11-06T00:00:00"),
 .layout = "content.shtml",
 ---
-LLMD serves model inference to clients. Running the server and connecting to an
-existing server are separate starting points. See [LLMD on ZML]($link.page('llmd/architecture'))
-for how the serving engine takes an HTTP request through model execution on the selected hardware.
+[]($section.attrs('service-node','service-client','icon-code'))
 
-# [Start a server]($heading.id('start-a-server'))
+# [Application]($heading.id('connect-an-application'))
 
-Serve a model and send a chat, Decision, or embeddings request with the
-[LLMD quickstart]($link.page('llmd/quickstart')). Choose a model, backend,
-and decoding mode to generate launch and request commands for Docker or Homebrew.
-See [Model and listener flags]($link.page('llmd/cli/model-and-listener')) for server startup,
-[Docker options]($link.page('llmd/cli/docker-options')) for container settings,
-and [Model compatibility]($link.page('llmd/models')) for routine test
-configurations and published recipes.
+Send a request from your application to a running server.
 
-After startup, check the loaded model with `/v1/models`. Use its ID in a chat
-request. For a Decision model, send a state and a set of questions to
-`/v1/systemone`. Follow [Ask structured questions with Decision]($link.page('llmd/decision'))
-to read the selected labels and scores.
+[Connect a client]($link.page('llmd/developer-guide'))
 
-With `Qwen/Qwen3-Embedding-8B`, send text to `/v1/embeddings` to obtain a
-vector for each input. Follow [Compare texts with embeddings]($link.page('llmd/text-similarity'))
-to rank passages by their similarity to a query.
+[]($section.attrs('service-http'))
 
-# [Connect an application]($heading.id('connect-an-application'))
+HTTP
 
-Identify the server endpoint and exposed model name before sending a request.
-The client and server must agree on the request format and model identifier.
-Follow [Connect an application to LLMD]($link.page('llmd/developer-guide')) for a
-Python client that discovers the model ID and sends a chat request. See
-[Models]($link.page('llmd/api/models')) for model discovery and
-[Chat completions]($link.page('llmd/api/chat-completions')) for streaming responses.
+[]($section.attrs('service-node','service-server','icon-server'))
 
-# [Operate the service]($heading.id('operate-the-service'))
+# [LLMD server]($heading.id('start-a-server'))
 
-Continue to [Operations]($link.page('operations')) to deploy, monitor, and
-troubleshoot an LLMD service.
+Load a model and run inference on your hardware.
+
+[Start a server]($link.page('llmd/quickstart'))
+
+[]($section.attrs('service-node','service-operations','icon-activity'))
+
+# [Operations]($heading.id('operate-the-service'))
+
+Deploy, monitor, and troubleshoot the LLMD server.
+
+[Operate a service]($link.page('operations'))
+
+[]($section.attrs('service-map-reference'))
+
+[Explore the LLMD on ZML architecture map]($link.page('llmd/architecture').attrs('service-architecture','icon-boxes'))
