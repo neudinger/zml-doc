@@ -56,23 +56,10 @@ links select the exact target, backend, and drafter for a pairing.
           <span class="llmd-launch-field-hint" id="llmd-launch-backend-hint">Choose the hardware of the machine that will serve the model.</span>
         </div>
         <div class="llmd-launch-field llmd-launch-checkpoint">
-          <label for="llmd-launch-checkpoint">Checkpoint model</label>
+          <label for="llmd-launch-checkpoint">Model</label>
           <select id="llmd-launch-checkpoint" name="checkpoint" aria-describedby="llmd-launch-checkpoint-hint">
-            <optgroup label="Routine test checkpoints" data-routine-options>
+            <optgroup label="LFM">
               <option selected>LiquidAI/LFM3-1.7B</option>
-            </optgroup>
-            <optgroup label="Decision checkpoints" data-decision-options></optgroup>
-            <optgroup label="Embedding checkpoints" data-embeddings-options></optgroup>
-            <optgroup label="External drafter targets" data-pairing-options></optgroup>
-            <optgroup label="Additional checkpoints">
-              <option>LiquidAI/LFM3-1.7B-FP8</option>
-              <option>nvidia/Qwen3.8-27B-NVFP4</option>
-              <option>deepseek-ai/DeepSeek-V4.1-Flash</option>
-              <option>mistralai/Mistral-Large-4-1T-A52B</option>
-              <option>Qwen/Qwen3.5-35B-A3B</option>
-              <option>Qwen/Qwen3.6-35B-A3B-FP8</option>
-              <option>google/gemma-4-12B-it</option>
-              <option>mistralai/Ministral-3-14B-Reasoning-2512</option>
             </optgroup>
           </select>
           <span class="llmd-launch-field-hint llmd-launch-checkpoint-value" aria-hidden="true" data-selected-checkpoint></span>

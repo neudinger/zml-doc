@@ -103,31 +103,22 @@
                 </ctx>
               </tbody>
             </table>
-            <div hidden data-llmd-routines data-pagefind-ignore>
+            <div hidden data-llmd-models data-pagefind-ignore>
               <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()">
                 <ctx :loop="$ctx.routines.get('checkpoints')">
-                  <ctx model="$loop.it" :if="$loop.it.has('modes')">
-                    <div data-checkpoint="$ctx.model.get('id')">
-                      <ctx :loop="$ctx.model.get('modes')">
-                        <span data-decoding="$loop.it" data-drafter="$loop.it.eql('external').then($ctx.model.getOr('drafter', ''), '')"
-                              :text="$ctx.routines.get('modes').get($loop.it)"></span>
+                  <ctx model="$loop.it">
+                    <div data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')">
+                      <ctx :if="$ctx.model.has('modes')">
+                        <ctx :loop="$ctx.model.get('modes')">
+                          <span data-decoding="$loop.it" data-drafter="$loop.it.eql('external').then($ctx.model.getOr('drafter', ''), '')"
+                                :text="$ctx.routines.get('modes').get($loop.it)"></span>
+                        </ctx>
+                      </ctx>
+                      <ctx :loop="$ctx.routines.get('capabilities')">
+                        <span :if="$ctx.model.getOr($loop.it.get('id'), false)" data-capability="$loop.it.get('id')"></span>
                       </ctx>
                     </div>
                   </ctx>
-                </ctx>
-              </ctx>
-            </div>
-            <div hidden data-llmd-decision data-pagefind-ignore>
-              <ctx :loop="$site.asset('llmd-routines.ziggy').ziggy().get('checkpoints')">
-                <ctx :if="$loop.it.getOr('decision', false)">
-                  <span data-checkpoint="$loop.it.get('id')"></span>
-                </ctx>
-              </ctx>
-            </div>
-            <div hidden data-llmd-embeddings data-pagefind-ignore>
-              <ctx :loop="$site.asset('llmd-routines.ziggy').ziggy().get('checkpoints')">
-                <ctx :if="$loop.it.getOr('embeddings', false)">
-                  <span data-checkpoint="$loop.it.get('id')"></span>
                 </ctx>
               </ctx>
             </div>

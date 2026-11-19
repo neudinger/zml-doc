@@ -264,41 +264,48 @@
     const cacheDirectoryField = field("cacheDirectory");
     const batchField = field("batch");
     const standard = { mode: "standard", label: "Standard", drafter: "" };
-    const routineModes = new Map();
-    for (const row of document.querySelectorAll("[data-llmd-routines] [data-checkpoint]")) {
-      const modes = [...row.querySelectorAll("[data-decoding]")].map(item => ({
-        mode: item.dataset.decoding, label: item.textContent.trim(), drafter: item.dataset.drafter,
-      }));
-      routineModes.set(row.dataset.checkpoint, modes);
+    const families = new Map();
+    const parentFamilies = ["DeepSeek", "Gemma", "LFM", "Llama", "Mistral", "Qwen", "StartLux"];
+    function addModel({ family, checkpoint }) {
+      const parent = family.startsWith("Ministral") ? "Mistral"
+        : parentFamilies.find(name => family.startsWith(name)) ?? family;
+      if (!families.has(parent)) families.set(parent, new Set());
+      families.get(parent).add(checkpoint);
     }
-    const pairings = new Map();
-    for (const row of document.querySelectorAll("[data-llmd-pairings] tr[data-checkpoint]")) {
-      pairings.set(row.dataset.checkpoint, Array.from(row.querySelectorAll("li[data-drafter]"), item => item.dataset.drafter));
-    }
-    let checkpoint = checkpointField.value;
     const requestTypes = [
       { key: "decision", label: "Decision", route: "systemone" },
       { key: "embeddings", label: "Embeddings", route: "embeddings" },
     ];
-    const listed = new Set([...routineModes.keys(), ...Array.from(checkpointField.options, option => option.value)]);
     for (const type of requestTypes) {
       type.example = root.querySelector(`code[data-command="${type.key}"]`).textContent;
-      type.checkpoints = new Set(Array.from(document.querySelectorAll(`[data-llmd-${type.key}] [data-checkpoint]`),
-        row => row.dataset.checkpoint));
-      const group = part(type.key + "-options");
-      for (const name of type.checkpoints) {
-        if (listed.has(name)) continue;
-        group.append(new Option(name, name));
-        listed.add(name);
+      type.checkpoints = new Set();
+    }
+    const routineModes = new Map();
+    for (const row of document.querySelectorAll("[data-llmd-models] [data-checkpoint]")) {
+      addModel(row.dataset);
+      const modes = [...row.querySelectorAll("[data-decoding]")].map(item => ({
+        mode: item.dataset.decoding, label: item.textContent.trim(), drafter: item.dataset.drafter,
+      }));
+      if (modes.length) routineModes.set(row.dataset.checkpoint, modes);
+      for (const type of requestTypes) {
+        if (row.querySelector(`[data-capability="${type.key}"]`)) type.checkpoints.add(row.dataset.checkpoint);
       }
     }
-    if (routineModes.size) {
-      part("routine-options").replaceChildren(...[...routineModes.keys()].map(name => new Option(name, name)));
-      checkpointField.value = checkpoint;
+    const pairings = new Map();
+    for (const row of document.querySelectorAll("[data-llmd-pairings] tr[data-checkpoint]")) {
+      addModel(row.dataset);
+      pairings.set(row.dataset.checkpoint, Array.from(row.querySelectorAll("li[data-drafter]"), item => item.dataset.drafter));
     }
-    for (const name of pairings.keys()) {
-      if (!listed.has(name)) part("pairing-options").append(new Option(name, name));
-    }
+    let checkpoint = checkpointField.value;
+    const compare = new Intl.Collator("en", { numeric: true, sensitivity: "base" }).compare;
+    const compareModels = (a, b) => compare(servedModelName(a), servedModelName(b)) || compare(a, b);
+    checkpointField.replaceChildren(...[...families.keys()].sort(compare).map(family => {
+      const group = document.createElement("optgroup");
+      group.label = family;
+      for (const id of [...families.get(family)].sort(compareModels)) group.append(new Option(id, id, id === checkpoint));
+      return group;
+    }));
+    checkpointField.value = checkpoint;
     let legacyPreset = null;
     let invalidLink = false;
     let activeCommand = "launch";
@@ -560,7 +567,7 @@
       const published = legacyPreset || (decoding === "dspine" ? preset : null);
       setText("fit", published ? published.evidence ?? "Published launch recipe for this checkpoint and accelerator."
         : external ? "Reported target and drafter pairing. Check for a recorded run on this backend and LLMD build."
-        : routine ? "Routine test target. Check the model catalog for recorded backend results."
+        : routine ? "See Model compatibility for recorded results on this backend."
         : requestType !== "chat" ? requestField.selectedOptions[0].textContent + " checkpoint. Verify that your LLMD build supports this checkpoint on the selected backend."
         : preset ? preset.evidence ?? "A published recipe is available for this checkpoint and accelerator."
         : "Confirm compatibility for this checkpoint and run target.");
