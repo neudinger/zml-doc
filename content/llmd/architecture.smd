@@ -1,0 +1,95 @@
+---
+.title = "LLMD on ZML",
+.description = "See how LLMD serves requests and how ZML compiles models, loads weights and runs inference on the selected hardware.",
+.date = .date("2026-11-19T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide", .architecture = true },
+---
+# [Applications and serving APIs]($heading.id('serving-apis'))
+
+Applications and agents send requests to LLMD over HTTP. The endpoint determines
+what the server returns.
+
+| Endpoint | Result |
+| --- | --- |
+| [Chat completions]($link.page('llmd/api/chat-completions')) · `/v1/chat/completions` | An OpenAI-compatible client or SDK sends messages. LLMD returns a completion or streams the generated text. |
+| [Embeddings]($link.page('llmd/api/embeddings')) · `/v1/embeddings` | The model pools its output on the device and returns a vector for each input text. |
+| [Decision]($link.page('llmd/api/decision')) · `/v1/systemone` | The client supplies one state and a set of yes/no, choice or score questions. A question can depend on an earlier answer. |
+
+For observability, LLMD exposes Prometheus metrics and provides crash reports.
+See [Monitor and troubleshoot LLMD]($link.page('operations/monitoring').ref('scrape-service-metrics')) to inspect service metrics during a run.
+
+# [Serving engine]($heading.id('engine'))
+
+For chat, the engine renders a Jinja2 template in Zig and tokenizes the prompt.
+The diagram lists BPE, WordPiece and SentencePiece. On the return path, output
+parsers extract reasoning traces and tool calls from model output.
+
+- **Scheduling and cache.** The scheduler continuously batches requests, mixes prefill and decode work, and can split long prefills into chunks. A paged KV cache holds attention state and enables prefix reuse.
+- **Speculative decoding.** A drafter proposes tokens for the target model to check. The diagram names DSpark, DFlash and DSpine. See [Compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')) for paired runs.
+- **Execution and parallelism.** The host prepares the next step while the device runs. Tensor, expert and data parallelism distribute different parts of the work across devices.
+- **Weight preparation.** The engine can fuse, stack or swizzle weights into the layout a kernel expects. The diagram gives FP8, MXFP4 and NVFP4 as examples.
+
+See [Batching and memory]($link.page('llmd/cli/batching-and-memory')) for the flags that control scheduling and cache capacity.
+
+# [DeepSeek V4.1-Flash example]($heading.id('deepseek-v4-1-flash'))
+
+In this Zig model, token embeddings pass through repeated decoder layers.
+The language-model head produces scores for sampling. The diagram also shows
+the DSpark drafter for speculative decoding.
+
+| Inside a decoder layer | Role |
+| --- | --- |
+| Engram | On selected layers, the host computes n-gram hashes for lookups in host-pinned tables. A gate controls how much of the result is added to the residual stream. |
+| Sparse MLA attention | Latent query and KV projections use YaRN rotary embeddings. A KV compressor and top-k indexer support sliding-window and sparse attention with attention sinks, followed by a grouped output projection. |
+| Mixture of experts | A router selects the top-k MXFP4 routed experts. The layer also has a shared expert and can distribute experts across devices. |
+| mHC | Mixes residual streams before and after attention and expert computation. |
+| Paged caches | Window KV uses FP8. Compressed KV and indexer keys use FP4. |
+
+The [model compatibility catalog]($link.page('llmd/models')) lists the published launch recipes for this checkpoint.
+
+# [Kernel implementations]($heading.id('kernels'))
+
+An operation can use a custom kernel for the platform or a portable StableHLO
+implementation. The table gives the five operation families in the diagram.
+Attention includes MLA and GQA. The indexer examples are DSA and QSA.
+A dash means the diagram leaves that implementation unspecified.
+
+| Platform | Attention | Indexer | Gated DeltaNet | Mixture of experts | mHC |
+| --- | --- | --- | --- | --- | --- |
+| NVIDIA | CuTe · Triton | Triton | CuTe · Triton | CuTe · Triton | CuTe |
+| AMD | Fly · Triton | Triton | Fly · Triton | Fly · Triton | Fly |
+| Google TPU | Mosaic | StableHLO | Mosaic | Mosaic | StableHLO |
+| Trainium | NKI | StableHLO | — | StableHLO | StableHLO |
+| Intel | Triton | StableHLO | Triton | StableHLO | StableHLO |
+| Apple | Metal | StableHLO | Metal | Metal | StableHLO |
+| Furiosa | TCL | StableHLO | TCL | TCL | StableHLO |
+| CPU | StableHLO | StableHLO | — | StableHLO | StableHLO |
+
+# [ZML compilation and execution]($heading.id('zml'))
+
+The engine uses ZML both to load weights and to run programs. Model code and
+checkpoint data take different paths to execution.
+
+- **Tensor API and compiler.** Zig model code expresses operations such as matrix multiplication, gather, scan and sort. For example, `q.dot(k, .hd).softmax(.k)` computes a dot product followed by softmax. ZML generates MLIR using dialects including `stablehlo`, `sdy` and `func`, with one program per shape bucket. See the [Tensor API]($link.page('zml/api/tensor')).
+- **Kernel languages.** The compiler can embed custom kernels in the graph. The diagram names Triton, CuTe, CUDA Tile, FlyDSL, Mosaic, NKI, Metal and TCL.
+- **Sharding.** Tensor shardings express how data is placed on a device mesh with named axes. XLA partitions the computation accordingly. See [Run ZML across devices]($link.page('zml/sharding')).
+- **I/O.** ZML reads tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk and moves data between host and device using DMA. See [Load and inspect checkpoints]($link.page('zml/checkpoints')).
+- **Execution and PJRT.** The runtime launches the compiled executable asynchronously with device buffers. The PJRT C API gives ZML a common plugin interface for compilation, data transfer and execution. See [Exe]($link.page('zml/api/exe')) and the [OpenXLA source](https://github.com/openxla/xla).
+
+# [Platforms]($heading.id('platforms'))
+
+The diagram pairs framework targets with runtimes and kernel languages. To
+deploy a server, check the [LLMD distributions]($link.page('llmd/reference/compatibility'))
+and the [checkpoint recipes]($link.page('llmd/models')) for your hardware.
+
+| Framework target | Runtime or architecture | Kernel languages shown |
+| --- | --- | --- |
+| NVIDIA | CUDA | CuTe, CUDA Tile, Triton |
+| AMD | ROCm | FlyDSL, Triton |
+| Google TPU | libtpu | Mosaic |
+| AWS Trainium | Neuron | NKI |
+| Intel | oneAPI | Triton |
+| Apple | Metal | Metal |
+| Furiosa | Furiosa SDK | TCL |
+| CPU | x86, Arm | — |

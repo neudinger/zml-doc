@@ -5,7 +5,8 @@
 .layout = "content.shtml",
 ---
 LLMD serves model inference to clients. Running the server and connecting to an
-existing server are separate starting points.
+existing server are separate starting points. See [LLMD on ZML]($link.page('llmd/architecture'))
+for how the serving engine takes an HTTP request through model execution on the selected hardware.
 
 # [Start a server]($heading.id('start-a-server'))
 

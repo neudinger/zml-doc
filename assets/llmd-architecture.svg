@@ -1,0 +1,579 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="llmd-architecture-map" viewBox="0 0 1240 1204" role="img" aria-labelledby="architecture-map-title architecture-map-description">
+  <title id="architecture-map-title">LLMD on ZML</title>
+  <desc id="architecture-map-description">The serving APIs connect clients to the LLMD engine. The DeepSeek V4.1-Flash example expands a decoder layer. A matrix shows kernel implementations for each platform. ZML compiles and executes tensor programs through PJRT plugins.</desc>
+  <style>
+#llmd-architecture-map {
+  --map-canvas: var(--background, light-dark(#fff, #0d0c14));
+  --map-surface: var(--surface, light-dark(#fff, #171524));
+  --map-ink: var(--text, light-dark(#0c0c15, #f5f3fa));
+  --map-muted: var(--muted, light-dark(#474657, #bdb8cc));
+  --map-edge: light-dark(#677082, #a19aac);
+  --map-violet: var(--accent, light-dark(#4800dc, #c6a5ff));
+  --map-aqua: light-dark(#08746d, #75dfcf);
+  --map-ochre: light-dark(#83520f, #edbd79);
+  --map-blue: light-dark(#215c9c, #89caff);
+  --map-slate: light-dark(#4e566a, #c2c1d3);
+  --map-pink: light-dark(#a6246f, #ff9fdb);
+  --map-violet-fill: light-dark(#ede6fc, #332548);
+  --map-aqua-fill: light-dark(#e4f6f1, #16332f);
+  --map-ochre-fill: light-dark(#fcf1e0, #3f321e);
+  --map-blue-fill: light-dark(#e3eefc, #1b2f46);
+  --map-slate-fill: light-dark(#e9ebf3, #292936);
+  --map-sans: var(--font-sans, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --map-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--map-edge);
+  background: var(--map-canvas);
+}
+:root#llmd-architecture-map { color-scheme: light dark; }
+#llmd-architecture-map[data-theme="light"] { color-scheme: light; }
+#llmd-architecture-map[data-theme="dark"] { color-scheme: dark; }
+
+#llmd-architecture-map .band { stroke: none; opacity: .65; }
+#llmd-architecture-map .band.model { fill: var(--map-violet-fill); }
+#llmd-architecture-map .band.ops { fill: var(--map-ochre-fill); }
+#llmd-architecture-map .band.zml { fill: var(--map-blue-fill); }
+#llmd-architecture-map .band.plat { fill: var(--map-slate-fill); }
+#llmd-architecture-map .box { fill: var(--map-surface); stroke-width: 1.2; }
+#llmd-architecture-map .client .box { stroke: var(--map-ink); }
+#llmd-architecture-map .serve .box { stroke: var(--map-aqua); }
+#llmd-architecture-map .model .box { stroke: var(--map-violet); }
+#llmd-architecture-map .zml .box { stroke: var(--map-blue); }
+#llmd-architecture-map .plat .box { stroke: var(--map-slate); }
+#llmd-architecture-map .group { fill: var(--map-surface); fill-opacity: .55; stroke: var(--map-edge); stroke-dasharray: 4 4; }
+#llmd-architecture-map .edge { fill: none; stroke: currentColor; stroke-width: 1.3; pointer-events: none; }
+#llmd-architecture-map .zoomline { fill: none; stroke: var(--map-violet); stroke-opacity: .6; stroke-dasharray: 3 3; pointer-events: none; }
+#llmd-architecture-map .zoom { fill: var(--map-violet-fill); fill-opacity: .35; stroke: var(--map-violet); stroke-opacity: .6; }
+#llmd-architecture-map .pill { fill: var(--map-violet-fill); stroke: var(--map-violet); stroke-opacity: .5; }
+#llmd-architecture-map .pill.hi { stroke-opacity: 1; stroke-width: 1.8; }
+#llmd-architecture-map .cell.custom { fill: var(--map-ochre-fill); stroke: var(--map-ochre); stroke-opacity: .6; }
+#llmd-architecture-map .cell.hlo { fill: var(--map-surface); stroke: var(--map-edge); stroke-dasharray: 3 3; }
+#llmd-architecture-map .chipbox.zml { fill: var(--map-blue-fill); stroke: var(--map-blue); stroke-opacity: .55; }
+
+#llmd-architecture-map text { fill: var(--map-ink); font-family: var(--map-sans); }
+#llmd-architecture-map .panel-title { font-weight: 700; font-size: 16px; letter-spacing: .01em; }
+#llmd-architecture-map .panel-title.model, #llmd-architecture-map .grp-title { fill: var(--map-violet); }
+#llmd-architecture-map .panel-title.ops { fill: var(--map-ochre); }
+#llmd-architecture-map .panel-title.zml { fill: var(--map-blue); }
+#llmd-architecture-map .panel-title.plat { fill: var(--map-slate); }
+#llmd-architecture-map .grp-title { font-size: 14px; font-weight: 600; }
+#llmd-architecture-map .n-title { font-size: 12.5px; font-weight: 600; }
+#llmd-architecture-map .n-sub { font: 400 11px var(--map-sans); fill: var(--map-muted); }
+#llmd-architecture-map .n-mono, #llmd-architecture-map .g-label, #llmd-architecture-map .e-label, #llmd-architecture-map .mx-cell.hlo {
+  font: 400 10px var(--map-mono);
+  fill: var(--map-muted);
+}
+#llmd-architecture-map .dsl .n-mono { fill: var(--map-ochre); font-weight: 500; }
+#llmd-architecture-map .p-label, #llmd-architecture-map .c-label, #llmd-architecture-map .mx-cell.custom { font: 500 11px var(--map-sans); }
+#llmd-architecture-map .m-name, #llmd-architecture-map .mx-head, #llmd-architecture-map .callout { font: 600 12px var(--map-sans); }
+#llmd-architecture-map .callout { fill: var(--map-pink); }
+#llmd-architecture-map .m-more { font: 500 12px var(--map-sans); fill: var(--map-muted); }
+#llmd-architecture-map .mx-none { font: 600 14px var(--map-sans); fill: var(--map-muted); }
+
+#llmd-architecture-map [data-component][role="button"] { cursor: pointer; }
+#llmd-architecture-map [data-component]:is([aria-pressed="true"], :focus-visible, :hover):where([role="button"]) > rect {
+  stroke: var(--map-violet);
+  stroke-width: 2.6;
+  stroke-opacity: 1;
+}
+#llmd-architecture-map [data-component][aria-pressed="true"] > rect { stroke: url(#llmd-selection); }
+#llmd-architecture-map [data-component]:focus-visible { outline: 2px solid var(--map-violet); outline-offset: 2px; }
+#llmd-architecture-map .edge[data-active] { color: var(--map-violet); stroke-width: 2.5; }
+</style>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,1 L9,5 L0,9 z" fill="currentColor" />
+    </marker>
+    <linearGradient id="llmd-selection">
+      <stop offset="0%" stop-color="#00bde8" />
+      <stop offset="48%" stop-color="#5e14ef" />
+      <stop offset="100%" stop-color="#de00cf" />
+    </linearGradient>
+  </defs>
+  <g data-component="llmd" data-section="serving-apis" aria-label="LLMD">
+    <desc>LLMD exposes inference APIs and coordinates work in its serving engine. The engine runs model logic written in Zig on ZML.</desc>
+    <rect x="10" y="64" width="1220" height="478" rx="14" class="band model" />
+    <text x="24" y="88" class="panel-title model">LLMD</text>
+  </g>
+  <g class="node client " data-component="applications" data-section="serving-apis" aria-label="Applications and agents">
+    <desc>Applications and agents send HTTP requests to LLMD. Chat clients can receive generated content as a stream.</desc>
+    <rect x="420" y="12" width="400" height="44" rx="7" class="box" />
+    <text x="430" y="30" class="n-title" text-anchor="start">Applications and agents</text>
+    <text x="430" y="46" class="n-sub" text-anchor="start">any OpenAI-compatible client or SDK</text>
+  </g>
+  <text x="228" y="54" class="e-label" text-anchor="start">HTTP · streaming</text>
+  <g class="node serve " data-component="chat-completions" data-section="serving-apis" aria-label="Chat Completions API">
+    <desc>The OpenAI-compatible chat endpoint accepts messages and returns a completion. Clients can also stream the generated content.</desc>
+    <rect x="30" y="100" width="261" height="60" rx="7" class="box" />
+    <text x="40" y="118" class="n-title" text-anchor="start">Chat Completions API</text>
+    <text x="40" y="134" class="n-sub" text-anchor="start">OpenAI-compatible</text>
+    <text x="40" y="148" class="n-sub" text-anchor="start">Completions · streaming</text>
+  </g>
+  <g class="node serve " data-component="embeddings" data-section="serving-apis" aria-label="Embeddings API">
+    <desc>The embeddings endpoint converts input text into a vector. The model output is pooled on the device.</desc>
+    <rect x="303" y="100" width="261" height="60" rx="7" class="box" />
+    <text x="313" y="118" class="n-title" text-anchor="start">Embeddings API</text>
+    <text x="313" y="134" class="n-sub" text-anchor="start">sentence embeddings</text>
+    <text x="313" y="148" class="n-sub" text-anchor="start">pooling on device</text>
+  </g>
+  <g class="node serve " data-component="decision" data-section="serving-apis" aria-label="Decision API">
+    <desc>The Decision endpoint evaluates typed questions against one shared state. Questions can depend on earlier answers.</desc>
+    <rect x="576" y="100" width="261" height="60" rx="7" class="box" />
+    <text x="586" y="118" class="n-title" text-anchor="start">Decision API</text>
+    <text x="586" y="134" class="n-sub" text-anchor="start">yes/no · choice · score</text>
+    <text x="586" y="148" class="n-sub" text-anchor="start">dependent questions, one state</text>
+  </g>
+  <rect x="849" y="100" width="86" height="60" rx="7" class="group" />
+  <text x="892" y="134" class="m-more" text-anchor="middle">… and more</text>
+  <g class="node serve " data-component="observability" data-section="serving-apis" aria-label="Observability">
+    <desc>Prometheus metrics expose service behavior. Crash reports provide information for investigating failures.</desc>
+    <rect x="947" y="100" width="261" height="60" rx="7" class="box" />
+    <text x="957" y="118" class="n-title" text-anchor="start">Observability</text>
+    <text x="957" y="134" class="n-sub" text-anchor="start">Prometheus metrics</text>
+    <text x="957" y="148" class="n-sub" text-anchor="start">crash reports</text>
+  </g>
+  <text x="98" y="192" class="e-label" text-anchor="start">requests</text>
+  <text x="188" y="192" class="e-label" text-anchor="start">generated tokens</text>
+  <g data-component="engine" data-section="engine" aria-label="Engine">
+    <desc>The engine prepares input, schedules batches and manages cached attention state. It runs the model and processes its output for clients.</desc>
+    <rect x="30" y="214" width="530" height="314" rx="10" class="group" />
+    <text x="44" y="236" class="grp-title" text-anchor="start">Engine</text>
+  </g>
+  <g class="node model " data-component="chat-templates" data-section="engine" aria-label="Chat templates">
+    <desc>The Jinja2 engine in Zig formats conversation messages into the prompt expected by the selected chat model.</desc>
+    <rect x="44" y="250" width="160" height="80" rx="7" class="box" />
+    <text x="54" y="268" class="n-title" text-anchor="start">Chat templates</text>
+    <text x="54" y="284" class="n-sub" text-anchor="start">Jinja2 engine in Zig</text>
+  </g>
+  <g class="node model " data-component="tokenizers" data-section="engine" aria-label="Tokenizers">
+    <desc>Tokenizers turn input text into token IDs. The diagram lists BPE, WordPiece and SentencePiece.</desc>
+    <rect x="216" y="250" width="160" height="80" rx="7" class="box" />
+    <text x="226" y="268" class="n-title" text-anchor="start">Tokenizers</text>
+    <text x="226" y="284" class="n-sub" text-anchor="start">BPE · WordPiece</text>
+    <text x="226" y="298" class="n-sub" text-anchor="start">SentencePiece</text>
+  </g>
+  <g class="node model " data-component="output-parsers" data-section="engine" aria-label="Output parsers">
+    <desc>Output parsers interpret generated content such as reasoning traces and tool calls.</desc>
+    <rect x="388" y="250" width="160" height="80" rx="7" class="box" />
+    <text x="398" y="268" class="n-title" text-anchor="start">Output parsers</text>
+    <text x="398" y="284" class="n-sub" text-anchor="start">reasoning traces</text>
+    <text x="398" y="298" class="n-sub" text-anchor="start">tool calls</text>
+  </g>
+  <g class="node model " data-component="scheduler" data-section="engine" aria-label="Scheduler">
+    <desc>The scheduler combines work from active requests into batches. Chunked prefill lets it process a prompt in pieces.</desc>
+    <rect x="44" y="340" width="160" height="80" rx="7" class="box" />
+    <text x="54" y="358" class="n-title" text-anchor="start">Scheduler</text>
+    <text x="54" y="374" class="n-sub" text-anchor="start">continuous batching</text>
+    <text x="54" y="388" class="n-sub" text-anchor="start">mixed batching</text>
+    <text x="54" y="402" class="n-sub" text-anchor="start">chunked prefill</text>
+  </g>
+  <g class="node model " data-component="paged-kv-cache" data-section="engine" aria-label="Paged KV cache">
+    <desc>The engine stores attention keys and values in pages. Requests with a common prefix can reuse cached state.</desc>
+    <rect x="216" y="340" width="160" height="80" rx="7" class="box" />
+    <text x="226" y="358" class="n-title" text-anchor="start">Paged KV cache</text>
+    <text x="226" y="374" class="n-sub" text-anchor="start">prefix reuse</text>
+  </g>
+  <g class="node model " data-component="speculative-decoding" data-section="engine" aria-label="Speculative decoding">
+    <desc>A drafter proposes candidate tokens for the target model to verify. The diagram names DSpark, DFlash and DSpine.</desc>
+    <rect x="388" y="340" width="160" height="80" rx="7" class="box" />
+    <text x="398" y="358" class="n-title" text-anchor="start">Speculative decoding</text>
+    <text x="398" y="374" class="n-sub" text-anchor="start">DSpark · DFlash · DSpine</text>
+  </g>
+  <g class="node model " data-component="async-execution" data-section="engine" aria-label="Async execution">
+    <desc>The host prepares the next execution step while the device runs the current one.</desc>
+    <rect x="44" y="430" width="160" height="80" rx="7" class="box" />
+    <text x="54" y="448" class="n-title" text-anchor="start">Async execution</text>
+    <text x="54" y="464" class="n-sub" text-anchor="start">host plans the next step</text>
+    <text x="54" y="478" class="n-sub" text-anchor="start">while the device runs</text>
+  </g>
+  <g class="node model " data-component="parallelism" data-section="engine" aria-label="Parallelism">
+    <desc>LLMD can divide tensors or experts across devices, or distribute inputs across model replicas.</desc>
+    <rect x="216" y="430" width="160" height="80" rx="7" class="box" />
+    <text x="226" y="448" class="n-title" text-anchor="start">Parallelism</text>
+    <text x="226" y="464" class="n-sub" text-anchor="start">tensor · expert · data</text>
+    <text x="226" y="478" class="n-sub" text-anchor="start">across devices</text>
+  </g>
+  <g class="node model " data-component="weight-preparation" data-section="engine" aria-label="Weight preparation">
+    <desc>Weights can be fused, stacked or rearranged into the layout required by the selected kernel. The diagram includes FP8, MXFP4 and NVFP4.</desc>
+    <rect x="388" y="430" width="160" height="80" rx="7" class="box" />
+    <text x="398" y="448" class="n-title" text-anchor="start">Weight preparation</text>
+    <text x="398" y="464" class="n-sub" text-anchor="start">FP8 · MXFP4 · NVFP4</text>
+    <text x="398" y="478" class="n-sub" text-anchor="start">fuse · stack · swizzle</text>
+    <text x="398" y="492" class="n-sub" text-anchor="start">to each kernel's layout</text>
+  </g>
+  <g data-component="model" data-section="deepseek-v4-1-flash" aria-label="DeepSeek V4.1-Flash">
+    <desc>DeepSeek V4.1-Flash is the worked example. Its Zig definition connects token embeddings, repeated decoder layers, an output head and sampling.</desc>
+    <rect x="590" y="214" width="620" height="314" rx="10" class="group" />
+    <text x="604" y="236" class="grp-title" text-anchor="start">Example model: DeepSeek V4.1-Flash</text>
+    <text x="1196" y="236" class="callout" text-anchor="end">written once in Zig</text>
+  </g>
+  <g data-component="embedding" data-section="deepseek-v4-1-flash" aria-label="Embedding">
+    <desc>The embedding stage looks up a vector for each token ID and passes those vectors to the decoder.</desc>
+    <rect x="604" y="248" width="73" height="22" rx="11" class="pill model" />
+    <text x="640.5" y="263.0" class="p-label" text-anchor="middle">Embedding</text>
+  </g>
+  <g data-component="decoder-layer" data-section="deepseek-v4-1-flash" aria-label="Decoder layer × N">
+    <desc>The decoder layers repeat through the model. The expanded layer shows Engram on selected layers, sparse MLA attention and mixture of experts.</desc>
+    <rect x="699" y="248" width="122" height="22" rx="11" class="pill model hi" />
+    <text x="760.0" y="263.0" class="p-label" text-anchor="middle">Decoder layer × N</text>
+  </g>
+  <g data-component="lm-head" data-section="deepseek-v4-1-flash" aria-label="LM head">
+    <desc>The language model head maps the decoder output to scores over the token vocabulary.</desc>
+    <rect x="843" y="248" width="61" height="22" rx="11" class="pill model" />
+    <text x="873.5" y="263.0" class="p-label" text-anchor="middle">LM head</text>
+  </g>
+  <g data-component="sampling" data-section="deepseek-v4-1-flash" aria-label="Sampling">
+    <desc>The sampler uses the model’s output scores to select tokens for generation.</desc>
+    <rect x="926" y="248" width="67" height="22" rx="11" class="pill model" />
+    <text x="959.5" y="263.0" class="p-label" text-anchor="middle">Sampling</text>
+  </g>
+  <g data-component="dspark-drafter" data-section="deepseek-v4-1-flash" aria-label="DSpark drafter">
+    <desc>The example includes a DSpark drafter that uses one decoder layer for speculative decoding.</desc>
+    <rect x="1015" y="248" width="103" height="22" rx="11" class="pill model" />
+    <text x="1066.5" y="263.0" class="p-label" text-anchor="middle">DSpark drafter</text>
+  </g>
+  <path d="M699,270 L604,292 M821,270 L1196,292" class="zoomline" />
+  <rect x="604" y="292" width="592" height="224" rx="8" class="zoom" />
+  <text x="1186" y="307" class="g-label" text-anchor="end">one decoder layer</text>
+  <g class="node model " data-component="engram" data-section="deepseek-v4-1-flash" aria-label="Engram">
+    <desc>On selected layers, the host computes n-gram hashes. Engram looks up values in host-pinned tables and combines them with the residual through a gate.</desc>
+    <rect x="614" y="314" width="136" height="128" rx="7" class="box" />
+    <text x="624" y="332" class="n-title" text-anchor="start">Engram</text>
+    <text x="624" y="348" class="n-sub" text-anchor="start">selected layers</text>
+    <text x="624" y="362" class="n-sub" text-anchor="start">n-gram hashes on host</text>
+    <text x="624" y="376" class="n-sub" text-anchor="start">host-pinned tables</text>
+    <text x="624" y="390" class="n-sub" text-anchor="start">gated residual add</text>
+  </g>
+  <g class="node model " data-component="sparse-mla-attention" data-section="deepseek-v4-1-flash" aria-label="Sparse MLA attention">
+    <desc>Sparse MLA forms latent query and key/value projections, applies YaRN rotary embeddings and compresses KV state. An indexer selects candidates for sliding-window and sparse attention; attention sinks and a grouped output projection complete the block.</desc>
+    <rect x="761" y="314" width="226" height="128" rx="7" class="box" />
+    <text x="771" y="332" class="n-title" text-anchor="start">Sparse MLA attention</text>
+    <text x="771" y="348" class="n-sub" text-anchor="start">latent Q / KV projections</text>
+    <text x="771" y="362" class="n-sub" text-anchor="start">YaRN rotary embedding</text>
+    <text x="771" y="376" class="n-sub" text-anchor="start">KV compressor</text>
+    <text x="771" y="390" class="n-sub" text-anchor="start">indexer top-k selection</text>
+    <text x="771" y="404" class="n-sub" text-anchor="start">sliding window + sparse</text>
+    <text x="771" y="418" class="n-sub" text-anchor="start">attention sinks</text>
+    <text x="771" y="432" class="n-sub" text-anchor="start">grouped output projection</text>
+  </g>
+  <g class="node model " data-component="mixture-of-experts" data-section="deepseek-v4-1-flash" aria-label="Mixture of experts">
+    <desc>A router chooses top-k MXFP4 experts. The model also has a shared expert and can distribute experts across devices.</desc>
+    <rect x="998" y="314" width="188" height="128" rx="7" class="box" />
+    <text x="1008" y="332" class="n-title" text-anchor="start">Mixture of experts</text>
+    <text x="1008" y="348" class="n-sub" text-anchor="start">router top-k</text>
+    <text x="1008" y="362" class="n-sub" text-anchor="start">MXFP4 routed experts</text>
+    <text x="1008" y="376" class="n-sub" text-anchor="start">shared expert</text>
+    <text x="1008" y="390" class="n-sub" text-anchor="start">expert parallelism</text>
+  </g>
+  <g data-component="mhc" data-section="deepseek-v4-1-flash" aria-label="mHC residual streams">
+    <desc>The example mixes residual streams before and after the attention and expert computations.</desc>
+    <rect x="614" y="452" width="572" height="22" rx="11" class="pill model" />
+    <text x="626" y="467"><tspan class="m-name">mHC</tspan><tspan class="n-sub" dx="8">residual streams mixed before and after attention and experts</tspan></text>
+  </g>
+  <g data-component="paged-caches" data-section="deepseek-v4-1-flash" aria-label="Paged caches">
+    <desc>The example keeps window keys and values in FP8, compressed keys and values in FP4, and indexer keys in FP4.</desc>
+    <text x="614" y="499" class="m-name" text-anchor="start">paged caches</text>
+    <rect x="712" y="484" width="110" height="22" rx="11" class="pill model" />
+    <text x="767.0" y="499.0" class="p-label" text-anchor="middle">window KV · FP8</text>
+    <rect x="830" y="484" width="134" height="22" rx="11" class="pill model" />
+    <text x="897.0" y="499.0" class="p-label" text-anchor="middle">compressed KV · FP4</text>
+    <rect x="972" y="484" width="128" height="22" rx="11" class="pill model" />
+    <text x="1036.0" y="499.0" class="p-label" text-anchor="middle">indexer keys · FP4</text>
+  </g>
+  <g data-component="kernels" data-section="kernels" aria-label="Kernels">
+    <desc>The matrix maps five operation families to eight platforms. Solid cells mark custom kernels, dashed cells mark portable StableHLO, and a dash means no implementation is specified in the diagram.</desc>
+    <rect x="180" y="570" width="910" height="236" rx="14" class="band ops" />
+    <text x="194" y="594" class="panel-title ops" text-anchor="start">Kernels</text>
+    <text x="812.5" y="564" class="e-label" text-anchor="start">operations pick the best kernel per platform</text>
+    <text x="404.0" y="622" class="mx-head" text-anchor="middle">NVIDIA</text>
+    <text x="493.0" y="622" class="mx-head" text-anchor="middle">AMD</text>
+    <text x="582.0" y="622" class="mx-head" text-anchor="middle">Google TPU</text>
+    <text x="671.0" y="622" class="mx-head" text-anchor="middle">Trainium</text>
+    <text x="760.0" y="622" class="mx-head" text-anchor="middle">Intel</text>
+    <text x="849.0" y="622" class="mx-head" text-anchor="middle">Apple</text>
+    <text x="938.0" y="622" class="mx-head" text-anchor="middle">Furiosa</text>
+    <text x="1027.0" y="622" class="mx-head" text-anchor="middle">CPU</text>
+    <rect x="940" y="584" width="14" height="11" rx="3" class="cell custom" />
+    <text x="959" y="594" class="g-label" text-anchor="start">custom</text>
+    <rect x="1010" y="584" width="14" height="11" rx="3" class="cell hlo" />
+    <text x="1029" y="594" class="g-label" text-anchor="start">portable</text>
+  </g>
+  <g data-component="kernel-attention" data-section="kernels" aria-label="Attention kernels">
+    <desc>Attention covers implementations such as MLA and grouped-query attention. The row shows the implementation named for each platform.</desc>
+    <text x="194" y="649"><tspan class="m-name">Attention</tspan><tspan class="n-sub" dx="5" style="font-size:9.5px">MLA, GQA, …</tspan></text>
+    <rect x="362" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="404.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="NVIDIA">CuTe · Triton</text>
+    <rect x="451" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="493.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="AMD">Fly · Triton</text>
+    <rect x="540" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="582.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="Google TPU">Mosaic</text>
+    <rect x="629" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="671.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="Trainium">NKI</text>
+    <rect x="718" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="760.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="Intel">Triton</text>
+    <rect x="807" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="849.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="Apple">Metal</text>
+    <rect x="896" y="634" width="84" height="22" rx="5" class="cell custom" />
+    <text x="938.0" y="649" class="mx-cell custom" text-anchor="middle" data-platform="Furiosa">TCL</text>
+    <rect x="985" y="634" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="1027.0" y="649" class="mx-cell hlo" text-anchor="middle" data-platform="CPU">StableHLO</text>
+  </g>
+  <g data-component="kernel-indexer" data-section="kernels" aria-label="Indexer kernels">
+    <desc>The indexer selects candidates for sparse attention. The example matrix includes DSA and QSA.</desc>
+    <text x="194" y="677"><tspan class="m-name">Indexer</tspan><tspan class="n-sub" dx="5" style="font-size:9.5px">DSA, QSA, …</tspan></text>
+    <rect x="362" y="662" width="84" height="22" rx="5" class="cell custom" />
+    <text x="404.0" y="677" class="mx-cell custom" text-anchor="middle" data-platform="NVIDIA">Triton</text>
+    <rect x="451" y="662" width="84" height="22" rx="5" class="cell custom" />
+    <text x="493.0" y="677" class="mx-cell custom" text-anchor="middle" data-platform="AMD">Triton</text>
+    <rect x="540" y="662" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="582.0" y="677" class="mx-cell hlo" text-anchor="middle" data-platform="Google TPU">StableHLO</text>
+    <rect x="629" y="662" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="671.0" y="677" class="mx-cell hlo" text-anchor="middle" data-platform="Trainium">StableHLO</text>
+    <rect x="718" y="662" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="760.0" y="677" class="mx-cell hlo" text-anchor="middle" data-platform="Intel">StableHLO</text>
+    <rect x="807" y="662" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="849.0" y="677" class="mx-cell hlo" text-anchor="middle" data-platform="Apple">StableHLO</text>
+    <rect x="896" y="662" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="938.0" y="677" class="mx-cell hlo" text-anchor="middle" data-platform="Furiosa">StableHLO</text>
+    <rect x="985" y="662" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="1027.0" y="677" class="mx-cell hlo" text-anchor="middle" data-platform="CPU">StableHLO</text>
+  </g>
+  <g data-component="kernel-deltanet" data-section="kernels" aria-label="Gated DeltaNet kernels">
+    <desc>The Gated DeltaNet row lists custom kernels on six platforms. The source leaves the Trainium and CPU entries unspecified.</desc>
+    <text x="194" y="705"><tspan class="m-name">Gated DeltaNet</tspan></text>
+    <rect x="362" y="690" width="84" height="22" rx="5" class="cell custom" />
+    <text x="404.0" y="705" class="mx-cell custom" text-anchor="middle" data-platform="NVIDIA">CuTe · Triton</text>
+    <rect x="451" y="690" width="84" height="22" rx="5" class="cell custom" />
+    <text x="493.0" y="705" class="mx-cell custom" text-anchor="middle" data-platform="AMD">Fly · Triton</text>
+    <rect x="540" y="690" width="84" height="22" rx="5" class="cell custom" />
+    <text x="582.0" y="705" class="mx-cell custom" text-anchor="middle" data-platform="Google TPU">Mosaic</text>
+    <text x="671.0" y="705" class="mx-none" text-anchor="middle" data-platform="Trainium">—</text>
+    <rect x="718" y="690" width="84" height="22" rx="5" class="cell custom" />
+    <text x="760.0" y="705" class="mx-cell custom" text-anchor="middle" data-platform="Intel">Triton</text>
+    <rect x="807" y="690" width="84" height="22" rx="5" class="cell custom" />
+    <text x="849.0" y="705" class="mx-cell custom" text-anchor="middle" data-platform="Apple">Metal</text>
+    <rect x="896" y="690" width="84" height="22" rx="5" class="cell custom" />
+    <text x="938.0" y="705" class="mx-cell custom" text-anchor="middle" data-platform="Furiosa">TCL</text>
+    <text x="1027.0" y="705" class="mx-none" text-anchor="middle" data-platform="CPU">—</text>
+  </g>
+  <g data-component="kernel-experts" data-section="kernels" aria-label="Mixture of experts kernels">
+    <desc>Mixture-of-experts operations can use a platform-specific kernel or portable StableHLO as shown for each target.</desc>
+    <text x="194" y="733"><tspan class="m-name">Mixture of experts</tspan></text>
+    <rect x="362" y="718" width="84" height="22" rx="5" class="cell custom" />
+    <text x="404.0" y="733" class="mx-cell custom" text-anchor="middle" data-platform="NVIDIA">CuTe · Triton</text>
+    <rect x="451" y="718" width="84" height="22" rx="5" class="cell custom" />
+    <text x="493.0" y="733" class="mx-cell custom" text-anchor="middle" data-platform="AMD">Fly · Triton</text>
+    <rect x="540" y="718" width="84" height="22" rx="5" class="cell custom" />
+    <text x="582.0" y="733" class="mx-cell custom" text-anchor="middle" data-platform="Google TPU">Mosaic</text>
+    <rect x="629" y="718" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="671.0" y="733" class="mx-cell hlo" text-anchor="middle" data-platform="Trainium">StableHLO</text>
+    <rect x="718" y="718" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="760.0" y="733" class="mx-cell hlo" text-anchor="middle" data-platform="Intel">StableHLO</text>
+    <rect x="807" y="718" width="84" height="22" rx="5" class="cell custom" />
+    <text x="849.0" y="733" class="mx-cell custom" text-anchor="middle" data-platform="Apple">Metal</text>
+    <rect x="896" y="718" width="84" height="22" rx="5" class="cell custom" />
+    <text x="938.0" y="733" class="mx-cell custom" text-anchor="middle" data-platform="Furiosa">TCL</text>
+    <rect x="985" y="718" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="1027.0" y="733" class="mx-cell hlo" text-anchor="middle" data-platform="CPU">StableHLO</text>
+  </g>
+  <g data-component="kernel-mhc" data-section="kernels" aria-label="mHC kernels">
+    <desc>These operations mix residual streams. The diagram gives custom implementations for NVIDIA and AMD and portable StableHLO for the other targets.</desc>
+    <text x="194" y="761"><tspan class="m-name">mHC</tspan></text>
+    <rect x="362" y="746" width="84" height="22" rx="5" class="cell custom" />
+    <text x="404.0" y="761" class="mx-cell custom" text-anchor="middle" data-platform="NVIDIA">CuTe</text>
+    <rect x="451" y="746" width="84" height="22" rx="5" class="cell custom" />
+    <text x="493.0" y="761" class="mx-cell custom" text-anchor="middle" data-platform="AMD">Fly</text>
+    <rect x="540" y="746" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="582.0" y="761" class="mx-cell hlo" text-anchor="middle" data-platform="Google TPU">StableHLO</text>
+    <rect x="629" y="746" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="671.0" y="761" class="mx-cell hlo" text-anchor="middle" data-platform="Trainium">StableHLO</text>
+    <rect x="718" y="746" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="760.0" y="761" class="mx-cell hlo" text-anchor="middle" data-platform="Intel">StableHLO</text>
+    <rect x="807" y="746" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="849.0" y="761" class="mx-cell hlo" text-anchor="middle" data-platform="Apple">StableHLO</text>
+    <rect x="896" y="746" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="938.0" y="761" class="mx-cell hlo" text-anchor="middle" data-platform="Furiosa">StableHLO</text>
+    <rect x="985" y="746" width="84" height="22" rx="5" class="cell hlo" />
+    <text x="1027.0" y="761" class="mx-cell hlo" text-anchor="middle" data-platform="CPU">StableHLO</text>
+  </g>
+  <text x="194" y="789" class="m-more" text-anchor="start">… and more</text>
+  <text x="100" y="671.0" class="e-label" text-anchor="start">runs programs</text>
+  <text x="100" y="685.0" class="e-label" text-anchor="start">loads weights</text>
+  <text x="1128" y="671.0" class="e-label" text-anchor="start">model logic</text>
+  <text x="1128" y="685.0" class="e-label" text-anchor="start">as tensor ops</text>
+  <g data-component="zml" data-section="zml" aria-label="ZML">
+    <desc>ZML connects Zig tensor operations, kernel implementations and model weights with the compiler and the selected backend’s runtime.</desc>
+    <rect x="10" y="822" width="1220" height="232" rx="14" class="band zml" />
+    <text x="24" y="846" class="panel-title zml" text-anchor="start">ZML</text>
+    <text x="433" y="860" class="e-label" text-anchor="start">custom kernels</text>
+    <text x="1008" y="860" class="e-label" text-anchor="start">portable ops</text>
+  </g>
+  <g class="node zml " data-component="execution" data-section="zml" aria-label="Execution">
+    <desc>The runtime launches compiled executables asynchronously with device buffers holding model parameters and inputs.</desc>
+    <rect x="30" y="868" width="180" height="80" rx="7" class="box" />
+    <text x="40" y="886" class="n-title" text-anchor="start">Execution</text>
+    <text x="40" y="902" class="n-sub" text-anchor="start">device buffers</text>
+    <text x="40" y="916" class="n-sub" text-anchor="start">compiled executables</text>
+    <text x="40" y="930" class="n-sub" text-anchor="start">async launches</text>
+  </g>
+  <g class="node zml" data-component="kernel-languages" data-section="zml" aria-label="Kernel languages">
+    <desc>Specialized kernels written in these languages can be embedded in the model graph alongside portable operations.</desc>
+    <rect x="230" y="868" width="390" height="80" rx="7" class="box" />
+    <text x="240" y="886" class="n-title" text-anchor="start">Kernel languages</text>
+    <text x="610" y="886" class="n-mono" text-anchor="end">embedded in the graph</text>
+    <rect x="236" y="894" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="281" y="908.5" class="c-label" text-anchor="middle">Triton</text>
+    <rect x="332" y="894" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="377" y="908.5" class="c-label" text-anchor="middle">CuTe</text>
+    <rect x="428" y="894" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="473" y="908.5" class="c-label" text-anchor="middle">CUDA Tile</text>
+    <rect x="524" y="894" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="569" y="908.5" class="c-label" text-anchor="middle">FlyDSL</text>
+    <rect x="236" y="920" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="281" y="934.5" class="c-label" text-anchor="middle">Mosaic</text>
+    <rect x="332" y="920" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="377" y="934.5" class="c-label" text-anchor="middle">NKI</text>
+    <rect x="428" y="920" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="473" y="934.5" class="c-label" text-anchor="middle">Metal</text>
+    <rect x="524" y="920" width="90" height="21" rx="5" class="chipbox zml" />
+    <text x="569" y="934.5" class="c-label" text-anchor="middle">TCL</text>
+  </g>
+  <g class="node zml " data-component="compiler" data-section="zml" aria-label="Compiler">
+    <desc>The compiler generates MLIR from Zig model code, with one program per shape bucket. The diagram identifies StableHLO, Shardy (sdy) and func dialects.</desc>
+    <rect x="640" y="868" width="300" height="80" rx="7" class="box" />
+    <text x="650" y="886" class="n-title" text-anchor="start">Compiler</text>
+    <text x="650" y="902" class="n-sub" text-anchor="start">generates MLIR from Zig code</text>
+    <text x="650" y="916" class="n-sub" text-anchor="start">one program per shape bucket</text>
+    <text x="650" y="930" class="n-mono" text-anchor="start">stablehlo · sdy · func · …</text>
+  </g>
+  <g class="node zml " data-component="tensor-api" data-section="zml" aria-label="Tensor API">
+    <desc>Model authors express tensor operations in Zig, including matrix multiplication, gather, scan and sort.</desc>
+    <rect x="960" y="868" width="250" height="80" rx="7" class="box" />
+    <text x="970" y="886" class="n-title" text-anchor="start">Tensor API</text>
+    <text x="970" y="902" class="n-sub" text-anchor="start">arbitrary logic as Zig code:</text>
+    <text x="970" y="916" class="n-sub" text-anchor="start">matmul · gather · scan · sort …</text>
+    <text x="970" y="930" class="n-mono" text-anchor="start">q.dot(k, .hd).softmax(.k)</text>
+  </g>
+  <g class="node zml " data-component="io" data-section="zml" aria-label="IO">
+    <desc>ZML can load tensors from disk or remote sources such as Hugging Face, S3, GCS and HTTP. DMA transfers data between host and device.</desc>
+    <rect x="30" y="968" width="180" height="70" rx="7" class="box" />
+    <text x="40" y="986" class="n-title" text-anchor="start">IO</text>
+    <text x="40" y="1002" class="n-sub" text-anchor="start">tensors from HF, S3,</text>
+    <text x="40" y="1016" class="n-sub" text-anchor="start">GCS, HTTP, disk</text>
+    <text x="40" y="1030" class="n-sub" text-anchor="start">DMA host ↔ device</text>
+  </g>
+  <g class="node zml" data-component="pjrt" data-section="zml" aria-label="PJRT C API">
+    <desc>ZML uses the PJRT C API to compile programs, transfer buffers and execute through a platform plugin.</desc>
+    <rect x="230" y="968" width="710" height="70" rx="7" class="box" />
+    <text x="585" y="986" class="n-title" text-anchor="middle">PJRT C API</text>
+    <text x="585" y="1002" class="n-sub" text-anchor="middle">one plugin interface for every platform</text>
+    <text x="585" y="1016" class="n-sub" text-anchor="middle">compile · transfer · execute</text>
+    <text x="585" y="1029" class="n-mono" text-anchor="middle">github.com/openxla/xla</text>
+  </g>
+  <g class="node zml " data-component="sharding" data-section="zml" aria-label="Sharding">
+    <desc>A device mesh has named axes. Tensor sharding declarations tell XLA how to partition the computation across that mesh.</desc>
+    <rect x="960" y="968" width="250" height="70" rx="7" class="box" />
+    <text x="970" y="986" class="n-title" text-anchor="start">Sharding</text>
+    <text x="970" y="1002" class="n-sub" text-anchor="start">device mesh with named axes</text>
+    <text x="970" y="1016" class="n-sub" text-anchor="start">shardings declared on tensors</text>
+    <text x="970" y="1030" class="n-sub" text-anchor="start">computation partitioned by XLA</text>
+  </g>
+  <g data-component="platforms" data-section="platforms" aria-label="Platforms">
+    <desc>The diagram lists eight framework targets reached through PJRT plugins and custom kernel languages. Published LLMD launch combinations are listed in Model compatibility.</desc>
+    <rect x="10" y="1070" width="1220" height="128" rx="14" class="band plat" />
+    <text x="24" y="1094" class="panel-title plat" text-anchor="start">Platforms</text>
+  </g>
+  <path d="M273.5,1086 L896.5,1086" class="edge" data-from="pjrt" data-to="platforms" />
+  <g class="node plat dsl" data-component="nvidia" data-section="platforms" aria-label="NVIDIA">
+    <desc>The NVIDIA target uses CUDA. The schematic lists CuTe, CUDA Tile and Triton for custom kernels.</desc>
+    <rect x="231" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="241" y="1118" class="n-title" text-anchor="start">NVIDIA</text>
+    <text x="241" y="1134" class="n-sub" text-anchor="start">CUDA</text>
+    <text x="241" y="1148" class="n-mono" text-anchor="start">CuTe</text>
+    <text x="241" y="1161" class="n-mono" text-anchor="start">CUDA Tile</text>
+    <text x="241" y="1174" class="n-mono" text-anchor="start">Triton</text>
+  </g>
+  <g class="node plat dsl" data-component="amd" data-section="platforms" aria-label="AMD">
+    <desc>The AMD target uses ROCm. The schematic lists FlyDSL and Triton for custom kernels.</desc>
+    <rect x="320" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="330" y="1118" class="n-title" text-anchor="start">AMD</text>
+    <text x="330" y="1134" class="n-sub" text-anchor="start">ROCm</text>
+    <text x="330" y="1148" class="n-mono" text-anchor="start">FlyDSL</text>
+    <text x="330" y="1161" class="n-mono" text-anchor="start">Triton</text>
+  </g>
+  <g class="node plat dsl" data-component="google-tpu" data-section="platforms" aria-label="Google TPU">
+    <desc>The Google TPU target uses libtpu, with Mosaic for custom kernels.</desc>
+    <rect x="409" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="419" y="1118" class="n-title" text-anchor="start">Google TPU</text>
+    <text x="419" y="1134" class="n-sub" text-anchor="start">libtpu</text>
+    <text x="419" y="1148" class="n-mono" text-anchor="start">Mosaic</text>
+  </g>
+  <g class="node plat dsl" data-component="trainium" data-section="platforms" aria-label="Trainium">
+    <desc>The AWS Trainium target uses Neuron, with NKI for custom kernels.</desc>
+    <rect x="498" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="508" y="1118" class="n-title" text-anchor="start">Trainium</text>
+    <text x="508" y="1134" class="n-sub" text-anchor="start">Neuron</text>
+    <text x="508" y="1148" class="n-mono" text-anchor="start">NKI</text>
+  </g>
+  <g class="node plat dsl" data-component="intel" data-section="platforms" aria-label="Intel">
+    <desc>The Intel target uses oneAPI, with Triton for custom kernels.</desc>
+    <rect x="587" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="597" y="1118" class="n-title" text-anchor="start">Intel</text>
+    <text x="597" y="1134" class="n-sub" text-anchor="start">oneAPI</text>
+    <text x="597" y="1148" class="n-mono" text-anchor="start">Triton</text>
+  </g>
+  <g class="node plat dsl" data-component="apple" data-section="platforms" aria-label="Apple">
+    <desc>The Apple target uses Metal for the runtime and for custom GPU kernels.</desc>
+    <rect x="676" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="686" y="1118" class="n-title" text-anchor="start">Apple</text>
+    <text x="686" y="1134" class="n-sub" text-anchor="start">Metal</text>
+    <text x="686" y="1148" class="n-mono" text-anchor="start">Metal</text>
+  </g>
+  <g class="node plat dsl" data-component="furiosa" data-section="platforms" aria-label="Furiosa">
+    <desc>The Furiosa target uses the Furiosa SDK, with TCL for custom kernels.</desc>
+    <rect x="765" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="775" y="1118" class="n-title" text-anchor="start">Furiosa</text>
+    <text x="775" y="1134" class="n-sub" text-anchor="start">Furiosa SDK</text>
+    <text x="775" y="1148" class="n-mono" text-anchor="start">TCL</text>
+  </g>
+  <g class="node plat dsl" data-component="cpu" data-section="platforms" aria-label="CPU">
+    <desc>The schematic includes x86 and Arm CPUs as framework targets.</desc>
+    <rect x="854" y="1100" width="85" height="84" rx="7" class="box" />
+    <text x="864" y="1118" class="n-title" text-anchor="start">CPU</text>
+    <text x="864" y="1134" class="n-sub" text-anchor="start">x86 · Arm</text>
+  </g>
+  <text x="962" y="1138" class="callout" text-anchor="start">via PJRT plugins</text>
+  <text x="962" y="1154" class="callout" text-anchor="start">+ custom kernel DSLs</text>
+  <path d="M420,34 L220,34 L220,100" class="edge" marker-end="url(#arr)" marker-start="url(#arr)" data-from="applications" data-to="chat-completions" />
+  <path d="M90,160 L90,214" class="edge" marker-end="url(#arr)" data-from="chat-completions" data-to="engine" />
+  <path d="M180,214 L180,160" class="edge" marker-end="url(#arr)" data-from="engine" data-to="chat-completions" />
+  <path d="M560,380 L590,380" class="edge" marker-end="url(#arr)" data-from="engine" data-to="model" />
+  <path d="M677,259 L695,259" class="edge" marker-end="url(#arr)" data-from="embedding" data-to="decoder-layer" />
+  <path d="M821,259 L839,259" class="edge" marker-end="url(#arr)" data-from="decoder-layer" data-to="lm-head" />
+  <path d="M904,259 L922,259" class="edge" marker-end="url(#arr)" data-from="lm-head" data-to="sampling" />
+  <path d="M993,259 L1011,259" class="edge" marker-end="url(#arr)" data-from="sampling" data-to="dspark-drafter" />
+  <path d="M750,378.0 L761,378.0" class="edge" marker-end="url(#arr)" data-from="engram" data-to="sparse-mla-attention" />
+  <path d="M987,378.0 L998,378.0" class="edge" marker-end="url(#arr)" data-from="sparse-mla-attention" data-to="mixture-of-experts" />
+  <path d="M804.5,528 L804.5,606" class="edge" marker-end="url(#arr)" data-from="model" data-to="kernels" />
+  <path d="M92,528 L92,822" class="edge" marker-end="url(#arr)" data-from="engine" data-to="zml" />
+  <path d="M1120,528 L1120,822" class="edge" marker-end="url(#arr)" data-from="model" data-to="zml" />
+  <path d="M425,806 L425,868" class="edge" marker-end="url(#arr)" data-from="kernels" data-to="kernel-languages" />
+  <path d="M1000,806 L1000,868" class="edge" marker-end="url(#arr)" data-from="kernels" data-to="tensor-api" />
+  <path d="M960,908 L940,908" class="edge" marker-end="url(#arr)" data-from="tensor-api" data-to="compiler" />
+  <path d="M620,908 L640,908" class="edge" marker-end="url(#arr)" data-from="kernel-languages" data-to="compiler" />
+  <path d="M960,1003 L950,1003 L950,932 L940,932" class="edge" marker-end="url(#arr)" data-from="sharding" data-to="compiler" />
+  <path d="M790,948 L790,968" class="edge" marker-end="url(#arr)" data-from="compiler" data-to="pjrt" />
+  <path d="M210,928 L220,928 L220,992 L230,992" class="edge" marker-end="url(#arr)" data-from="execution" data-to="pjrt" />
+  <path d="M210,1014 L230,1014" class="edge" marker-end="url(#arr)" data-from="io" data-to="pjrt" />
+  <path d="M585,1038 L585,1086" class="edge" marker-end="url(#arr)" data-from="pjrt" data-to="platforms" />
+  <path d="M273.5,1086 L273.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="nvidia" />
+  <path d="M362.5,1086 L362.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="amd" />
+  <path d="M451.5,1086 L451.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="google-tpu" />
+  <path d="M540.5,1086 L540.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="trainium" />
+  <path d="M629.5,1086 L629.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="intel" />
+  <path d="M718.5,1086 L718.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="apple" />
+  <path d="M807.5,1086 L807.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="furiosa" />
+  <path d="M896.5,1086 L896.5,1100" class="edge" marker-end="url(#arr)" data-from="platforms" data-to="cpu" />
+</svg>

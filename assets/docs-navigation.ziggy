@@ -63,6 +63,7 @@
                     .label = "Developer Guide",
                     .pages = [
                         .{ .path = "llmd/developer-guide", .label = "Connect an application to LLMD", .icon = "icon-code" },
+                        .{ .path = "llmd/architecture", .label = "LLMD on ZML", .icon = "icon-boxes" },
                         .{ .path = "llmd/decision", .label = "Ask structured questions", .icon = "icon-code" },
                         .{ .path = "llmd/text-similarity", .label = "Compare texts with embeddings", .icon = "icon-code" },
                     ],

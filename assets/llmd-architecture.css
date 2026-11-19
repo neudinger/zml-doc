@@ -1,0 +1,55 @@
+.architecture-overview {
+  min-inline-size: 0;
+  grid-column: 1 / -1;
+}
+@media (width > 48rem) {
+  .architecture-overview { grid-row: 1; }
+}
+@media (max-width: 48rem) {
+  .architecture-overview { padding-block-start: 1.5rem; }
+}
+.architecture-overview .document-header { margin-block-end: 1rem; }
+.architecture-overview .description { margin-block: 0.65rem 0; }
+.architecture-figure { margin: 0; }
+.architecture-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding-block: 0.65rem;
+  border-block: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.architecture-toolbar label:not([hidden]) { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; max-width: 100%; }
+.architecture-toolbar select {
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  padding: 0.4rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  font: inherit;
+}
+.architecture-toolbar input { accent-color: var(--accent); }
+.architecture-toolbar a { margin-inline-start: auto; }
+.architecture-canvas { min-inline-size: 0; }
+/* Keep the complete viewBox. Choosing a component never changes its dimensions. */
+.architecture-figure:has([data-map-fit]:checked) .architecture-canvas > svg {
+  max-block-size: max(18rem, calc(100svh - var(--docs-sticky-top) - 7rem));
+}
+.architecture-detail {
+  padding: 0.7rem 1rem;
+  background: var(--code);
+  border-inline-start: 2px solid var(--accent);
+  border-radius: 0.25rem;
+  overflow-wrap: anywhere;
+}
+.architecture-detail p { margin: 0.15rem 0; }
+.architecture-detail dl:not([hidden]) { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-block: 0.5rem; }
+.architecture-detail dt { font-weight: 650; }
+.architecture-detail dd { margin: 0; }
+@media (pointer: coarse) {
+  .architecture-toolbar :is(label, select, a) { min-block-size: 44px; align-content: center; }
+  .architecture-toolbar select { font-size: 1rem; }
+}

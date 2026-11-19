@@ -12,6 +12,10 @@
       </ctx>
     </ctx>
     <ctx html="$ctx.article.content()">
+      <ctx :if="$page.custom.has('architecture')">
+        <link rel="stylesheet" href="$site.asset('llmd-architecture.css').link()">
+        <script defer src="$site.asset('llmd-architecture.js').link()"></script>
+      </ctx>
       <ctx :if="$ctx.html.contains('data-bazel-target=')">
         <script defer src="$site.asset('bazel-platforms.js').link()"></script>
       </ctx>
@@ -33,15 +37,40 @@
 </head>
 <main id="site-content">
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
+    <ctx :if="$page.custom.has('architecture')" diagram="$site.asset('llmd-architecture.svg')">
+      <section class="architecture-overview" aria-labelledby="architecture-title">
+        <header class="document-header">
+          <p class="eyebrow">LLMD / Developer Guide</p>
+          <h1 id="architecture-title" :text="$ctx.article.title"></h1>
+          <p class="description" :text="$ctx.article.description"></p>
+        </header>
+        <figure class="architecture-figure" data-pagefind-ignore aria-label="Interactive LLMD on ZML architecture">
+          <div class="architecture-toolbar">
+            <label hidden data-map-control>Component <select data-map-picker><option value="">Whole map</option></select></label>
+            <label hidden data-map-control><input type="checkbox" data-map-fit> Fit map to screen</label>
+            <a href="$ctx.diagram.link()">Open full-size SVG</a>
+          </div>
+          <div class="architecture-canvas" :html="$ctx.diagram.bytes()"></div>
+          <figcaption class="architecture-detail" aria-live="polite" aria-atomic="true">
+            <strong data-map-title>LLMD on ZML</strong>
+            <p data-map-detail>LLMD schedules inference. ZML compiles the model and runs it with checkpoint weights on the selected hardware.</p>
+            <dl hidden data-map-mappings></dl>
+            <a hidden data-map-section></a>
+          </figcaption>
+        </figure>
+      </section>
+    </ctx>
     <article class="$site.index().isCurrent().then('home-hero', 'document')">
-      <header class="document-header">
-        <ctx :if="$site.index().isCurrent().not()" zml="$page.link().startsWith($site.page('zml').link())"
-             llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
-          <p class="eyebrow" :text="$ctx.zml.or($ctx.llmd).then($ctx.zml.then('ZML', 'LLMD').suffix(' / ', $page.custom.getOr('doc_section', 'User Guide')), 'ZML / LLMD')"></p>
-        </ctx>
-        <h1 :text="$ctx.article.title"></h1>
-        <p class="description" :text="$ctx.article.description"></p>
-      </header>
+      <ctx :if="$page.custom.has('architecture').not()">
+        <header class="document-header">
+          <ctx :if="$site.index().isCurrent().not()" zml="$page.link().startsWith($site.page('zml').link())"
+               llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
+            <p class="eyebrow" :text="$ctx.zml.or($ctx.llmd).then($ctx.zml.then('ZML', 'LLMD').suffix(' / ', $page.custom.getOr('doc_section', 'User Guide')), 'ZML / LLMD')"></p>
+          </ctx>
+          <h1 :text="$ctx.article.title"></h1>
+          <p class="description" :text="$ctx.article.description"></p>
+        </header>
+      </ctx>
       <ctx :if="$site.index().isCurrent().not()">
         <ctx toc="$ctx.article.toc()">
           <ctx :if="$ctx.toc.contains('href=')">

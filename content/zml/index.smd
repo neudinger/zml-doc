@@ -55,6 +55,9 @@ to partition work across a device mesh.
 </figure>
 ```
 
+See [LLMD on ZML]($link.page('llmd/architecture')) for how the serving engine uses
+these executables and buffers to run inference requests.
+
 The [upstream ZML repository](https://github.com/zml/zml) contains examples and
 framework documentation. A reproducible procedure needs a selected source
 revision and a recorded environment.
