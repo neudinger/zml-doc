@@ -10,19 +10,31 @@
 }
 .architecture-overview .document-header { margin-block-end: 1rem; }
 .architecture-overview .description { margin-block: 0.65rem 0; }
-.architecture-figure { margin: 0; }
+.architecture-figure {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 1fr);
+  align-items: start;
+  gap: clamp(1rem, 2vw, 2rem);
+  margin: 0;
+}
+.architecture-map-pane { min-inline-size: 0; background: var(--background); }
+.architecture-figure:has([data-map-fit]:checked) .architecture-map-pane {
+  position: sticky;
+  inset-block-start: var(--docs-sticky-top);
+  z-index: 1;
+}
 .architecture-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 1.25rem;
   padding-block: 0.65rem;
-  border-block: 1px solid var(--border);
+  border-block-end: 1px solid var(--border);
   font-size: 0.9rem;
 }
-.architecture-toolbar label:not([hidden]) { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; max-width: 100%; }
-.architecture-toolbar select {
-  max-inline-size: 100%;
+.architecture-toolbar label:not([hidden]) { display: inline-flex; align-items: center; gap: 0.4rem; }
+.architecture-picker select {
+  inline-size: 100%;
   min-inline-size: 0;
   padding: 0.4rem;
   color: var(--text);
@@ -36,8 +48,40 @@
 .architecture-canvas { min-inline-size: 0; }
 /* Keep the complete viewBox. Choosing a component never changes its dimensions. */
 .architecture-figure:has([data-map-fit]:checked) .architecture-canvas > svg {
-  max-block-size: max(18rem, calc(100svh - var(--docs-sticky-top) - 7rem));
+  max-block-size: max(10rem, calc(100svh - var(--map-top, calc(var(--docs-sticky-top) + 14rem)) - 0.75rem));
 }
+.architecture-inspector { min-inline-size: 0; display: grid; gap: 1rem; }
+.architecture-layers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.architecture-layers legend { margin-block-end: 0.5rem; padding: 0; font-size: 1.1rem; font-weight: 650; }
+.architecture-inspector button {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: var(--text);
+  text-align: start;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.architecture-inspector button:hover { border-color: var(--accent); }
+.architecture-layers button[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 2px 0 var(--accent);
+  background: var(--selection);
+  color: var(--accent);
+  font-weight: 650;
+}
+.architecture-picker { display: grid; gap: 0.3rem; margin-block-start: 0.9rem; }
+.architecture-connections [data-map-neighbors] { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-block-start: 0.35rem; }
 .architecture-detail {
   padding: 0.7rem 1rem;
   background: var(--code);
@@ -49,7 +93,15 @@
 .architecture-detail dl:not([hidden]) { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-block: 0.5rem; }
 .architecture-detail dt { font-weight: 650; }
 .architecture-detail dd { margin: 0; }
+.prose [id^="component-"]:target { background: var(--selection); outline: 1px solid var(--accent); border-radius: 0.15rem; }
+@media (max-width: 48rem) {
+  .architecture-figure { grid-template-columns: minmax(0, 1fr); }
+  .architecture-figure:has([data-map-fit]:checked) .architecture-canvas > svg { max-block-size: 33svh; }
+  .architecture-figure:has([data-map-fit]:checked) .architecture-inspector :is(button, select, a) {
+    scroll-margin-block-start: calc(33svh + 6rem);
+  }
+}
 @media (pointer: coarse) {
-  .architecture-toolbar :is(label, select, a) { min-block-size: 44px; align-content: center; }
-  .architecture-toolbar select { font-size: 1rem; }
+  .architecture-toolbar :is(label, a), .architecture-inspector :is(button, select, a) { min-block-size: 44px; align-content: center; }
+  .architecture-picker select { font-size: 1rem; }
 }

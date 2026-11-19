@@ -45,17 +45,41 @@
           <p class="description" :text="$ctx.article.description"></p>
         </header>
         <figure class="architecture-figure" data-pagefind-ignore aria-label="Interactive LLMD on ZML architecture">
-          <div class="architecture-toolbar">
-            <label hidden data-map-control>Component <select data-map-picker><option value="">Whole map</option></select></label>
-            <label hidden data-map-control><input type="checkbox" data-map-fit> Fit map to screen</label>
-            <a href="$ctx.diagram.link()">Open full-size SVG</a>
+          <div class="architecture-map-pane">
+            <div class="architecture-toolbar">
+              <strong>System map</strong>
+              <label hidden data-map-control><input type="checkbox" data-map-fit checked> Fit map to screen</label>
+              <a href="$ctx.diagram.link()">Open full-size SVG</a>
+            </div>
+            <div class="architecture-canvas" :html="$ctx.diagram.bytes()"></div>
           </div>
-          <div class="architecture-canvas" :html="$ctx.diagram.bytes()"></div>
-          <figcaption class="architecture-detail" aria-live="polite" aria-atomic="true">
-            <strong data-map-title>LLMD on ZML</strong>
-            <p data-map-detail>LLMD schedules inference. ZML compiles the model and runs it on the selected hardware using the loaded weights.</p>
-            <dl hidden data-map-mappings></dl>
-            <a hidden data-map-section></a>
+          <figcaption class="architecture-inspector">
+            <div hidden data-map-control>
+              <fieldset class="architecture-layers">
+                <legend>Explore a layer</legend>
+                <button type="button" data-map-entry="chat-completions">Serving APIs</button>
+                <button type="button" data-map-entry="scheduler">Serving engine</button>
+                <button type="button" data-map-entry="decoder-layer">DeepSeek model</button>
+                <button type="button" data-map-entry="kernel-attention">Kernels</button>
+                <button type="button" data-map-entry="compiler">ZML runtime</button>
+                <button type="button" data-map-entry="nvidia">Platforms</button>
+              </fieldset>
+              <label class="architecture-picker">Component
+                <select data-map-picker><option value="">Whole map</option></select>
+              </label>
+            </div>
+            <div class="architecture-detail">
+              <div aria-live="polite" aria-atomic="true">
+                <strong data-map-title>LLMD on ZML</strong>
+                <p data-map-detail>LLMD schedules inference. ZML compiles the model and runs it on the selected hardware using the loaded weights.</p>
+              </div>
+              <dl hidden data-map-mappings></dl>
+              <a hidden data-map-section></a>
+            </div>
+            <div class="architecture-connections" hidden>
+              <strong>Connected components</strong>
+              <div data-map-neighbors></div>
+            </div>
           </figcaption>
         </figure>
       </section>
