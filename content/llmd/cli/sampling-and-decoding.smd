@@ -26,22 +26,22 @@ then the listed fallback. `top_k` and `min_p` start at the CLI level.
 
 | LLMD option | Default | Effect |
 | --- | --- | --- |
-| `--speculative-drafter-model=<path>` | Unset | Enable speculative decoding with a compatible drafter checkpoint or `native` where supported. |
+| `--speculative-drafter-model=<path>` | Unset | Enable speculative decoding with a compatible drafter model or `native` where supported. |
 | `--speculative-draft-count=<tokens>` | Derived from the model configuration | Override the number of draft tokens to verify. |
 
 # [Choose a decoding mode]($heading.id('choose-a-decoding-mode'))
 
-Choose a checkpoint and decoding mode in [Model compatibility]($link.page('llmd/models')).
+Choose a model and decoding mode in [Model compatibility]($link.page('llmd/models')).
 Run one server command at a time. These examples use LLMD's default batch
 size, context length, and sampling settings.
 
-**Standard decoding.** Pass only the target checkpoint.
+**Standard decoding.** Pass only the target model.
 
 ```sh
 llmd --model=hf://Qwen/Qwen3-4B
 ```
 
-**Native multi-token prediction (MTP).** The target checkpoint supplies its
+**Native multi-token prediction (MTP).** The target model supplies its
 own drafter. Both `deepseek-ai/DeepSeek-V4-Flash` and
 `Qwen/Qwen3.8-Flash-Next` have a routine native MTP configuration.
 
@@ -50,7 +50,7 @@ llmd --model=hf://Qwen/Qwen3.8-Flash-Next \
   --speculative-drafter-model=native
 ```
 
-**External drafter.** Pass the exact companion checkpoint with
+**External drafter.** Pass the exact companion model with
 `--speculative-drafter-model`. For example, load `Qwen/Qwen3-4B` and its
 `deepseek-ai/dspark_qwen3_4b_block7` drafter from Hugging Face at launch.
 
@@ -59,9 +59,10 @@ llmd --model=hf://Qwen/Qwen3-4B \
   --speculative-drafter-model=hf://deepseek-ai/dspark_qwen3_4b_block7
 ```
 
-For a local copy, use the quickstart's [checkpoint storage instructions]($link.page('llmd/quickstart').ref('checkpoint-storage'))
-to download both repositories under `${HOME}/models`. A native installation
-accepts the host directory for each.
+For a local copy, download both repositories under `${HOME}/models`.
+Pass the host directory for each to a native installation.
+See [Local model files]($link.page('llmd/cli/model-and-listener').ref('local-model-files'))
+for the directory contents and revision options.
 
 ```sh
 llmd --model="${HOME}/models/Qwen/Qwen3-4B" \
@@ -79,7 +80,7 @@ docker run --rm --gpus=all --shm-size=256GB -p 127.0.0.1:8000:8000 \
 ```
 
 To choose another [target and drafter pairing]($link.page('llmd/models').unsafeRef('external-drafters')),
-select the exact checkpoint, backend, and drafter, then choose **Configure launch**.
+select the exact model, backend, and drafter, then choose **Configure launch**.
 Omit `--speculative-draft-count` to use the count derived from the model
 configuration. The published Qwen3.8-27B DSpine launch preset on CUDA and ROCm
 sets batch size to 1. Other external pairings use LLMD's defaults unless you

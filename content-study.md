@@ -6,8 +6,8 @@ Use **Build with ZML** and **Serve models with LLMD** on the homepage and as the
 
 | Source | Pattern to use for ZML and LLMD |
 | --- | --- |
-| [Liquid AI LLMD deployment guide](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd) | One serving flow with platform-specific prerequisites and startup commands, followed by a common model-list and chat request. Put the local-checkpoint recipe below the first run. |
-| [Liquid AI model library](https://docs.liquid.ai/lfm/models/complete-library) | A browsable model index with exact checkpoints and formats. Add release, backend, precision, and evidence to each ZML or LLMD compatibility row. |
+| [Liquid AI LLMD deployment guide](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd) | One serving flow with platform-specific prerequisites and startup commands, followed by a common model-list and chat request. Put the recipe for local model files below the first run. |
+| [Liquid AI model library](https://docs.liquid.ai/lfm/models/complete-library) | A browsable model index with model IDs and weight formats. Add release, backend, precision, and evidence to each ZML or LLMD compatibility row. |
 | [Furiosa developer docs](https://developer.furiosa.ai/latest/en/index.html) | Give prerequisites, quickstart, model support, serving API, containers, monitoring, and release notes stable homes. Use the path from installation to operation to order the LLMD sidebar. |
 | [ZML website](https://zml.ai/), [LLMD product page](https://zml.ai/llmd/), and [ZML repository](https://github.com/zml/zml) | The homepage explains the framework and server, then links to an actual result for each. The product page defines published install channels. The public repository supplies the framework examples and model lifecycle guides. |
 
@@ -18,23 +18,23 @@ Use **Build with ZML** and **Serve models with LLMD** on the homepage and as the
 | 1 | `index.smd` and `start/index.smd` | Revise the existing drafts around the two product paths. Explain who needs Bazel, who needs a runtime, and how to check a configuration. |
 | 2 | `zml/quickstart.smd` | Install Bazelisk, check out a pinned ZML commit, build and run MNIST on CPU, identify the prediction, run a targeted test, and diagnose download failures. |
 | 3 | `llmd/quickstart.smd` | Start a pinned CUDA container on a Linux host, check readiness, list the model, and send a chat request. Add other startup variants after execution checks. Link to an existing endpoint workflow. |
-| 4 | `reference/compatibility.smd` | List framework build targets and server install channels. Add tested model/checkpoint rows with the platform requirements and links to working recipes. |
+| 4 | `reference/compatibility.smd` | List framework build targets and server install channels. Add tested models with the platform requirements and links to working recipes. |
 | 5 | `zml/first-model.smd` | Explain tagged tensors and shapes through a minimal model. Show weight loading, compilation to an executable, buffer ownership, execution, and output. Update `zml/index.smd` to lead into this and the quickstart. |
 | 6 | `zml/build-and-run.smd` | Show Bazel target selection, accelerator flags, LLM one-shot and interactive runs, model paths, tests, and the cross-build/archive workflow. |
-| 7 | `llmd/models.smd` | Explain checkpoint structure, public and gated Hugging Face repositories, and local directory mounts. Add S3 and GCS recipes with the shared credentials reference. Update `llmd/index.smd` to link to quickstart, models, and Operations. |
+| 7 | `llmd/models.smd` | Explain how model files are organized, public and gated Hugging Face repositories, and local directory mounts. Add S3 and GCS recipes with the shared credentials reference. Update `llmd/index.smd` to link to quickstart, models, and Operations. |
 | 8 | `llmd/api.smd` | Document `GET /v1/models` and `POST /v1/chat/completions` first. Expand with streaming, sampling, tool calling, and supported schema fields as verified per release and model. |
 | 9 | `llmd/cli.smd` | List startup flags by networking, memory and batching, sampling, parallelism, and speculative decoding. Include defaults, value types, and release scope. |
 | 10 | `reference/environment.smd` | Document model-storage credentials, runtime and diagnostics variables, CLI forwarding into containers, and telemetry opt-outs. |
 | 11 | `operations/deployment.smd` | Cover Docker backend tags, hardware access, network exposure, local weights, readiness, and upgrade and rollback. Update `operations/index.smd` to lead into these tasks. |
-| 12 | `operations/monitoring.smd` | Add Prometheus, logs, device checks, and a troubleshooting flow for checkpoint access, startup, unavailable devices, and out-of-memory failures. Link zml-smi and profiling from here. |
+| 12 | `operations/monitoring.smd` | Add Prometheus, logs, device checks, and a troubleshooting flow for access to model files, startup, unavailable devices, and out-of-memory failures. Link zml-smi and profiling from here. |
 
-Write pages 2–4 first. The homepage can promise **classify an image with ZML** and **serve a checkpoint and receive a chat response with LLMD**. The documentation entry should link to these quickstarts plus Compatibility. The CUDA article supplies prerequisites, copyable commands, expected results, and troubleshooting.
+Write pages 2–4 first. The homepage can promise **classify an image with ZML** and **serve a model and receive a chat response with LLMD**. The documentation entry should link to these quickstarts plus Compatibility. The CUDA article supplies prerequisites, copyable commands, expected results, and troubleshooting.
 
-Use separate compatibility rows for ZML examples and LLMD. List model families for discovery and exact checkpoints for recipes. Each tested row needs the product revision or image digest, OS and architecture, accelerator and driver, checkpoint and revision, precision, capability, run date, and evidence. Seed the catalogue with these source-reviewed candidates.
+Use separate compatibility rows for ZML examples and LLMD. List model families for discovery and exact model IDs for recipes. Each tested row needs the product revision or image digest, OS and architecture, accelerator and driver, model ID and revision, precision, capability, run date, and evidence. Seed the catalogue with these source-reviewed candidates.
 
 | Product | Candidate | Platform and precision | Evidence |
 | --- | --- | --- | --- |
-| ZML | `//examples/mnist` at the ZML source pin | CPU. Record the selected host and the bundled checkpoint. | [Public smoke test](https://github.com/zml/zml#30-second-smoke-test) |
+| ZML | `//examples/mnist` at the ZML source pin | CPU. Record the selected host and the bundled model weights. | [Public smoke test](https://github.com/zml/zml#30-second-smoke-test) |
 | ZML | `meta-llama/Llama-3.2-1B-Instruct` | Framework example. Record precision and backend after execution. | [Public LLM quickstart](https://github.com/zml/zml#llm-quickstart) |
 | LLMD | `LiquidAI/LFM3-1.7B-FP8` | CUDA, ROCm, and Apple Metal recipes published for the 20261029.0 release. | [LLMD release](https://zml.ai/posts/llmd-20261029.0/) |
 | LLMD | `LiquidAI/LFM3-1.7B` | BF16 for oneAPI and TPU in the 20261029.0 release. | [LLMD release](https://zml.ai/posts/llmd-20261029.0/) |
@@ -52,7 +52,7 @@ bazel run //examples/mnist
 bazel test //zml:test
 ```
 
-The MNIST example loads a small pretrained checkpoint and classifies a handwritten digit. Use the prediction and the input digit as the verification result. Record the output from the selected checkout when executing the recipe.
+The MNIST example loads a small pretrained model and classifies a handwritten digit. Use the prediction and the input digit as the verification result. Record the output from the selected checkout when executing the recipe.
 
 ```sh
 # Gated Hugging Face repositories require access and a token.
@@ -61,7 +61,7 @@ bazel run //examples/llm -- \
   --model=hf://meta-llama/Llama-3.2-1B-Instruct --prompt='What is the capital of France?'
 ```
 
-Remove `--prompt` for interactive generation. For accelerator runs, put compilation switches **before** Bazel's `--` separator and example options after it. A pinned example can recognize model types that differ from LLMD's supported checkpoints. [LLM example](https://github.com/zml/zml/tree/master/examples/llm)
+Remove `--prompt` for interactive generation. For accelerator runs, put compilation switches **before** Bazel's `--` separator and example options after it. A pinned example can recognize model types that differ from LLMD's supported models. [LLM example](https://github.com/zml/zml/tree/master/examples/llm)
 
 | Layer | Options and scope |
 | --- | --- |
@@ -82,7 +82,7 @@ bazel build --config=release //examples/llm:archive \
 
 | `//examples/llm` option | Default | Description |
 | --- | --- | --- |
-| `--model=<path>` | Required | Checkpoint directory. The pin registers `file`, `hf`, `s3`, and `gs` storage schemes. |
+| `--model=<path>` | Required | Model directory. The pin registers `file`, `hf`, `s3`, and `gs` storage schemes. |
 | `--prompt=<text>` | Unset | One-shot generation when supplied, interactive mode otherwise. |
 | `--seqlen=<tokens>` | `2048` | Sequence length used for compilation and generation. |
 | `--topk=<number>` | `4` | Top-k sampling cutoff. |
@@ -101,15 +101,15 @@ Examples to add after MNIST and LLM are `//examples/sharding` for mesh and parti
 | Intel oneAPI | `zmlai/llmd:oneapi`, Linux amd64 | `--device=/dev/dri`. Check supported device and driver. |
 | Google TPU | `zmlai/llmd:tpu`, Linux amd64 | `--net=host --privileged` on the TPU host in the published recipe. Explain host networking and required access in the TPU article. |
 | Apple Metal | `brew install zml/zml/llmd`, macOS ARM64 | Run `llmd` natively. A local-development guide can use `--listen=127.0.0.1:8000` after checking the chosen build. |
-| Furiosa | `zmlai/llmd:furiosa`, Linux amd64 | Registry and source evidence. Confirm a supported host, release, device mapping, and checkpoint before adding a quickstart. |
+| Furiosa | `zmlai/llmd:furiosa`, Linux amd64 | Registry and source evidence. Confirm a supported host, release, device mapping, and model before adding a quickstart. |
 
 Sources for install channels and architecture are the [LLMD product page](https://zml.ai/llmd/), [LLMD registry](https://hub.docker.com/r/zmlai/llmd/tags), and [Homebrew tap](https://github.com/zml/homebrew-zml). Use the registry for artifact availability and the release notes for model and feature changes. Furiosa's [container setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html) is a starting point for a separate LLMD host validation.
 
 ### CUDA quickstart draft
 
-The commands below use the CUDA backend tag with the smaller FP8 checkpoint in Liquid AI's CUDA recipe. They are source-reviewed, with execution pending on a CUDA host. Record the LLMD version, checkpoint revision, and successful response before publishing the tested recipe. [Liquid AI guide](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd) · [Registry tags](https://hub.docker.com/r/zmlai/llmd/tags)
+The commands below use the CUDA backend tag with the smaller FP8 model in Liquid AI's CUDA recipe. They are source-reviewed, with execution pending on a CUDA host. Record the LLMD version, model revision, and successful response before publishing the tested recipe. [Liquid AI guide](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd) · [Registry tags](https://hub.docker.com/r/zmlai/llmd/tags)
 
-Prerequisites are a Linux host with a compatible NVIDIA GPU, its driver, Docker, NVIDIA Container Toolkit, and access to the public checkpoint. For gated models, obtain repository access and forward `HF_TOKEN` into the container.
+Prerequisites are a Linux host with a compatible NVIDIA GPU, its driver, Docker, NVIDIA Container Toolkit, and access to the public model files. For gated models, obtain repository access and forward `HF_TOKEN` into the container.
 
 ```sh
 docker pull zmlai/llmd:cuda
@@ -118,7 +118,7 @@ docker run --rm --name llmd \
   zmlai/llmd:cuda --model=hf://LiquidAI/LFM3-1.7B-FP8
 ```
 
-Run the request in a second terminal once the server accepts connections. Use the returned model identifier in the JSON body. The example assumes the server reports the default name derived from the checkpoint path.
+Run the request in a second terminal once the server accepts connections. Use the returned model identifier in the JSON body. The example assumes the server reports the default name derived from the model path.
 
 ```sh
 curl -fsS http://127.0.0.1:8000/v1/models
@@ -129,9 +129,9 @@ curl -fsS http://127.0.0.1:8000/v1/chat/completions \
 
 Success is an HTTP response with an assistant message in `choices`. The output text can vary. Stop the foreground server with Ctrl+C. An application with an existing LLMD endpoint starts at the request step and uses that endpoint's authentication and model identifier.
 
-Check the container logs when the endpoint fails to respond. Separate missing devices, denied checkpoint access, and memory failures from the time needed to load weights and compile. Use the Operations guide for replica health, restarts, Prometheus, and the previous known-working image and checkpoint.
+Check the container logs when the endpoint fails to respond. Separate missing devices, denied access to model files, and memory failures from the time needed to load weights and compile. Use the Operations guide for replica health, restarts, Prometheus, and the previous known-working image and model revision.
 
-Docker consumes flags **before** the image. The LLMD image entrypoint receives options **after** the image. Explain `-p`, `--gpus`, `--device`, `--shm-size`, `-e HF_TOKEN` for gated checkpoints, `--mount`, `--name`, `--rm`, and `-d`/`docker logs` for detached operation. To serve local weights, mount a complete checkpoint directory read-only at `/model` with `--mount type=bind,source=/absolute/host/checkpoint,target=/model,readonly` and pass `--model=/model`. Include `config.json`, `tokenizer.json`, safetensors weights, and model-specific files such as the chat template when required. The same model guide can show `--model=s3://bucket/checkpoint` and `--model=gs://bucket/checkpoint` with the corresponding credentials. Direct HTTPS is registered by the inspected LLMD source and needs a release-specific recipe. [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/) · [Liquid AI local weights recipe](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd#use-local-model-weights)
+Docker consumes flags **before** the image. The LLMD image entrypoint receives options **after** the image. Explain `-p`, `--gpus`, `--device`, `--shm-size`, `-e HF_TOKEN` for gated models, `--mount`, `--name`, `--rm`, and `-d`/`docker logs` for detached operation. To serve local weights, mount a complete model directory read-only at `/model` with `--mount type=bind,source=/absolute/host/model,target=/model,readonly` and pass `--model=/model`. Include `config.json`, `tokenizer.json`, safetensors weights, and model-specific files such as the chat template when required. The same model guide can show `--model=s3://bucket/model` and `--model=gs://bucket/model` with the corresponding credentials. Direct HTTPS is registered by the inspected LLMD source and needs a release-specific recipe. [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/) · [Liquid AI local weights recipe](https://docs.liquid.ai/deployment/gpu-inference/zml-llmd#use-local-model-weights)
 
 Keep the container listener reachable through Docker's network mapping and bind the local published host port to loopback. The inspected LLMD HTTP setup has no built-in authentication layer in front of its routes. For external deployment, document the authenticated TLS proxy and scope the exposure of metrics and profiler endpoints to operators.
 
@@ -143,7 +143,7 @@ These are the options shown in the local `CliArgs.help`. Confirm that the publis
 
 | Option | Default or fallback | Meaning |
 | --- | --- | --- |
-| `--model=<path>` | Required | Local directory or supported checkpoint URI. |
+| `--model=<path>` | Required | Local directory or supported model URI. |
 | `--model-name=<text>` | Basename of model path | Identifier returned by the API. |
 | `--listen=<address>` | `0.0.0.0:8000` | HTTP bind address. An address without a port uses `8000`. |
 | `--batch-size=<number>` | `16` | Maximum number of concurrent requests in a batch. |
@@ -158,7 +158,7 @@ These are the options shown in the local `CliArgs.help`. Confirm that the publis
 | `--top-p=<fraction>` | Fallback `1.0` | Nucleus threshold, in `[0, 1]`. |
 | `--min-p=<fraction>` | Fallback `0.0` | Minimum probability threshold, in `[0, 1]`. |
 | `--temperature=<number>` | Fallback `1.0` | Sampling temperature. |
-| `--speculative-drafter-model=<path>` | Unset | Enable speculative decoding with a compatible drafter checkpoint or `native` where implemented. |
+| `--speculative-drafter-model=<path>` | Unset | Enable speculative decoding with a compatible drafter model or `native` where implemented. |
 | `--speculative-draft-count=<tokens>` | From model configuration | Override draft token count. Requires a compatible speculative setup. |
 | `--systemone-window=<number>` | `max(1, batch_size / 4)` | Concurrent questions in one SystemOne request. Advanced API surface. |
 

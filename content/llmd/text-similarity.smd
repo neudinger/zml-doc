@@ -21,7 +21,7 @@ to confirm it returns a vector.
 # [Rank two passages]($heading.id('rank-two-passages'))
 
 Send the query and both passages in one batch so all three vectors use the
-same checkpoint and dimensions. For retrieval, Qwen recommends including a
+same model and dimensions. For retrieval, Qwen recommends including a
 short task instruction with the query and sending the passages as plain text.
 [Qwen model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B#usage)
 

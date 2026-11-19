@@ -6,7 +6,7 @@
 .custom = .{ .doc_section = "Benchmarking" },
 ---
 Use a working model run as the baseline. The [LLM example]($link.page('zml/build-and-run').ref('run-an-llm-example'))
-accepts a checkpoint and a fixed prompt and prints the selected runtime and
+accepts a model path and a fixed prompt and prints the selected runtime and
 attention backend. Record those settings and the ZML revision with your results.
 
 # [Select a build or profiling configuration]($heading.id('select-a-build-or-profiling-configuration'))
@@ -22,7 +22,7 @@ The LLM example also accepts `--profile` with a non-interactive prompt to
 capture a PJRT trace. The [profiling configuration reference]($link.page('zml/build-and-run').ref('select-a-build-or-profiling-configuration'))
 lists the wrappers and the backends they enable.
 
-When comparing two configurations, keep the checkpoint, input, device, and
+When comparing two configurations, keep the model weights, input, device, and
 build mode fixed. Compare startup separately from execution and use runs with
 profiling disabled for elapsed-time comparisons. For a running LLMD HTTP
 service, use [LLMD service metrics]($link.page('operations/monitoring').ref('scrape-service-metrics'))

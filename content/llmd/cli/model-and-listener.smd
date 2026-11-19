@@ -1,6 +1,6 @@
 ---
 .title = "Model and listener flags",
-.description = "Select a checkpoint, set the served model ID, and bind the LLMD HTTP listener.",
+.description = "Select a model, set the served model ID, and bind the LLMD HTTP listener.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "CLI Reference" },
@@ -13,12 +13,36 @@ switch.
 
 | LLMD option | Default | Effect |
 | --- | --- | --- |
-| `--model=<path>` | Required | Path to a checkpoint directory or supported model URI. |
+| `--model=<path>` | Required | Path to a model directory or supported model URI. |
 | `--model-name=<text>` | Basename of the model path | Set the identifier reported by `/v1/models` and used in requests. |
 
 See [Models]($link.page('llmd/api/models')) to check the ID reported by a running
 server, and [Environment variables]($link.page('llmd/reference/cli-environment'))
 for model credentials, proxy settings, and diagnostics.
+
+## [Local model files]($heading.id('local-model-files'))
+
+Point `--model` to the directory containing `config.json`. Keep the tokenizer,
+Safetensors weights, weight index and all its shards, and any supplied chat
+template or generation settings together from the same revision.
+`Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
+pooling configuration files.
+
+In the [LLMD quickstart]($link.page('llmd/quickstart')), **Download first**
+generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
+To pin a download, add `--revision <commit>` to that command and give each
+revision its own local directory. Native LLMD reads the host path directly.
+For Docker, see [Run a local model]($link.page('llmd/cli/docker-options').ref('run-a-local-checkpoint')).
+
+## [Cloud model URIs]($heading.id('cloud-model-uris'))
+
+Use `--model=hf://org/repo@revision` to select a Hugging Face revision at
+launch. For S3 or Google Cloud Storage, keep the model files together under
+one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
+`--model=gs://my-bucket/llm/model`. To adapt a quickstart command, choose
+**Load at launch** and replace its `--model` value with the bucket URI.
+Configure [model storage credentials]($link.page('llmd/reference/cli-environment').unsafeRef('model-storage-and-credentials'))
+in the environment that runs LLMD.
 
 # [Bind the listener]($heading.id('bind-the-listener'))
 

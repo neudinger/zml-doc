@@ -57,7 +57,7 @@ runtime.
 
 # [Run an LLM example]($heading.id('run-an-llm-example'))
 
-Use a compatible Hugging Face checkpoint, such as Llama 3.2 1B Instruct.
+Use a compatible Hugging Face model, such as Llama 3.2 1B Instruct.
 Request access to the gated model on Hugging Face, then authenticate with
 `bazel run //tools/hf -- auth login` or set `HF_TOKEN` in the environment.
 See [Environment variables]($link.page('zml/reference/environment')) for storage
@@ -78,16 +78,16 @@ bazel run --@zml//platforms:cuda=true --@zml//platforms:cpu=false //examples/llm
   --prompt='What is the capital of France?'
 ```
 
-After the checkpoint loads, check the platform and attention backend in the
+After the model loads, check the platform and attention backend in the
 startup output, then look for generated text. Omit `--prompt` to open an
-interactive prompt. To use weights already on disk, pass the checkpoint
+interactive prompt. To use weights already on disk, pass the model
 directory, for example `--model=/path/to/model`. The example selects the
 implementation from `model_type` in `config.json`.
-To serve a checkpoint over HTTP, [start an LLMD server]($link.page('llmd/quickstart')).
+To serve a model over HTTP, [start an LLMD server]($link.page('llmd/quickstart')).
 
 | Example flag | Default | Effect |
 | --- | --- | --- |
-| `--model=<path>` | Required | Local checkpoint directory or `hf://`, `s3://`, or `gs://` URI. |
+| `--model=<path>` | Required | Local model directory or `hf://`, `s3://`, or `gs://` URI. |
 | `--prompt=<text>` | Unset | Generate a single response. |
 | `--seqlen=<tokens>` | `2048` | Sequence length used for compilation and generation. |
 | `--topk=<number>` | `4` | Top-k sampling cutoff for the example. |

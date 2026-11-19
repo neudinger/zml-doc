@@ -39,4 +39,4 @@ source bytes alive and unchanged until `buffer.await(io)` completes successfully
 - `buffer.deinit()`\
   `void`. Release the buffer through a mutable handle.
 
-See [Load and inspect checkpoints]($link.page('zml/checkpoints')) for an example of loading weights into device buffers.
+See [Load and inspect model weights]($link.page('zml/checkpoints')) for an example of loading weights into device buffers.

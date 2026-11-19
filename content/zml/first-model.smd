@@ -129,12 +129,12 @@ dot products `1 + 4 + 3` and `4 + 10 + 6`, with biases of `1` and `-1`.
 Try a different `features` array and calculate the new scores before running
 the target again.
 
-# [Load weights from a checkpoint]($heading.id('load-weights-from-a-checkpoint'))
+# [Load pretrained model weights]($heading.id('load-weights-from-a-checkpoint'))
 
 The [MNIST example](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist.zig)
 uses the same sequence for a pretrained model. It opens a
 [Safetensors registry]($link.page('zml/checkpoints').ref('load-weights-for-execution')),
-uses `TensorStore` to create tagged weight tensors from the checkpoint shapes,
+uses `TensorStore` to create tagged weight tensors with the shapes recorded in the model file,
 then compiles `forward`. A loader fills the model's buffers with the weight
 data. It waits for those transfers before passing the buffers to the
 executable. The output is a predicted digit read back as `u8`.

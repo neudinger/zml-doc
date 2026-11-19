@@ -17,8 +17,8 @@ Read [ZML concepts]($link.page('zml/concepts')) for tensors, shapes, and dimensi
 Use the [Tensor reference]($link.page('zml/api/tensor')) to look up model operations
 and the [Exe reference]($link.page('zml/api/exe')) for calls that run a compiled model.
 Use the [first model guide]($link.page('zml/first-model')) to build a tagged
-linear layer. Then [load and inspect checkpoints]($link.page('zml/checkpoints'))
-for pretrained weights and [run ZML across devices]($link.page('zml/sharding'))
+linear layer. Then [load and inspect model weights]($link.page('zml/checkpoints'))
+and [run ZML across devices]($link.page('zml/sharding'))
 to partition work across a device mesh.
 
 ```=html
@@ -37,7 +37,7 @@ to partition work across a device mesh.
     </ol>
     <ol class="execution-path" role="list" aria-label="Prepare runtime data">
       <li class="execution-node">
-        <strong>Checkpoint weights and inputs</strong>
+        <strong>Model weights and inputs</strong>
         <span>Weight values from Safetensors and input data</span>
       </li>
       <li class="execution-node">
@@ -51,7 +51,7 @@ to partition work across a device mesh.
     <strong>Run on the selected backend</strong>
     <span>Call the executable with the weight and input buffers to produce output tensors.</span>
   </div>
-  <figcaption>Checkpoint metadata can supply weight shapes and data types for the symbolic tensors used during compilation.</figcaption>
+  <figcaption>Safetensors metadata can supply weight shapes and data types for the symbolic tensors used during compilation.</figcaption>
 </figure>
 ```
 

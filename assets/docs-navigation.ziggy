@@ -53,7 +53,7 @@
                         .{ .path = "zml/first-model", .label = "Write your first model", .icon = "icon-pencil" },
                         .{ .path = "zml/concepts", .label = "Tensors and shapes", .icon = "icon-shapes" },
                         .{ .path = "zml/build-and-run", .label = "Build and run with Bazel", .icon = "icon-hammer" },
-                        .{ .path = "zml/checkpoints", .label = "Load and inspect checkpoints", .icon = "icon-boxes" },
+                        .{ .path = "zml/checkpoints", .label = "Load and inspect model weights", .icon = "icon-boxes" },
                         .{ .path = "zml/sharding", .label = "Run across devices", .icon = "icon-cpu" },
                     ],
                 },

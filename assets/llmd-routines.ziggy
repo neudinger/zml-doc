@@ -1,8 +1,8 @@
 .{
     .modes = .{ .standard = "Standard", .native = "Native MTP", .external = "External drafter" },
     .capabilities = [
-        .{ .id = "decision", .heading = "Decision checkpoints", .anchor = "decision-checkpoints", .label = "Configure Decision launch", .description = "Choose a backend to configure a server and send questions to /v1/systemone. StartLux requires an LLMD build with StartLux Decision support. Backend-specific Decision results are pending." },
-        .{ .id = "embeddings", .heading = "Embedding checkpoints", .anchor = "embedding-checkpoints", .label = "Configure embeddings launch", .description = "Choose a backend to configure LLMD and create text vectors with /v1/embeddings. Use an LLMD build with the embeddings endpoint. Backend-specific results for this checkpoint are pending." },
+        .{ .id = "decision", .heading = "Decision models", .anchor = "decision-checkpoints", .label = "Configure Decision launch", .description = "Choose a backend to configure a server and send questions to /v1/systemone. StartLux requires an LLMD build with StartLux Decision support. Backend-specific Decision results are pending." },
+        .{ .id = "embeddings", .heading = "Embedding models", .anchor = "embedding-checkpoints", .label = "Configure embeddings launch", .description = "Choose a backend to configure LLMD and create text vectors with /v1/embeddings. Use an LLMD build with the embeddings endpoint. Backend-specific results for this model are pending." },
     ],
     .backends = [
         .{ .id = "cuda", .name = "NVIDIA CUDA" },

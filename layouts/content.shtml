@@ -53,7 +53,7 @@
           <div class="architecture-canvas" :html="$ctx.diagram.bytes()"></div>
           <figcaption class="architecture-detail" aria-live="polite" aria-atomic="true">
             <strong data-map-title>LLMD on ZML</strong>
-            <p data-map-detail>LLMD schedules inference. ZML compiles the model and runs it with checkpoint weights on the selected hardware.</p>
+            <p data-map-detail>LLMD schedules inference. ZML compiles the model and runs it on the selected hardware using the loaded weights.</p>
             <dl hidden data-map-mappings></dl>
             <a hidden data-map-section></a>
           </figcaption>
@@ -126,9 +126,9 @@
           <ctx :if="$site.page('llmd/models').isCurrent()">
             <section data-llmd-pairings class="prose" data-pagefind-body aria-labelledby="external-drafters">
               <h2 id="external-drafters">External drafters</h2>
-              <p>Choose a drafter listed for the exact target checkpoint. Expand its repository ID to configure a launch on your backend. Each entry records a reported pairing. Backend validation requires a published recipe or a recorded run for that pair.</p>
+              <p>Choose a drafter listed for the exact target model. Expand its repository ID to configure a launch on your backend. Each entry records a reported pairing. Backend validation requires a published recipe or a recorded run for that pair.</p>
               <table>
-                <thead><tr><th scope="col">Target checkpoint</th><th scope="col">Drafter checkpoint</th></tr></thead>
+                <thead><tr><th scope="col">Target model</th><th scope="col">Drafter model</th></tr></thead>
                 <tbody>
                   <ctx backends="$site.asset('llmd-routines.ziggy').ziggy().get('backends')" quickstart="$site.page('llmd/quickstart').link()"
                        :loop="$site.asset('llmd-drafters.ziggy').ziggy().get('checkpoints')">
@@ -144,7 +144,7 @@
                                 <ctx drafter="$loop.it">
                                   <ctx :loop="$ctx.backends">
                                     <li><a data-backend="$loop.it.get('id')"
-                                           href="$ctx.quickstart.suffix('?checkpoint=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=external&drafter=', $ctx.drafter)"
+                                           href="$ctx.quickstart.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=external&drafter=', $ctx.drafter)"
                                            :text="$loop.it.get('name').prefix('Configure launch · ')"></a></li>
                                   </ctx>
                                 </ctx>
@@ -162,7 +162,7 @@
               <h2 id="routine-configurations">Routine test configurations</h2>
               <p>Expand a decoding mode and choose a backend to configure its launch. These combinations are routine test targets. A linked recipe or recorded result gives evidence for its specific configuration.</p>
               <table data-llmd-routines>
-                <thead><tr><th scope="col">Checkpoint</th><th scope="col">Decoding and launch</th></tr></thead>
+                <thead><tr><th scope="col">Model</th><th scope="col">Decoding and launch</th></tr></thead>
                 <tbody>
                   <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()" quickstart="$site.page('llmd/quickstart').link()">
                     <ctx :loop="$ctx.routines.get('checkpoints')">
@@ -180,7 +180,7 @@
                                   <ul data-pagefind-ignore>
                                     <ctx :loop="$ctx.routines.get('backends')">
                                       <li><a data-backend="$loop.it.get('id')"
-                                             href="$ctx.quickstart.suffix('?checkpoint=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=', $ctx.mode)"
+                                             href="$ctx.quickstart.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=', $ctx.mode)"
                                              :text="$loop.it.get('name')"></a></li>
                                     </ctx>
                                   </ul>
@@ -202,7 +202,7 @@
                     <h2 id="$ctx.capability.get('anchor')" :text="$ctx.capability.get('heading')"></h2>
                     <p :text="$ctx.capability.get('description')"></p>
                     <table>
-                      <thead><tr><th scope="col">Checkpoint</th><th scope="col">Configure launch</th></tr></thead>
+                      <thead><tr><th scope="col">Model</th><th scope="col">Configure launch</th></tr></thead>
                       <tbody>
                         <ctx :loop="$ctx.inventory.get('checkpoints')">
                           <ctx model="$loop.it" :if="$loop.it.getOr($ctx.capability.get('id'), false)">
@@ -214,7 +214,7 @@
                                 <ul data-pagefind-ignore>
                                   <ctx :loop="$ctx.inventory.get('backends')">
                                     <li><a data-backend="$loop.it.get('id')"
-                                           href="$ctx.quickstart.suffix('?checkpoint=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=standard&request=', $ctx.capability.get('id'))"
+                                           href="$ctx.quickstart.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=standard&request=', $ctx.capability.get('id'))"
                                            :text="$loop.it.get('name')"></a></li>
                                   </ctx>
                                 </ul>

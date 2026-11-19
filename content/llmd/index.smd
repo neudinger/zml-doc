@@ -11,7 +11,7 @@ for how the serving engine takes an HTTP request through model execution on the 
 # [Start a server]($heading.id('start-a-server'))
 
 Serve a model and send a chat, Decision, or embeddings request with the
-[LLMD quickstart]($link.page('llmd/quickstart')). Choose a checkpoint, backend,
+[LLMD quickstart]($link.page('llmd/quickstart')). Choose a model, backend,
 and decoding mode to generate launch and request commands for Docker or Homebrew.
 See [Model and listener flags]($link.page('llmd/cli/model-and-listener')) for server startup,
 [Docker options]($link.page('llmd/cli/docker-options')) for container settings,
@@ -19,7 +19,7 @@ and [Model compatibility]($link.page('llmd/models')) for routine test
 configurations and published recipes.
 
 After startup, check the loaded model with `/v1/models`. Use its ID in a chat
-request. For a Decision checkpoint, send a state and a set of questions to
+request. For a Decision model, send a state and a set of questions to
 `/v1/systemone`. Follow [Ask structured questions with Decision]($link.page('llmd/decision'))
 to read the selected labels and scores.
 

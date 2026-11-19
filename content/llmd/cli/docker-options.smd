@@ -32,7 +32,7 @@ and [daemon defaults](https://docs.docker.com/reference/cli/dockerd/).
 | Docker option | Default | Use with LLMD |
 | --- | --- | --- |
 | `-e`, `--env` | No explicit override | `-e HF_TOKEN` forwards a value from the invoking environment. |
-| `--mount` | No explicit mount | Mount a local checkpoint and pass the container path to `--model`. Bind mounts are writable by default. Add `readonly` for weights. |
+| `--mount` | No explicit mount | Mount a local model directory and pass the container path to `--model`. Bind mounts are writable by default. Add `readonly` for weights. |
 
 # [Container lifecycle]($heading.id('container-lifecycle'))
 
@@ -45,16 +45,16 @@ and [daemon defaults](https://docs.docker.com/reference/cli/dockerd/).
 | `--pull` | `missing` | Pull the image when it is absent locally. |
 | `--restart` | `no` | Set a restart policy for a retained container. Docker rejects `--rm` with a restart policy. |
 
-# [Run a local checkpoint]($heading.id('run-a-local-checkpoint'))
+# [Run a local model]($heading.id('run-a-local-checkpoint'))
 
-The following CUDA example serves weights from a local checkpoint directory.
-Replace `/absolute/path/to/checkpoint` with an existing host path containing
+The following CUDA example serves weights from a local model directory.
+Replace `/absolute/path/to/model` with an existing host path containing
 the model configuration, tokenizer, and weight files.
 
 ```sh
 docker run --rm --name llmd \
   -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
-  --mount type=bind,source=/absolute/path/to/checkpoint,target=/model,readonly \
+  --mount type=bind,source=/absolute/path/to/model,target=/model,readonly \
   zmlai/llmd:cuda --model=/model
 ```
 

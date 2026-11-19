@@ -8,7 +8,7 @@
 # [Create embeddings]($heading.id('embeddings'))
 
 `POST /v1/embeddings` maps input text to a numeric vector using the loaded
-embedding checkpoint. Choose `Qwen/Qwen3-Embedding-8B` in the
+embedding model. Choose `Qwen/Qwen3-Embedding-8B` in the
 [Embeddings catalog]($link.page('llmd/models').unsafeRef('embedding-checkpoints')).
 The [quickstart]($link.page('llmd/quickstart').unsafeRef('send-an-embeddings-request'))
 generates this request with the selected host port.
@@ -29,7 +29,7 @@ curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
 | `input` | String or array of strings, required | Send one nonempty string per vector. Token ID arrays are rejected. |
 | `encoding_format` | String, `"float"` | Choose `"float"` for a JSON array of numbers or `"base64"` for encoded little-endian float32 bytes. |
 | `dimensions` | Integer, model maximum | Sets the length of each vector. Qwen3-Embedding-8B supports 32 through 4,096 dimensions. |
-| `model` | String, optional | May be omitted. LLMD embeds with the checkpoint loaded by the server. |
+| `model` | String, optional | May be omitted. LLMD embeds with the model loaded by the server. |
 
 # [Read the response]($heading.id('embedding-response'))
 
@@ -48,7 +48,7 @@ LLMD revision `fe922cff` accepts up to 2,048 strings
 per request, up to 8,192 tokens per string, and up to 300,000 tokens in
 total. Each tokenized string must also be shorter than the server's context
 limit. An HTTP 400 response includes an `error.code`, such as
-`model_not_supported` for a checkpoint without embedding support,
+`model_not_supported` for a model without embedding support,
 `invalid_dimensions` for a vector size outside the model's range, or
 `too_many_tokens` for exceeding the endpoint's token limits.
 A batch that LLMD cannot finish can return HTTP 503 with `resource_exhausted`.

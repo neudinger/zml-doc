@@ -189,7 +189,7 @@ fn checkDrafterHandoffs(fixture: *Fixture) !void {
                     const key, const value = std.mem.cutScalar(u8, field, '=') orelse return error.InvalidUrl;
                     try params.putNoClobber(allocator, key, try website.decode(allocator, value));
                 }
-                try std.testing.expectEqualStrings(checkpoint, params.get("checkpoint") orelse return error.MissingCheckpoint);
+                try std.testing.expectEqualStrings(checkpoint, params.get("model") orelse return error.MissingModel);
                 try std.testing.expectEqualStrings(drafter, params.get("drafter") orelse return error.MissingDrafter);
                 try std.testing.expectEqualStrings("external", params.get("decoding") orelse return error.MissingDecodingMode);
                 const backend = params.get("backend") orelse return error.MissingBackend;

@@ -1,21 +1,21 @@
 ---
 .title = "Model compatibility",
-.description = "Find LLMD checkpoints for Chat, Decision, or Embeddings. Look up external drafters and configure a launch on your backend.",
+.description = "Find LLMD models for Chat, Decision, or Embeddings. Look up external drafters and configure a launch on your backend.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 ---
-Match an exact checkpoint to your accelerator. Check the
+Choose a model for your accelerator. Check the
 [host and backend requirements]($link.page('llmd/reference/compatibility'))
 and allow memory for both the model weights and KV cache.
 
-# [Checkpoint catalog]($heading.id('choose-a-checkpoint'))
+# [Model catalog]($heading.id('choose-a-checkpoint'))
 
 ```=html
 <div data-model-catalog hidden>
-  <div class="model-catalog-filters" role="group" aria-label="Checkpoint filters" data-pagefind-ignore>
+  <div class="model-catalog-filters" role="group" aria-label="Model filters" data-pagefind-ignore>
     <label class="model-catalog-field">
-      Search checkpoints
-      <input type="search" name="checkpoint" placeholder="Checkpoint, family, or drafter" autocomplete="off">
+      Search models
+      <input type="search" name="checkpoint" placeholder="Model, family, or drafter" autocomplete="off">
     </label>
     <label class="model-catalog-field">
       Capability
@@ -37,7 +37,7 @@ and allow memory for both the model weights and KV cache.
     <label class="model-catalog-pairings"><input type="checkbox" name="pairings"> External drafters only</label>
   </div>
   <p class="model-catalog-status" role="status" data-pagefind-ignore></p>
-  <p data-model-empty hidden data-pagefind-ignore>No checkpoints match these filters.</p>
+  <p data-model-empty hidden data-pagefind-ignore>No models match these filters.</p>
   <div class="model-catalog-navigator" hidden>
     <div class="model-catalog-family-buttons" role="group" aria-labelledby="model-catalog-family-label" data-pagefind-ignore>
       <span id="model-catalog-family-label">Model family</span>
@@ -64,7 +64,7 @@ and allow memory for both the model weights and KV cache.
             <label class="model-catalog-field">Decoding mode
               <select name="decoding"></select>
             </label>
-            <label class="model-catalog-field model-catalog-drafter-field" hidden>Drafter checkpoint
+            <label class="model-catalog-field model-catalog-drafter-field" hidden>Drafter model
               <select name="drafter" aria-describedby="model-catalog-drafter"></select>
             </label>
             <a data-model-configure>Configure launch</a>
@@ -78,44 +78,44 @@ and allow memory for both the model weights and KV cache.
 </div>
 ```
 
-The routine test set covers 12 checkpoints and 18 configurations across CUDA,
-ROCm, Metal, oneAPI, TPU, and Furiosa RNGD. Each checkpoint has a standard
+The routine test set covers 12 models and 18 configurations across CUDA,
+ROCm, Metal, oneAPI, TPU, and Furiosa RNGD. Each model has a standard
 configuration. Two also have native MTP and four have a separate drafter.
 These are test targets. A passing result requires a recorded run for the
-exact checkpoint, backend, decoding mode, and LLMD build.
+exact model, backend, decoding mode, and LLMD build.
 
 Select **External drafters only** to browse 53 reported pairings across
-18 target checkpoints. Search by either repository ID. Select a backend cell,
-choose **External drafter**, then pick the drafter checkpoint.
+18 target models. Search by either repository ID. Select a backend cell,
+choose **External drafter**, then pick the drafter model.
 **Configure launch** carries all three selections into the quickstart.
-Each pairing applies to the exact target checkpoint, including its precision
+Each pairing applies to the exact target model, including its precision
 variant. The backend selects the launch environment. Check the linked recipes
 or a recorded run for evidence on that hardware. A **Pairing** cell opens the
 drafter choices for a target with no routine configuration or recipe on that backend.
 
 Filter by **Decision** to find `LiquidAI/LFM3-1.7B` and the eight StartLux
-Decision v1.1 checkpoints. **Configure launch** opens the
-[LLMD quickstart]($link.page('llmd/quickstart')) with the selected checkpoint
+Decision v1.1 models. **Configure launch** opens the
+[LLMD quickstart]($link.page('llmd/quickstart')) with the selected model
 and backend. The [Decision guide]($link.page('llmd/decision')) explains the
 generated request for `POST /v1/systemone`. The StartLux family has
-five Instant and three AutoThink checkpoints. StartLux configurations await
+five Instant and three AutoThink models. StartLux configurations await
 verification on a specific LLMD build and backend.
 
 Filter by **Embeddings** for `Qwen/Qwen3-Embedding-8B`. Choose your backend,
 then **Configure launch** to open the quickstart with a request for
 `POST /v1/embeddings`. The [text similarity guide]($link.page('llmd/text-similarity'))
 shows how to compare the returned vectors. Backend-specific inference results
-are pending for this checkpoint.
+are pending for this model.
 
-For chat, choose a checkpoint, backend, and decoding mode. The quickstart
-uses LLMD's tuning defaults. Precision describes checkpoint weights.
+For chat, choose a model, backend, and decoding mode. The quickstart
+uses LLMD's tuning defaults. Precision describes the format of the model weights.
 **Target** means the precision is unspecified. A dash means the combination is
 unlisted under the active filters. Documented presets link to their own
 settings and available evidence.
 
 > []($block.attrs('model-catalog-table'))
 >
-> | Checkpoint | Family | NVIDIA CUDA | AMD ROCm | Apple Metal | Intel oneAPI | Google TPU | Furiosa RNGD |
+> | Model | Family | NVIDIA CUDA | AMD ROCm | Apple Metal | Intel oneAPI | Google TPU | Furiosa RNGD |
 > | --- | --- | --- | --- | --- | --- | --- | --- |
 > | [`LiquidAI/LFM3-1.7B-FP8`](https://huggingface.co/LiquidAI/LFM3-1.7B-FP8) | LFM 3 | `FP8` · [CUDA recipe](https://zml.ai/posts/llmd-20261029.0/#nvidia) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda')) | `FP8` · [ROCm recipe](https://zml.ai/posts/llmd-20261029.0/#amd) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-rocm')) | `FP8` · [Metal recipe](https://zml.ai/posts/llmd-20261106.0/#try-it-today) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-metal')) | — | — | — |
 > | [`LiquidAI/LFM3-1.7B`](https://huggingface.co/LiquidAI/LFM3-1.7B) | LFM 3 | `BF16` · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-bf16-cuda')) | `BF16` · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-bf16-rocm')) | `BF16` · [M3 Max benchmark](https://zml.ai/posts/llmd-20261029.0/#lfm-3) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-bf16-metal')) | `BF16` · [oneAPI recipe](https://zml.ai/posts/llmd-20261029.0/#intel) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-oneapi')) | `BF16` · [TPU recipe](https://zml.ai/posts/llmd-20261029.0/#google-tpu) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-tpu')) | `BF16` · [Furiosa container setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-using-cdi) · [Configure documented preset]($link.page('llmd/quickstart').unsafeRef('lfm3-furiosa')) |

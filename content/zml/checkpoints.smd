@@ -1,15 +1,15 @@
 ---
-.title = "Load and inspect checkpoints",
+.title = "Load and inspect model weights",
 .description = "Inspect local or remote Safetensors weights and load them into buffers for a ZML executable.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Developer Guide" },
 ---
-Inspect the names, shapes, and sizes of checkpoint tensors before binding them
+Inspect the names, shapes, and sizes of weight tensors before binding them
 to a ZML model. Run the commands from the checkout in the
 [ZML quickstart]($link.page('zml/quickstart')).
 
-# [Inspect a local checkpoint]($heading.id('inspect-a-local-checkpoint'))
+# [Inspect local model weights]($heading.id('inspect-a-local-checkpoint'))
 
 Pass an absolute path to the `safetensors` command in the I/O playground.
 Replace the path with the location of your weights.
@@ -20,20 +20,20 @@ bazel run //examples/io:playground -- safetensors \
 ```
 
 The output groups tensors by name and shows their shapes and byte sizes.
-For a checkpoint split across several files, pass its `model.safetensors.index.json`
-and keep the referenced shards alongside the index. A checkpoint directory also
+For weights split across several files, pass `model.safetensors.index.json`
+and keep the referenced shards alongside the index. A model directory also
 works when it contains a [recognized entry point](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/safetensors.zig#L597-L615).
 
-# [Inspect a remote checkpoint]($heading.id('inspect-a-remote-checkpoint'))
+# [Inspect remote model weights]($heading.id('inspect-a-remote-checkpoint'))
 
 Use `ls` to find the weights, then pass the file URI to `safetensors`. This
 example selects a fixed revision of
 [LiquidAI/LFM2-350M](https://huggingface.co/LiquidAI/LFM2-350M/tree/f37d3f5c8c5484bc01dad379a595cf4c68c4e70e).
 
 ```sh
-checkpoint='hf://LiquidAI/LFM2-350M@f37d3f5c8c5484bc01dad379a595cf4c68c4e70e'
-bazel run //examples/io:playground -- ls "$checkpoint"
-bazel run //examples/io:playground -- safetensors "$checkpoint/model.safetensors"
+model_uri='hf://LiquidAI/LFM2-350M@f37d3f5c8c5484bc01dad379a595cf4c68c4e70e'
+bazel run //examples/io:playground -- ls "$model_uri"
+bazel run //examples/io:playground -- safetensors "$model_uri/model.safetensors"
 ```
 
 The inspector reads Safetensors metadata. The `hf://` loader uses `main` when
@@ -45,7 +45,7 @@ for credentials and storage settings.
 # [Load weights for execution]($heading.id('load-weights-for-execution'))
 
 To check that weights transfer to the selected backend, pass a small local
-checkpoint to the playground's `load` command.
+model's weights file to the playground's `load` command.
 
 ```sh
 bazel run //examples/io:playground -- load \
@@ -56,7 +56,7 @@ bazel run //examples/io:playground -- load \
 copies and transfer buffers. The playground logs bytes loaded and elapsed time,
 then releases the buffers. [Load command source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/io/main.zig#L153-L222)
 
-Run the MNIST example to see ZML load a pretrained checkpoint and classify a
+Run the MNIST example to see ZML load pretrained model weights and classify a
 digit. Its Bazel target supplies the weights and sample dataset.
 
 ```sh
@@ -68,7 +68,7 @@ opens a `TensorRegistry` and creates a `TensorStore` that borrows that registry
 and the platform's replicated mesh. The model uses a view with prefix `fc1`
 to create symbolic tensors bound to `fc1.weight` and `fc1.bias`. For example,
 `store.view().withPrefix("fc1").createReplicatedTensor("weight", .{ .d_out, .d })`
-uses the checkpoint shape and tags the weight matrix's two axes.
+reads the shape of `fc1.weight` from the model file and tags the matrix's two axes.
 
 After compiling `forward`, the example fills a buffer structure that mirrors
 the model. Here is the loading sequence inside `Mnist.load`, with `self` as

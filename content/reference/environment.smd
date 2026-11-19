@@ -14,10 +14,8 @@ by the [LLMD CLI reference]($link.page('llmd/cli/model-and-listener')).
 
 Put `-e NAME` before the image name to copy an exported host value into the
 container. If that variable is absent from the invoking environment, Docker
-leaves it unset in the container. For example, enable **Forward HF_TOKEN** in
-the [LLMD quickstart]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda'))
-for a Docker launch when the model repository requires authentication. Keep
-credential values out of command examples and logs.
+leaves it unset in the container. Keep credential values out of command
+examples and logs.
 
 File and directory values must use paths visible to the process. For example,
 to use a gcloud application default credentials file with LLMD in Docker,
@@ -41,13 +39,13 @@ and [bind mounts](https://docs.docker.com/engine/storage/bind-mounts/).
 | S3 | `AWS_REGION`, `AWS_DEFAULT_REGION` | The first set value wins in this order. When both are unset, the region is `us-east-1`. |
 | Google Cloud Storage | `GOOGLE_APPLICATION_CREDENTIALS` | When set, the loader tries that file. When unset, it tries `$HOME/.config/gcloud/application_default_credentials.json` on Linux and macOS. With no usable file, it can try GCE metadata, then anonymous access. |
 
-Use `hf://org/repo` for a Hugging Face checkpoint. The loader defaults to the
+Use `hf://org/repo` for a Hugging Face model. The loader defaults to the
 `main` revision. Use `hf://org/repo@revision` to select a revision. For ZML,
 `bazel run //tools/hf -- auth login` writes the token file. Use `s3://` and
 `gs://` for the corresponding object stores.
 
-The S3 loader reads the explicit access-key pair. Use a local checkpoint
-mount if your setup requires an AWS session token. The GCS loader supports
+The S3 loader reads the explicit access-key pair. Mount a local model
+directory if your setup requires an AWS session token. The GCS loader supports
 authorized-user application default credentials and GCE metadata. Service
 account key refresh is unimplemented in the reviewed snapshot.
 
@@ -55,6 +53,15 @@ See the pinned ZML loaders for
 [Hugging Face](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/hf.zig),
 [S3](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/s3.zig),
 and [GCS](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/gcs.zig).
+
+## [Gated model access]($heading.id('gated-model-access'))
+
+Request access on the Hugging Face model page and use a read token from
+the approved account. For a host download, export `HF_TOKEN` or sign in
+with `uvx --from huggingface_hub hf auth login`. For a Docker launch
+that fetches weights from Hugging Face, export `HF_TOKEN` on the host and
+enable **Forward HF_TOKEN** under **Launch options** in the
+[LLMD quickstart]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda')).
 
 # [LLMD outbound proxies]($heading.id('llmd-outbound-proxies'))
 

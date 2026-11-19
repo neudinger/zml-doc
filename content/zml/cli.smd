@@ -35,6 +35,6 @@ when called with `--help`.
 bazel run //examples/llm -- --help
 ```
 
-Set `--model` to the checkpoint and `--prompt` for a single response.
+Set `--model` to a model directory or URI and pass `--prompt` for a single response.
 See [LLM example flags and defaults]($link.page('zml/build-and-run').ref('run-an-llm-example'))
-for the accepted checkpoint locations and attention backends.
+for the supported model locations and attention backends.

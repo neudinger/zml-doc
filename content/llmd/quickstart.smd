@@ -4,17 +4,32 @@
 .date = .date("2026-11-17T00:00:00"),
 .layout = "content.shtml",
 ---
-Choose a checkpoint and run target. Use **Launch** to serve chat, Decision,
-or embeddings requests. The
-[model catalog]($link.page('llmd/models')) lists external drafter pairings,
-routine test configurations, and published recipes. Its **Configure launch**
-links select the exact target, backend, and drafter for a pairing.
-
-# [Configure launch]($heading.id('llmd-launch-settings-heading'))
+# [What you need to run a model]($heading.id('what-you-need'))
 
 ```=html
-<div class="llmd-launch" data-llmd-launch data-toc-parent="llmd-launch-settings-heading">
+<dl class="llmd-quickstart-concepts">
+  <div class="icon-server"><dt>LLMD</dt><dd>The server that runs the model and answers requests. Install it with Homebrew on Apple Silicon or pull the Docker image for your accelerator.</dd></div>
+  <div class="icon-boxes"><dt>Model</dt><dd>The weights and configuration files LLMD reads when it starts. LLMD can fetch them from Hugging Face or read a local copy.</dd></div>
+</dl>
+```
+
+# [Choose a loading method]($heading.id('loading-methods'))
+
+| Method | When to use it |
+| --- | --- |
+| **Load at launch** | LLMD can reach Hugging Face and fetch the model files when the server starts. |
+| **Download first** | You want a reusable local copy. Download the files on the host before starting LLMD. |
+| **Already downloaded** | The complete model is on this machine. Point LLMD to its existing directory. |
+
+```=html
+<div class="llmd-launch" data-llmd-launch data-toc-parent="loading-methods">
   <p id="llmd-benchmark" data-pagefind-ignore>Benchmarking (Work In Progress)</p>
+  <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../cli/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
+  <a id="checkpoint-storage" data-moved-topic data-pagefind-ignore href="../cli/model-and-listener/#local-model-files">Required model files</a>
+  <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../reference/environment/#gated-model-access">Gated model access</a>
+  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../cli/model-and-listener/#cloud-model-uris">S3 and Google Cloud Storage</a>
+  <details class="llmd-launch-configurator" data-configurator>
+  <summary id="llmd-launch-settings-heading" data-toc-label="Configure launch">Configure launch</summary>
   <div id="lfm3-fp8-metal"></div>
   <div id="lfm3-fp8-cuda"></div>
   <div id="lfm3-fp8-rocm"></div>
@@ -41,7 +56,7 @@ links select the exact target, backend, and drafter for a pairing.
   <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
   <div class="llmd-launch-layout">
     <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
-      <p class="llmd-launch-error" data-link-error role="status" hidden>The link contains an unlisted checkpoint, backend, or decoding mode for this drafter. Select the checkpoint and decoding settings to generate commands.</p>
+      <p class="llmd-launch-error" data-link-error role="status" hidden>The link contains an unlisted model, backend, or decoding mode for this drafter. Select the model and decoding settings to generate commands.</p>
       <div class="llmd-launch-recipe">
         <div class="llmd-launch-field">
           <label for="llmd-launch-backend">Run on</label>
@@ -63,7 +78,7 @@ links select the exact target, backend, and drafter for a pairing.
             </optgroup>
           </select>
           <span class="llmd-launch-field-hint llmd-launch-checkpoint-value" aria-hidden="true" data-selected-checkpoint></span>
-          <span class="llmd-launch-field-hint" id="llmd-launch-checkpoint-hint" role="status" data-fit></span>
+          <span class="llmd-launch-field-hint" id="llmd-launch-checkpoint-hint"><span role="status" data-fit></span> <a href="../models/">Model compatibility</a></span>
         </div>
         <div class="llmd-launch-field">
           <label for="llmd-launch-source">Model source</label>
@@ -72,14 +87,18 @@ links select the exact target, backend, and drafter for a pairing.
             <option value="download">Download first</option>
             <option value="local">Already downloaded</option>
           </select>
-          <span class="llmd-launch-field-hint" id="llmd-launch-source-hint" data-hint></span>
+          <span class="llmd-launch-field-hint" id="llmd-launch-source-hint"><span data-hint></span> <span data-download-tools hidden>Requires <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> on the host.</span></span>
+          <details class="llmd-launch-field-hint" data-source-help>
+            <summary>Access and storage</summary>
+            <a href="../reference/environment/#gated-model-access">Gated model access</a><span data-cloud-help> · <a href="../cli/model-and-listener/#cloud-model-uris">S3 and Google Cloud Storage</a></span>
+          </details>
         </div>
       </div>
       <div class="llmd-launch-storage">
         <div class="llmd-launch-field" data-local hidden>
-          <label for="llmd-launch-directory">Host checkpoint directory</label>
+          <label for="llmd-launch-directory">Host model directory</label>
           <textarea id="llmd-launch-directory" name="directory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-directory-error">${HOME}/models/LiquidAI/LFM3-1.7B</textarea>
-          <span class="llmd-launch-field-hint" id="llmd-launch-directory-hint">Enter one path, such as ${HOME}/models/org/checkpoint. Omit <code>..</code> and trailing spaces.</span>
+          <span class="llmd-launch-field-hint" id="llmd-launch-directory-hint">Use a directory under <code>${HOME}</code> for the model’s <code>config.json</code> and weights. <a href="../cli/model-and-listener/#local-model-files">Required model files</a></span>
           <span class="llmd-launch-field-error" id="llmd-launch-directory-error" data-field-error="directory" aria-live="polite"></span>
         </div>
         <div class="llmd-launch-field" data-decoding-field>
@@ -87,11 +106,11 @@ links select the exact target, backend, and drafter for a pairing.
           <select id="llmd-launch-decoding" name="decoding" aria-describedby="llmd-decoding-hint">
             <option value="standard">Standard</option>
           </select>
-          <span class="llmd-launch-field-hint" id="llmd-decoding-hint" data-decoding-hint></span>
+          <span class="llmd-launch-field-hint" id="llmd-decoding-hint"><span data-decoding-hint></span> <a href="../cli/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a></span>
           <div class="llmd-launch-field" data-drafter-field hidden>
-            <label for="llmd-launch-drafter">Drafter checkpoint</label>
+            <label for="llmd-launch-drafter">Drafter model</label>
             <select id="llmd-launch-drafter" name="drafter" disabled aria-describedby="llmd-drafter-hint llmd-drafter-error"></select>
-            <span class="llmd-launch-field-hint" id="llmd-drafter-hint">Choose an external drafter listed for this exact target checkpoint.</span>
+            <span class="llmd-launch-field-hint" id="llmd-drafter-hint">Choose an external drafter listed for this exact target model.</span>
             <span class="llmd-launch-field-error" id="llmd-drafter-error" data-field-error="drafter" aria-live="polite"></span>
           </div>
         </div>
@@ -113,7 +132,7 @@ links select the exact target, backend, and drafter for a pairing.
         <div class="llmd-launch-field-hint" id="llmd-launch-drafter-path" data-drafter-path hidden>
           <strong>Host drafter directory</strong>
           <code data-drafter-directory></code>
-          Download the drafter from the Drafter tab or reuse the files in this directory.
+          Use the Download drafter step below or reuse the files in this directory.
           <span data-docker hidden>Docker mounts it read-only at <code>/drafter</code>.</span>
         </div>
       </fieldset>
@@ -224,43 +243,23 @@ links select the exact target, backend, and drafter for a pairing.
           <label class="llmd-launch-checkbox">
             <input name="hfToken" type="checkbox" aria-describedby="llmd-launch-token-hint"> Forward <code>HF_TOKEN</code>
           </label>
-          <p class="llmd-launch-hint" id="llmd-launch-token-hint">Check to pass the host's Hugging Face token to Docker.</p>
+          <p class="llmd-launch-hint" id="llmd-launch-token-hint">Pass the host’s token to Docker for <a href="../reference/environment/#gated-model-access">gated model access</a>.</p>
         </div>
       </details>
     </form>
     <div class="llmd-launch-commands">
-      <div class="llmd-launch-switch" role="group" aria-label="Quickstart commands" data-command-choices data-pagefind-ignore hidden>
-        <button type="button" data-command-choice="download" aria-controls="download-checkpoint" aria-pressed="false" hidden>Download</button>
-        <button type="button" data-command-choice="drafter-download" aria-controls="download-drafter" aria-pressed="false" hidden>Drafter</button>
-        <button type="button" data-command-choice="launch" aria-controls="llmd-launch-steps" aria-pressed="true">Launch</button>
-      </div>
       <dl class="llmd-launch-context" aria-label="Server connection">
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
         <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
       </dl>
       <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the fields with errors to update the affected commands.</p>
-      <section id="download-checkpoint" data-toc-label="Download checkpoint" data-command-panel="download" data-pagefind-ignore hidden>
-        <h2>Download checkpoint</h2>
-        <p class="llmd-launch-hint">Run on the LLMD host. This requires uv and access to Hugging Face.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="download"></code></pre>
-        </div>
-      </section>
-      <section id="download-drafter" data-toc-label="Download drafter" data-command-panel="drafter-download" data-pagefind-ignore hidden>
-        <h2>Download drafter</h2>
-        <p class="llmd-launch-hint">Download once on the LLMD host, or reuse an existing copy at this path.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="drafter-download"></code></pre>
-        </div>
-      </section>
-      <section id="llmd-launch-steps" data-command-panel="launch" aria-label="Launch commands" tabindex="-1">
-        <details id="before-you-start" class="llmd-launch-requirements">
-          <summary>Before you run</summary>
+      <section id="llmd-launch-steps" aria-label="Launch commands" tabindex="-1">
+        <div id="before-you-start" class="llmd-launch-requirements" data-toc-label="Before you run">
+          <h3>Before you run</h3>
           <p data-requirements>Use Apple Silicon, macOS Tahoe or later, and Homebrew. Use LLMD 20261112.0 or later on M1 and M2.</p>
           <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Send requests from the TPU VM using the host port.</p>
-          <div data-furiosa-requirements hidden>
+          <details data-furiosa-requirements hidden>
+            <summary>Furiosa device setup</summary>
             <p><strong>Install the device tools.</strong> Furiosa supports Docker Engine 25 or later. The Container Device Interface (CDI) tools require Linux kernel 6.3 or later and administrator access. On Ubuntu 22.04 LTS, Debian 12, or later, add Furiosa's package repository and install the RNGD driver first. See the <a href="https://developer.furiosa.ai/latest/en/get_started/prerequisites.html">host prerequisites</a>.</p>
             <pre><code class="sh">sudo apt update
 sudo apt install furiosa-cdi
@@ -280,49 +279,65 @@ furiosa-cdi list</code></pre>
             <p><strong>Expose the DMA allocator.</strong> <code>--device=/dev/dma_heap/system</code> passes the Linux DMA-BUF system heap into the container. The runtime uses it to allocate host buffers for transfers to and from RNGD. See the <a href="https://docs.kernel.org/userspace-api/dma-buf-heaps.html">Linux DMA-BUF heap documentation</a>.</p>
             <p><strong>Allow the driver syscalls.</strong> <code>--security-opt=seccomp=unconfined</code> disables Docker's seccomp filter for this container. The RNGD driver needs <code>io_uring_setup</code>, <code>io_uring_enter</code>, and <code>io_uring_register</code>, which the default filter can block. To retain syscall filtering, replace the option with <code>--security-opt seccomp=/path/to/profile.json</code> using a profile that allows those calls. See <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#container-runtime-support">Furiosa container runtime support</a>.</p>
             <p>With containerd (<code>ctr</code> or <code>nerdctl</code>) and CRI-O, use that runtime's CDI syntax. For details, see <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-using-cdi">Furiosa's CDI device assignment guide</a> or its <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-manually">manual device mapping</a>.</p>
-          </div>
-        </details>
-        <div class="llmd-launch-step">
-          <h2 id="install-llmd" data-toc-label="Install LLMD or pull the image"><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></h2>
+          </details>
+        </div>
+        <details class="llmd-launch-step" id="install-llmd" data-toc-label="Install LLMD or pull the image">
+          <summary><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></summary>
           <p class="llmd-launch-hint" data-setup-hint>Run once to install LLMD with Homebrew.</p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
             <pre><code class="sh" data-command="setup" data-copy-label="Copy LLMD setup command">brew install zml/zml/llmd</code></pre>
           </div>
-        </div>
-        <div class="llmd-launch-step">
-          <h2 id="start-the-server" data-toc-label="Start LLMD"><span class="llmd-launch-step-number">2</span> Start LLMD</h2>
-          <p class="llmd-launch-hint" data-launch-hint>Run each time you start the server.</p>
+        </details>
+        <details class="llmd-launch-step" id="download-checkpoint" data-toc-label="Download model" data-model-download-step data-pagefind-ignore hidden>
+          <summary><span class="llmd-launch-step-number"></span> Download model</summary>
+          <p class="llmd-launch-hint">Run on the LLMD host with access to Hugging Face.</p>
+          <div class="command-shell">
+            <span class="command-language icon-code">Host shell</span>
+            <pre><code class="sh" data-command="download" data-copy-label="Copy model download command"></code></pre>
+          </div>
+        </details>
+        <details class="llmd-launch-step" id="download-drafter" data-toc-label="Download drafter" data-drafter-download-step data-pagefind-ignore hidden>
+          <summary><span class="llmd-launch-step-number"></span> Download drafter</summary>
+          <p class="llmd-launch-hint">Download with <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> on the host. Skip this command if the drafter is already in this directory.</p>
+          <div class="command-shell">
+            <span class="command-language icon-code">Host shell</span>
+            <pre><code class="sh" data-command="drafter-download" data-copy-label="Copy drafter download command"></code></pre>
+          </div>
+        </details>
+        <details class="llmd-launch-step" id="start-the-server" data-toc-label="Start LLMD">
+          <summary><span class="llmd-launch-step-number">2</span> Start LLMD</summary>
+          <p class="llmd-launch-hint"><span data-launch-hint>Run each time you start the server.</span> <a href="../../operations/deployment/">Deployment guide</a></p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
             <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
   --model=hf://LiquidAI/LFM3-1.7B</code></pre>
           </div>
-        </div>
+        </details>
       </section>
       <div class="llmd-launch-requests">
         <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
-        <section id="check-the-loaded-model" data-toc-label="Check the loaded model">
-          <h2><span class="llmd-launch-step-number">3</span> Check the loaded model</h2>
+        <details class="llmd-launch-step" id="check-the-loaded-model" data-toc-label="Check the loaded model">
+          <summary><span class="llmd-launch-step-number">3</span> Check the loaded model</summary>
           <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Expect <code data-expected-model-id>LFM3-1.7B</code> in <code>data[0].id</code>.</p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
             <pre><code class="sh" data-command="models" data-copy-label="Copy model check command">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
           </div>
-        </section>
-        <section id="first-request" data-toc-label="Send a request">
-          <h2><span class="llmd-launch-step-number">4</span> Send a request</h2>
+        </details>
+        <details class="llmd-launch-step" id="first-request" data-toc-label="Send a request">
+          <summary><span class="llmd-launch-step-number">4</span> Send a request</summary>
           <div class="llmd-launch-field" data-request-type hidden>
             <label for="llmd-request-type">Request type</label>
             <select id="llmd-request-type" name="request" form="llmd-launch-form" aria-describedby="llmd-request-hint">
               <option value="chat">Chat</option>
               <option value="decision">Decision</option>
             </select>
-            <span class="llmd-launch-field-hint" id="llmd-request-hint">Choose the endpoint for the first request to this checkpoint.</span>
+            <span class="llmd-launch-field-hint" id="llmd-request-hint">Choose the endpoint for the first request to this model.</span>
           </div>
           <div id="send-a-chat-request" data-chat-request>
             <h3>Chat request</h3>
-            <p class="llmd-launch-hint">Run this after verification. Look for the reply in <code>choices[0].message.content</code>.</p>
+            <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../api/chat-completions/">Chat API</a></p>
             <div class="command-shell">
               <span class="command-language icon-code">Host shell</span>
               <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -332,7 +347,7 @@ furiosa-cdi list</code></pre>
           </div>
           <div id="send-a-decision-request" data-decision-request>
             <h3>Decision request</h3>
-            <p class="llmd-launch-hint">Send the state and questions to the loaded checkpoint. Read the selected animal in <code>answers.animal.label</code>. To format a successful JSON response, append <code>| jq .</code>.</p>
+            <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../decision/">Decision guide</a> · <a href="../api/decision/">API reference</a></p>
             <div class="command-shell">
               <span class="command-language icon-code">Host shell</span>
               <pre><code class="sh" data-command="decision" data-copy-label="Copy Decision request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
@@ -349,7 +364,7 @@ furiosa-cdi list</code></pre>
           </div>
           <div id="send-an-embeddings-request" data-embeddings-request>
             <h3>Embeddings request</h3>
-            <p class="llmd-launch-hint">With <code>Qwen/Qwen3-Embedding-8B</code> loaded, send text to <code>POST /v1/embeddings</code>. The first vector is in <code>data[0].embedding</code>. To inspect its length and first four values, append <code>| jq '.data[0].embedding | {length: length, first_four: .[:4]}'</code>.</p>
+            <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../text-similarity/">Text similarity guide</a> · <a href="../api/embeddings/">API reference</a></p>
             <noscript><p>For this example, use <code>--model=hf://Qwen/Qwen3-Embedding-8B</code> in the launch command above.</p></noscript>
             <div class="command-shell">
               <span class="command-language icon-code">Host shell</span>
@@ -361,83 +376,14 @@ furiosa-cdi list</code></pre>
   }'</code></pre>
             </div>
           </div>
-        </section>
+        </details>
       </div>
     </div>
   </div>
+  </details>
 </div>
 ```
 
-To build a Decision request, see [Ask structured questions]($link.page('llmd/decision'))
-and the [Decision API reference]($link.page('llmd/api/decision').ref('decision')).
-To use embedding vectors, see [Compare texts with embeddings]($link.page('llmd/text-similarity'))
-and the [Embeddings API reference]($link.page('llmd/api/embeddings').ref('embeddings')).
-For streaming and tool calls, see [Chat completions]($link.page('llmd/api/chat-completions')).
-To route traffic to a verified instance, follow the
-[deployment guide]($link.page('operations/deployment').ref('route-client-traffic')).
-
-# [Decoding mode]($heading.id('decoding-mode'))
-
-- **Standard** leaves speculative decoding off. Leave the LLMD overrides blank
-  to use its default batch size, context length, and memory settings.
-- **Native MTP** uses the drafter bundled with the checkpoint. LLMD receives
-  `--speculative-drafter-model=native`, and only the main checkpoint needs to be downloaded.
-- **External drafter** enables the **Drafter checkpoint** selector. Choose
-  an exact repository ID for the target, including its precision variant.
-  Load the drafter from Hugging Face at launch or download it under
-  `${HOME}/models/<org>/<drafter>`. Docker mounts a local drafter read-only at
-  `/drafter`. On Apple Silicon, LLMD opens the host directory directly.
-
-The published **DSpine** recipe for Qwen3.8-27B on CUDA and ROCm uses its own
-drafter and batch size 1. **External drafter** and **Native MTP** use LLMD's
-default batch size and draft count. See the
-[CLI examples]($link.page('llmd/cli/sampling-and-decoding').ref('choose-a-decoding-mode')).
-
-# [Checkpoint storage]($heading.id('checkpoint-storage'))
-
-- **Load at launch** reads the checkpoint from Hugging Face when LLMD starts.
-- **Download first** generates a **Download** command for the selected checkpoint.
-  Install [uv](https://docs.astral.sh/uv/getting-started/installation/) on the LLMD
-  host, then run **Download** before **Launch**. The default directory is
-  `${HOME}/models/<org>/<checkpoint>`.
-- **Already downloaded** uses the existing **Host checkpoint directory**. The
-  launch command mounts it read-only at `/model` in Docker or passes its path
-  directly to a native LLMD installation.
-
-For either local option, select the directory containing `config.json`. Keep
-the tokenizer, Safetensors weights, any weight index and shards, and any
-provided chat template or generation settings together from the same revision.
-For Qwen3-Embedding-8B, download the complete checkpoint, including the
-sentence-transformers module and pooling configuration files.
-To pin a download, add `--revision <commit>` to the generated download command
-and use a separate directory for that revision.
-
-## [Gated checkpoints]($heading.id('gated-checkpoints'))
-
-Request access on the Hugging Face model page and export `HF_TOKEN` with read
-access. For a download, `uvx --from huggingface_hub hf auth login` can also
-save the token on the host. To load from Hugging Face at launch in Docker,
-enable **Forward HF_TOKEN** under **Launch options**. See
-[Model storage and credentials]($link.page('llmd/reference/environment').unsafeRef('model-storage-and-credentials'))
-for token lookup and how to pin a Hugging Face revision at launch.
-
-## [S3 or Google Cloud Storage]($heading.id('cloud-checkpoints'))
-
-Keep the complete checkpoint under one bucket prefix. Choose **Load at launch**,
-then replace `--model` in the generated launch command with
-`--model=s3://my-bucket/llm/checkpoint` or `--model=gs://my-bucket/llm/checkpoint`.
-Configure credentials for the process that runs LLMD. See
-[Model storage and credentials]($link.page('llmd/reference/environment').unsafeRef('model-storage-and-credentials'))
-and [passing variables and credential files to Docker]($link.page('llmd/reference/environment').unsafeRef('pass-variables-to-docker')).
-
-# [Troubleshooting]($heading.id('troubleshooting'))
-
-- **The connection is refused.** Check the startup output for model access,
-  compilation, or memory errors. Retry the model check once LLMD starts listening.
-- **The port is in use.** Change Host port in Launch options. Both requests
-  update to use that port.
-- **The chat request fails.** Compare the ID returned by the model check with
-  the model ID in the chat request.
-- **LLMD runs out of memory.** Check the checkpoint and accelerator
-  [requirements]($link.page('llmd/reference/compatibility')). Try a smaller
-  checkpoint or reduce batch size in Launch options.
+```=html
+<p><a id="troubleshooting" data-moved-topic href="../../operations/monitoring/#diagnose-common-failures">Troubleshoot startup</a></p>
+```

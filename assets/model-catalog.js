@@ -41,7 +41,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     "Google TPU": { key: "tpu", short: "TPU" },
     "Furiosa RNGD": { key: "furiosa", short: "RNGD" },
   };
-  table.setAttribute("aria-label", "Checkpoint compatibility by backend");
+  table.setAttribute("aria-label", "Model compatibility by backend");
   table.setAttribute("role", "table");
   table.createTHead().append(header);
   header.cells[0].scope = "col";
@@ -106,7 +106,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   const precisions = new Set();
   const models = rows.map(row => {
     const series = row.cells[1].textContent.trim();
-    return { row, name: row.cells[0].textContent.trim(), series, familyName: modelFamily(series) || "Other checkpoints" };
+    return { row, name: row.cells[0].textContent.trim(), series, familyName: modelFamily(series) || "Other models" };
   });
   models.sort((a, b) => compareNames(a.familyName, b.familyName) || compareCheckpoints(a.name, b.name));
   for (const { row, name, series, familyName } of models) {
@@ -253,7 +253,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     if (family) {
       familySelect.value = family.name;
       familyHeading.textContent = family.name;
-      familyCount.textContent = quantity(family.checkpointCount, "checkpoint");
+      familyCount.textContent = quantity(family.checkpointCount, "model");
     }
     selectRecipe(family?.matches.includes(selected) ? selected : family?.matches[0] ?? null);
   }
@@ -309,7 +309,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
       if (!visibleCheckpoints) continue;
 
       family.count.textContent = String(visibleCheckpoints);
-      family.button.setAttribute("aria-label", `${family.name}, ${quantity(visibleCheckpoints, "checkpoint")}`);
+      family.button.setAttribute("aria-label", `${family.name}, ${quantity(visibleCheckpoints, "model")}`);
       family.option.textContent = `${family.name} (${visibleCheckpoints})`;
       offeredFamilies.push(family);
       checkpointCount += visibleCheckpoints;
@@ -321,8 +321,8 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     navigator.hidden = !empty.hidden;
     status.textContent = [
       quantity(offeredFamilies.length, "family", "families"),
-      quantity(checkpointCount, "checkpoint"),
-      quantity(recipeCount, "checkpoint/backend pair"),
+      quantity(checkpointCount, "model"),
+      quantity(recipeCount, "model/backend pair"),
     ].join(" · ");
     showFamily(offeredFamilies.includes(preferredFamily) ? preferredFamily
       : offeredFamilies.includes(activeFamily) ? activeFamily : offeredFamilies[0]);

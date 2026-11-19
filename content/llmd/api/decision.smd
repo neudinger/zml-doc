@@ -8,7 +8,7 @@
 # [Send a Decision request]($heading.id('decision'))
 
 `POST /v1/systemone` accepts a JSON object and returns scored labels for the
-requested questions. The loaded checkpoint must support Decision. Use the
+requested questions. The loaded model must support Decision. Use the
 [worked request]($link.page('llmd/decision').ref('send-a-decision-request'))
 or copy one from the [quickstart]($link.page('llmd/quickstart').unsafeRef('send-a-decision-request')).
 
@@ -18,7 +18,7 @@ or copy one from the [quickstart]($link.page('llmd/quickstart').unsafeRef('send-
 | `questions` | Object, required | Maps question IDs to definitions. IDs must be nonempty and exclude the colon character. Send dependencies before the questions that reference them. |
 | `instructions` | String, optional | System instructions shared by all questions. |
 | `ask` | Array of question IDs, optional | Select the questions to answer. Include every dependency of the selected questions. Omitting this field asks all questions. |
-| `model` | String, optional | The endpoint uses the checkpoint already loaded by LLMD. The field can be omitted. |
+| `model` | String, optional | The endpoint uses the model already loaded by LLMD. The field can be omitted. |
 
 # [Question kinds and dependencies]($heading.id('question-kinds-and-dependencies'))
 
@@ -78,5 +78,5 @@ object. For `DuplicateOptionToken`, choose labels whose first tokens differ.
 LLMD revision `ca575167` limits the request body to 4 MiB, accepts 1–1,024
 questions, and scores 2–16 options per question. Its Decision path is enabled
 for the LFM3 model implementation. See the [Decision catalog]($link.page('llmd/models').unsafeRef('decision-checkpoints'))
-for checkpoint and build evidence, and [Parallel work and Decision requests]($link.page('llmd/cli/batching-and-memory').ref('parallel-work-and-decision-requests'))
+for model and build evidence, and [Parallel work and Decision requests]($link.page('llmd/cli/batching-and-memory').ref('parallel-work-and-decision-requests'))
 for the per-request concurrency control `--systemone-window`.

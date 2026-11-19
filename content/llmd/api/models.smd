@@ -26,9 +26,9 @@ curl -fsS http://127.0.0.1:8000/v1/models
 Use `data[0].id` as the `model` field in a
 [chat completion]($link.page('llmd/api/chat-completions').ref('create-a-chat-completion')).
 The CLI's `--model-name` sets the ID. When omitted, LLMD uses the basename
-of `--model`. Start a server with a different checkpoint to serve a different
-model. See [Checkpoint storage]($link.page('llmd/quickstart').ref('checkpoint-storage'))
-for model sources and downloads.
+of `--model`. To serve another model, start LLMD with its path or URI.
+See [Model and listener flags]($link.page('llmd/cli/model-and-listener').ref('model-and-listener'))
+for local model files and supported URIs.
 
 # [Check service health and errors]($heading.id('check-service-health-and-errors'))
 

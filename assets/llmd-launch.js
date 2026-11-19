@@ -39,8 +39,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     { id: "deepseek-v4-1-flash-rocm", checkpoint: "deepseek-ai/DeepSeek-V4.1-Flash", backend: "rocm" },
     { id: "mistral-large-4-cuda", checkpoint: "mistralai/Mistral-Large-4-1T-A52B", backend: "cuda", shm: "32GB" },
   ];
-  const gemmaPreset = { id: "gemma-4-31b-it-cuda", checkpoint: "google/gemma-4-31B-it", backend: "cuda", evidence: "Local checkpoint example for NVIDIA CUDA." };
-  const launchFragments = ["before-you-start", "install-llmd", "start-the-server", "check-the-loaded-model", "first-request", "send-a-chat-request", "send-a-decision-request", "send-an-embeddings-request"];
+  const gemmaPreset = { id: "gemma-4-31b-it-cuda", checkpoint: "google/gemma-4-31B-it", backend: "cuda", evidence: "Local model example for NVIDIA CUDA." };
   const overrides = [
     ["context", "max-context-len"],
     ["batch", "batch-size"],
@@ -63,7 +62,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
   function directoryError(directory) {
     const prefix = homePrefix + "/";
     if (!directory.startsWith(prefix)) {
-      return "Start the path with ${HOME}/, for example ${HOME}/models/org/checkpoint.";
+      return "Start the path with ${HOME}/, for example ${HOME}/models/org/model.";
     }
     if (/[\r\n\u0000]|\p{White_Space}$/u.test(directory)) {
       return "Remove line breaks, null characters, or whitespace at the end of the path.";
@@ -73,7 +72,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       return "Remove the .. path component and use a subdirectory of ${HOME}.";
     }
     if (!parts.some(part => part && part !== ".")) {
-      return "Add a subdirectory after ${HOME}/, such as models/org/checkpoint.";
+      return "Add a subdirectory after ${HOME}/, such as models/org/model.";
     }
     return "";
   }
@@ -247,9 +246,8 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     const form = root.querySelector("form");
     const part = name => root.querySelector(`[data-${name}]`);
     const field = name => form.elements.namedItem(name);
-    const commandButtons = [...root.querySelectorAll("[data-command-choice]")];
-    const commandPanels = Object.fromEntries([...root.querySelectorAll("[data-command-panel]")]
-      .map(panel => [panel.dataset.commandPanel, panel]));
+    const configurator = part("configurator");
+    const steps = [...root.querySelectorAll(".llmd-launch-step")];
     const codeBlocks = [...root.querySelectorAll("code[data-command]")];
     const checkpointField = field("checkpoint");
     const backendField = field("backend");
@@ -302,7 +300,6 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     checkpointField.value = checkpoint;
     let legacyPreset = null;
     let invalidLink = false;
-    let activeCommand = "launch";
 
     function show(name, visible) {
       const element = part(name);
@@ -359,7 +356,6 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       refreshRequest(request);
       drafterSourceField.value = "hub";
       updateCheckpointDirectory();
-      activeCommand = "launch";
     }
 
     function applyPreset(id) {
@@ -367,15 +363,16 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       const useDspine = typeof id === "string" && id.endsWith("-dspine");
       const presetId = useDspine ? id.slice(0, -"-dspine".length) : id;
       const preset = gemma ? gemmaPreset : presets.find(item => item.id === presetId);
-      if (!preset || (useDspine && !preset.dspine)) return;
+      if (!preset || (useDspine && !preset.dspine)) return false;
       legacyPreset = preset;
       if (gemma) field("source").value = "download";
       selectLaunch(preset, useDspine ? "dspine" : "standard");
+      return true;
     }
 
     function applyQuery() {
       const query = new URLSearchParams(window.location.search);
-      const checkpoint = query.get("checkpoint");
+      const checkpoint = query.get("model") ?? query.get("checkpoint");
       const backend = query.get("backend");
       const decoding = query.get("decoding");
       const drafter = query.get("drafter");
@@ -389,14 +386,20 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       } else if (drafter !== null) {
         invalidLink = true;
       } else {
-        applyPreset(query.get("recipe"));
+        return applyPreset(query.get("recipe"));
       }
+      return true;
     }
 
     function applyFragment() {
       const fragment = window.location.hash.slice(1);
-      applyPreset(fragment);
-      if (launchFragments.includes(fragment)) activeCommand = "launch";
+      if (applyPreset(fragment)) return true;
+      if (fragment === "download-checkpoint") field("source").value = "download";
+      if (fragment === "download-drafter") {
+        if (decodingField.value !== "dspine" && decodingField.value !== "external"
+          && pairings.has(checkpointField.value)) refreshDecoding("external");
+        if (decodingField.value === "dspine" || decodingField.value === "external") drafterSourceField.value = "local";
+      }
       if (fragment === "send-a-chat-request") refreshRequest("chat");
       if (fragment === "send-a-decision-request") refreshRequest("decision");
       if (fragment === "send-an-embeddings-request") {
@@ -408,35 +411,17 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
           refreshRequest("embeddings");
         }
       }
-      if (fragment === "before-you-start") {
-        const requirements = part("requirements")?.closest("details");
-        if (requirements) requirements.open = true;
-      }
+      if (fragment === "before-you-start" && backendField.value === "furiosa") part("furiosa-requirements").open = true;
+      return false;
     }
 
-    function showCommands(commands, available) {
-      const focus = document.activeElement;
-      const focusedButton = commandButtons.find(button => button === focus);
-      const focusedPanel = Object.values(commandPanels).find(panel => panel.contains(focus));
-      const focusedShell = root.contains(focus) ? focus.closest(".command-shell") : null;
-      const canShow = key => available[key] && (key === "launch" || Boolean(commands[key]));
-      if (!canShow(activeCommand)) activeCommand = "launch";
-      show("command-choices", true);
+    function showCommands(commands) {
       show("error", !commands.launch);
-      let activeButton;
-      for (const button of commandButtons) {
-        const key = button.dataset.commandChoice;
-        const active = key === activeCommand;
-        button.hidden = !available[key];
-        button.disabled = !canShow(key);
-        button.setAttribute("aria-pressed", String(active));
-        commandPanels[key].hidden = !active;
-        if (active) activeButton = button;
+      let number = 0;
+      for (const step of steps) {
+        if (!step.hidden) step.querySelector(".llmd-launch-step-number").textContent = String(++number);
       }
       for (const code of codeBlocks) updateCode(code, commands[code.dataset.command]);
-      if ((focusedButton && (focusedButton.hidden || focusedButton.disabled)) || focusedPanel?.hidden || focusedShell?.hidden) {
-        activeButton?.focus();
-      }
     }
 
     function render() {
@@ -480,7 +465,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       settings.drafterDirectory = drafterDirectory;
       const listenAddress = hostListener ? parseListenAddress(settings.listenAddress) : "0.0.0.0";
       const errors = {
-        drafter: external && !drafter ? "This drafter is not listed for " + checkpoint + ". Choose a drafter checkpoint above." : "",
+        drafter: external && !drafter ? "This drafter is not listed for " + checkpoint + ". Choose a drafter model above." : "",
         directory: source === "hub" ? "" : directoryError(settings.directory),
         cacheDirectory: cacheDirectoryField.disabled ? "" : cacheDirectoryError(settings.cacheDirectory),
         port: integerError(settings.port, 65535, true),
@@ -506,11 +491,12 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       const loopback = listenAddress === "[::]" ? "[::1]" : "127.0.0.1";
       const clientAddress = listenAddress === "0.0.0.0" || listenAddress === "[::]" ? loopback : listenAddress;
       const endpoint = clientAddress && !errors.port ? clientAddress + ":" + Number(settings.port) : "";
-      const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true };
+      const downloadModel = source === "download";
+      const downloadDrafter = drafterSource === "local";
       const image = native ? "" : "zmlai/llmd:" + backend;
       const commands = {
-        download: available.download && !errors.directory ? downloadCommand(settings) : "",
-        "drafter-download": available["drafter-download"]
+        download: downloadModel && !errors.directory ? downloadCommand(settings) : "",
+        "drafter-download": downloadDrafter
           ? downloadCommand({ checkpoint: drafter, directory: drafterDirectory }) : "",
         setup: native ? "brew install zml/zml/llmd" : "docker pull " + image,
         launch: hasErrors ? "" : native ? nativeLaunchCommand(settings, listener)
@@ -525,6 +511,8 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
         show(type.key + "-request", selected);
       }
 
+      show("model-download-step", downloadModel);
+      show("drafter-download-step", downloadDrafter);
       show("local", source !== "hub");
       show("drafter-path", drafterSource === "local");
       show("hub", !hfTokenField.disabled);
@@ -541,8 +529,8 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       show("chat-request", requestType === "chat");
       const hints = {
         standard: "Use the model without a speculative drafter.",
-        native: "Use this checkpoint’s built-in multi-token prediction drafter. No separate download is required.",
-        external: drafter ? "LLMD will load " + drafter + "." : "Choose a drafter checkpoint.",
+        native: "Use this model’s built-in multi-token prediction drafter. No separate download is required.",
+        external: drafter ? "LLMD will load " + drafter + "." : "Choose a drafter model.",
         dspine: "Use " + drafter + " with LLMD 20261112.0 or later. Launch uses the published batch size of 1.",
       };
       setText("decoding-hint", hints[decoding]);
@@ -552,24 +540,30 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       setText("shm-hint", (recipeShm ? "Recipe setting passes --shm-size=" + recipeShm + "." : "Recipe setting uses the Docker default.")
         + " You can choose the Docker default or 1, 8, 32, or 256 GiB.");
       setText("launch-hint", hasErrors ? "Server command unavailable until the launch settings are valid." : "Run each time you start the server.");
-      setText("hint", source === "hub"
-        ? "LLMD reads the checkpoint from Hugging Face at startup."
-        : native ? "Use the checkpoint directory directly on this Mac."
-          : "Mount the checkpoint directory read-only from the Docker host.");
+      const sourceHints = {
+        hub: "Fetch from Hugging Face when LLMD starts.",
+        download: "Download the files before starting LLMD.",
+        local: native ? "LLMD reads the existing model directory directly on this Mac."
+          : "Docker mounts the existing model directory read-only at /model.",
+      };
+      setText("hint", sourceHints[source]);
+      show("download-tools", source === "download");
+      show("source-help", source !== "local");
+      show("cloud-help", source === "hub");
       setText("requirements", backendOptions.requirements);
       setText("selected-checkpoint", checkpoint);
       const published = legacyPreset || (decoding === "dspine" ? preset : null);
-      setText("fit", published ? published.evidence ?? "Published launch recipe for this checkpoint and accelerator."
+      setText("fit", published ? published.evidence ?? "Published launch recipe for this model and accelerator."
         : external ? "Reported target and drafter pairing. Check for a recorded run on this backend and LLMD build."
-        : routine ? "See Model compatibility for recorded results on this backend."
-        : requestType !== "chat" ? requestField.selectedOptions[0].textContent + " checkpoint. Verify that your LLMD build supports this checkpoint on the selected backend."
-        : preset ? preset.evidence ?? "A published recipe is available for this checkpoint and accelerator."
-        : "Confirm compatibility for this checkpoint and run target.");
+        : routine ? ""
+        : requestType !== "chat" ? requestField.selectedOptions[0].textContent + " model. Verify support for this model on the selected backend and LLMD build."
+        : preset ? preset.evidence ?? "A published recipe is available for this model and accelerator."
+        : "Confirm compatibility for this model and run target.");
       setText("endpoint", listener || "Enter a valid listener");
       setText("client-endpoint", endpoint || "Enter a valid host port");
       for (const element of root.querySelectorAll("[data-connect]")) element.hidden = hostListener && listener === endpoint;
       setText("expected-model-id", servedModelName(checkpoint));
-      showCommands(commands, available);
+      showCommands(commands);
     }
 
     form.addEventListener("submit", event => event.preventDefault());
@@ -588,29 +582,40 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       render();
     });
 
-    function renderFragment() {
+    function renderFragment(querySelected) {
       const target = document.getElementById(window.location.hash.slice(1));
-      const needsScroll = target?.closest("[hidden]");
-      applyFragment();
+      if (target?.matches("a[data-moved-topic]")) {
+        window.location.replace(target.href);
+        return;
+      }
+      const presetSelected = applyFragment();
       render();
-      if (needsScroll && !target.closest("[hidden]")) target.scrollIntoView();
+      const inside = target && configurator.contains(target);
+      if (!inside && !querySelected && !presetSelected) return;
+      configurator.open = true;
+      if (!inside && window.location.hash && !presetSelected) return;
+      const destination = inside && !target.closest("[hidden]") ? target : configurator.querySelector("summary");
+      for (let details = destination.closest("details"); configurator.contains(details); details = details.parentElement.closest("details")) {
+        details.open = true;
+      }
+      destination.scrollIntoView();
     }
     window.addEventListener("hashchange", () => {
-      if (!window.location.hash) applyQuery();
-      renderFragment();
+      renderFragment(!window.location.hash && applyQuery());
+    });
+    // A repeated table-of-contents link must reopen a step even when its hash is unchanged.
+    document.addEventListener("click", event => {
+      if (event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+      const link = event.target.closest('a[href^="#"]');
+      if (link?.hash && link.hash === window.location.hash && configurator.contains(document.getElementById(link.hash.slice(1)))) {
+        renderFragment(false);
+      }
     });
 
-    for (const button of commandButtons) {
-      button.addEventListener("click", () => {
-        activeCommand = button.dataset.commandChoice;
-        render();
-      });
-    }
     updateCheckpointDirectory();
     refreshDecoding();
     refreshRequest("chat");
-    applyQuery();
-    renderFragment();
     form.hidden = false;
+    renderFragment(applyQuery());
   }
 })();

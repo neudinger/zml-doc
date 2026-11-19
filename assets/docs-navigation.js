@@ -74,7 +74,8 @@ if (contents) {
       const hidden = !heading?.getClientRects().length;
       const item = conditionalItems.get(link);
       if (item && item.hidden !== hidden) item.hidden = hidden;
-      if (hidden) continue;
+      // Bookmarks inside a closed disclosure can open it, but cannot mark the current section.
+      if (hidden || heading.closest("details:not([open]) > :not(summary)")) continue;
       const top = heading.getBoundingClientRect().top;
       first ??= link;
       last = link;

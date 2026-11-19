@@ -14,7 +14,7 @@ asks a follow-up for cats, and rates playfulness on a three-label scale.
 In the [Decision catalog]($link.page('llmd/models').unsafeRef('decision-checkpoints')),
 choose `LiquidAI/LFM3-1.7B` and your backend, then choose **Configure launch**.
 The catalog also lists the StartLux Decision v1.1 Instant and AutoThink
-checkpoints. Use the [quickstart]($link.page('llmd/quickstart')) to start LLMD
+models. Use the [quickstart]($link.page('llmd/quickstart')) to start LLMD
 and check the loaded model with `GET /v1/models`.
 
 In a second terminal, send this request to the running server. The command

@@ -26,7 +26,7 @@ The diagram lists BPE, WordPiece and SentencePiece. On the return path, output
 parsers extract reasoning traces and tool calls from model output.
 
 - **Scheduling and cache.** The scheduler continuously batches requests, mixes prefill and decode work, and can split long prefills into chunks. A paged KV cache holds attention state and enables prefix reuse.
-- **Speculative decoding.** A drafter proposes tokens for the target model to check. The diagram names DSpark, DFlash and DSpine. Find [external drafters for your checkpoint]($link.page('llmd/models').unsafeRef('external-drafters')).
+- **Speculative decoding.** A drafter proposes tokens for the target model to check. The diagram names DSpark, DFlash and DSpine. Find [external drafters for your model]($link.page('llmd/models').unsafeRef('external-drafters')).
 - **Execution and parallelism.** The host prepares the next step while the device runs. Tensor, expert and data parallelism distribute different parts of the work across devices.
 - **Weight preparation.** The engine can fuse, stack or swizzle weights into the layout a kernel expects. The diagram gives FP8, MXFP4 and NVFP4 as examples.
 
@@ -46,7 +46,7 @@ the DSpark drafter for speculative decoding.
 | mHC | Mixes residual streams before and after attention and expert computation. |
 | Paged caches | Window KV uses FP8. Compressed KV and indexer keys use FP4. |
 
-The [model compatibility catalog]($link.page('llmd/models')) lists the published launch recipes for this checkpoint.
+The [model compatibility catalog]($link.page('llmd/models')) lists the published launch recipes for this model.
 
 # [Kernel implementations]($heading.id('kernels'))
 
@@ -68,20 +68,20 @@ A dash means the diagram leaves that implementation unspecified.
 
 # [ZML compilation and execution]($heading.id('zml'))
 
-The engine uses ZML both to load weights and to run programs. Model code and
-checkpoint data take different paths to execution.
+ZML compiles the model code into an executable and loads the weights into
+device buffers for that executable.
 
 - **Tensor API and compiler.** Zig model code expresses operations such as matrix multiplication, gather, scan and sort. For example, `q.dot(k, .hd).softmax(.k)` computes a dot product followed by softmax. ZML generates MLIR using dialects including `stablehlo`, `sdy` and `func`, with one program per shape bucket. See the [Tensor API]($link.page('zml/api/tensor')).
 - **Kernel languages.** The compiler can embed custom kernels in the graph. The diagram names Triton, CuTe, CUDA Tile, FlyDSL, Mosaic, NKI, Metal and TCL.
 - **Sharding.** Tensor shardings express how data is placed on a device mesh with named axes. XLA partitions the computation accordingly. See [Run ZML across devices]($link.page('zml/sharding')).
-- **I/O.** ZML reads tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk and moves data between host and device using DMA. See [Load and inspect checkpoints]($link.page('zml/checkpoints')).
+- **I/O.** ZML reads tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk and moves data between host and device using DMA. See [Load and inspect model weights]($link.page('zml/checkpoints')).
 - **Execution and PJRT.** The runtime launches the compiled executable asynchronously with device buffers. The PJRT C API gives ZML a common plugin interface for compilation, data transfer and execution. See [Exe]($link.page('zml/api/exe')) and the [OpenXLA source](https://github.com/openxla/xla).
 
 # [Platforms]($heading.id('platforms'))
 
 The diagram pairs framework targets with runtimes and kernel languages. To
 deploy a server, check the [LLMD distributions]($link.page('llmd/reference/compatibility'))
-and the [checkpoint recipes]($link.page('llmd/models')) for your hardware.
+and the [model recipes]($link.page('llmd/models')) for your hardware.
 
 | Framework target | Runtime or architecture | Kernel languages shown |
 | --- | --- | --- |

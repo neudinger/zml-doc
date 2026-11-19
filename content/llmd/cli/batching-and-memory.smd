@@ -13,7 +13,7 @@ These defaults come from the LLMD source reviewed on 16 November 2026.
 | --- | --- | --- |
 | `--batch-size=<requests>` | `16` | Limit concurrent requests in a batch. |
 | `--token-batch-size=<tokens>` | `1024` | Limit the number of tokens processed in one inference step. |
-| `--max-context-len=<tokens>` | `128000` | Set the server context cap. Check the checkpoint limit and memory available. |
+| `--max-context-len=<tokens>` | `128000` | Set the server context cap. Check the model’s context length and the memory available. |
 | `--prefill-chunk-size=<tokens>` | `256` | Limit the prefill chunk for each sequence. |
 
 # [KV-cache pages and memory limits]($heading.id('kv-cache-and-memory-limits'))

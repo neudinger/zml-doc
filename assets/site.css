@@ -390,12 +390,46 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .prose pre code .token:is(.function, .builtin, .class-name, .property, .key, .attr-name, .variable) { color: var(--code-name); }
 .prose pre code .token:is(.comment, .shebang) { color: var(--code-comment); }
 .prose .bazel-platform-shell .token.zml-command { color: var(--code-keyword); }
+.llmd-quickstart-concepts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.8rem;
+  margin: 0.6rem 0 1.25rem;
+}
+.llmd-quickstart-concepts > div {
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr);
+  align-content: start;
+  gap: 0.3rem 0.6rem;
+  padding: 0.85rem;
+  border-radius: 0.5rem;
+  background: var(--code);
+}
+.llmd-quickstart-concepts > div::before {
+  content: "";
+  margin-block-start: 0.22rem;
+  block-size: 1.1rem;
+  background: var(--accent);
+  mask: var(--icon) center / contain no-repeat;
+}
+.llmd-quickstart-concepts dt { font-weight: 650; }
+.llmd-quickstart-concepts dd { grid-column: 2; margin: 0; color: var(--muted); }
 .llmd-launch {
   --llmd-launch-invalid: #ae193f;
   container-type: inline-size;
   margin-block: 1.5rem;
 }
 :root[data-theme="dark"] .llmd-launch { --llmd-launch-invalid: #ffa7bb; }
+.llmd-launch-configurator > summary {
+  inline-size: fit-content;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.35rem;
+  background: var(--text);
+  color: var(--background);
+  font-weight: 650;
+  cursor: pointer;
+}
+.llmd-launch-configurator[open] > summary { margin-block-end: 0.8rem; }
 .llmd-launch-layout, .llmd-launch-settings, .llmd-launch-commands {
   display: grid;
   min-inline-size: 0;
@@ -413,7 +447,8 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   border-radius: 0.55rem;
 }
 .llmd-launch [hidden] { display: none; }
-.llmd-launch #llmd-benchmark:not(:target) { display: none; }
+.llmd-launch :is(#llmd-benchmark, [data-moved-topic]):not(:target) { display: none; }
+.llmd-launch-field-hint summary { color: var(--accent); cursor: pointer; }
 .llmd-launch-recipe, .llmd-launch-storage, .llmd-launch-option-groups {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -524,7 +559,10 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .prose .llmd-launch-commands :is(h2, h3) { margin-block-end: 0.45rem; }
 .prose .llmd-launch-commands .llmd-launch-hint:empty { display: none; }
 .prose .llmd-launch-commands :is(.llmd-launch-hint + .command-shell, .command-shell + .llmd-launch-hint) { margin-block-start: 0.45rem; }
-.llmd-launch-step + .llmd-launch-step { margin-block-start: 1rem; }
+.llmd-launch-step { padding-block: 0.2rem; border-block-end: 1px solid var(--border); }
+.llmd-launch-step > summary { padding-block: 0.35rem; font-weight: 650; cursor: pointer; }
+.llmd-launch-step > summary::marker { color: var(--accent); }
+.llmd-launch-step[open] { padding-block-end: 0.75rem; }
 .llmd-launch-step-number {
   display: inline-grid;
   place-items: center;
@@ -535,23 +573,6 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   background: var(--selection);
   color: var(--accent);
   font-size: 0.8rem;
-}
-.llmd-launch-switch { display: flex; flex-wrap: wrap; gap: 0.25rem 0.45rem; border-block-end: 1px solid var(--border); }
-.llmd-launch-switch [data-command-choice] {
-  min-block-size: 2rem;
-  padding: 0.35rem 0.55rem;
-  border: 0;
-  border-block-end: 2px solid transparent;
-  background: transparent;
-  color: var(--text);
-  font: 650 0.85rem var(--font-sans);
-  cursor: pointer;
-}
-.llmd-launch-switch [data-command-choice]:hover:not(:disabled) { color: var(--accent); }
-.llmd-launch-switch [data-command-choice]:disabled { opacity: 0.55; cursor: default; }
-.llmd-launch-switch [aria-pressed="true"] {
-  border-image: linear-gradient(90deg, var(--neon)) 1;
-  color: var(--accent);
 }
 .llmd-launch-context {
   display: flex;
@@ -565,9 +586,6 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .llmd-launch-context dd { margin: 0; min-inline-size: 0; }
 .llmd-launch-requests {
   display: grid;
-  gap: 1rem;
-  border-block-start: 1px solid var(--border);
-  padding-block-start: 1rem;
 }
 .llmd-launch-requirements { margin-block-end: 0.55rem; font-size: 0.85rem; }
 .prose .llmd-launch-requirements p { margin-block: 0.25rem 0; color: var(--muted); }
@@ -907,14 +925,13 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   .sidebar-group a:is([aria-current="page"], [aria-current="location"]) { outline: 1px solid Highlight; }
   .sidebar-group a::before { forced-color-adjust: none; background: LinkText; opacity: 1; }
   .theme-toggle::before { forced-color-adjust: none; background: ButtonText; }
-  .llmd-launch-switch [aria-pressed="true"] { border-image: none; border-block-end-color: Highlight; color: Highlight; }
   .model-catalog-cell[aria-pressed="true"] { border-color: Highlight; color: Highlight; }
   .model-catalog-family-button[aria-pressed="true"] { outline: 1px solid Highlight; color: Highlight; }
 }
 
 @media (pointer: coarse) {
   :is(.product-tabs, .section-tabs) a { min-block-size: 44px; }
-  .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch-switch [data-command-choice] { min-block-size: 44px; }
+  .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch-configurator summary { min-block-size: 44px; }
   .llmd-launch-field :is(input, select, textarea) { font-size: 1rem; }
   .model-catalog-field :is(input, select), .model-catalog-cell, .model-catalog-family-button, .model-catalog-configure a { min-block-size: 44px; }
   .model-catalog-field :is(input, select) { font-size: 1rem; }

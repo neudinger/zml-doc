@@ -49,7 +49,7 @@ shows how to inspect the event stream with curl.
 
 # [Call tools from a client]($heading.id('call-tools-from-a-client'))
 
-Use a checkpoint and chat template that support tool calls. Pass function
+Use a model and chat template that support tool calls. Pass function
 definitions in `tools`. When the assistant returns a tool call, validate its
 name and arguments, run the function in the client, and send the result in a
 new completion. Include the original assistant message and a `tool` message
