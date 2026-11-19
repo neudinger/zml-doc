@@ -1,5 +1,5 @@
 ---
-.title = "Benchmark and profile ZML",
+.title = "ZML benchmarking (Work In Progress)",
 .description = "Separate build time from model execution and choose a profiler for the selected backend.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
@@ -25,5 +25,5 @@ lists the wrappers and the backends they enable.
 When comparing two configurations, keep the checkpoint, input, device, and
 build mode fixed. Compare startup separately from execution and use runs with
 profiling disabled for elapsed-time comparisons. For a running LLMD HTTP
-service, use the [LLMD benchmark]($link.page('operations/benchmarking')) to
-measure time to first token and generation throughput.
+service, use [LLMD service metrics]($link.page('operations/monitoring').ref('scrape-service-metrics'))
+to observe time to first token and generation throughput.

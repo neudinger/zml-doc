@@ -1,46 +1,15 @@
 ---
-.title = "Benchmarking",
-.description = "Configure the LLMD benchmark workload, concurrency, warm-up, and profiling.",
+.title = "CLI benchmarking (Work In Progress)",
+.description = "See the serving references for current LLMD configuration options.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "CLI Reference" },
 ---
-# [Run a benchmark]($heading.id('advanced-and-benchmark-flags'))
+```=html
+<span id="choose-a-prompt"></span><span id="configure-the-workload"></span><span id="capture-a-profile"></span>
+```
 
-The flags below are present in the reviewed LLMD source. Availability can
-vary by model, backend, and release. For a working command and an explanation
-of the reported metrics, see [Tune and benchmark LLMD]($link.page('operations/benchmarking')).
+# [Serving options]($heading.id('advanced-and-benchmark-flags'))
 
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--bench` | Off | Run the local prompt benchmark. |
-
-# [Choose a prompt]($heading.id('choose-a-prompt'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--bench-prompt=<text>` | Unset | Supply a benchmark prompt. The built-in prompt is `write a story` when no prompt option is set. |
-| `--bench-prompt-len=<words>` | Unset | Generate benchmark prompts of this length. Choose either this option or `--bench-prompt`. |
-| `--bench-prompt-file=<path>` | Unset | Read words for generated prompts from a file. Requires `--bench-prompt-len`. |
-
-# [Configure the workload]($heading.id('configure-the-workload'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--bench-concurrency=<requests>` | Batch size | Set the number of concurrent benchmark requests. |
-| `--bench-warmup-requests=<requests>` | Benchmark concurrency | Set the warm-up request count. |
-| `--bench-max-tokens=<tokens>` | `2048` | Set the completion token cap per benchmark request. |
-| `--bench-temperature=<number>` | `1.0` | Set benchmark sampling temperature. |
-| `--bench-stop-on-eos` | Off | Finish a benchmark generation when it emits an end-of-sequence token. |
-| `--speculative-synthetic-acceptance-rates=<rates>` | Unset | Supply comma-separated probabilities per draft position for benchmarks. It replaces normal draft verification. |
-
-# [Capture a profile]($heading.id('capture-a-profile'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--bench-profile` | Off | Capture a profile during the prompt benchmark. |
-| `--bench-profiler=<name>` | `nsys` on CUDA, `xprof` elsewhere | Choose the profiler. `nsys` requires CUDA. |
-| `--profile-dir=<path>` | `/tmp/xprof` | Set the profile output directory. |
-
-For server options, see [Scheduling and attention workers]($link.page('llmd/cli/batching-and-memory').ref('scheduling-and-attention-workers'))
-and [I/O implementation]($link.page('llmd/cli/model-and-listener').ref('io-implementation')).
+To configure a running server, see [Model and listener flags]($link.page('llmd/cli/model-and-listener'))
+and [Batching and memory]($link.page('llmd/cli/batching-and-memory')).

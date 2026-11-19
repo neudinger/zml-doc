@@ -141,6 +141,68 @@ test "URL normalization rejects invalid escapes and paths outside the site root"
     );
 }
 
+fn pairingTable(fixture: *Fixture, path: []const u8) ![]const u8 {
+    const html = try files.read(fixture.arena.allocator(), std.testing.io, try fixture.path(path));
+    const marker = std.mem.cut(u8, html, "data-llmd-pairings") orelse return error.MissingPairings;
+    return (std.mem.cut(u8, marker[1], "</table>") orelse return error.MissingPairings)[0];
+}
+
+fn checkDrafterHandoffs(fixture: *Fixture) !void {
+    const allocator = fixture.arena.allocator();
+    const catalog = try pairingTable(fixture, "dist/llmd/models/index.html");
+    const quickstart = try pairingTable(fixture, "dist/llmd/quickstart/index.html");
+    var checkpoints: std.StringHashMapUnmanaged(void) = .empty;
+    var pairs: std.StringHashMapUnmanaged(void) = .empty;
+    var quickstart_rows = std.mem.splitSequence(u8, quickstart, "</tr>");
+    while (quickstart_rows.next()) |row| {
+        var model = website.attributes(row, "data-checkpoint");
+        const checkpoint = model.next() orelse continue;
+        try std.testing.expect(!(try checkpoints.getOrPut(allocator, checkpoint)).found_existing);
+        var drafters = website.attributes(row, "data-drafter");
+        while (drafters.next()) |drafter| {
+            const pair = try std.mem.join(allocator, " ", &.{ checkpoint, drafter });
+            try std.testing.expect(!(try pairs.getOrPut(allocator, pair)).found_existing);
+        }
+    }
+    try std.testing.expect(checkpoints.count() >= 18);
+    try std.testing.expect(pairs.count() >= 53);
+
+    const backends = [_][]const u8{ "cuda", "rocm", "metal", "oneapi", "tpu", "furiosa" };
+    var rows = std.mem.splitSequence(u8, catalog, "</tr>");
+    while (rows.next()) |row| {
+        var model = website.attributes(row, "data-checkpoint");
+        const checkpoint = model.next() orelse continue;
+        try std.testing.expect(checkpoints.remove(checkpoint));
+        var items = std.mem.splitSequence(u8, row, "data-drafter=\"");
+        _ = items.next(); // Row label and target checkpoint link.
+        while (items.next()) |item| {
+            const drafter, const rest = std.mem.cutScalar(u8, item, '"') orelse return error.MissingDrafter;
+            try std.testing.expect(pairs.remove(try std.mem.join(allocator, " ", &.{ checkpoint, drafter })));
+            var linked: std.StringHashMapUnmanaged(void) = .empty;
+            var hrefs = website.attributes(rest, "href");
+            while (hrefs.next()) |href| {
+                const path, const query = std.mem.cutScalar(u8, href, '?') orelse continue;
+                try std.testing.expect(std.mem.endsWith(u8, path, "/llmd/quickstart/"));
+                var params: std.StringHashMapUnmanaged([]const u8) = .empty;
+                var fields = std.mem.splitScalar(u8, try std.mem.replaceOwned(u8, allocator, query, "&amp;", "&"), '&');
+                while (fields.next()) |field| {
+                    const key, const value = std.mem.cutScalar(u8, field, '=') orelse return error.InvalidUrl;
+                    try params.putNoClobber(allocator, key, try website.decode(allocator, value));
+                }
+                try std.testing.expectEqualStrings(checkpoint, params.get("checkpoint") orelse return error.MissingCheckpoint);
+                try std.testing.expectEqualStrings(drafter, params.get("drafter") orelse return error.MissingDrafter);
+                try std.testing.expectEqualStrings("external", params.get("decoding") orelse return error.MissingDecodingMode);
+                const backend = params.get("backend") orelse return error.MissingBackend;
+                try std.testing.expect(!(try linked.getOrPut(allocator, backend)).found_existing);
+            }
+            try std.testing.expectEqual(backends.len, linked.count());
+            for (backends) |backend| try std.testing.expect(linked.contains(backend));
+        }
+    }
+    try std.testing.expectEqual(@as(usize, 0), pairs.count());
+    try std.testing.expectEqual(@as(usize, 0), checkpoints.count());
+}
+
 test "render and validation failures preserve the last site; success removes stale output" {
     var fixture = try Fixture.init();
     defer fixture.deinit();
@@ -184,6 +246,7 @@ test "render and validation failures preserve the last site; success removes sta
     );
     try fixture.put("content/index.smd", original);
     _ = try website.build(allocator, std.testing.io, options);
+    try checkDrafterHandoffs(&fixture);
     try std.testing.expect(try files.exists(
         std.testing.io,
         try fixture.path("dist/index.html"),

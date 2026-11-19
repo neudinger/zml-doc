@@ -84,9 +84,8 @@ Use [zml-smi](https://zml.ai/posts/zml-smi/) on a supported host to list
 devices, and run `zml-smi --top` to view available utilization, memory, and
 temperature readings. With CUDA, `nvidia-smi` provides a host-side device and
 driver check. Compare those readings with the LLMD queue and token metrics for
-the same time window. See [Benchmarking flags]($link.page('llmd/cli/benchmarking')) for
-benchmark and profiling options and
-[Environment variables]($link.page('llmd/reference/environment')) for runtime diagnostics.
+the same time window. See [Environment variables]($link.page('llmd/reference/environment'))
+for runtime diagnostics.
 
 # [Diagnose common failures]($heading.id('diagnose-common-failures'))
 

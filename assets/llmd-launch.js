@@ -142,11 +142,11 @@
     return shellQuote("http://" + endpoint + "/v1/" + route);
   }
 
-  function llmdArguments(settings, modelArgument, run) {
+  function llmdArguments(settings, modelArgument) {
     const args = ["  --model=" + modelArgument];
     // A local directory may use a different basename, especially the /model bind mount.
     const modelName = servedModelName(settings.checkpoint);
-    if (!run.benchmark && settings.source !== "hub" &&
+    if (settings.source !== "hub" &&
         (settings.backend !== "metal" || servedModelName(settings.directory.replace(/\/+$/, "")) !== modelName)) {
       args.push("  --model-name=" + shellQuote(modelName));
     }
@@ -156,12 +156,8 @@
       const path = settings.drafterSource === "local" ? local : shellQuote("hf://" + settings.drafter);
       args.push("  --speculative-drafter-model=" + path);
     }
-    if (run.benchmark) {
-      args.push("  --bench");
-      return args;
-    }
     for (const [name, flag] of overrides) {
-      const value = name === "batch" ? settings.batch || run.defaultBatch : settings[name];
+      const value = settings[name];
       if (value) args.push("  --" + flag + "=" + Number(value));
     }
     return args;
@@ -180,17 +176,17 @@
     ].join("\n");
   }
 
-  function nativeLaunchCommand(settings, run) {
+  function nativeLaunchCommand(settings, listener) {
     const localCheckpoint = settings.source !== "hub";
     const model = localCheckpoint ? homePath(settings.directory) : shellQuote("hf://" + settings.checkpoint);
     const command = [
-      run.listener === "0.0.0.0:8000" ? "llmd" : "llmd --listen=" + shellQuote(run.listener),
-      ...llmdArguments(settings, model, run),
+      listener === "0.0.0.0:8000" ? "llmd" : "llmd --listen=" + shellQuote(listener),
+      ...llmdArguments(settings, model),
     ].join(continuation);
     return localCheckpoint || settings.drafterSource === "local" ? withAbsoluteHome(command) : command;
   }
 
-  function dockerLaunchCommand(settings, image, backendOptions, run) {
+  function dockerLaunchCommand(settings, image, backendOptions, listener) {
     const { backend, checkpoint, directory, source, cacheDirectory } = settings;
     const localCheckpoint = source !== "hub";
     const localDrafter = settings.drafterSource === "local";
@@ -198,10 +194,9 @@
     if (localCheckpoint) mounts.push({ name: "model", directory });
     if (localDrafter) mounts.push({ name: "drafter", directory: settings.drafterDirectory });
 
-    const lines = [run.benchmark ? "docker run --rm"
-      : "docker run " + (settings.runMode === "foreground" ? "--rm" : "-d") + " --name llmd"];
+    const lines = ["docker run " + (settings.runMode === "foreground" ? "--rm" : "-d") + " --name llmd"];
     if (backendOptions.hostNetwork) lines.push("  --net=host");
-    else if (!run.benchmark) lines.push("  -p 127.0.0.1:" + Number(settings.port) + ":" + Number(settings.listenPort));
+    else lines.push("  -p 127.0.0.1:" + Number(settings.port) + ":" + Number(settings.listenPort));
     lines.push(...backendOptions.devices.map(flag => "  " + flag));
     if (backend === "cuda") lines.push("  --gpus=" + shellQuote(settings.gpu));
     const shm = settings.shm === "recipe" ? backendOptions.shm : settings.shm;
@@ -216,8 +211,8 @@
     if (settings.hfToken) lines.push("  -e HF_TOKEN");
     const model = localCheckpoint ? "/model" : "hf://" + checkpoint;
     lines.push("  " + image);
-    if (run.listener !== "0.0.0.0:8000") lines.push("  --listen=" + shellQuote(run.listener));
-    lines.push(...llmdArguments(settings, shellQuote(model), run));
+    if (listener !== "0.0.0.0:8000") lines.push("  --listen=" + shellQuote(listener));
+    lines.push(...llmdArguments(settings, shellQuote(model)));
     const createCacheDirectory = cacheDirectory ? "mkdir -p -- " + shellQuote(cacheDirectory) + " &&\n" : "";
     const command = createCacheDirectory + lines.join(continuation);
     if (!mounts.length) return command;
@@ -261,6 +256,7 @@
     const checkpointField = field("checkpoint");
     const backendField = field("backend");
     const decodingField = field("decoding");
+    const drafterField = field("drafter");
     const requestField = field("request");
     const drafterSourceField = field("drafterSource");
     const hfTokenField = field("hfToken");
@@ -274,6 +270,10 @@
         mode: item.dataset.decoding, label: item.textContent.trim(), drafter: item.dataset.drafter,
       }));
       routineModes.set(row.dataset.checkpoint, modes);
+    }
+    const pairings = new Map();
+    for (const row of document.querySelectorAll("[data-llmd-pairings] tr[data-checkpoint]")) {
+      pairings.set(row.dataset.checkpoint, Array.from(row.querySelectorAll("li[data-drafter]"), item => item.dataset.drafter));
     }
     let checkpoint = checkpointField.value;
     const requestTypes = [
@@ -296,7 +296,11 @@
       part("routine-options").replaceChildren(...[...routineModes.keys()].map(name => new Option(name, name)));
       checkpointField.value = checkpoint;
     }
+    for (const name of pairings.keys()) {
+      if (!listed.has(name)) part("pairing-options").append(new Option(name, name));
+    }
     let legacyPreset = null;
+    let invalidLink = false;
     let activeCommand = "launch";
 
     function show(name, visible) {
@@ -318,14 +322,22 @@
       checkpoint = nextCheckpoint;
     }
 
-    function refreshDecoding(mode = decodingField.value) {
+    function refreshDecoding(mode = decodingField.value, preferredDrafter) {
       const checkpoint = checkpointField.value;
       const options = [...(routineModes.get(checkpoint) ?? [standard])];
+      const routineExternal = options.find(option => option.mode === "external");
+      const routineDrafter = routineExternal?.drafter;
+      const drafters = pairings.get(checkpoint) ?? (routineDrafter ? [routineDrafter] : []);
+      if (drafters.length && !routineExternal) {
+        options.push({ mode: "external", label: "External drafter" });
+      }
       if (presets.some(item => item.checkpoint === checkpoint && item.backend === backendField.value && item.dspine)) {
         options.push(dspine);
       }
       decodingField.replaceChildren(...options.map(option => new Option(option.label, option.mode)));
       decodingField.value = options.some(option => option.mode === mode) ? mode : "standard";
+      drafterField.replaceChildren(...drafters.map(id => new Option(id, id)));
+      drafterField.value = preferredDrafter ?? routineDrafter ?? drafters[0] ?? "";
     }
 
     function refreshRequest(preferred) {
@@ -338,10 +350,11 @@
       show("request-type", hasSpecialRequest);
     }
 
-    function selectLaunch(preset, mode, request = "chat") {
+    function selectLaunch(preset, mode, request = "chat", drafter) {
+      invalidLink = false;
       backendField.value = preset.backend;
       checkpointField.value = preset.checkpoint;
-      refreshDecoding(mode);
+      refreshDecoding(mode, drafter);
       refreshRequest(request);
       drafterSourceField.value = "hub";
       updateCheckpointDirectory();
@@ -364,11 +377,16 @@
       const checkpoint = query.get("checkpoint");
       const backend = query.get("backend");
       const decoding = query.get("decoding");
+      const drafter = query.get("drafter");
       const knownMode = routineModes.get(checkpoint)?.some(option => option.mode === decoding)
+        || (pairings.has(checkpoint) && (decoding === "external" || decoding === "standard"))
         || (decoding === "standard" && requestTypes.some(type => type.checkpoints.has(checkpoint)));
       if (Object.hasOwn(backends, backend) && knownMode) {
         legacyPreset = null;
-        selectLaunch({ checkpoint, backend }, decoding, query.get("request"));
+        selectLaunch({ checkpoint, backend }, decoding, query.get("request"), drafter);
+        invalidLink = drafter !== null && decoding !== "external";
+      } else if (drafter !== null) {
+        invalidLink = true;
       } else {
         applyPreset(query.get("recipe"));
       }
@@ -377,7 +395,6 @@
     function applyFragment() {
       const fragment = window.location.hash.slice(1);
       applyPreset(fragment);
-      if (fragment === "llmd-benchmark") activeCommand = "benchmark";
       if (launchFragments.includes(fragment)) activeCommand = "launch";
       if (fragment === "send-a-chat-request") refreshRequest("chat");
       if (fragment === "send-a-decision-request") refreshRequest("decision");
@@ -401,12 +418,10 @@
       const focusedButton = commandButtons.find(button => button === focus);
       const focusedPanel = Object.values(commandPanels).find(panel => panel.contains(focus));
       const focusedShell = root.contains(focus) ? focus.closest(".command-shell") : null;
-      const canShow = key => available[key] && (key === "launch" || key === "benchmark" || Boolean(commands[key]));
+      const canShow = key => available[key] && (key === "launch" || Boolean(commands[key]));
       if (!canShow(activeCommand)) activeCommand = "launch";
       show("command-choices", true);
-      show("server-context", activeCommand !== "benchmark");
-      show("server-requests", activeCommand !== "benchmark");
-      show("error", !commands.launch && activeCommand !== "benchmark");
+      show("error", !commands.launch);
       let activeButton;
       for (const button of commandButtons) {
         const key = button.dataset.commandChoice;
@@ -435,11 +450,13 @@
       const requestType = requestField.value;
       const embeddings = requestType === "embeddings";
       const routine = routineModes.get(checkpoint);
-      const profile = decoding === "dspine" ? dspine : routine?.find(option => option.mode === decoding);
-      const drafter = profile?.drafter || "";
+      const external = decoding === "external";
+      const drafter = external ? drafterField.value : decoding === "dspine" ? dspine.drafter : "";
       const drafterDirectory = drafter ? homePrefix + "/models/" + drafter : "";
       const defaultBatch = decoding === "dspine" ? 1 : legacyPreset?.batchSize;
       const recipeShm = preset?.shm ?? backendOptions.shm;
+      drafterField.disabled = !external;
+      show("drafter-field", external);
       part("drafter-source").disabled = !drafter;
       show("drafter-source", Boolean(drafter));
       batchField.disabled = decoding === "dspine";
@@ -457,10 +474,12 @@
       cacheDirectoryField.disabled = !furiosa || !persistCacheField.checked;
       batchField.placeholder = defaultBatch ? String(defaultBatch) : "LLMD default";
       const settings = Object.fromEntries(new FormData(form));
+      settings.batch ||= defaultBatch;
       settings.drafter = drafter;
       settings.drafterDirectory = drafterDirectory;
       const listenAddress = hostListener ? parseListenAddress(settings.listenAddress) : "0.0.0.0";
       const errors = {
+        drafter: external && !drafter ? "This drafter is not listed for " + checkpoint + ". Choose a drafter checkpoint above." : "",
         directory: source === "hub" ? "" : directoryError(settings.directory),
         cacheDirectory: cacheDirectoryField.disabled ? "" : cacheDirectoryError(settings.cacheDirectory),
         port: integerError(settings.port, 65535, true),
@@ -478,32 +497,23 @@
         else field(name).removeAttribute("aria-invalid");
         message.textContent = error;
       }
-      const hasErrors = Object.values(errors).some(Boolean);
+      show("link-error", invalidLink);
+      const hasErrors = invalidLink || Object.values(errors).some(Boolean);
       const listenPortName = hostListener ? "port" : "listenPort";
       const listener = listenAddress && !errors[listenPortName]
         ? listenAddress + ":" + Number(settings[listenPortName]) : "";
       const loopback = listenAddress === "[::]" ? "[::1]" : "127.0.0.1";
       const clientAddress = listenAddress === "0.0.0.0" || listenAddress === "[::]" ? loopback : listenAddress;
       const endpoint = clientAddress && !errors.port ? clientAddress + ":" + Number(settings.port) : "";
-      const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true, benchmark: !embeddings };
+      const available = { download: source === "download", "drafter-download": drafterSource === "local", launch: true };
       const image = native ? "" : "zmlai/llmd:" + backend;
-      function runCommand(configuration, run) {
-        return native ? nativeLaunchCommand(configuration, run)
-          : dockerLaunchCommand(configuration, image, { ...backendOptions, shm: recipeShm }, run);
-      }
-      // The benchmark client connects to the actual bound port inside its own process.
-      const benchmarkRun = { listener: "127.0.0.1:0", benchmark: true };
-      const benchmarkReady = available.benchmark && !errors.directory && !errors.cacheDirectory;
-      const standardSettings = { ...settings, decoding: "standard", drafter: "", drafterSource: "",
-        hfToken: source === "hub" && settings.hfToken };
       const commands = {
         download: available.download && !errors.directory ? downloadCommand(settings) : "",
         "drafter-download": available["drafter-download"]
           ? downloadCommand({ checkpoint: drafter, directory: drafterDirectory }) : "",
         setup: native ? "brew install zml/zml/llmd" : "docker pull " + image,
-        launch: hasErrors ? "" : runCommand(settings, { listener, defaultBatch }),
-        "benchmark-standard": benchmarkReady ? runCommand(standardSettings, benchmarkRun) : "",
-        "benchmark-speculative": benchmarkReady && decoding !== "standard" ? runCommand(settings, benchmarkRun) : "",
+        launch: hasErrors ? "" : native ? nativeLaunchCommand(settings, listener)
+          : dockerLaunchCommand(settings, image, { ...backendOptions, shm: recipeShm }, listener),
         models: endpoint ? "curl -fsS " + apiUrl(endpoint, "models") : "",
         chat: requestType === "chat" && endpoint ? chatCommand(checkpoint, endpoint) : "",
       };
@@ -526,17 +536,13 @@
       show("container-listener", !hostListener);
       for (const element of root.querySelectorAll("[data-docker]")) element.hidden = native;
       show("decoding-field", !embeddings);
-      show("benchmark-standard", benchmarkReady);
-      show("benchmark-error", !benchmarkReady);
-      show("benchmark-speculative", benchmarkReady && decoding !== "standard");
-      setText("benchmark-mode", decoding === "dspine" ? "DSpine" : decodingField.selectedOptions[0].textContent);
       show("request-error", !endpoint);
       show("chat-request", requestType === "chat");
       const hints = {
         standard: "Use the model without a speculative drafter.",
         native: "Use this checkpoint’s built-in multi-token prediction drafter. No separate download is required.",
-        external: "Use the paired drafter " + drafter + ".",
-        dspine: "Use " + drafter + " with LLMD 20261112.0 or later. Launch uses the published batch size of 1. Benchmark uses LLMD defaults.",
+        external: drafter ? "LLMD will load " + drafter + "." : "Choose a drafter checkpoint.",
+        dspine: "Use " + drafter + " with LLMD 20261112.0 or later. Launch uses the published batch size of 1.",
       };
       setText("decoding-hint", hints[decoding]);
       setText("drafter-directory", drafterDirectory);
@@ -553,6 +559,7 @@
       setText("selected-checkpoint", checkpoint);
       const published = legacyPreset || (decoding === "dspine" ? preset : null);
       setText("fit", published ? published.evidence ?? "Published launch recipe for this checkpoint and accelerator."
+        : external ? "Reported target and drafter pairing. Check for a recorded run on this backend and LLMD build."
         : routine ? "Routine test target. Check the model catalog for recorded backend results."
         : requestType !== "chat" ? requestField.selectedOptions[0].textContent + " checkpoint. Verify that your LLMD build supports this checkpoint on the selected backend."
         : preset ? preset.evidence ?? "A published recipe is available for this checkpoint and accelerator."
@@ -567,11 +574,15 @@
     form.addEventListener("submit", event => event.preventDefault());
     requestField.addEventListener("change", render);
     form.addEventListener("input", event => {
-      if ([checkpointField, backendField, decodingField].includes(event.target)) legacyPreset = null;
-      if (event.target === checkpointField || event.target === backendField) {
-        refreshDecoding(event.target === checkpointField ? "standard" : decodingField.value);
+      if ([checkpointField, backendField, decodingField, drafterField].includes(event.target)) {
+        legacyPreset = null;
+        invalidLink = false;
       }
-      if (event.target === checkpointField) refreshRequest(requestField.value);
+      if (event.target === checkpointField) {
+        refreshDecoding("standard");
+        refreshRequest(requestField.value);
+      }
+      if (event.target === backendField) refreshDecoding(decodingField.value, drafterField.value);
       updateCheckpointDirectory();
       render();
     });

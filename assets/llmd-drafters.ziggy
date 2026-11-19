@@ -1,0 +1,168 @@
+.{
+    .checkpoints = [
+        .{
+            .id = "google/gemma-4-26B-A4B-it",
+            .family = "Gemma 4",
+            .drafters = [
+                "z-lab/gemma-4-26B-A4B-it-DFlash",
+            ],
+        },
+        .{
+            .id = "google/gemma-4-31B-it",
+            .family = "Gemma 4",
+            .drafters = [
+                "RedHatAI/gemma-4-31B-it-speculator.dflash",
+                "RedHatAI/gemma-4-31B-it-speculator.dflash2",
+                "RedHatAI/gemma-4-31B-it-speculator.dspark",
+                "z-lab/gemma-4-31B-it-DFlash",
+            ],
+        },
+        .{
+            .id = "meta-llama/Llama-3.1-8B-Instruct",
+            .family = "Llama 3.1",
+            .drafters = [
+                "z-lab/LLaMA3.1-8B-Instruct-DFlash-UltraChat",
+            ],
+        },
+        .{
+            .id = "meta-models/Muse-Glimmer-30B",
+            .family = "Muse Glimmer",
+            .drafters = [
+                "meta-models/Muse-Glimmer-30B-assistant",
+                "z-lab/Muse-Glimmer-30B-DFlash2",
+            ],
+        },
+        .{
+            .id = "poolside/Laguna-S-2.1",
+            .family = "Laguna",
+            .drafters = [
+                "poolside/Laguna-S-2.1-DFlash",
+                "poolside/Laguna-S-2.1-DFlash-FP8",
+                "poolside/Laguna-S-2.1-DFlash-INT4",
+                "poolside/Laguna-S-2.1-DFlash-NVFP4",
+            ],
+        },
+        .{
+            .id = "poolside/Laguna-XS-2.1",
+            .family = "Laguna",
+            .drafters = [
+                "poolside/Laguna-XS-2.1-DFlash",
+                "poolside/Laguna-XS-2.1-DFlash-FP8",
+                "poolside/Laguna-XS-2.1-DFlash-INT4",
+                "poolside/Laguna-XS-2.1-DFlash-NVFP4",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3-4B",
+            .family = "Qwen3",
+            .drafters = [
+                "deepseek-ai/dspark_qwen3_4b_block7",
+                "jgeuter/qwen3-4b-dflash-thinking-b16",
+                "naver-ai/DLoop-DFlash-Qwen3-4B",
+                "RedHatAI/Qwen3-4B-speculator.dflash2",
+                "RedHatAI/Qwen3-4B-speculator.dspark",
+                "z-lab/Qwen3-4B-DFlash-b16",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3-4B-Instruct-2507",
+            .family = "Qwen3",
+            .drafters = [
+                "RedHatAI/Qwen3-4B-speculator.dflash2",
+                "RedHatAI/Qwen3-4B-speculator.dspark",
+                "z-lab/Qwen3-4B-DFlash-b16",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3-8B",
+            .family = "Qwen3",
+            .drafters = [
+                "deepseek-ai/dspark_qwen3_8b_block7",
+                "RedHatAI/Qwen3-8B-speculator.dflash",
+                "tencent/Qwen3-8B-DSpine-b16",
+                "z-lab/Qwen3-8B-DFlash-b16",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.5-27B",
+            .family = "Qwen3.5",
+            .drafters = [
+                "modal-labs/Qwen3.5-27B-DFlash",
+                "z-lab/Qwen3.5-27B-DFlash",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.5-4B",
+            .family = "Qwen3.5",
+            .drafters = [
+                "modal-labs/Qwen3.5-4B-DFlash",
+                "z-lab/Qwen3.5-4B-DFlash",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.5-9B",
+            .family = "Qwen3.5",
+            .drafters = [
+                "modal-labs/Qwen3.5-9B-DFlash",
+                "z-lab/Qwen3.5-9B-DFlash",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.6-27B",
+            .family = "Qwen3.6",
+            .drafters = [
+                "JetBrains/Qwen3.6-27B-DFlash2",
+                "z-lab/Qwen3.6-27B-DFlash",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.6-35B-A3B",
+            .family = "Qwen3.6",
+            .drafters = [
+                "incoai/Qwen3.6-35B-A3B-DFlash2",
+                "modal-labs/Qwen3.6-35B-A3B-DFlash",
+                "z-lab/Qwen3.6-35B-A3B-DFlash",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.8-27B",
+            .family = "Qwen3.8",
+            .precision = "BF16",
+            .drafters = [
+                "incoai/Qwen3.8-27B-DFlash2",
+                "RadixArk/Qwen3.8-27B-DSpark",
+                "RedHatAI/Qwen3.8-27B-speculator.dflash2",
+                "RedHatAI/Qwen3.8-27B-speculator.dspark",
+                "tencent/Qwen3.8-27B-DSpine-b16",
+                "z-lab/Qwen3.8-27B-DFlash2",
+            ],
+        },
+        .{
+            .id = "Qwen/Qwen3.8-27B-FP8",
+            .family = "Qwen3.8",
+            .precision = "FP8",
+            .drafters = [
+                "incoai/Qwen3.8-27B-DFlash2",
+                "RadixArk/Qwen3.8-27B-DSpark",
+                "RedHatAI/Qwen3.8-27B-speculator.dflash2",
+            ],
+        },
+        .{
+            .id = "RadixArk/Qwen3.8-27B-NVFP4",
+            .family = "Qwen3.8",
+            .precision = "NVFP4",
+            .drafters = [
+                "incoai/Qwen3.8-27B-DFlash2",
+                "RadixArk/Qwen3.8-27B-DSpark",
+                "RedHatAI/Qwen3.8-27B-speculator.dflash2",
+            ],
+        },
+        .{
+            .id = "ricursiveAI/Ripple-65B-Preview",
+            .family = "Ripple",
+            .drafters = [
+                "ricursiveAI/Ripple-65B-Preview-DFlash2",
+            ],
+        },
+    ],
+}

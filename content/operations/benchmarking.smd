@@ -1,149 +1,17 @@
 ---
-.title = "Tune and benchmark LLMD",
-.description = "Measure time to first token and generation throughput, then tune concurrency and KV-cache capacity.",
+.title = "Benchmarking (Work In Progress)",
+.description = "Use service metrics to inspect a running LLMD deployment.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Benchmarking" },
 ---
-Run the [LLMD quickstart]($link.page('llmd/quickstart')) first to verify that
-your checkpoint loads and answers a request. The built-in benchmark starts its
-own LLMD instance, sends a warm-up batch followed by a measured batch over
-loopback, prints results, and exits. Run it on a test instance with an unused
-listener port and no competing work on the selected devices.
-
-The examples follow LLMD source revision `ca575167`. Benchmark flags are
-omitted from that revision's `--help`. Use a build that supports them and
-record its version. A local Metal run with Llama 3.2 1B confirmed TTFT and
-throughput reporting. The LFM3 commands below are source-reviewed.
-
-# [Run a baseline]($heading.id('run-a-baseline'))
-
-This baseline uses a fixed workload and explicit server limits. For a
-comparison at LLMD defaults, see [Compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')).
-Use the complete `LiquidAI/LFM3-1.7B-FP8` checkpoint under `${HOME}/models`.
-The [quickstart]($link.page('llmd/quickstart').ref('checkpoint-storage'))
-explains how to download and pin a checkpoint revision. This checkpoint has
-published Metal and CUDA launch recipes in the
-[model compatibility catalog]($link.page('llmd/models')).
-
-On Apple Silicon, run the benchmark after installing LLMD with Homebrew.
-
-```sh
-llmd --model="${HOME}/models/LiquidAI/LFM3-1.7B-FP8" \
-  --listen=127.0.0.1:18000 --batch-size=4 --max-context-len=4096 \
-  --bench --bench-prompt-len=256 --bench-max-tokens=128 \
-  --bench-concurrency=4 --bench-warmup-requests=4 \
-  > llmd-bench-metal.log 2>&1
+```=html
+<span id="run-a-baseline"></span><span id="compare-decoding-modes"></span><span id="read-and-compare-the-results"></span>
 ```
 
-On a CUDA host configured as described in
-[Deploy LLMD with Docker]($link.page('operations/deployment')), use the CUDA
-image. The benchmark client runs inside the container, so it can use the
-container's loopback address without a published host port.
-
-```sh
-docker pull zmlai/llmd:cuda &&
-docker run --rm --gpus=all --shm-size=256GB \
-  --mount "type=bind,source=${HOME}/models/LiquidAI/LFM3-1.7B-FP8,target=/model,readonly" \
-  zmlai/llmd:cuda --model=/model \
-  --listen=127.0.0.1:18000 --batch-size=4 --max-context-len=4096 \
-  --bench --bench-prompt-len=256 --bench-max-tokens=128 \
-  --bench-concurrency=4 --bench-warmup-requests=4 \
-  > llmd-bench-cuda.log 2>&1
-```
-
-`--bench-prompt-len` counts words. The benchmark reports actual prompt tokens
-after tokenization and varies the prompts to exercise prefill. Use
-`--bench-prompt='Your prompt'` in place of `--bench-prompt-len` to repeat one
-prompt and measure a workload that can reuse cached prefixes. The benchmark
-ignores end-of-sequence tokens by default. Add `--bench-stop-on-eos` to allow
-early stopping. Keep this choice consistent across runs.
-
-# [Compare decoding modes]($heading.id('compare-decoding-modes'))
-
-Benchmark a checkpoint twice on the same devices with the same LLMD build.
-Start with standard decoding, then add only the drafter flag. The following
-pairs use the default server and benchmark settings. Run them sequentially
-with port `8000` available.
-
-**Built-in drafter.** Compare standard decoding and native MTP on
-`Qwen/Qwen3.8-Flash-Next` using the same local checkpoint.
-
-```sh
-model="${HOME}/models/Qwen/Qwen3.8-Flash-Next"
-llmd --model="$model" --bench > flash-next-standard.log 2>&1 &&
-llmd --model="$model" --bench --speculative-drafter-model=native \
-  > flash-next-native.log 2>&1
-```
-
-**Separate drafter.** Compare standard decoding and DFlash2 on
-`Qwen/Qwen3.8-27B`. Download the target and drafter under
-`${HOME}/models` before starting.
-
-```sh
-model="${HOME}/models/Qwen/Qwen3.8-27B"
-drafter="${HOME}/models/incoai/Qwen3.8-27B-DFlash2"
-llmd --model="$model" --bench > qwen-27b-standard.log 2>&1 &&
-llmd --model="$model" --bench --speculative-drafter-model="$drafter" \
-  > qwen-27b-dflash2.log 2>&1
-```
-
-For another backend or checkpoint, choose **Configure launch** in the
-[catalog]($link.page('llmd/models')), then open the quickstart’s
-[Benchmark tab]($link.page('llmd/quickstart').unsafeRef('llmd-benchmark')).
-It generates the standard command and, when a drafter is selected, the
-matching speculative command. Run them in order on the same devices.
-Keep the LLMD build or image ID, target revision, and workload fixed.
-Record the drafter revision for an external drafter. Leave draft count at
-the model default.
-
-Compare `TTFT` (milliseconds) and completion throughput (tokens per second)
-from the two logs. Record the prompt and completion token counts and measured
-concurrency with each result. If a run fails, record the checkpoint, backend,
-mode, and error alongside the completed runs.
-
-# [Read and compare the results]($heading.id('read-and-compare-the-results'))
-
-Open the log after the command exits and look for the benchmark summary. If
-LLMD exits before printing it, check the log for a startup or request error.
-
-| Log field | What it measures |
-| --- | --- |
-| `Prompt tokens` | Total tokenized input across the measured requests. |
-| `TTFT` | Time to first token in milliseconds, including HTTP, tokenization, queueing, and prefill. |
-| `Prefill throughput` | Prompt tokens per second from the first request until the last request receives its first token. |
-| `Average throughput` or `Aggregate throughput` | Completion tokens per second over the streaming interval. The benchmark reports average throughput for one request and aggregate throughput for a batch. |
-
-Record the LLMD version or image ID, checkpoint revision, device and driver,
-flags, and log for each run. Change one setting at a time. For example, hold
-`--batch-size=4` and the prompt and output sizes fixed while varying
-`--bench-concurrency` between `1` and `4`. Use the same warm-up count and
-repeat each case. Compare recorded TTFT and output throughput. A four-request
-batch offers too few samples for a meaningful p99 latency estimate. Use a
-sustained client workload for production latency measurements and inspect
-[service metrics]($link.page('operations/monitoring').ref('scrape-service-metrics'))
-alongside the results.
+For queue depth, time to first token, and output throughput on a running
+server, see [Scrape service metrics]($link.page('operations/monitoring').ref('scrape-service-metrics')).
 
 # [Tune context and concurrency]($heading.id('tune-context-and-concurrency'))
 
-The KV cache holds attention state for tokens in active sequences. Longer
-contexts and more simultaneous sequences increase the amount of state that may
-need to stay in memory. `--max-context-len` caps tokens per sequence, including
-the rendered prompt and generated output. `--batch-size` controls how many
-requests the server can schedule together. `--bench-concurrency` controls how
-many requests the benchmark submits together, so setting it above the server
-batch size can introduce queueing.
-The [Batching and memory reference]($link.page('llmd/cli/batching-and-memory'))
-lists the accepted values and memory fractions.
-
-In the reviewed source, LFM3 requires `--data-parallel=1`, the default. It
-subtracts weights and other fixed allocations from its cache memory budget and
-caps the resulting page count at the configured live batch's needs. With the
-baseline's batch size of four, 4,096 tokens per sequence, and the default
-16-token pages, that cap is 1,024 pages. Available memory can reduce it.
-
-If startup runs out of memory, reduce the context or batch limit. If the
-checkpoint weights exceed available memory, use a smaller checkpoint. If long
-requests queue or exhaust the cache after startup, reduce concurrent load and
-measure again. Change `--token-batch-size` or `--prefill-chunk-size` one at a
-time to evaluate prompt-processing latency.
+To size the KV cache for your workload, see [Batching and memory]($link.page('llmd/cli/batching-and-memory').ref('kv-cache-and-memory-limits')).

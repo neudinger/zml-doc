@@ -24,6 +24,14 @@ These defaults come from the LLMD source reviewed on 16 November 2026.
 | `--gpu-memory-fraction=<fraction>` | `0.9` | Set an allocator limit on CUDA, ROCm, oneAPI, and Metal. Accepted values are greater than `0` and at most `1`. |
 | `--cache-memory-fraction=<fraction>` | `0.95` | Scale the smallest reported per-device memory limit. The cache planner subtracts fixed allocations before sizing pages. Accepted values are greater than `0` and at most `1`. |
 
+The KV cache holds attention state for tokens in active sequences. Increasing
+the context limit or the number of concurrent requests can increase the cache
+space needed. In the reviewed build, LFM3 uses `--data-parallel=1`. Four
+sequences of 4,096 tokens each need up to 1,024 pages at 16 tokens per page.
+Weights and other fixed allocations reduce the
+memory available for those pages. If the cache does not fit, lower the context
+or batch limit.
+
 # [Parallel work and Decision requests]($heading.id('parallel-work-and-decision-requests'))
 
 | LLMD option | Default | Effect |

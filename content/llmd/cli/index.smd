@@ -8,7 +8,7 @@
         .{ .path = "llmd/cli/batching-and-memory", .id = "batching-context-and-memory", .label = "Batching and memory" },
         .{ .path = "llmd/cli/sampling-and-decoding", .id = "sampling-and-speculative-decoding", .label = "Sampling and decoding" },
         .{ .path = "llmd/cli/sampling-and-decoding", .id = "choose-a-decoding-mode", .label = "Choose a decoding mode" },
-        .{ .path = "llmd/cli/benchmarking", .id = "advanced-and-benchmark-flags", .label = "Advanced and benchmark flags" },
+        .{ .path = "llmd/cli/benchmarking", .id = "advanced-and-benchmark-flags", .label = "Benchmarking (Work In Progress)" },
         .{ .path = "llmd/cli/docker-options", .id = "docker-run-options", .label = "Docker options" },
     ],
     .pager = "llmd/cli/docker-options",

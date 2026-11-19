@@ -90,6 +90,19 @@
             <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
           </ctx>
           <ctx :if="$site.page('llmd/quickstart').isCurrent()">
+            <table hidden data-llmd-pairings data-pagefind-ignore>
+              <tbody>
+                <ctx :loop="$site.asset('llmd-drafters.ziggy').ziggy().get('checkpoints')">
+                  <tr data-checkpoint="$loop.it.get('id')" data-family="$loop.it.get('family')" data-precision="$loop.it.getOr('precision', '')">
+                    <td><ul>
+                      <ctx :loop="$loop.it.get('drafters')">
+                        <li data-drafter="$loop.it"></li>
+                      </ctx>
+                    </ul></td>
+                  </tr>
+                </ctx>
+              </tbody>
+            </table>
             <div hidden data-llmd-routines data-pagefind-ignore>
               <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()">
                 <ctx :loop="$ctx.routines.get('checkpoints')">
@@ -120,6 +133,40 @@
             </div>
           </ctx>
           <ctx :if="$site.page('llmd/models').isCurrent()">
+            <section data-llmd-pairings class="prose" data-pagefind-body aria-labelledby="external-drafters">
+              <h2 id="external-drafters">External drafters</h2>
+              <p>Choose a drafter listed for the exact target checkpoint. Expand its repository ID to configure a launch on your backend. Each entry records a reported pairing. Backend validation requires a published recipe or a recorded run for that pair.</p>
+              <table>
+                <thead><tr><th scope="col">Target checkpoint</th><th scope="col">Drafter checkpoint</th></tr></thead>
+                <tbody>
+                  <ctx backends="$site.asset('llmd-routines.ziggy').ziggy().get('backends')" quickstart="$site.page('llmd/quickstart').link()"
+                       :loop="$site.asset('llmd-drafters.ziggy').ziggy().get('checkpoints')">
+                    <ctx model="$loop.it">
+                      <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
+                        <th scope="row"><a href="$ctx.model.get('id').prefix('https://huggingface.co/')" data-pagefind-index-attrs="data-name"
+                            data-name="$ctx.model.get('id').basename()" :text="$ctx.model.get('id')"></a></th>
+                        <td><ul>
+                          <ctx :loop="$ctx.model.get('drafters')">
+                            <li data-drafter="$loop.it"><details>
+                              <summary><code data-pagefind-index-attrs="data-name" data-name="$loop.it.basename()" :text="$loop.it"></code></summary>
+                              <ul data-pagefind-ignore>
+                                <ctx drafter="$loop.it">
+                                  <ctx :loop="$ctx.backends">
+                                    <li><a data-backend="$loop.it.get('id')"
+                                           href="$ctx.quickstart.suffix('?checkpoint=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=external&drafter=', $ctx.drafter)"
+                                           :text="$loop.it.get('name').prefix('Configure launch · ')"></a></li>
+                                  </ctx>
+                                </ctx>
+                              </ul>
+                            </details></li>
+                          </ctx>
+                        </ul></td>
+                      </tr>
+                    </ctx>
+                  </ctx>
+                </tbody>
+              </table>
+            </section>
             <section data-llmd-routine-list class="prose" data-pagefind-body aria-labelledby="routine-configurations">
               <h2 id="routine-configurations">Routine test configurations</h2>
               <p>Expand a decoding mode and choose a backend to configure its launch. These combinations are routine test targets. A linked recipe or recorded result gives evidence for its specific configuration.</p>

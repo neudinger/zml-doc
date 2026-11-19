@@ -175,12 +175,6 @@ Keep these in the local inventory. The consuming code and target release determi
 | `--attnd-workers`, `--attnd-memory` | Both unset. Together opt into the attention daemon backend with worker count and memory in GiB. |
 | `--io-impl` | `zio`; alternative `threaded`. Developer diagnostics. |
 | `--async-scheduling` | Off. The 20261106.0 beta applies to Llama and Gemma 4 without speculative decoding. [Release notes](https://zml.ai/posts/llmd-20261106.0/#asynchronous-scheduling-beta) |
-| `--speculative-synthetic-acceptance-rates` | Unset. Benchmark tool taking comma-separated probabilities per draft position. It replaces normal draft verification. [Release notes](https://zml.ai/posts/llmd-20261112.0/#more-speculative-decoding-support) |
-| `--bench`, `--bench-profile`, `--bench-stop-on-eos` | Off. Run the local prompt benchmark, request a profiler capture, or respect EOS during the benchmark. |
-| `--bench-prompt`, `--bench-prompt-len`, `--bench-prompt-file` | Unset. Fixed prompt or generated prompts specified by word count, optionally sourced from a file. |
-| `--bench-concurrency`, `--bench-warmup-requests` | Unset. Concurrency derives from batch size and warmup count from concurrency. |
-| `--bench-max-tokens`, `--bench-temperature` | `2048`, `1.0`. Completion token cap and sampling temperature for the benchmark. |
-| `--bench-profiler`, `--profile-dir` | Profiler selection unset (`xprof` or `nsys`). Defaults to `nsys` on CUDA and `xprof` elsewhere when profiling. Output repository `/tmp/xprof`. |
 
 ## Environment variables and backend diagnostics
 

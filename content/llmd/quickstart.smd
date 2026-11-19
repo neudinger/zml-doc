@@ -5,14 +5,16 @@
 .layout = "content.shtml",
 ---
 Choose a checkpoint and run target. Use **Launch** to serve chat, Decision,
-or embeddings requests. Text generation checkpoints also offer **Benchmark**. The
-[model catalog]($link.page('llmd/models')) lists routine test configurations
-and links to published recipes.
+or embeddings requests. The
+[model catalog]($link.page('llmd/models')) lists external drafter pairings,
+routine test configurations, and published recipes. Its **Configure launch**
+links select the exact target, backend, and drafter for a pairing.
 
 # [Configure launch]($heading.id('llmd-launch-settings-heading'))
 
 ```=html
 <div class="llmd-launch" data-llmd-launch data-toc-parent="llmd-launch-settings-heading">
+  <p id="llmd-benchmark" data-pagefind-ignore>Benchmarking (Work In Progress)</p>
   <div id="lfm3-fp8-metal"></div>
   <div id="lfm3-fp8-cuda"></div>
   <div id="lfm3-fp8-rocm"></div>
@@ -39,6 +41,7 @@ and links to published recipes.
   <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
   <div class="llmd-launch-layout">
     <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
+      <p class="llmd-launch-error" data-link-error role="status" hidden>The link contains an unlisted checkpoint, backend, or decoding mode for this drafter. Select the checkpoint and decoding settings to generate commands.</p>
       <div class="llmd-launch-recipe">
         <div class="llmd-launch-field">
           <label for="llmd-launch-backend">Run on</label>
@@ -60,18 +63,15 @@ and links to published recipes.
             </optgroup>
             <optgroup label="Decision checkpoints" data-decision-options></optgroup>
             <optgroup label="Embedding checkpoints" data-embeddings-options></optgroup>
+            <optgroup label="External drafter targets" data-pairing-options></optgroup>
             <optgroup label="Additional checkpoints">
               <option>LiquidAI/LFM3-1.7B-FP8</option>
               <option>nvidia/Qwen3.8-27B-NVFP4</option>
               <option>deepseek-ai/DeepSeek-V4.1-Flash</option>
               <option>mistralai/Mistral-Large-4-1T-A52B</option>
-              <option>meta-llama/Llama-3.1-8B-Instruct</option>
-              <option>Qwen/Qwen3.5-9B</option>
               <option>Qwen/Qwen3.5-35B-A3B</option>
               <option>Qwen/Qwen3.6-35B-A3B-FP8</option>
               <option>google/gemma-4-12B-it</option>
-              <option>meta-models/Muse-Glimmer-30B</option>
-              <option>poolside/Laguna-XS-2.1</option>
               <option>mistralai/Ministral-3-14B-Reasoning-2512</option>
             </optgroup>
           </select>
@@ -101,18 +101,35 @@ and links to published recipes.
             <option value="standard">Standard</option>
           </select>
           <span class="llmd-launch-field-hint" id="llmd-decoding-hint" data-decoding-hint></span>
-          <fieldset class="llmd-launch-drafter" data-drafter-source hidden disabled>
-            <legend>Drafter source</legend>
-            <label class="llmd-launch-checkbox">
-              <input type="radio" name="drafterSource" value="hub" checked> Hugging Face at launch
-            </label>
-            <label class="llmd-launch-checkbox">
-              <input type="radio" name="drafterSource" value="local" aria-describedby="llmd-launch-drafter-path"> Use a local drafter
-            </label>
-            <p class="llmd-launch-field-hint" id="llmd-launch-drafter-path" data-drafter-path hidden>Download the drafter from the Drafter tab or reuse an existing copy at <code data-drafter-directory></code>.</p>
-          </fieldset>
+          <div class="llmd-launch-field" data-drafter-field hidden>
+            <label for="llmd-launch-drafter">Drafter checkpoint</label>
+            <select id="llmd-launch-drafter" name="drafter" disabled aria-describedby="llmd-drafter-hint llmd-drafter-error"></select>
+            <span class="llmd-launch-field-hint" id="llmd-drafter-hint">Choose an external drafter listed for this exact target checkpoint.</span>
+            <span class="llmd-launch-field-error" id="llmd-drafter-error" data-field-error="drafter" aria-live="polite"></span>
+          </div>
         </div>
       </div>
+      <fieldset class="llmd-launch-drafter" data-drafter-source hidden disabled>
+        <legend>Drafter source</legend>
+        <div class="drafter-source-choices">
+          <label>
+            <input type="radio" name="drafterSource" value="hub" checked aria-labelledby="drafter-hub-label" aria-describedby="drafter-hub-hint">
+            <span><strong id="drafter-hub-label">Hugging Face at launch</strong><span class="llmd-launch-field-hint" id="drafter-hub-hint">Fetch the drafter when LLMD starts.</span></span>
+            <span class="drafter-source-icon icon-cloud-download" aria-hidden="true"></span>
+          </label>
+          <label>
+            <input type="radio" name="drafterSource" value="local" aria-labelledby="drafter-local-label" aria-describedby="drafter-local-hint" aria-controls="llmd-launch-drafter-path">
+            <span><strong id="drafter-local-label">Local directory</strong><span class="llmd-launch-field-hint" id="drafter-local-hint">Download once or use a copy already on disk.</span></span>
+            <span class="drafter-source-icon icon-folder" aria-hidden="true"></span>
+          </label>
+        </div>
+        <div class="llmd-launch-field-hint" id="llmd-launch-drafter-path" data-drafter-path hidden>
+          <strong>Host drafter directory</strong>
+          <code data-drafter-directory></code>
+          Download the drafter from the Drafter tab or reuse the files in this directory.
+          <span data-docker hidden>Docker mounts it read-only at <code>/drafter</code>.</span>
+        </div>
+      </fieldset>
       <details class="llmd-launch-options">
         <summary>Launch options</summary>
         <div class="llmd-launch-option-groups">
@@ -229,9 +246,8 @@ and links to published recipes.
         <button type="button" data-command-choice="download" aria-controls="download-checkpoint" aria-pressed="false" hidden>Download</button>
         <button type="button" data-command-choice="drafter-download" aria-controls="download-drafter" aria-pressed="false" hidden>Drafter</button>
         <button type="button" data-command-choice="launch" aria-controls="llmd-launch-steps" aria-pressed="true">Launch</button>
-        <button type="button" data-command-choice="benchmark" aria-controls="llmd-benchmark" aria-pressed="false">Benchmark</button>
       </div>
-      <dl class="llmd-launch-context" aria-label="Server connection" data-server-context>
+      <dl class="llmd-launch-context" aria-label="Server connection">
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
         <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
       </dl>
@@ -297,7 +313,7 @@ furiosa-cdi list</code></pre>
           </div>
         </div>
       </section>
-      <div class="llmd-launch-requests" data-server-requests>
+      <div class="llmd-launch-requests">
         <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
         <section id="check-the-loaded-model" data-toc-label="Check the loaded model">
           <h2><span class="llmd-launch-step-number">3</span> Check the loaded model</h2>
@@ -360,28 +376,6 @@ furiosa-cdi list</code></pre>
           </div>
         </section>
       </div>
-      <section id="llmd-benchmark" data-toc-label="Benchmark decoding" data-command-panel="benchmark" aria-label="Benchmark commands" tabindex="-1">
-        <h2>Benchmark decoding</h2>
-        <p class="llmd-launch-hint">After installing LLMD or pulling the image, run on an idle accelerator. Each command uses a free local port (<code>127.0.0.1:0</code>), prints results, and exits. The benchmark uses LLMD’s default batch size, context length, and workload.</p>
-        <p class="llmd-launch-error" data-benchmark-error role="status" hidden>Correct the highlighted storage path to generate the benchmark commands.</p>
-        <div class="llmd-launch-step" data-benchmark-standard>
-          <h3>Standard decoding</h3>
-          <div class="command-shell">
-            <span class="command-language icon-code">Host shell</span>
-            <pre><code class="sh" data-command="benchmark-standard" data-copy-label="Copy standard benchmark command">llmd --listen=127.0.0.1:0 \
-  --model=hf://LiquidAI/LFM3-1.7B \
-  --bench</code></pre>
-          </div>
-        </div>
-        <div class="llmd-launch-step" data-benchmark-speculative hidden>
-          <h3 data-benchmark-mode>Speculative decoding</h3>
-          <p class="llmd-launch-hint">Run this after the standard run finishes. Compare time to first token (TTFT) and completion tokens per second.</p>
-          <div class="command-shell">
-            <span class="command-language icon-code">Host shell</span>
-            <pre><code class="sh" data-command="benchmark-speculative" data-copy-label="Copy speculative benchmark command"></code></pre>
-          </div>
-        </div>
-      </section>
     </div>
   </div>
 </div>
@@ -401,17 +395,16 @@ To route traffic to a verified instance, follow the
   to use its default batch size, context length, and memory settings.
 - **Native MTP** uses the drafter bundled with the checkpoint. LLMD receives
   `--speculative-drafter-model=native`, and only the main checkpoint needs to be downloaded.
-- **External drafter** uses the companion checkpoint shown for the selected
-  model. Load it from Hugging Face at launch or download it under
+- **External drafter** enables the **Drafter checkpoint** selector. Choose
+  an exact repository ID for the target, including its precision variant.
+  Load the drafter from Hugging Face at launch or download it under
   `${HOME}/models/<org>/<drafter>`. Docker mounts a local drafter read-only at
   `/drafter`. On Apple Silicon, LLMD opens the host directory directly.
 
 The published **DSpine** recipe for Qwen3.8-27B on CUDA and ROCm uses its own
-drafter and batch size 1. The routine DFlash and native MTP configurations leave
-batch size and draft count at LLMD's defaults. See the
-[CLI examples]($link.page('llmd/cli/sampling-and-decoding').ref('choose-a-decoding-mode')) or
-[compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes'))
-on the same hardware.
+drafter and batch size 1. **External drafter** and **Native MTP** use LLMD's
+default batch size and draft count. See the
+[CLI examples]($link.page('llmd/cli/sampling-and-decoding').ref('choose-a-decoding-mode')).
 
 # [Checkpoint storage]($heading.id('checkpoint-storage'))
 

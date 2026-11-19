@@ -26,7 +26,7 @@ The diagram lists BPE, WordPiece and SentencePiece. On the return path, output
 parsers extract reasoning traces and tool calls from model output.
 
 - **Scheduling and cache.** The scheduler continuously batches requests, mixes prefill and decode work, and can split long prefills into chunks. A paged KV cache holds attention state and enables prefix reuse.
-- **Speculative decoding.** A drafter proposes tokens for the target model to check. The diagram names DSpark, DFlash and DSpine. See [Compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')) for paired runs.
+- **Speculative decoding.** A drafter proposes tokens for the target model to check. The diagram names DSpark, DFlash and DSpine. Find [external drafters for your checkpoint]($link.page('llmd/models').unsafeRef('external-drafters')).
 - **Execution and parallelism.** The host prepares the next step while the device runs. Tensor, expert and data parallelism distribute different parts of the work across devices.
 - **Weight preparation.** The engine can fuse, stack or swizzle weights into the layout a kernel expects. The diagram gives FP8, MXFP4 and NVFP4 as examples.
 

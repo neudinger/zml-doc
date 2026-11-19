@@ -38,7 +38,7 @@ size, context length, and sampling settings.
 **Standard decoding.** Pass only the target checkpoint.
 
 ```sh
-llmd --model=hf://Qwen/Qwen3.8-27B
+llmd --model=hf://Qwen/Qwen3-4B
 ```
 
 **Native multi-token prediction (MTP).** The target checkpoint supplies its
@@ -50,12 +50,13 @@ llmd --model=hf://Qwen/Qwen3.8-Flash-Next \
   --speculative-drafter-model=native
 ```
 
-**External drafter.** Pass the exact drafter paired with the target checkpoint.
-For Qwen3.8-27B, load the DFlash2 drafter from Hugging Face at launch.
+**External drafter.** Pass the exact companion checkpoint with
+`--speculative-drafter-model`. For example, load `Qwen/Qwen3-4B` and its
+`deepseek-ai/dspark_qwen3_4b_block7` drafter from Hugging Face at launch.
 
 ```sh
-llmd --model=hf://Qwen/Qwen3.8-27B \
-  --speculative-drafter-model=hf://incoai/Qwen3.8-27B-DFlash2
+llmd --model=hf://Qwen/Qwen3-4B \
+  --speculative-drafter-model=hf://deepseek-ai/dspark_qwen3_4b_block7
 ```
 
 For a local copy, use the quickstart's [checkpoint storage instructions]($link.page('llmd/quickstart').ref('checkpoint-storage'))
@@ -63,8 +64,8 @@ to download both repositories under `${HOME}/models`. A native installation
 accepts the host directory for each.
 
 ```sh
-llmd --model="${HOME}/models/Qwen/Qwen3.8-27B" \
-  --speculative-drafter-model="${HOME}/models/incoai/Qwen3.8-27B-DFlash2"
+llmd --model="${HOME}/models/Qwen/Qwen3-4B" \
+  --speculative-drafter-model="${HOME}/models/deepseek-ai/dspark_qwen3_4b_block7"
 ```
 
 On a CUDA Docker host, mount the two directories read-only and pass their
@@ -72,10 +73,14 @@ container paths to LLMD.
 
 ```sh
 docker run --rm --gpus=all --shm-size=256GB -p 127.0.0.1:8000:8000 \
-  --mount "type=bind,source=${HOME}/models/Qwen/Qwen3.8-27B,target=/model,readonly" \
-  --mount "type=bind,source=${HOME}/models/incoai/Qwen3.8-27B-DFlash2,target=/drafter,readonly" \
+  --mount "type=bind,source=${HOME}/models/Qwen/Qwen3-4B,target=/model,readonly" \
+  --mount "type=bind,source=${HOME}/models/deepseek-ai/dspark_qwen3_4b_block7,target=/drafter,readonly" \
   zmlai/llmd:cuda --model=/model --speculative-drafter-model=/drafter
 ```
 
+To choose another [target and drafter pairing]($link.page('llmd/models').unsafeRef('external-drafters')),
+select the exact checkpoint, backend, and drafter, then choose **Configure launch**.
 Omit `--speculative-draft-count` to use the count derived from the model
-configuration. To measure the effect, [compare decoding modes]($link.page('operations/benchmarking').ref('compare-decoding-modes')).
+configuration. The published Qwen3.8-27B DSpine launch preset on CUDA and ROCm
+sets batch size to 1. Other external pairings use LLMD's defaults unless you
+supply an override.
