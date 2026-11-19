@@ -143,7 +143,9 @@
                         </ctx>
                       </ctx>
                       <ctx :loop="$ctx.routines.get('capabilities')">
-                        <span :if="$ctx.model.getOr($loop.it.get('id'), false)" data-capability="$loop.it.get('id')"></span>
+                        <ctx :if="$ctx.model.getOr($loop.it.get('id'), false)">
+                          <span data-capability="$loop.it.get('id')"></span>
+                        </ctx>
                       </ctx>
                     </div>
                   </ctx>
@@ -154,7 +156,7 @@
           <ctx :if="$site.page('llmd/models').isCurrent()">
             <section data-llmd-pairings class="prose" data-pagefind-body aria-labelledby="external-drafters">
               <h2 id="external-drafters">External drafters</h2>
-              <p>Choose a drafter listed for the exact target model. Expand its repository ID to configure a launch on your backend. Each entry records a reported pairing. Backend validation requires a published recipe or a recorded run for that pair.</p>
+              <p>Each entry records a reported target and drafter pairing. A recorded run or published recipe identifies the hardware used. <a href="$site.asset('llmd-drafters.ziggy').link()">Pairing source file</a></p>
               <table>
                 <thead><tr><th scope="col">Target model</th><th scope="col">Drafter model</th></tr></thead>
                 <tbody>
@@ -167,7 +169,7 @@
                         <td><ul>
                           <ctx :loop="$ctx.model.get('drafters')">
                             <li data-drafter="$loop.it"><details>
-                              <summary><code data-pagefind-index-attrs="data-name" data-name="$loop.it.basename()" :text="$loop.it"></code></summary>
+                              <summary id="$ctx.model.get('id').prefix('pair-').suffix('--', $loop.it)"><code data-pagefind-index-attrs="data-name" data-name="$loop.it.basename()" :text="$loop.it"></code></summary>
                               <ul data-pagefind-ignore>
                                 <ctx drafter="$loop.it">
                                   <ctx :loop="$ctx.backends">
@@ -188,7 +190,7 @@
             </section>
             <section data-llmd-routine-list class="prose" data-pagefind-body aria-labelledby="routine-configurations">
               <h2 id="routine-configurations">Routine test configurations</h2>
-              <p>Expand a decoding mode and choose a backend to configure its launch. These combinations are routine test targets. A linked recipe or recorded result gives evidence for its specific configuration.</p>
+              <p>The test list names a model and decoding mode. A passing result requires a run on the selected backend and LLMD build. <a href="$site.asset('llmd-routines.ziggy').link()">Routine configuration source file</a></p>
               <table data-llmd-routines>
                 <thead><tr><th scope="col">Model</th><th scope="col">Decoding and launch</th></tr></thead>
                 <tbody>
@@ -204,7 +206,7 @@
                             <ctx :loop="$ctx.model.get('modes')">
                               <ctx mode="$loop.it" drafter="$loop.it.eql('external').then($ctx.model.getOr('drafter', ''), '')">
                                 <details data-decoding="$ctx.mode" data-drafter="$ctx.drafter">
-                                  <summary :text="$ctx.routines.get('modes').get($ctx.mode)"></summary>
+                                  <summary id="$ctx.model.get('id').prefix('routine-').suffix('--', $ctx.mode)" :text="$ctx.routines.get('modes').get($ctx.mode)"></summary>
                                   <ul data-pagefind-ignore>
                                     <ctx :loop="$ctx.routines.get('backends')">
                                       <li><a data-backend="$loop.it.get('id')"
@@ -229,6 +231,7 @@
                   <section data-llmd-capability-list data-request="$ctx.capability.get('id')" class="prose" data-pagefind-body aria-labelledby="$ctx.capability.get('anchor')">
                     <h2 id="$ctx.capability.get('anchor')" :text="$ctx.capability.get('heading')"></h2>
                     <p :text="$ctx.capability.get('description')"></p>
+                    <p><a href="$site.asset('llmd-routines.ziggy').link()">Capability source file</a> · <a href="$site.page($ctx.capability.get('id').eql('decision').then('llmd/decision', 'llmd/text-similarity')).link()" :text="$ctx.capability.get('id').eql('decision').then('Decision guide', 'Text similarity guide')"></a></p>
                     <table>
                       <thead><tr><th scope="col">Model</th><th scope="col">Configure launch</th></tr></thead>
                       <tbody>
@@ -238,7 +241,7 @@
                               <th scope="row"><a href="$ctx.model.get('id').prefix('https://huggingface.co/')"
                                   data-pagefind-index-attrs="data-name" data-name="$ctx.model.get('id').basename()" :text="$ctx.model.get('id')"></a></th>
                               <td><details>
-                                <summary :text="$ctx.capability.get('label')"></summary>
+                                <summary id="$ctx.model.get('id').prefix('request-').suffix('--', $ctx.capability.get('id'))" :text="$ctx.capability.get('label')"></summary>
                                 <ul data-pagefind-ignore>
                                   <ctx :loop="$ctx.inventory.get('backends')">
                                     <li><a data-backend="$loop.it.get('id')"

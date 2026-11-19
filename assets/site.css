@@ -771,12 +771,36 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .model-catalog-table > p:empty { display: none; }
 [data-model-catalog] { container: model-catalog-layout / inline-size; }
 [data-model-catalog] [hidden], .model-catalog-table [hidden] { display: none; }
+.model-catalog-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem 0.75rem;
+  align-items: end;
+}
+.model-catalog-filter-panel[open],
+.model-catalog-toolbar:has(details[open]) > label { grid-column: 1 / -1; }
+.model-catalog-filter-panel summary {
+  width: fit-content;
+  min-block-size: 2.25rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 650;
+  cursor: pointer;
+}
 .model-catalog-filters {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.7rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr));
+  align-items: end;
+  gap: 0.6rem 0.75rem;
+  margin-block-start: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
 }
-.model-catalog-pairings { display: flex; align-items: center; gap: 0.4rem; grid-column: 1 / -1; font-size: 0.85rem; }
+.model-catalog-pairings { display: flex; align-items: center; gap: 0.4rem; min-block-size: 2.25rem; font-size: 0.85rem; }
 .model-catalog-pairings input { accent-color: var(--accent); }
 .prose .model-catalog-status { margin-block: 0.65rem; padding-block-start: 0.65rem; border-block-start: 1px solid var(--border); font-size: 0.85rem; color: var(--muted); }
 .model-catalog-navigator {
@@ -819,17 +843,19 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   font-size: 0.8rem;
 }
 .prose .model-catalog-family-title h3 { margin: 0; color: var(--text); }
+.model-catalog-model-select { margin-block-end: 0.5rem; }
 @container model-catalog-layout (min-width: 40rem) {
   .model-catalog-navigator { grid-template-columns: 8.8rem minmax(0, 1fr); }
   .model-catalog-family-buttons { display: grid; gap: 0.125rem; border-inline-end: 1px solid var(--border); padding-inline-end: 0.5rem; }
-  .model-catalog-family-select { display: none; }
+  .model-catalog-family-select, .model-catalog-model-select { display: none; }
 }
+.prose .model-catalog-legend { margin-block: 0.5rem 0.85rem; color: var(--muted); font-size: 0.8rem; }
 .model-catalog-recipe {
   display: grid;
-  gap: 0.6rem;
-  margin-block-end: 0.75rem;
-  padding: 0.7rem 0.8rem;
+  gap: 0.7rem;
+  padding: clamp(0.75rem, 2%, 1.1rem);
   border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--accent);
   border-radius: 0.4rem;
   background: var(--code);
   font-size: 0.9rem;
@@ -839,9 +865,13 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .model-catalog-recipe [data-model-checkpoint], .model-catalog-recipe [data-model-drafter],
 .model-catalog-table.is-interactive tbody th { overflow-wrap: anywhere; }
 .model-catalog-configure { display: flex; align-items: end; gap: 0.5rem 1rem; flex-wrap: wrap; }
-.model-catalog-configure .model-catalog-field { flex: 0 1 13rem; min-inline-size: 0; }
+.model-catalog-configure .model-catalog-field { flex: 1 1 10rem; min-inline-size: 0; }
 .model-catalog-configure .model-catalog-drafter-field { flex: 1 1 22rem; }
-.model-catalog-configure a {
+.model-catalog-evidence { border-block-start: 1px solid var(--border); padding-block-start: 0.65rem; }
+.model-catalog-evidence strong { color: var(--text); }
+.prose .model-catalog-evidence p { margin: 0.15rem 0 0; color: var(--muted); }
+.model-catalog-actions { display: flex; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.model-catalog-actions [data-model-configure] {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -853,12 +883,12 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   font-weight: 650;
   text-decoration: none;
 }
-.model-catalog-configure a::after { content: "→" / ""; }
-.model-catalog-configure a:hover { text-decoration: underline; }
+.model-catalog-actions [data-model-configure]::after { content: "→" / ""; }
+.model-catalog-actions [data-model-configure]:hover { text-decoration: underline; }
 .model-catalog-recipe [data-model-drafter] { margin-block-start: 0.35rem; font-family: ui-monospace, monospace; }
 .model-catalog-links { display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
-.model-catalog-links a + a { font-weight: 650; }
 .model-catalog-table.is-interactive { container: model-catalog / inline-size; overflow: visible; }
+.model-catalog-table.is-interactive > p:has(.model-catalog-table-key) { display: none; }
 .model-catalog-table.is-interactive table { min-inline-size: 0; }
 .model-catalog-table.is-interactive :is(th, td) { padding: 0.4rem 0.25rem; vertical-align: middle; }
 .model-catalog-table.is-interactive thead th { background: var(--code); font-size: 0.8rem; white-space: nowrap; }
@@ -887,8 +917,9 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 }
 .model-catalog-cell:focus-visible { outline-offset: 1px; }
 .model-catalog-backend { display: none; }
-@container model-catalog-layout (min-width: 48rem) {
-  .model-catalog-recipe { position: sticky; inset-block-start: 0.5rem; z-index: 1; }
+@container model-catalog-layout (min-width: 40rem) {
+  .model-catalog-table.is-interactive { max-block-size: clamp(12rem, 40svh, 26rem); overflow: auto; }
+  .model-catalog-table.is-interactive thead th { position: sticky; inset-block-start: 0; z-index: 1; }
 }
 @container model-catalog (width < 36rem) {
   .model-catalog-table:not([data-single-backend]) table,
@@ -914,11 +945,8 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 @container model-catalog (min-width: 31rem) and (width < 36rem) {
   .model-catalog-table:not([data-single-backend]) tbody tr:not([hidden]) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
-@container model-catalog-layout (min-width: 19rem) {
-  .model-catalog-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@container model-catalog-layout (min-width: 43rem) {
-  .model-catalog-filters { grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr)); }
+@container model-catalog-layout (width < 40rem) {
+  .model-catalog-table.is-interactive tbody tr:not([data-selected-model]) { display: none; }
 }
 .prose:has(> .service-client) {
   container: service-map / inline-size;
@@ -1127,6 +1155,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   :is(.product-tabs, .section-tabs) a { min-block-size: 44px; }
   .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch-configurator summary { min-block-size: 44px; }
   .llmd-launch-field :is(input, select, textarea) { font-size: 1rem; }
-  .model-catalog-field :is(input, select), .model-catalog-cell, .model-catalog-family-button, .model-catalog-configure a { min-block-size: 44px; }
+  .model-catalog-field :is(input, select), .model-catalog-cell, .model-catalog-family-button,
+  .model-catalog-actions [data-model-configure], .model-catalog-filter-panel summary, .model-catalog-pairings { min-block-size: 44px; }
   .model-catalog-field :is(input, select) { font-size: 1rem; }
 }

@@ -4,7 +4,8 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   const catalog = document.querySelector("[data-model-catalog]");
   const matrix = document.querySelector(".model-catalog-table");
   const table = matrix?.querySelector("table");
-  if (!catalog || !table) return;
+  // Source links open the exact entry in the server-rendered records.
+  if (!catalog || !table || new URLSearchParams(location.search).get("view") === "records") return;
 
   const search = catalog.querySelector('input[name="checkpoint"]');
   const capabilityFilter = catalog.querySelector('select[name="capability"]');
@@ -16,12 +17,15 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   const navigator = catalog.querySelector(".model-catalog-navigator");
   const familyButtons = navigator.querySelector(".model-catalog-family-buttons");
   const familySelect = navigator.querySelector('select[name="family"]');
+  const modelSelect = navigator.querySelector('select[name="catalog-model"]');
   const familyResults = navigator.querySelector("#model-catalog-family");
   const familyHeading = familyResults.querySelector("#model-catalog-family-heading");
   const familyCount = familyResults.querySelector("[data-model-family-count]");
   const panel = catalog.querySelector(".model-catalog-recipe");
   const selectedCheckpoint = panel.querySelector("[data-model-checkpoint]");
   const selectedDetails = panel.querySelector("[data-model-details]");
+  const evidenceType = panel.querySelector("[data-model-evidence]");
+  const evidenceNote = panel.querySelector("[data-model-note]");
   const selectedLinks = panel.querySelector("[data-model-links]");
   const routineControls = panel.querySelector("[data-model-routine]");
   const requestSelect = panel.querySelector('select[name="request"]');
@@ -66,6 +70,12 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   function backendLinks(container) {
     return new Map(Array.from(container.querySelectorAll("a[data-backend]"), link => [link.dataset.backend, link.href]));
   }
+  function recordLink(summary, label) {
+    const link = document.createElement("a");
+    link.href = "?view=records#" + encodeURIComponent(summary.id);
+    link.textContent = label;
+    return link;
+  }
   for (const [request, section] of sources) {
     for (const source of section.querySelectorAll("tr[data-checkpoint]")) {
       const { checkpoint, family, precision } = source.dataset;
@@ -77,14 +87,19 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
           label: details.querySelector("summary").textContent.trim(),
           drafter: details.dataset.drafter,
           links: backendLinks(details),
+          source: recordLink(details.querySelector("summary"), "Routine test record"),
         }));
       } else if (request === "pairings") {
         profile.drafters = Array.from(source.querySelectorAll("li[data-drafter]"), item => ({
           id: item.dataset.drafter,
           links: backendLinks(item),
+          source: recordLink(item.querySelector("summary"), "Target and drafter record"),
         }));
       } else {
-        profile.requestLinks.set(request, backendLinks(source));
+        profile.requestLinks.set(request, {
+          links: backendLinks(source),
+          source: recordLink(source.querySelector("summary"), "Model capability record"),
+        });
       }
       profiles.set(checkpoint, profile);
       if (existing.has(checkpoint)) continue;
@@ -129,12 +144,14 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
       if (drafters.length && !modes.some(mode => mode.id === "external")) {
         modes.push({ id: "external", label: "External drafter" });
       }
-      const links = Array.from(cell.querySelectorAll("a"));
+      const preset = cell.querySelector("a.published-recipe, a.recorded-run, a.source-tested");
+      const pairRuns = Array.from(cell.querySelectorAll("a.recorded-pair"));
+      const presetSources = Array.from(cell.querySelectorAll("a")).filter(link => link !== preset && !pairRuns.includes(link));
       const requests = new Map();
-      for (const [request, launchLinks] of profile?.requestLinks ?? []) {
-        if (launchLinks.has(key)) requests.set(request, launchLinks.get(key));
+      for (const [request, record] of profile?.requestLinks ?? []) {
+        if (record.links.has(key)) requests.set(request, { launch: record.links.get(key), source: record.source });
       }
-      if (modes.length || links.length) requests.set("chat", null);
+      if (modes.length || preset) requests.set("chat", null);
       if (!requests.size) {
         cell.prepend(caption);
         return { cell };
@@ -145,7 +162,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
       const button = document.createElement("button");
       button.type = "button";
       button.className = "model-catalog-cell";
-      const pairingOnly = drafters.length && !links.length && !modes.some(mode => mode.links) && requests.size === 1;
+      const pairingOnly = drafters.length && !preset && !modes.some(mode => mode.links) && requests.size === 1;
       button.setAttribute("aria-label", `${name}, ${backend}, ${precision}${pairingOnly ? ", reported drafter pairing" : ""}`);
       button.setAttribute("aria-controls", panel.id);
       button.setAttribute("aria-pressed", "false");
@@ -155,7 +172,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
       dash.textContent = "—";
       dash.hidden = true;
       cell.replaceChildren(caption, button, dash);
-      const recipe = { name, backend, key, precision, modes, drafters, links, button, dash, requests };
+      const recipe = { name, backend, key, precision, modes, drafters, preset, presetSources, pairRuns, button, dash, requests, row };
       button.addEventListener("click", () => selectRecipe(recipe));
       return { cell, recipe };
     });
@@ -175,7 +192,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     }
     const family = families.get(familyName);
     family.body.append(row);
-    family.checkpoints.push({ row, name, series, cells });
+    family.checkpoints.push({ row, name, series, cells, option: new Option(name, name) });
   }
   if (sourceBody && !sourceBody.rows.length) sourceBody.remove();
   for (const precision of precisions) precisionFilter.add(new Option(precision, precision));
@@ -192,12 +209,14 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     const previousRequest = selected?.name === recipe?.name ? requestSelect.value : "";
     const previousDrafter = selected?.name === recipe?.name ? drafterSelect.value : "";
     selected?.button.setAttribute("aria-pressed", "false");
+    selected?.row.removeAttribute("data-selected-model");
     selected = recipe;
     panel.hidden = !recipe;
-    selectedLinks.replaceChildren(...(recipe?.links ?? []));
     if (!recipe) return;
 
     recipe.button.setAttribute("aria-pressed", "true");
+    recipe.row.setAttribute("data-selected-model", "");
+    modelSelect.value = recipe.name;
     selectedCheckpoint.textContent = recipe.name;
     const requestOptions = [...capabilityFilter.options].filter(option => recipe.requests.has(option.value));
     requestSelect.replaceChildren(...requestOptions.map(option => option.cloneNode(true)));
@@ -218,27 +237,64 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     updateLaunch();
   }
 
+  function evidenceFor(recipe, mode, pairing, request) {
+    if (request) return {
+      type: "Request supported", note: "The model supports this request. A result for this backend is pending.",
+      sources: [request.source], launch: request.launch,
+    };
+    const { preset, presetSources, key, backend } = recipe;
+    const external = mode?.id === "external";
+    const drafter = pairing?.id ?? mode?.drafter;
+    const matchesPreset = preset && (external ? drafter && preset.classList.contains(drafter)
+      : !preset.classList.contains("external") && (!mode || mode.id === "standard"));
+    if (matchesPreset) {
+      if (preset.classList.contains("source-tested")) return {
+        type: "Upstream source test", note: "The upstream test report covers these weights and hardware. The generated Docker command awaits hardware validation.",
+        sources: presetSources, launch: preset.href,
+      };
+      if (preset.classList.contains("recorded-run")) return {
+        type: "Recorded run", note: "The linked result identifies the hardware and settings used with these weights.",
+        sources: presetSources, launch: preset.href,
+      };
+      return {
+        type: "Published recipe", note: external
+          ? "Configure launch uses the drafter and settings in the published " + backend + " command."
+          : "The release supplies a launch command for this model on " + backend + ".",
+        sources: presetSources, launch: preset.href,
+      };
+    }
+    const launch = (pairing?.links ?? mode.links).get(key);
+    const run = pairing && recipe.pairRuns.find(link => link.classList.contains(pairing.id));
+    if (run) return {
+      type: "Recorded run", note: "The linked result covers this target and drafter on " + backend + ".",
+      sources: [run], launch,
+    };
+    if (pairing && pairing.id !== mode.drafter) return {
+      type: "Reported pairing", note: "The pairing list names this target and drafter. A passing run on " + backend + " is unconfirmed by this record.",
+      sources: [pairing.source], launch,
+    };
+    return {
+      type: "Routine test target", note: "The routine suite lists this configuration. A passing run on " + backend + " requires a separate result.",
+      sources: [mode.source], launch,
+    };
+  }
+
   function updateLaunch() {
     const chat = requestSelect.value === "chat";
     const label = requestSelect.selectedOptions[0].textContent;
-    const mode = chat ? selected.modes.find(mode => mode.id === decodingSelect.value) : null;
-    const pairing = mode?.id === "external" ? selected.drafters.find(drafter => drafter.id === drafterSelect.value) : null;
-    let context = "Documented preset";
-    if (!chat) context = label + " request · Backend validation pending";
-    else if (pairing && pairing.id !== mode.drafter) context = "Reported pairing · Verify on this backend";
-    else if (mode) context = "Routine test target";
+    const mode = chat ? selected.modes.find(option => option.id === decodingSelect.value) : null;
+    const pairing = mode?.id === "external" ? selected.drafters.find(option => option.id === drafterSelect.value) : null;
+    const evidence = evidenceFor(selected, mode, pairing, selected.requests.get(requestSelect.value));
     const weights = selected.precision === "Unspecified" ? "Weight precision unspecified" : selected.precision;
-    selectedDetails.textContent = `${selected.backend} · ${weights} · ${context}`;
+    selectedDetails.textContent = [selected.backend, weights, chat ? mode?.label ?? "Standard" : label].join(" · ");
+    evidenceType.textContent = evidence.type;
+    evidenceNote.textContent = evidence.note;
+    selectedLinks.replaceChildren(...evidence.sources);
     decodingSelect.parentElement.hidden = !chat || !selected.modes.length;
     drafterSelect.parentElement.hidden = !pairing;
-    selectedLinks.hidden = !chat || !selected.links.length;
-    const launch = chat ? (pairing?.links ?? mode?.links)?.get(selected.key) : selected.requests.get(requestSelect.value);
-    configureLink.hidden = !launch;
-    routineControls.hidden = requestSelect.parentElement.hidden && !launch;
-    if (launch) {
-      configureLink.href = launch;
-      configureLink.setAttribute("aria-label", `Configure launch for ${selected.name} on ${selected.backend}, ${pairing?.id ?? mode?.label ?? label}`);
-    }
+    routineControls.hidden = requestSelect.parentElement.hidden && decodingSelect.parentElement.hidden;
+    configureLink.href = evidence.launch;
+    configureLink.setAttribute("aria-label", `Configure launch for ${selected.name} on ${selected.backend}, ${pairing?.id ?? mode?.label ?? label}`);
     const drafter = pairing?.id ?? mode?.drafter;
     drafterDetails.textContent = drafter || "";
     drafterDetails.hidden = !drafter;
@@ -255,7 +311,10 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
       familyHeading.textContent = family.name;
       familyCount.textContent = quantity(family.checkpointCount, "model");
     }
-    selectRecipe(family?.matches.includes(selected) ? selected : family?.matches[0] ?? null);
+    const visibleModels = family?.checkpoints.filter(model => !model.row.hidden) ?? [];
+    modelSelect.replaceChildren(...visibleModels.map(model => model.option));
+    const matches = family?.matches ?? [];
+    selectRecipe(matches.includes(selected) ? selected : matches.find(recipe => recipe.name === selected?.name) ?? matches[0]);
   }
 
   function chooseFamily(family) {
@@ -268,6 +327,8 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
     const backend = backendFilter.value;
     const precision = precisionFilter.value;
     const capability = capabilityFilter.value;
+    const filterCount = [capability, backend, precision, pairingsOnly.checked].filter(Boolean).length;
+    catalog.querySelector("[data-model-filter-count]").textContent = filterCount ? " · " + filterCount : "";
     const visibleColumns = columns.map(({ cell, backend: label }) => {
       const visible = !backend || label === backend;
       cell.hidden = !visible;
@@ -337,7 +398,11 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   drafterSelect.addEventListener("change", updateLaunch);
   requestSelect.addEventListener("change", updateLaunch);
   familySelect.addEventListener("change", () => chooseFamily(families.get(familySelect.value)));
-  familyResults.append(matrix);
+  modelSelect.addEventListener("change", () => {
+    const cells = activeFamily.matches.filter(recipe => recipe.name === modelSelect.value);
+    selectRecipe(cells.find(recipe => recipe.key === selected?.key) ?? cells[0]);
+  });
+  familyResults.insertBefore(matrix, familyResults.querySelector("[data-catalog-legend]"));
   matrix.classList.add("is-interactive");
   // Keep indexed fragment links pointing to the visible catalog after enhancement.
   const fragments = new Map();
