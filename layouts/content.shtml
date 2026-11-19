@@ -33,9 +33,9 @@
 </head>
 <main id="site-content">
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
-    <article class="document">
+    <article class="$site.index().isCurrent().then('home-hero', 'document')">
       <header class="document-header">
-        <ctx zml="$page.link().startsWith($site.page('zml').link())"
+        <ctx :if="$site.index().isCurrent().not()" zml="$page.link().startsWith($site.page('zml').link())"
              llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
           <p class="eyebrow" :text="$ctx.zml.or($ctx.llmd).then($ctx.zml.then('ZML', 'LLMD').suffix(' / ', $page.custom.getOr('doc_section', 'User Guide')), 'ZML / LLMD')"></p>
         </ctx>
@@ -207,7 +207,7 @@
         </ctx>
       </ctx>
       <ctx :if="$site.index().isCurrent()">
-        <div class="prose" :html="$ctx.article.content()"></div>
+        <nav class="home-paths" aria-label="Product guides" :html="$ctx.article.content()"></nav>
       </ctx>
     </article>
   </ctx>

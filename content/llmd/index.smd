@@ -37,5 +37,5 @@ Python client that discovers the model ID and sends a chat request. See
 
 # [Operate the service]($heading.id('operate-the-service'))
 
-Continue to [Operations]($link.page('operations')) for deployment concerns, or
-[compare the ecosystem projects]($link.page('start')) to choose another path.
+Continue to [Operations]($link.page('operations')) to deploy, monitor, and
+troubleshoot an LLMD service.

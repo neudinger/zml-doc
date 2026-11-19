@@ -1,8 +1,8 @@
 # ZML documentation site
 
-Static documentation built with Zine, SuperMD, and SuperHTML. The base site
-contains the Build with ZML and Serve models with LLMD entry paths. The
-product tabs keep the selected section when switching between ZML and LLMD.
+Static documentation built with Zine, SuperMD, and SuperHTML. The homepage
+links directly to the **Build with ZML** and **Serve models with LLMD** overviews.
+Inside the docs, product tabs keep the selected section when switching products.
 Each section has its own sidebar. Operations is in the LLMD User Guide.
 The implementation roadmap is in [plan.md](plan.md).
 
@@ -51,7 +51,7 @@ including the Pagefind search index. Local builds use the URL in `zine.ziggy`.
 
 | Directory or file | Purpose |
 | --- | --- |
-| `content/` | SuperMD pages for Start, ZML, LLMD and Operations, including the reference articles |
+| `content/` | Homepage, ZML and LLMD guides and references, and LLMD Operations pages |
 | `layouts/` | Shared SuperHTML content layout and base template |
 | `assets/` | CSS, favicon, and future published recordings |
 | `examples/` | Complete runnable example files, checked separately |
@@ -88,7 +88,7 @@ The layout supplies the page's single H1. With `headings_h2` enabled, body `#`
 headings render as H2. Use a stable ID such as
 `# [First section]($heading.id('first-section'))` to link an article heading
 from the **On this page** list. Use Zine page links such as
-`[Start]($link.page('start'))` and site asset references instead of hard-coding a
+`[Build with ZML]($link.page('zml'))` and site asset references instead of hard-coding a
 deployment prefix. Assets are published when referenced; static asset directories
 can be declared explicitly in `zine.ziggy` when needed.
 
@@ -114,10 +114,11 @@ page, duplicate routes, page/asset collisions, and missing assets. The native
 validator inspects Zine's generated, double-quoted `id`, `href`, and `src`
 attributes; it is not a general HTML, CSS URL, or external-link checker.
 
-**Search docs** covers ZML, LLMD, Operations, and Start. Reference results
+**Search docs** covers ZML and LLMD, including Operations. Reference results
 include the product name so readers can open the corresponding navigation.
 The article layout marks the content to index. Navigation and the homepage are
-outside the index. Recipe components, recordings, upstream imports, API
+outside the index. Old `/start/` bookmarks remain available through a redirect.
+Recipe components, recordings, upstream imports, API
 generation, and the command builder are subsequent roadmap work.
 
 ## Attribution

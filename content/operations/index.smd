@@ -33,5 +33,5 @@ backends must be checked separately from LLMD's inference support.
 latency and throughput under the same workload. Preserve the previous release
 and configuration so an upgrade can be reversed.
 
-Return to [LLMD]($link.page('llmd')) for the server path or
-[Start]($link.page('start')) for the ecosystem overview.
+Return to the [LLMD overview]($link.page('llmd')) for server setup and client
+connections.

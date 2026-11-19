@@ -1,34 +1,5 @@
 ---
-.title = "Choose your path",
-.description = "Choose the ZML framework for model code or LLMD for serving models to applications.",
+.title = "ZML documentation",
 .date = .date("2026-11-06T00:00:00"),
-.layout = "content.shtml",
+.layout = "start-redirect.shtml",
 ---
-# [Build with ZML]($heading.id('build-with-zml'))
-
-Choose ZML when you want to write or change model code. The framework handles
-tensor operations, weight loading, compilation, and execution.
-Check [hardware compatibility]($link.page('zml/reference/compatibility').unsafeRef('build-with-zml'))
-to choose a build target for your host and accelerator.
-
-- [Run MNIST with Bazel]($link.page('zml/quickstart')) to classify a digit on CPU.
-- [Write your first model]($link.page('zml/first-model')) to define a tagged
-  linear layer and read its output.
-- [Build and run with Bazel]($link.page('zml/build-and-run')) to choose an
-  accelerator, run an LLM example, or package a build for another host.
-
-# [Serve models with LLMD]($heading.id('serve-models-with-llmd'))
-
-Choose LLMD when you want applications to call a model through an
-OpenAI-compatible HTTP API. Start a server yourself or connect to an existing
-LLMD endpoint.
-Check [hardware compatibility]($link.page('llmd/reference/compatibility').unsafeRef('serve-models-with-llmd'))
-for the server package or image that runs on your host.
-
-- [Start LLMD]($link.page('llmd/quickstart')) with a recipe for your hardware
-  and send a chat request.
-- [Compare checkpoints]($link.page('llmd/models')) by backend and weight precision.
-- [List the loaded model]($link.page('llmd/api/models')), then use
-  [Chat completions]($link.page('llmd/api/chat-completions')) to send a request or stream the response.
-- [Operate an LLMD service]($link.page('operations')) for deployment,
-  monitoring, troubleshooting, and rollback.

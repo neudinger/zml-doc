@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title :text="$page.title"></title>
+  <link rel="canonical" href="$site.index().link()">
+  <link rel="stylesheet" href="$site.asset('site.css').link()">
+  <script src="$site.asset('site-theme.js').link()"></script>
+  <script defer src="$site.asset('start-redirect.js').link()"></script>
+</head>
+<body>
+  <main class="page-width document" data-pagefind-ignore>
+    <h1 :text="$page.title"></h1>
+    <p>Start is now the <a href="$site.index().link()">ZML homepage</a>.</p>
+    <ul>
+      <li><a id="build-with-zml" href="$site.page('zml').link()">Build with ZML</a></li>
+      <li><a id="serve-models-with-llmd" href="$site.page('llmd').link()">Serve models with LLMD</a></li>
+    </ul>
+  </main>
+</body>
+</html>
