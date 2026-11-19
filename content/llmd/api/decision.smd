@@ -38,40 +38,75 @@ question must return a label in its corresponding array for the question to run.
 
 # [Read the response]($heading.id('decision-response'))
 
-`answers` maps each requested ID to a result. A successful entry
-contains the winning `label`, a `scores` array, and `prompt_contribution`.
-Each score gives the label, its first `token_id`, its full-vocabulary
-`logprob`, and its `probability` normalized over the offered labels.
-`prompt_contribution` is the total probability mass of the offered label
-tokens before this normalization. `usage` totals prompt and cached tokens
-across the questions that ran.
+`answers` maps question IDs to results. This example asks only for `animal`
+with `"ask": ["animal"]`. Token IDs, scores and counts are illustrative.
 
-This illustrative response uses `"ask": ["animal"]` with the guide's
-request. Token IDs, counts and scores depend on the tokenizer, model and run.
-
-```json
-{
-  "answers": {
-    "animal": {
-      "label": "cat",
-      "scores": [
-        {"label": "cat", "token_id": 7, "logprob": -0.916291, "probability": 0.8},
-        {"label": "dog", "token_id": 9, "logprob": -2.302585, "probability": 0.2}
+```=html
+<fieldset class="decision-response">
+  <legend>Select an underlined field in the JSON to inspect it.</legend>
+  <div class="decision-response-layout">
+    <div class="command-shell">
+      <span class="command-language icon-code">JSON · Decision response</span>
+      <pre><code data-copy-label="Copy Decision response">{
+  <span class="token property">"answers"</span>: {
+    <span class="token property">"animal"</span>: {
+      <label class="decision-key"><input type="radio" name="decision-field" value="label" aria-label="label" aria-controls="decision-label-note">"label"</label>: <span class="token string">"cat"</span>,
+      <label class="decision-key"><input type="radio" name="decision-field" value="scores" aria-label="scores" aria-controls="decision-scores-note">"scores"</label>: [
+        {<span class="token property">"label"</span>: <span class="token string">"cat"</span>, <span class="token property">"token_id"</span>: <span class="token number">7</span>,
+         <span class="token property">"logprob"</span>: <span class="token number">-0.916291</span>, <span class="token property">"probability"</span>: <span class="token number">0.8</span>},
+        {<span class="token property">"label"</span>: <span class="token string">"dog"</span>, <span class="token property">"token_id"</span>: <span class="token number">9</span>,
+         <span class="token property">"logprob"</span>: <span class="token number">-2.302585</span>, <span class="token property">"probability"</span>: <span class="token number">0.2</span>}
       ],
-      "prompt_contribution": 0.5
+      <label class="decision-key"><input type="radio" name="decision-field" value="prompt_contribution" aria-label="prompt_contribution" aria-controls="decision-contribution-note" checked>"prompt_contribution"</label>: <span class="token number">0.5</span>
     }
   },
-  "usage": {"prompt_tokens": 48, "cached_tokens": 0}
+  <span class="token property">"usage"</span>: {<span class="token property">"prompt_tokens"</span>: <span class="token number">48</span>, <span class="token property">"cached_tokens"</span>: <span class="token number">0</span>}
 }
+</code></pre>
+    </div>
+    <div class="decision-annotation">
+      <div aria-live="polite" aria-atomic="true">
+        <div class="decision-field-note" id="decision-label-note" data-field="label">
+          <strong><code>label</code></strong>
+          <p>The winning label is <code>"cat"</code>. It has the highest probability among the offered labels.</p>
+        </div>
+        <div class="decision-field-note" id="decision-scores-note" data-field="scores">
+          <strong><code>scores</code></strong>
+          <p>Each entry names a label and its first <code>token_id</code>. <code>logprob</code> is that token’s log probability across the full vocabulary. <code>probability</code> is its share among the offered labels.</p>
+        </div>
+        <div class="decision-field-note" id="decision-contribution-note" data-field="prompt_contribution">
+          <strong><code>prompt_contribution</code></strong>
+          <p>The first tokens for cat and dog together account for half the probability mass. Cat’s share among those two labels is <code>0.4 / 0.5 = 0.8</code>.</p>
+        </div>
+      </div>
+      <dl class="decision-probabilities">
+        <dt>Across the full vocabulary</dt>
+        <dd><span aria-hidden="true" class="decision-bar" style="--cat: 40%; --offered: 50%"></span>Cat 40% · Dog 10% · Other tokens 50%</dd>
+        <dt>Among the offered labels</dt>
+        <dd><span aria-hidden="true" class="decision-bar" style="--cat: 80%; --offered: 100%"></span>Cat 80% · Dog 20%</dd>
+      </dl>
+    </div>
+  </div>
+</fieldset>
 ```
+
+`usage` totals prompt and cached tokens across the questions that ran.
+
+## [Per-question outcomes]($heading.id('decision-outcomes'))
+
+An HTTP 200 response can contain all three outcomes. Check each entry in `answers` before reading its label.
+
+| Outcome | Fields in the entry | How to handle it |
+| --- | --- | --- |
+| Answered | `label`, `scores`, `prompt_contribution` | Read the winning label and its score. |
+| Skipped | `{"skipped":true}` | An `ask_if` condition was false. Continue without a label. |
+| Failed | For example, `{"error":"prompt_too_long"}` | Handle this question’s error. Other entries can still contain answers. |
 
 # [Limits and errors]($heading.id('decision-limits-and-errors'))
 
-A false condition produces `{"skipped":true}` for that question.
-A question can also return an `error` field with `prompt_too_long`,
-`unsupported_chat_template`, `resource_exhausted`, or `aborted`.
-Check individual entries even after HTTP 200. An unsupported
-model or invalid request produces HTTP 400 with a plain-text explanation.
+Per-question errors include `prompt_too_long`, `unsupported_chat_template`,
+`resource_exhausted`, and `aborted`. An unsupported model or invalid request
+returns HTTP 400 with a plain-text explanation.
 For `ForwardDependency`, put the referenced question earlier in the JSON
 object. For `DuplicateOptionToken`, choose labels whose first tokens differ.
 

@@ -452,6 +452,39 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .decision-context { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.65rem; font-size: 0.9rem; }
 .decision-map:has(input[value="cat"]:checked) [data-context="dog"],
 .decision-map:has(input[value="dog"]:checked) [data-context="cat"] { display: none; }
+.decision-response { min-inline-size: 0; margin: 1rem 0; padding: 0; border: 0; }
+.decision-response legend { padding: 0; margin-block-end: 0.5rem; color: var(--muted); font-size: 0.9rem; }
+.decision-response-layout { display: flex; flex-wrap: wrap; align-items: start; gap: 1rem; }
+.decision-response .command-shell { flex: 1.65 1 27rem; min-inline-size: 0; }
+.decision-key {
+  position: relative;
+  display: inline-block;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+.decision-key input { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.decision-key:has(:checked) { background: var(--selection); text-decoration-style: solid; }
+.decision-key:has(:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.decision-annotation { flex: 1 1 15rem; min-inline-size: 0; border-inline-start: 2px solid var(--accent); padding-inline-start: 0.9rem; }
+.decision-annotation p { margin: 0.4rem 0; }
+.decision-response:has([value="label"]:not(:checked)) [data-field="label"],
+.decision-response:has([value="scores"]:not(:checked)) [data-field="scores"],
+.decision-response:has([value="prompt_contribution"]:not(:checked)) [data-field="prompt_contribution"] { display: none; }
+.decision-probabilities { margin: 0.85rem 0 0; font-size: 0.85rem; }
+.decision-probabilities dt { font-weight: 650; }
+.decision-probabilities dd { margin: 0.15rem 0 0.7rem; color: var(--muted); }
+.decision-bar {
+  display: block;
+  block-size: 0.45rem;
+  margin-block-end: 0.25rem;
+  border-radius: 0.2rem;
+  background: linear-gradient(to right, var(--accent) 0 var(--cat), var(--code-string) var(--cat) var(--offered), var(--border) var(--offered) 100%);
+}
+@media (pointer: coarse) {
+  .decision-key { padding-block: 0.25rem; }
+}
 .prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
 .command-shell .code-block { margin-block: 0; }
 .prose .command-shell pre {
