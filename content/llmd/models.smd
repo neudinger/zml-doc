@@ -10,41 +10,6 @@ and allow memory for both the model weights and KV cache.
 
 # [Checkpoint catalog]($heading.id('choose-a-checkpoint'))
 
-The routine test set covers 12 checkpoints and 18 configurations across CUDA,
-ROCm, Metal, oneAPI, TPU, and Furiosa RNGD. Each checkpoint has a standard
-configuration. Two also have native MTP and four have a separate drafter.
-These are test targets. A passing result requires a recorded run for the
-exact checkpoint, backend, decoding mode, and LLMD build.
-
-Select **External drafters only** to browse 53 reported pairings across
-18 target checkpoints. Search by either repository ID. Select a backend cell,
-choose **External drafter**, then pick the drafter checkpoint.
-**Configure launch** carries all three selections into the quickstart.
-Each pairing applies to the exact target checkpoint, including its precision
-variant. The backend selects the launch environment. Check the linked recipes
-or a recorded run for evidence on that hardware. A **Pairing** cell opens the
-drafter choices for a target with no routine configuration or recipe on that backend.
-
-Filter by **Decision** to find `LiquidAI/LFM3-1.7B` and the eight StartLux
-Decision v1.1 checkpoints. **Configure launch** opens the
-[LLMD quickstart]($link.page('llmd/quickstart')) with the selected checkpoint
-and backend. The [Decision guide]($link.page('llmd/decision')) explains the
-generated request for `POST /v1/systemone`. The StartLux family has
-five Instant and three AutoThink checkpoints. StartLux configurations await
-verification on a specific LLMD build and backend.
-
-Filter by **Embeddings** for `Qwen/Qwen3-Embedding-8B`. Choose your backend,
-then **Configure launch** to open the quickstart with a request for
-`POST /v1/embeddings`. The [text similarity guide]($link.page('llmd/text-similarity'))
-shows how to compare the returned vectors. Backend-specific inference results
-are pending for this checkpoint.
-
-For chat, choose a checkpoint, backend, and decoding mode. The quickstart
-uses LLMD's tuning defaults. Precision describes checkpoint weights.
-**Target** means the precision is unspecified. A dash means the combination is
-unlisted under the active filters. Documented presets link to their own
-settings and available evidence.
-
 ```=html
 <div data-model-catalog hidden>
   <div class="model-catalog-filters" role="group" aria-label="Checkpoint filters" data-pagefind-ignore>
@@ -74,7 +39,9 @@ settings and available evidence.
   <p class="model-catalog-status" role="status" data-pagefind-ignore></p>
   <p data-model-empty hidden data-pagefind-ignore>No checkpoints match these filters.</p>
   <div class="model-catalog-navigator" hidden>
-    <div class="model-catalog-family-buttons" role="group" aria-label="Model families" data-pagefind-ignore></div>
+    <div class="model-catalog-family-buttons" role="group" aria-labelledby="model-catalog-family-label" data-pagefind-ignore>
+      <span id="model-catalog-family-label">Model family</span>
+    </div>
     <label class="model-catalog-field model-catalog-family-select" data-pagefind-ignore>
       Model family
       <select name="family" aria-controls="model-catalog-family"></select>
@@ -110,6 +77,41 @@ settings and available evidence.
   </div>
 </div>
 ```
+
+The routine test set covers 12 checkpoints and 18 configurations across CUDA,
+ROCm, Metal, oneAPI, TPU, and Furiosa RNGD. Each checkpoint has a standard
+configuration. Two also have native MTP and four have a separate drafter.
+These are test targets. A passing result requires a recorded run for the
+exact checkpoint, backend, decoding mode, and LLMD build.
+
+Select **External drafters only** to browse 53 reported pairings across
+18 target checkpoints. Search by either repository ID. Select a backend cell,
+choose **External drafter**, then pick the drafter checkpoint.
+**Configure launch** carries all three selections into the quickstart.
+Each pairing applies to the exact target checkpoint, including its precision
+variant. The backend selects the launch environment. Check the linked recipes
+or a recorded run for evidence on that hardware. A **Pairing** cell opens the
+drafter choices for a target with no routine configuration or recipe on that backend.
+
+Filter by **Decision** to find `LiquidAI/LFM3-1.7B` and the eight StartLux
+Decision v1.1 checkpoints. **Configure launch** opens the
+[LLMD quickstart]($link.page('llmd/quickstart')) with the selected checkpoint
+and backend. The [Decision guide]($link.page('llmd/decision')) explains the
+generated request for `POST /v1/systemone`. The StartLux family has
+five Instant and three AutoThink checkpoints. StartLux configurations await
+verification on a specific LLMD build and backend.
+
+Filter by **Embeddings** for `Qwen/Qwen3-Embedding-8B`. Choose your backend,
+then **Configure launch** to open the quickstart with a request for
+`POST /v1/embeddings`. The [text similarity guide]($link.page('llmd/text-similarity'))
+shows how to compare the returned vectors. Backend-specific inference results
+are pending for this checkpoint.
+
+For chat, choose a checkpoint, backend, and decoding mode. The quickstart
+uses LLMD's tuning defaults. Precision describes checkpoint weights.
+**Target** means the precision is unspecified. A dash means the combination is
+unlisted under the active filters. Documented presets link to their own
+settings and available evidence.
 
 > []($block.attrs('model-catalog-table'))
 >

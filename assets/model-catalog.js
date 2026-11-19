@@ -1,3 +1,5 @@
+import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-families.js";
+
 (() => {
   const catalog = document.querySelector("[data-model-catalog]");
   const matrix = document.querySelector(".model-catalog-table");
@@ -102,10 +104,13 @@
 
   const families = new Map();
   const precisions = new Set();
-  for (const row of rows) {
+  const models = rows.map(row => {
+    const series = row.cells[1].textContent.trim();
+    return { row, name: row.cells[0].textContent.trim(), series, familyName: modelFamily(series) || "Other checkpoints" };
+  });
+  models.sort((a, b) => compareNames(a.familyName, b.familyName) || compareCheckpoints(a.name, b.name));
+  for (const { row, name, series, familyName } of models) {
     const [label, familyCell, ...backendCells] = Array.from(row.cells);
-    const name = label.textContent.trim();
-    const familyName = familyCell.textContent.trim() || "Other checkpoints";
     const profile = profiles.get(name);
     familyCell.remove();
     const heading = document.createElement("th");
@@ -170,12 +175,12 @@
     }
     const family = families.get(familyName);
     family.body.append(row);
-    family.checkpoints.push({ row, name, cells });
+    family.checkpoints.push({ row, name, series, cells });
   }
   if (sourceBody && !sourceBody.rows.length) sourceBody.remove();
   for (const precision of precisions) precisionFilter.add(new Option(precision, precision));
 
-  let preferredFamily = families.get("Qwen3.8");
+  let preferredFamily = families.values().next().value;
   let activeFamily;
 
   function quantity(count, singular, plural = singular + "s") {
@@ -279,7 +284,8 @@
       let visibleCheckpoints = 0;
 
       for (const checkpoint of family.checkpoints) {
-        const checkpointMatches = familyMatchesQuery || checkpoint.name.toLowerCase().includes(query);
+        const checkpointMatches = familyMatchesQuery || checkpoint.name.toLowerCase().includes(query)
+          || checkpoint.series.toLowerCase().includes(query);
         const countBefore = matches.length;
         checkpoint.cells.forEach(({ cell, recipe }, index) => {
           cell.hidden = !visibleColumns[index];
@@ -302,7 +308,8 @@
       family.button.hidden = !visibleCheckpoints;
       if (!visibleCheckpoints) continue;
 
-      family.count.textContent = quantity(visibleCheckpoints, "checkpoint");
+      family.count.textContent = String(visibleCheckpoints);
+      family.button.setAttribute("aria-label", `${family.name}, ${quantity(visibleCheckpoints, "checkpoint")}`);
       family.option.textContent = `${family.name} (${visibleCheckpoints})`;
       offeredFamilies.push(family);
       checkpointCount += visibleCheckpoints;

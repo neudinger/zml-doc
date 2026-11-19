@@ -27,10 +27,10 @@
         <script defer src="$site.asset('code-highlight.js').link()"></script>
       </ctx>
       <ctx :if="$ctx.html.contains('data-llmd-launch')">
-        <script defer src="$site.asset('llmd-launch.js').link()"></script>
+        <script type="module" src="$site.asset('llmd-launch.js').link()"></script>
       </ctx>
       <ctx :if="$ctx.html.contains('data-model-catalog')">
-        <script defer src="$site.asset('model-catalog.js').link()"></script>
+        <script type="module" src="$site.asset('model-catalog.js').link()"></script>
       </ctx>
     </ctx>
   </ctx>

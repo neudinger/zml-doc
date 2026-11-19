@@ -1,3 +1,5 @@
+import { compareCheckpoints, compareNames, modelFamily, modelName as servedModelName } from "./llmd-model-families.js";
+
 (() => {
   const backends = {
     metal: { requirements: "Use an Apple Silicon Mac with macOS Tahoe or later and Homebrew. On M1 and M2, use LLMD 20261112.0 or later." },
@@ -134,10 +136,6 @@
     ].join(continuation);
   }
 
-  function servedModelName(checkpoint) {
-    return checkpoint.split("/").at(-1);
-  }
-
   function apiUrl(endpoint, route) {
     return shellQuote("http://" + endpoint + "/v1/" + route);
   }
@@ -265,10 +263,8 @@
     const batchField = field("batch");
     const standard = { mode: "standard", label: "Standard", drafter: "" };
     const families = new Map();
-    const parentFamilies = ["DeepSeek", "Gemma", "LFM", "Llama", "Mistral", "Qwen", "StartLux"];
     function addModel({ family, checkpoint }) {
-      const parent = family.startsWith("Ministral") ? "Mistral"
-        : parentFamilies.find(name => family.startsWith(name)) ?? family;
+      const parent = modelFamily(family);
       if (!families.has(parent)) families.set(parent, new Set());
       families.get(parent).add(checkpoint);
     }
@@ -297,12 +293,10 @@
       pairings.set(row.dataset.checkpoint, Array.from(row.querySelectorAll("li[data-drafter]"), item => item.dataset.drafter));
     }
     let checkpoint = checkpointField.value;
-    const compare = new Intl.Collator("en", { numeric: true, sensitivity: "base" }).compare;
-    const compareModels = (a, b) => compare(servedModelName(a), servedModelName(b)) || compare(a, b);
-    checkpointField.replaceChildren(...[...families.keys()].sort(compare).map(family => {
+    checkpointField.replaceChildren(...[...families.keys()].sort(compareNames).map(family => {
       const group = document.createElement("optgroup");
       group.label = family;
-      for (const id of [...families.get(family)].sort(compareModels)) group.append(new Option(id, id, id === checkpoint));
+      for (const id of [...families.get(family)].sort(compareCheckpoints)) group.append(new Option(id, id, id === checkpoint));
       return group;
     }));
     checkpointField.value = checkpoint;
