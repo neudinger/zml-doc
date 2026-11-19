@@ -19,6 +19,10 @@
       <ctx :if="$ctx.html.contains('data-bazel-target=')">
         <script defer src="$site.asset('bazel-platforms.js').link()"></script>
       </ctx>
+      <ctx :if="$ctx.html.contains('data-sharding-explorer')">
+        <link rel="stylesheet" href="$site.asset('sharding-explorer.css').link()">
+        <script defer src="$site.asset('sharding-explorer.js').link()"></script>
+      </ctx>
       <ctx :if="$ctx.html.contains('<pre><code')">
         <script defer src="$site.asset('code-copy.js').link()"></script>
       </ctx>

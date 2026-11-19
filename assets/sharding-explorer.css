@@ -1,0 +1,133 @@
+.sharding-explorer {
+  container: sharding / inline-size;
+  --sharding-gap: 1.2rem;
+  --sharding-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+.sharding-explorer .sharding-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.15rem 0.75rem;
+}
+.sharding-explorer .sharding-heading h3,
+.sharding-explorer .sharding-code h3 { margin: 0; }
+.sharding-explorer .sharding-code h3 { margin-block-end: 0.5rem; }
+.sharding-explorer .sharding-heading :is(small, span),
+.sharding-explorer .sharding-mesh > span,
+.sharding-explorer button small,
+.sharding-explorer .sharding-shapes dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.sharding-explorer .sharding-equation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem;
+  margin-block: 0.45rem var(--sharding-gap);
+}
+.sharding-explorer .sharding-equation > span { text-align: center; color: var(--muted); }
+.sharding-explorer :is([data-tensor], [data-device]) {
+  min-inline-size: 0;
+  min-block-size: 2.75rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.sharding-explorer [data-tensor] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.1rem 0.45rem;
+}
+.sharding-explorer [data-tensor] small { font-family: var(--sharding-mono); white-space: nowrap; }
+.sharding-explorer :is([data-tensor], [data-device]):hover { border-color: var(--search-border); }
+.sharding-explorer [aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 -2px var(--accent);
+  color: var(--accent);
+  background: var(--selection);
+}
+.sharding-explorer .sharding-workspace {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--sharding-gap);
+}
+.sharding-explorer .sharding-mesh {
+  display: grid;
+  grid-template-columns: auto repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 0.35rem 0.4rem;
+  margin-block-start: 0.4rem;
+}
+.sharding-explorer .sharding-mesh > span { font-family: var(--sharding-mono); text-align: center; }
+.sharding-explorer [data-device] { display: grid; justify-items: center; gap: 0.2rem; }
+.sharding-explorer [data-device] code { background: transparent; padding: 0; }
+.sharding-explorer .sharding-patch {
+  position: relative;
+  display: block;
+  inline-size: min(4.5rem, 100%);
+  block-size: 2rem;
+  border: 1px solid var(--border);
+  background: var(--code);
+}
+.sharding-explorer .sharding-patch::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: var(--slice-x);
+  inset-block-start: var(--slice-y);
+  inline-size: var(--slice-width);
+  block-size: var(--slice-height);
+  background: color-mix(in srgb, var(--accent) 50%, var(--selection));
+}
+.sharding-explorer .sharding-patch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to right, transparent calc(100% - 1px), var(--border) 0),
+                    linear-gradient(to bottom, transparent calc(100% - 1px), var(--border) 0);
+  background-size: 12.5% 100%, 100% var(--sharding-grid-row, 25%);
+}
+.sharding-explorer .sharding-patch.sharding-vector {
+  --sharding-grid-row: 100%;
+  block-size: 0.75rem;
+  margin-block: 0.625rem;
+}
+.sharding-explorer .sharding-inspector {
+  border-inline-start: 2px solid var(--accent);
+  padding-inline-start: 0.85rem;
+}
+.sharding-explorer .sharding-inspector .sharding-patch { inline-size: 100%; block-size: 3rem; }
+.sharding-explorer .sharding-inspector .sharding-vector { block-size: 1rem; margin-block: 1rem; }
+.sharding-explorer .sharding-shapes { display: flex; flex-wrap: wrap; gap: 0.25rem 1.3rem; margin: 0.5rem 0; }
+.sharding-explorer .sharding-shapes dd { margin: 0; font: 600 1rem var(--sharding-mono); }
+.sharding-explorer code[data-slice] { display: block; margin-block: 0.4rem; padding: 0; color: var(--accent); background: transparent; }
+.sharding-explorer p[data-placement-note] { margin: 0; font-size: 0.9rem; }
+.sharding-explorer .sharding-code { margin-block: var(--sharding-gap) 0.65rem; }
+.sharding-explorer [data-line][aria-current="step"] {
+  background: var(--selection);
+  box-shadow: -0.22rem 0 var(--accent);
+  box-decoration-break: clone;
+}
+.sharding-explorer :is(.sharding-rule, .sharding-text) { border-block-start: 1px solid var(--border); }
+.sharding-explorer summary { padding-block: 0.45rem; font-weight: 600; cursor: pointer; }
+
+@container sharding (max-width: 37rem) {
+  .sharding-explorer .sharding-workspace { grid-template-columns: minmax(0, 1fr); }
+}
+@container sharding (max-width: 27rem) {
+  .sharding-explorer .sharding-equation { grid-template-columns: minmax(0, 1fr) 1.25rem minmax(0, 1fr); }
+  .sharding-explorer .sharding-plus { grid-column: 1 / -1; }
+}
+@media (forced-colors: active) {
+  .sharding-explorer .sharding-patch::before { forced-color-adjust: none; background: Highlight; }
+  .sharding-explorer :is([aria-pressed="true"], [data-line][aria-current="step"]) { outline: 1px solid Highlight; }
+}

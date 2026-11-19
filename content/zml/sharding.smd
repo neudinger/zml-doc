@@ -12,32 +12,79 @@ without accelerator hardware.
 
 # [Map tensor dimensions to devices]($heading.id('map-tensor-dimensions-to-devices'))
 
-A **physical mesh** describes the devices the runtime can address and how
-they are connected. A **logical mesh** names the axes the model uses to
-distribute work. For example, `.data` can split a batch across groups of
-devices and `.model` can split a weight dimension within each group.
-`platform.registerMesh` maps the named axes to the physical topology using
-their requested sizes and communication preferences.
+Follow a dense layer on a **simulated 2 × 2 logical mesh**. The two `.data`
+groups split the batch. Within each group, two `.model` partitions split the hidden dimension.
 
-Apply the mapping to a tagged shape with `Shape.withPartitioning`. The
-sharding demo uses these mappings for its dense layer.
-
-| Tensor | Global shape | Placement |
-| --- | --- | --- |
-| Input | `batch=16, feature=32` | Split `batch` over `.data`. Each device gets all features for its batch slice. |
-| Weights | `feature=32, hidden=64` | Split `hidden` over `.model`. The same weight shards are available to each data group. |
-| Bias | `hidden=64` | Split `hidden` over `.model` to match the weight shards. |
-| Output | `batch=16, hidden=64` | Split `batch` over `.data` and `hidden` over `.model`. |
-
-```zig
-const input_shape = zml.Shape.init(.{ .batch = 16, .feature = 32 }, .f32)
+```=html
+<div class="sharding-explorer" data-sharding-explorer data-toc-parent="map-tensor-dimensions-to-devices">
+  <div class="sharding-controls" hidden data-pagefind-ignore>
+    <div class="sharding-heading"><h3 id="dense-layer" data-toc-label="Dense layer">Dense layer</h3><span>Select a tensor · shapes per device</span></div>
+    <div class="sharding-equation" role="group" aria-label="Select a dense layer tensor">
+      <button type="button" data-tensor="input"><strong>Input</strong> <small></small></button><span aria-hidden="true">×</span>
+      <button type="button" data-tensor="weights"><strong>Weights</strong> <small></small></button><span aria-hidden="true" class="sharding-plus">+</span>
+      <button type="button" data-tensor="bias"><strong>Bias</strong> <small></small></button><span aria-hidden="true">→</span>
+      <button type="button" data-tensor="output"><strong>Output</strong> <small></small></button>
+    </div>
+    <div class="sharding-workspace">
+      <div class="sharding-mesh-panel">
+        <div class="sharding-heading"><h3 id="device-mesh" data-toc-label="Device mesh">Device mesh</h3><span>Select a coordinate</span></div>
+        <div class="sharding-mesh" role="group" aria-label="Select a logical device by data and model coordinate">
+          <span></span><span>model 0</span><span>model 1</span>
+          <span>data 0</span>
+          <button type="button" data-device="0"><span class="sharding-patch" aria-hidden="true"></span><code>(0, 0)</code><small></small></button>
+          <button type="button" data-device="1"><span class="sharding-patch" aria-hidden="true"></span><code>(0, 1)</code><small></small></button>
+          <span>data 1</span>
+          <button type="button" data-device="2"><span class="sharding-patch" aria-hidden="true"></span><code>(1, 0)</code><small></small></button>
+          <button type="button" data-device="3"><span class="sharding-patch" aria-hidden="true"></span><code>(1, 1)</code><small></small></button>
+        </div>
+      </div>
+      <div class="sharding-inspector" aria-live="polite" aria-atomic="true">
+        <strong data-slice-title></strong>
+        <dl class="sharding-shapes"><div><dt>Global shape</dt><dd data-global-shape></dd></div><div><dt>Local shape</dt><dd data-local-shape></dd></div></dl>
+        <span class="sharding-patch" aria-hidden="true"></span>
+        <code data-slice></code><p data-placement-note></p>
+      </div>
+    </div>
+  </div>
+  <div class="command-shell sharding-code">
+    <h3 id="dense-layer-in-zig" data-toc-label="Dense layer in Zig">Dense layer in Zig</h3>
+    <span class="command-language icon-code">Zig · forward</span>
+    <pre><code data-copy-label="Copy dense layer in Zig"><span data-line="input"><span class="token keyword">const</span> x = input.<span class="token function">convert</span>(.f32);</span>
+<span data-line="weights"><span class="token keyword">var</span> y = x.<span class="token function">dot</span>(self.w, .feature);</span>
+<span data-line="bias">y = y.<span class="token function">add</span>(self.b.<span class="token function">broad</span>(y.<span class="token function">shape</span>()));</span>
+<span data-line="output">y = y.<span class="token function">withPartitioning</span>(.dp_mp, .{ .batch = .data, .hidden = .model });</span>
+</code></pre>
+  </div>
+  <details class="sharding-rule">
+    <summary>Partitioning<span data-rule-name></span></summary>
+    <div data-rule="input"><pre><code class="zig" data-copy-label="Copy input partitioning">const input_shape = zml.Shape.init(.{ .batch = 16, .feature = 32 }, .f32)
     .withPartitioning(mesh, .{ .batch = .data, .feature = .replicated });
+</code></pre></div>
+    <div data-rule="weights"><pre><code class="zig" data-copy-label="Copy weight partitioning">const w_shape = zml.Shape.init(.{ .feature = 32, .hidden = 64 }, .f32)
+    .withPartitioning(mesh, .{ .feature = .replicated, .hidden = .model });
+</code></pre></div>
+    <div data-rule="bias"><pre><code class="zig" data-copy-label="Copy bias partitioning">const b_shape = zml.Shape.init(.{ .hidden = 64 }, .f32)
+    .withPartitioning(mesh, .{ .hidden = .model });
+</code></pre></div>
+    <div data-rule="output"><pre><code class="zig" data-copy-label="Copy output partitioning">y = y.withPartitioning(.dp_mp, .{ .batch = .data, .hidden = .model });
+</code></pre></div>
+  </details>
+  <details class="sharding-text" open>
+    <summary>All tensor placements on the 2 × 2 mesh</summary>
+    <table><thead><tr><th scope="col">Tensor</th><th scope="col">Global shape</th><th scope="col">Per-device placement</th></tr></thead><tbody>
+      <tr data-placement="input"><th scope="row">Input</th><td><code>batch=<span data-dim="batch" data-split="data">16</span>, feature=<span data-dim="feature">32</span></code></td><td>Each data group holds eight batch rows with all 32 features. Both model partitions in that group receive the same input slice.</td></tr>
+      <tr data-placement="weights"><th scope="row">Weights</th><td><code>feature=<span data-dim="feature">32</span>, hidden=<span data-dim="hidden" data-split="model">64</span></code></td><td>Each model partition holds 32 hidden columns with all 32 input features. Both data groups use the same corresponding weight slice.</td></tr>
+      <tr data-placement="bias"><th scope="row">Bias</th><td><code>hidden=<span data-dim="hidden" data-split="model">64</span></code></td><td>Each model partition holds the bias for its 32 hidden columns. Both data groups use the same corresponding bias slice.</td></tr>
+      <tr data-placement="output"><th scope="row">Output</th><td><code>batch=<span data-dim="batch" data-split="data">16</span>, hidden=<span data-dim="hidden" data-split="model">64</span></code></td><td>Each device produces a distinct block of eight batch rows and 32 hidden columns.</td></tr>
+    </tbody></table>
+  </details>
+</div>
 ```
 
-Here `mesh` is the registered device mesh. A replicated dimension stays
-whole on each shard that holds it. Replication therefore preserves the full
-feature dimension while the batch can still be partitioned. For a graph
-value inside `forward`, `Tensor.withPartitioning` emits a sharding constraint.
+`platform.registerMesh` maps the logical axes to the **physical mesh**, the
+devices and their connections. `Shape.withPartitioning` assigns tagged
+dimensions to those axes. A `.replicated` dimension stays whole on each shard.
+Inside `forward`, `Tensor.withPartitioning` constrains the placement of a graph value.
 See the [tagged-shape guide]($link.page('zml/concepts')) and the
 [sharding example source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/sharding/main.zig#L204-L236).
 
