@@ -5,10 +5,6 @@
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Developer Guide" },
 ---
-Use `POST /v1/embeddings` to compare the meaning of a query with several
-passages. This example asks about a power outage and ranks two passages
-using the vectors returned by LLMD.
-
 # [Start the embedding model]($heading.id('start-the-embedding-model'))
 
 Choose `Qwen/Qwen3-Embedding-8B` and your backend in the
@@ -20,13 +16,45 @@ to confirm it returns a vector.
 
 # [Rank two passages]($heading.id('rank-two-passages'))
 
-Send the query and both passages in one batch so all three vectors use the
-same model and dimensions. For retrieval, Qwen recommends including a
-short task instruction with the query and sending the passages as plain text.
-[Qwen model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B#usage)
+```=html
+<div class="embedding-ranking">
+  <figure class="embedding-batch">
+    <figcaption><strong>One batch, three vectors</strong> <code>POST /v1/embeddings</code></figcaption>
+    <ul role="list">
+      <li class="embedding-query">
+        <div><strong>Query</strong> <span>What keeps the lights on when the power fails?</span></div>
+        <span aria-hidden="true">→</span>
+        <div class="embedding-index"><code>index 0</code><span>Query vector</span></div>
+      </li>
+      <li>
+        <div><strong>Passage A</strong> <span>A backup generator supplies electricity during a blackout.</span></div>
+        <span aria-hidden="true">→</span>
+        <div class="embedding-index"><code>index 1</code><span>A vector</span></div>
+      </li>
+      <li>
+        <div><strong>Passage B</strong> <span>The bakery sells sourdough bread on Saturday mornings.</span></div>
+        <span aria-hidden="true">→</span>
+        <div class="embedding-index"><code>index 2</code><span>B vector</span></div>
+      </li>
+    </ul>
+  </figure>
+  <figure class="embedding-results">
+    <figcaption><strong>Passage ranking</strong> <span>Illustrative</span></figcaption>
+    <ol>
+      <li><strong>Passage A · backup generator</strong><span>Compare index 0 with index 1</span></li>
+      <li><strong>Passage B · bakery</strong><span>Compare index 0 with index 2</span></li>
+    </ol>
+    <p>The Python client sorts by cosine similarity, highest first.</p>
+  </figure>
+</div>
+```
 
-Run the following with Python 3. Set `endpoint` to the address used by
-your quickstart request.
+## [Run the complete Python example]($heading.id('run-the-python-example'))
+
+Save as `compare.py` and run `python3 compare.py`. Set `endpoint` to the
+address used by your quickstart request. Send all three inputs in one batch
+so they use the same model and dimensions. For retrieval, put the task
+instruction in the query and send the passages as plain text. [Qwen model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B#usage)
 
 ```python
 import json
@@ -67,8 +95,5 @@ for score, passage in sorted(ranked, reverse=True):
     print(f"{score:.4f}  {passage}")
 ```
 
-The first vector belongs to the query. Indices 1 and 2 identify the
-passages. A higher cosine similarity means that a passage's vector points
-closer to the query vector. Read the highest-scoring passage first.
 For encoding options, vector sizes, and request limits, see the
 [Embeddings API reference]($link.page('llmd/api-reference/embeddings').ref('embeddings')).
