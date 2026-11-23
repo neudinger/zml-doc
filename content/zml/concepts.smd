@@ -1,71 +1,101 @@
 ---
 .title = "ZML concepts",
-.description = "Understand tensors, shapes, and dimension tags in ZML, then use a named axis in a dot product.",
+.description = "Explore a tagged dot product to understand tensors, shapes, and dimension tags in ZML.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Developer Guide" },
 ---
-A ZML model describes its computation with tensors. Their shapes tell ZML
-how many values to expect, and dimension tags give meaningful names to axes.
 The examples follow the revision in the [ZML quickstart]($link.page('zml/quickstart')).
+
+# [Tagged dot product]($heading.id('tagged-dot-product'))
+
+Follow a **2 × 3 weight matrix** and a three-element input through `forward`.
+The `.feature` tag identifies the columns in the weights and the only axis
+in the input.
+
+```=html
+<div class="contraction-explorer" data-contraction-explorer>
+  <div class="contraction-steps" role="group" aria-label="Dot product steps" hidden data-pagefind-ignore>
+    <button type="button" data-select-stage="inspect" aria-pressed="true">Inspect axes</button>
+    <button type="button" data-select-stage="multiply" aria-pressed="false">Multiply</button>
+    <button type="button" data-select-stage="sum" aria-pressed="false">Sum rows</button>
+  </div>
+  <div class="contraction-workspace">
+    <figure>
+      <figcaption><strong>Weights</strong><code>f32[2, 3]</code></figcaption>
+      <table class="contraction-grid" aria-label="Weight matrix with two output rows, three feature columns, and an aligned input vector">
+        <colgroup><col class="contraction-row-column"></colgroup>
+        <colgroup span="3"></colgroup>
+        <colgroup><col class="contraction-result-column"></colgroup>
+        <thead>
+          <tr>
+            <td></td>
+            <th scope="colgroup" colspan="3" data-select-axis="feature"><code>.feature</code></th>
+            <th scope="col" rowspan="2" class="contraction-result-label">Result</th>
+          </tr>
+          <tr>
+            <th scope="col" data-select-axis="output"><code>.output</code></th>
+            <th scope="col">0</th>
+            <th scope="col">1</th>
+            <th scope="col">2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">0</th><td data-weight>1</td><td data-weight>2</td><td data-weight>3</td><td data-result>13</td></tr>
+          <tr><th scope="row">1</th><td data-weight>4</td><td data-weight>5</td><td data-weight>6</td><td data-result>31</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><th scope="row">Input</th><td data-input>2</td><td data-input>1</td><td data-input>3</td><td></td></tr>
+        </tfoot>
+      </table>
+      <div role="status">
+        <p class="contraction-status">Sum three feature products per row. Result <code>f32[2]</code> · <code>.output</code> · Rank 1</p>
+        <p class="contraction-rule" data-matching-rule>Both <code>.feature</code> axes must have the same size.</p>
+      </div>
+    </figure>
+    <div class="command-shell contraction-code">
+      <span class="command-language icon-code">Zig · forward</span>
+      <pre><code data-copy-label="Copy tagged dot product in Zig"><span class="token keyword">const</span> zml = <span class="token builtin">@import</span>(<span class="token string">"zml"</span>);
+
+<span class="token keyword">pub fn</span> forward(weights: zml.Tensor, input: zml.Tensor) zml.Tensor {
+<span data-line="weights">    <span class="token keyword">const</span> tagged_weights = weights.<span class="token function">withTags</span>(.{ <span class="token attr-name">.output</span>, <span class="token attr-name">.feature</span> });</span>
+<span data-line="input">    <span class="token keyword">const</span> tagged_input = input.<span class="token function">withTags</span>(.{<span class="token attr-name">.feature</span>});</span>
+<span data-line="dot">    <span class="token keyword">return</span> tagged_weights.<span class="token function">dot</span>(tagged_input, <span class="token attr-name">.feature</span>);</span>
+}
+</code></pre>
+    </div>
+  </div>
+</div>
+<details class="contraction-batch-note">
+  <summary>Batched inputs</summary>
+  <p>In <code>dot</code>, other axes with matching tags are paired as batch axes.</p>
+</details>
+```
+
+[]($section.attrs('contraction-definition'))
 
 # [Tensors]($heading.id('tensors'))
 
-A `zml.Tensor` represents a symbolic value, such as a model weight, an input,
-or an intermediate result. `zml.Tensor.init(.{ 2, 3 }, .f32)` declares a
-tensor with two rows, three columns, and 32-bit floating-point elements.
-During compilation, operations in `forward` describe how the model computes
-its output. At runtime, `zml.Buffer` holds the concrete weights, inputs, and
-results for the selected backend. See the
-[execution diagram]($link.page('zml').ref('follow-the-model-lifecycle')).
+`zml.Tensor` describes a symbolic value. `zml.Buffer` holds its data at runtime.
+
+[]($section.attrs('contraction-definition'))
 
 # [Shapes]($heading.id('shapes'))
 
-`tensor.shape()` returns a `zml.Shape`. It records the element type and
-ordered dimension sizes. The **rank** is the number of axes. For a matrix
-of shape `f32[2, 3]`, axis `0` has size `2` and axis `1` has size `3`.
-The [Shape API reference]($link.page('zml/api/shape')) lists the
-calls for reading these values.
+A shape records the element type and ordered axis sizes. Rank counts the axes.
 
-| Shape | Rank | Elements |
-| --- | --- | --- |
-| `f32[]` | 0 (scalar) | 1 |
-| `f32[1]` | 1 (vector) | 1 |
-| `f32[2, 3]` | 2 (matrix) | 6 |
+```=html
+<div class="contraction-shape-examples">
+  <span><code>f32[]</code> Scalar · rank 0</span>
+  <span><code>f32[1]</code> One-element vector · rank 1</span>
+</div>
+```
 
-Use `zml.Shape.scalar(.f32)` for the scalar and `zml.Shape.init(.{1}, .f32)`
-for the one-element vector. Call `rank()` to count the axes, `dim(0)` to read
-the size of the first axis of a non-scalar, and `dtype()` to read the element
-type.
+[Shape API →]($link.page('zml/api/shape').ref('shape'))
+
+[]($section.attrs('contraction-definition'))
 
 # [Dimension tags]($heading.id('dimension-tags'))
 
-A **dimension tag** names an axis. On the weight matrix below, `.output`
-names the first axis and `.feature` names the second. Pass one tag per axis
-to `withTags` in the existing axis order. Tagging preserves the order,
-sizes, and element type of the tensor.
-
-For a weight matrix tagged in this order, `weights.axis(.feature)` returns
-`1`, the axis index. `weights.dim(.feature)` returns `3`, the size of that
-axis. Named selectors let a calculation refer to the feature axis even when
-it occupies different positions in two tensors.
-
-# [A dot product over a named axis]($heading.id('tagged-dot-product'))
-
-This `forward` function expects weights of shape `f32[2, 3]` and an input of
-shape `f32[3]`. It runs as part of model compilation.
-
-```zig
-const zml = @import("zml");
-
-pub fn forward(weights: zml.Tensor, input: zml.Tensor) zml.Tensor {
-    const tagged_weights = weights.withTags(.{ .output, .feature });
-    const tagged_input = input.withTags(.{.feature});
-    return tagged_weights.dot(tagged_input, .feature);
-}
-```
-
-`dot` selects `.feature` in each tensor and sums the products across its
-three elements for each weight row. The result has shape `f32[2]` and keeps
-the `.output` tag. The contracted axes must have the same size. With batched
-inputs, `dot` pairs any other tags shared by both tensors as batch axes.
+`withTags` names axes in their existing order. `axis(tag)` returns the index
+and `dim(tag)` returns the size.

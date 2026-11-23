@@ -1,0 +1,148 @@
+.contraction-explorer {
+  container: contraction / inline-size;
+  padding: clamp(0.6rem, 2vw, 1.05rem);
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--surface);
+}
+
+.contraction-steps:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-block-end: 0.85rem;
+}
+.contraction-explorer button:is([data-select-stage], .contraction-axis) {
+  min-block-size: 2.125rem;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.contraction-explorer button:is([data-select-stage], .contraction-axis):hover {
+  border-color: var(--search-border);
+}
+.contraction-explorer button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--selection);
+  color: var(--accent);
+}
+.contraction-explorer button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.contraction-explorer .contraction-axis { padding-inline: 0.35rem; }
+.contraction-explorer .contraction-axis > code { background: transparent; padding: 0; white-space: nowrap; }
+
+.contraction-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0.85rem;
+}
+.contraction-workspace figure { margin: 0; min-inline-size: 0; }
+.contraction-workspace figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  margin-block-end: 0.25rem;
+}
+
+.contraction-workspace .contraction-grid {
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0.2rem;
+  font-variant-numeric: tabular-nums;
+}
+.contraction-row-column { width: 4.4rem; }
+.contraction-result-column { width: 3.3rem; }
+.contraction-grid :is(th, td) {
+  padding: 0.125rem 0;
+  border: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+.contraction-grid th { color: var(--muted); font-size: 0.8rem; font-weight: 500; }
+.contraction-grid .contraction-result-label { vertical-align: bottom; }
+.contraction-grid :is([data-weight], [data-result]) {
+  block-size: 3rem;
+  background: var(--code);
+  border-radius: 0.25rem;
+}
+.contraction-grid tfoot [data-input] { border-block-start: 1px solid var(--border); }
+.contraction-explorer[data-stage="inspect"][data-axis="feature"] tbody tr:first-child [data-weight],
+.contraction-explorer[data-stage="inspect"][data-axis="output"] tbody td:nth-child(2),
+.contraction-explorer[data-stage="multiply"] [data-weight],
+.contraction-explorer:is(:not([data-stage]), [data-stage="sum"]) [data-result] {
+  color: var(--accent);
+  background: var(--selection);
+}
+.contraction-explorer:is(:not([data-stage]), [data-stage="sum"]) [data-result] { font-weight: 650; }
+.contraction-operands { display: block; color: var(--muted); font-size: 0.75rem; line-height: 1.25; }
+.contraction-workspace .contraction-status {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.contraction-workspace .contraction-rule {
+  margin: 0.35rem 0 0;
+  padding-inline-start: 0.55rem;
+  border-inline-start: 2px solid var(--accent);
+  font-size: 0.85rem;
+}
+
+.contraction-code pre code { display: block; }
+.contraction-code [data-line] {
+  display: inline-block;
+  inline-size: 100%;
+  vertical-align: top;
+}
+.contraction-code [data-line][data-active] {
+  background: linear-gradient(var(--neon)) left / 2px 100% no-repeat, var(--selection);
+}
+
+.contraction-batch-note { padding-block: 0.6rem; }
+.contraction-batch-note summary {
+  color: var(--accent);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.contraction-batch-note > p { margin: 0.35rem 0 0; color: var(--muted); }
+
+.contraction-definition {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  padding-block: 0.7rem;
+  border-block-start: 1px solid var(--border);
+}
+.prose .contraction-definition > h2 { margin: 0; font-size: 1rem; line-height: 1.5; }
+.prose .contraction-definition > p { margin: 0; }
+.contraction-shape-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.85rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@container contraction (min-width: 39rem) {
+  .contraction-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+}
+@media (min-width: 42rem) {
+  .contraction-definition { grid-template-columns: 10.75rem minmax(0, 1fr); }
+  .contraction-definition > :not(h2) { grid-column: 2; }
+}
+@media (pointer: coarse) {
+  .contraction-explorer button:is([data-select-stage], .contraction-axis) { min-block-size: 2.75rem; }
+  .contraction-batch-note summary { min-block-size: 2.75rem; padding-block: 0.65rem; }
+}
+@media (forced-colors: active) {
+  .contraction-explorer button[aria-pressed="true"],
+  .contraction-code [data-line][data-active] { outline: 1px solid Highlight; }
+}
