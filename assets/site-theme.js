@@ -2,12 +2,14 @@
   const root = document.documentElement;
   const themeColor = document.querySelector('meta[name="theme-color"]');
   const preferenceKey = "zml-site-theme";
+  const defaultTheme = root.dataset.theme;
 
   function savedTheme() {
     try {
-      return window.localStorage.getItem(preferenceKey) === "dark" ? "dark" : "light";
+      const preference = window.localStorage.getItem(preferenceKey);
+      return preference === "light" || preference === "dark" ? preference : defaultTheme;
     } catch {
-      return root.dataset.theme ?? "light";
+      return defaultTheme;
     }
   }
 

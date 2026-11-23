@@ -249,7 +249,7 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
       : !preset.classList.contains("external") && (!mode || mode.id === "standard"));
     if (matchesPreset) {
       if (preset.classList.contains("source-tested")) return {
-        type: "Upstream source test", note: "The upstream test report covers these weights and hardware. The generated Docker command awaits hardware validation.",
+        type: "Upstream source test", note: "Upstream testing covered these weights on this backend. The generated Docker command awaits hardware validation.",
         sources: presetSources, launch: preset.href,
       };
       if (preset.classList.contains("recorded-run")) return {

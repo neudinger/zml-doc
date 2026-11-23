@@ -687,6 +687,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .llmd-launch-layout {
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
+  margin-block-start: 1rem;
 }
 .llmd-launch-settings {
   padding: clamp(0.75rem, 2cqi, 1.15rem);
@@ -810,7 +811,8 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .llmd-launch-step { padding-block: 0.2rem; border-block-end: 1px solid var(--border); }
 .llmd-launch-step > summary { padding-block: 0.35rem; font-weight: 650; cursor: pointer; }
 .llmd-launch-step > summary::marker { color: var(--accent); }
-.llmd-launch-step[open] { padding-block-end: 0.75rem; }
+.prose .llmd-launch-step > h3 { margin: 0; padding-block: 0.35rem; font-size: 1rem; font-weight: 650; line-height: inherit; }
+.llmd-launch-step:is([open], section) { padding-block-end: 0.75rem; }
 .llmd-launch-step-number {
   display: inline-grid;
   place-items: center;
@@ -1313,7 +1315,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 @media (pointer: coarse) {
   :is(.product-tabs, .section-tabs) a { min-block-size: 44px; }
   .bazel-backend select { min-block-size: 44px; }
-  .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch-configurator summary { min-block-size: 44px; }
+  .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch :is(.llmd-launch-configurator, .llmd-launch-commands) summary { min-block-size: 44px; }
   .llmd-launch-field :is(input, select, textarea) { font-size: 1rem; }
   .model-catalog-field :is(input, select), .model-catalog-cell, .model-catalog-family-button,
   .model-catalog-actions [data-model-configure], .model-catalog-filter-panel summary, .model-catalog-pairings { min-block-size: 44px; }

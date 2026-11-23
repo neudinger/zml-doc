@@ -590,12 +590,12 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       }
       const presetSelected = applyFragment();
       render();
-      const inside = target && configurator.contains(target);
+      const inside = root.contains(target);
       if (!inside && !querySelected && !presetSelected) return;
-      configurator.open = true;
+      if (querySelected || presetSelected) configurator.open = true;
       if (!inside && window.location.hash && !presetSelected) return;
       const destination = inside && !target.closest("[hidden]") ? target : configurator.querySelector("summary");
-      for (let details = destination.closest("details"); configurator.contains(details); details = details.parentElement.closest("details")) {
+      for (let details = destination.closest("details"); root.contains(details); details = details.parentElement.closest("details")) {
         details.open = true;
       }
       destination.scrollIntoView();
@@ -607,7 +607,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     document.addEventListener("click", event => {
       if (event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
       const link = event.target.closest('a[href^="#"]');
-      if (link?.hash && link.hash === window.location.hash && configurator.contains(document.getElementById(link.hash.slice(1)))) {
+      if (link?.hash && link.hash === window.location.hash && root.contains(document.getElementById(link.hash.slice(1)))) {
         renderFragment(false);
       }
     });
@@ -615,7 +615,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     updateCheckpointDirectory();
     refreshDecoding();
     refreshRequest("chat");
-    form.hidden = false;
+    configurator.hidden = false;
     renderFragment(applyQuery());
   }
 })();

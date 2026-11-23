@@ -158,7 +158,7 @@ if (contents) {
 for (const heading of document.querySelectorAll(".prose :is(h2, h3, h4, h5, h6)")) {
   // Some configurator sections keep the bookmark on their enclosing panel.
   const id = heading.id || heading.parentElement.id;
-  const title = heading.textContent.trim();
+  const title = heading.dataset.tocLabel ?? heading.textContent.trim();
   if (!id || !title) continue;
   const link = document.createElement("a");
   link.className = "section-permalink icon-link";

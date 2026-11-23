@@ -28,34 +28,32 @@
   <a id="checkpoint-storage" data-moved-topic data-pagefind-ignore href="../cli/model-and-listener/#local-model-files">Required model files</a>
   <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../reference/environment/#gated-model-access">Gated model access</a>
   <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../cli/model-and-listener/#cloud-model-uris">S3 and Google Cloud Storage</a>
-  <details class="llmd-launch-configurator" data-configurator>
-  <summary id="llmd-launch-settings-heading" data-toc-label="Configure launch">Configure launch</summary>
-  <div id="lfm3-fp8-metal"></div>
-  <div id="lfm3-fp8-cuda"></div>
-  <div id="lfm3-fp8-rocm"></div>
-  <div id="lfm3-bf16-metal"></div>
-  <div id="lfm3-bf16-cuda"></div>
-  <div id="lfm3-bf16-rocm"></div>
-  <div id="lfm3-oneapi"></div>
-  <div id="lfm3-tpu"></div>
-  <div id="lfm3-furiosa"></div>
-  <div id="qwen3-8-27b-fp8-metal"></div>
-  <div id="qwen3-8-27b-cuda"></div>
-  <div id="qwen3-8-27b-rocm"></div>
-  <div id="qwen3-8-27b-cuda-dspine"></div>
-  <div id="qwen3-8-27b-rocm-dspine"></div>
-  <div id="qwen3-8-27b-oneapi"></div>
-  <div id="qwen3-8-27b-tpu"></div>
-  <div id="qwen3-8-27b-nvfp4-metal"></div>
-  <div id="qwen3-8-flash-next-cuda"></div>
-  <div id="qwen3-8-flash-next-rocm"></div>
-  <div id="deepseek-v4-1-flash-cuda"></div>
-  <div id="deepseek-v4-1-flash-rocm"></div>
-  <div id="mistral-large-4-cuda"></div>
-  <div id="gemma-4-31b-it-cuda"></div>
-  <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
-  <div class="llmd-launch-layout">
-    <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
+  <details class="llmd-launch-configurator" data-configurator hidden>
+    <summary id="llmd-launch-settings-heading" data-toc-label="Configure launch">Configure launch</summary>
+    <div id="lfm3-fp8-metal"></div>
+    <div id="lfm3-fp8-cuda"></div>
+    <div id="lfm3-fp8-rocm"></div>
+    <div id="lfm3-bf16-metal"></div>
+    <div id="lfm3-bf16-cuda"></div>
+    <div id="lfm3-bf16-rocm"></div>
+    <div id="lfm3-oneapi"></div>
+    <div id="lfm3-tpu"></div>
+    <div id="lfm3-furiosa"></div>
+    <div id="qwen3-8-27b-fp8-metal"></div>
+    <div id="qwen3-8-27b-cuda"></div>
+    <div id="qwen3-8-27b-rocm"></div>
+    <div id="qwen3-8-27b-cuda-dspine"></div>
+    <div id="qwen3-8-27b-rocm-dspine"></div>
+    <div id="qwen3-8-27b-oneapi"></div>
+    <div id="qwen3-8-27b-tpu"></div>
+    <div id="qwen3-8-27b-nvfp4-metal"></div>
+    <div id="qwen3-8-flash-next-cuda"></div>
+    <div id="qwen3-8-flash-next-rocm"></div>
+    <div id="deepseek-v4-1-flash-cuda"></div>
+    <div id="deepseek-v4-1-flash-rocm"></div>
+    <div id="mistral-large-4-cuda"></div>
+    <div id="gemma-4-31b-it-cuda"></div>
+    <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore>
       <p class="llmd-launch-error" data-link-error role="status" hidden>The link contains an unlisted model, backend, or decoding mode for this drafter. Select the model and decoding settings to generate commands.</p>
       <div class="llmd-launch-recipe">
         <div class="llmd-launch-field">
@@ -247,6 +245,9 @@
         </div>
       </details>
     </form>
+  </details>
+  <div class="llmd-launch-layout">
+    <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
     <div class="llmd-launch-commands">
       <dl class="llmd-launch-context" aria-label="Server connection">
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
@@ -305,15 +306,15 @@ furiosa-cdi list</code></pre>
             <pre><code class="sh" data-command="drafter-download" data-copy-label="Copy drafter download command"></code></pre>
           </div>
         </details>
-        <details class="llmd-launch-step" id="start-the-server" data-toc-label="Start LLMD">
-          <summary><span class="llmd-launch-step-number">2</span> Start LLMD</summary>
+        <section class="llmd-launch-step" aria-labelledby="start-the-server">
+          <h3 id="start-the-server" data-toc-label="Start LLMD"><span class="llmd-launch-step-number" aria-hidden="true">2</span> Start LLMD</h3>
           <p class="llmd-launch-hint"><span data-launch-hint>Run each time you start the server.</span> <a href="../../operations/deployment/">Deployment guide</a></p>
           <div class="command-shell">
             <span class="command-language icon-code">Host shell</span>
             <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
   --model=hf://LiquidAI/LFM3-1.7B</code></pre>
           </div>
-        </details>
+        </section>
       </section>
       <div class="llmd-launch-requests">
         <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
@@ -380,7 +381,6 @@ furiosa-cdi list</code></pre>
       </div>
     </div>
   </div>
-  </details>
 </div>
 ```
 

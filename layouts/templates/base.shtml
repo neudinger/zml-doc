@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" data-pf-theme="dark">
 <head id="site-head">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#0d0c14">
   <link rel="icon" type="image/svg+xml" href="$site.asset('zml-mark.svg').link()">
   <script src="$site.asset('site-theme.js').link()"></script>
   <ctx :if="$build.development.not()">
@@ -31,7 +31,7 @@
         <ctx :if="$build.development.not()">
           <pagefind-modal-trigger class="site-search" placeholder="Search docs"></pagefind-modal-trigger>
         </ctx>
-        <button class="theme-toggle" type="button" aria-label="Night mode" aria-pressed="false" title="Night mode" hidden></button>
+        <button class="theme-toggle" type="button" aria-label="Night mode" aria-pressed="true" title="Night mode" hidden></button>
       </div>
     </div>
     <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
