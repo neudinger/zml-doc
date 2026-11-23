@@ -54,12 +54,13 @@ if (contents) {
     link, id: decodeURIComponent(link.hash.slice(1)),
   }));
   const walkthrough = article.querySelector(".model-walkthrough");
+  const sectionDisclosures = "details.model-source, details.client-disclosure, details.bazel-recipe";
   function revealSectionTarget(hash) {
     const target = document.getElementById(hash.slice(1));
     if (!target) return;
     const disclosure = target.closest(".client-branch")?.querySelector("details");
     if (disclosure) disclosure.open = true;
-    else if (target.matches("details.model-source, details.client-disclosure")) target.open = true;
+    else if (target.matches(sectionDisclosures)) target.open = true;
     else if (target === walkthrough) walkthrough.querySelector("input").checked = true;
     else if (target.control?.type === "radio" && walkthrough?.contains(target)) target.control.checked = true;
   }
@@ -138,9 +139,10 @@ if (contents) {
       const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)));
       disclosure.open = false;
       if (heading) {
-        const focusTarget = heading.matches("details.model-source, details.client-disclosure") ? heading.querySelector("summary") : heading.control ?? heading;
+        const focusTarget = heading.matches(sectionDisclosures) ? heading.querySelector("summary") : heading.control ?? heading;
         if (!focusTarget.hasAttribute("tabindex") && focusTarget.tabIndex < 0) focusTarget.tabIndex = -1;
-        focusTarget.focus({ preventScroll: true });
+        // Move focus after the browser follows the fragment link.
+        requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
       }
     }
     scheduleSection();

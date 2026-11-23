@@ -109,10 +109,17 @@
       </ctx>
       <ctx :if="$site.index().isCurrent().not()">
         <ctx toc="$ctx.article.toc()">
-          <ctx :if="$ctx.toc.contains('href=')">
+          <ctx :if="$ctx.toc.contains('href=').or($ctx.article.custom.has('recipe_outline'))">
             <nav class="page-toc" aria-labelledby="page-toc-heading">
               <details open>
                 <summary id="page-toc-heading">On this page</summary>
+                <ctx :if="$ctx.article.custom.has('recipe_outline')">
+                  <ul>
+                    <ctx :loop="$ctx.article.custom.get('recipe_outline')">
+                      <li><a href="$loop.it.get('id').prefix('#')" :text="$loop.it.get('label')"></a></li>
+                    </ctx>
+                  </ul>
+                </ctx>
                 <div :html="$ctx.toc"></div>
               </details>
             </nav>

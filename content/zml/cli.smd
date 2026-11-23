@@ -36,5 +36,5 @@ bazel run //examples/llm -- --help
 ```
 
 Set `--model` to a model directory or URI and pass `--prompt` for a single response.
-See [LLM example flags and defaults]($link.page('zml/build-and-run').ref('run-an-llm-example'))
+See [LLM example flags and defaults]($link.page('zml/build-and-run').ref('llm-example-flags'))
 for the supported model locations and attention backends.

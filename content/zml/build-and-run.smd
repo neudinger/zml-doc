@@ -1,29 +1,126 @@
 ---
 .title = "Build and run with Bazel",
-.description = "Choose a ZML backend, run a model example, and package a build for another machine.",
+.description = "Run and test ZML, capture a trace, or package a build for another host.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "Developer Guide" },
+.custom = .{
+    .doc_section = "Developer Guide",
+    .recipe_outline = [
+        .{ .id = "run-an-llm-example", .label = "Run" },
+        .{ .id = "test-zml", .label = "Test" },
+        .{ .id = "profile-an-llm-example", .label = "Profile" },
+        .{ .id = "package-a-build-for-a-different-host", .label = "Package" },
+    ],
+},
 ---
-Run these commands from the ZML checkout in the
-[ZML quickstart]($link.page('zml/quickstart')). The flags and defaults below
-refer to that revision and its Bazel 9.3.0 configuration.
+Run these commands from the [ZML quickstart]($link.page('zml/quickstart'))
+checkout using Bazel 9.3.0.
 
-# [Build, run, or test a target]($heading.id('build-run-or-test-a-target'))
+> # [**Run** Generate a response]($block.collapsible(true).id('run-an-llm-example').attrs('bazel-recipe'))
+>
+> **Before you run.** Request access to Llama 3.2 1B Instruct on Hugging Face.
+> Authenticate with `bazel run //tools/hf -- auth login` or set `HF_TOKEN`.
+> See [Environment variables]($link.page('zml/reference/environment')) for credentials.
+>
+> > []($block.attrs('bazel-recipe-example'))
+> >
+> > ```sh
+> > bazel run //examples/llm -- \
+> >   --model=hf://meta-llama/Llama-3.2-1B-Instruct \
+> >   --prompt='What is the capital of France?'
+> > ```
+> >
+> > **Expected result** The startup log shows the platform and attention
+> > backend, followed by generated text.
+>
+> Put Bazel flags before the `--` separator. The example receives
+> `--model` and `--prompt` after it.
+>
+> > # [Run on NVIDIA CUDA]($block.collapsible(false).attrs('bazel-recipe-variant'))
+> >
+> > Use a compatible NVIDIA device and CUDA driver. Enable CUDA and disable
+> > CPU before the separator.
+> >
+> > > []($block.attrs('bazel-recipe-example'))
+> > >
+> > > ```sh
+> > > bazel run --@zml//platforms:cuda=true --@zml//platforms:cpu=false \
+> > >   //examples/llm -- \
+> > >   --model=hf://meta-llama/Llama-3.2-1B-Instruct \
+> > >   --prompt='What is the capital of France?'
+> > > ```
+> > >
+> > > **Expected result** The startup log shows CUDA before generation.
+
+> # [**Test** Run the ZML test target]($block.collapsible(false).id('test-zml').attrs('bazel-recipe'))
+>
+> Use the checkout's default backend. Pass `--test_output=all` to see logs
+> from passing tests. Without it, Bazel prints logs for failures.
+>
+> > []($block.attrs('bazel-recipe-example'))
+> >
+> > ```sh
+> > bazel test --test_output=all //zml:test
+> > ```
+> >
+> > **Expected result** `//zml:test` reports `PASSED` when successful.
+
+> # [**Profile** Capture a Perfetto trace]($block.collapsible(false).id('profile-an-llm-example').attrs('bazel-recipe'))
+>
+> **Before you run.** Use the model access and credentials from [Run]($link.ref('run-an-llm-example')).
+> The process needs write access under `/tmp/xprof`.
+>
+> > []($block.attrs('bazel-recipe-example'))
+> >
+> > ```sh
+> > bazel run //examples/llm -- \
+> >   --model=hf://meta-llama/Llama-3.2-1B-Instruct \
+> >   --prompt='What is the capital of France?' \
+> >   --profile
+> > ```
+> >
+> > **Expected result** Open the `profiling.trace.json` file listed after
+> > `Profile dumped` in the log.
+>
+> The example takes `--profile` and `--prompt` after `--`. To use a Bazel
+> profiler wrapper, select a [named configuration]($link.ref('select-a-build-or-profiling-configuration'))
+> before the separator.
+
+> # [**Package** Bundle the executable and runfiles]($block.collapsible(false).id('package-a-build-for-a-different-host').attrs('bazel-recipe'))
+>
+> **Destination.** Use a Linux x86-64 host with a compatible NVIDIA device
+> and driver. Install a tool that can extract Zstandard-compressed archives.
+>
+> > []($block.attrs('bazel-recipe-example'))
+> >
+> > ```sh
+> > bazel build --config=release \
+> >   --platforms=@zml//platforms:linux_amd64 \
+> >   --@zml//platforms:cuda=true --@zml//platforms:cpu=false \
+> >   //examples/llm:archive
+> > ```
+> >
+> > **Expected artifact** `bazel-bin/examples/llm/archive.tar.zst` contains
+> > the executable and runfiles.
+>
+> Copy the archive to the destination and extract it. Run `./examples/llm/llm`
+> from the extracted tree with the model arguments. Keep the runfiles next to
+> the executable. For `//examples/mnist:archive`, see the
+> [MNIST deployment instructions](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/docs/howtos/deploy_on_server.md)
+> for weight and image data paths.
+
+# [Build commands and flag reference]($heading.id('build-run-or-test-a-target'))
 
 ```sh
 bazel build //examples/mnist
-bazel run //examples/mnist
-bazel test //zml:test
 ```
 
-`build` produces build artifacts. `run` builds the target and launches it with
-its declared data and runtime files. `test` builds and runs the selected test
-target. Use `bazel query '//examples/...'` to find example targets.
+`bazel run //examples/mnist` also launches the target with its declared data
+and runtime files. Use `bazel query '//examples/...'` to find example targets.
 The [data-parallel MNIST example]($link.page('zml/sharding').ref('run-data-parallel-mnist'))
 distributes a batch of images across a device mesh.
 
-# [Choose a backend and target platform]($heading.id('choose-a-backend-and-target-platform'))
+## [Backend flags and target platforms]($heading.id('choose-a-backend-and-target-platform'))
 
 Set a backend with `--@zml//platforms:<backend>=true`. Bazel includes the
 runtime when the build target satisfies the backend's platform constraints.
@@ -48,42 +145,16 @@ unless a configuration selects another target platform. Check
 [Hardware compatibility]($link.page('zml/reference/compatibility')) for backend and host
 constraints before cross-building.
 
-At runtime, the examples using `Platform.auto()` try compiled-in backends in
-this order: TPU, Neuron, ROCm, CUDA, oneAPI, Metal, Furiosa, then CPU. Check
-the platform printed by the LLM example. To require CUDA for that example,
-enable CUDA and disable CPU with the flags shown below. The example's
-`--backend` option selects its attention implementation within the chosen
-runtime.
+At runtime, `Platform.auto()` tries compiled-in backends in this order: TPU,
+Neuron, ROCm, CUDA, oneAPI, Metal, Furiosa, then CPU. Check the platform
+printed by the example. The LLM example's `--backend` option selects its
+attention implementation within the chosen runtime.
 
-# [Run an LLM example]($heading.id('run-an-llm-example'))
+## [LLM example flags]($heading.id('llm-example-flags'))
 
-Use a compatible Hugging Face model, such as Llama 3.2 1B Instruct.
-Request access to the gated model on Hugging Face, then authenticate with
-`bazel run //tools/hf -- auth login` or set `HF_TOKEN` in the environment.
-See [Environment variables]($link.page('zml/reference/environment')) for storage
-and credentials.
-
-```sh
-bazel run //examples/llm -- \
-  --model=hf://meta-llama/Llama-3.2-1B-Instruct \
-  --prompt='What is the capital of France?'
-```
-
-On a host with a compatible NVIDIA device and CUDA driver, add the Bazel
-backend flags before `--`. The executable receives arguments after `--`.
-
-```sh
-bazel run --@zml//platforms:cuda=true --@zml//platforms:cpu=false //examples/llm -- \
-  --model=hf://meta-llama/Llama-3.2-1B-Instruct \
-  --prompt='What is the capital of France?'
-```
-
-After the model loads, check the platform and attention backend in the
-startup output, then look for generated text. Omit `--prompt` to open an
-interactive prompt. To use weights already on disk, pass the model
-directory, for example `--model=/path/to/model`. The example selects the
-implementation from `model_type` in `config.json`.
-To serve a model over HTTP, [start an LLMD server]($link.page('llmd/quickstart')).
+Omit `--prompt` for an interactive prompt, or pass `--model=/path/to/model`
+for local weights. The example selects the implementation from `model_type`
+in `config.json`. To serve a model over HTTP, [start an LLMD server]($link.page('llmd/quickstart')).
 
 | Example flag | Default | Effect |
 | --- | --- | --- |
@@ -95,7 +166,7 @@ To serve a model over HTTP, [start an LLMD server]($link.page('llmd/quickstart')
 | `--profile` | Off | Capture a PJRT trace for a non-interactive run. |
 | `-h`, `--help` | Off | Print the executable's help. |
 
-# [Select a build or profiling configuration]($heading.id('select-a-build-or-profiling-configuration'))
+## [Build and profiling configurations]($heading.id('select-a-build-or-profiling-configuration'))
 
 | Bazel option | Default in this checkout | Effect |
 | --- | --- | --- |
@@ -117,25 +188,6 @@ To serve a model over HTTP, [start an LLMD server]($link.page('llmd/quickstart')
 
 See the [ZML Bazel configuration](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/.bazelrc)
 and the [Bazel command reference](https://bazel.build/reference/command-line-reference).
-
-# [Package a build for a different host]($heading.id('package-a-build-for-a-different-host'))
-
-An archive target packages the executable with its Bazel runfiles. This
-command targets a Linux x86-64 CUDA host.
-
-```sh
-bazel build --config=release \
-  --platforms=@zml//platforms:linux_amd64 \
-  --@zml//platforms:cuda=true --@zml//platforms:cpu=false \
-  //examples/llm:archive
-```
-
-Copy `bazel-bin/examples/llm/archive.tar.zst` to the destination and extract it
-with Zstandard support. Run `./examples/llm/llm` from the extracted tree with
-the same model arguments. Keep the runfiles next to the executable. Use
-`//examples/mnist:archive` for the MNIST example and follow its
-[deployment instructions](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/docs/howtos/deploy_on_server.md)
-for the weights and image data paths.
 
 The commands are source-reviewed. Build and accelerator execution checks for
 these examples are pending.

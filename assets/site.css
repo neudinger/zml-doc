@@ -566,6 +566,50 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .bazel-platforms > details { border-block-end: 1px solid var(--border); }
 .bazel-platforms > details > summary { padding: 0.65rem 0; color: var(--accent); font-weight: 600; cursor: pointer; }
 .bazel-platforms > details .command-shell { margin-block-end: 0.75rem; }
+.bazel-recipe {
+  container: bazel-recipe / inline-size;
+  border-block-end: 1px solid var(--border);
+}
+.bazel-recipe:first-of-type { border-block-start: 1px solid var(--border); }
+.bazel-recipe > summary {
+  box-sizing: border-box;
+  min-block-size: 2.75rem;
+  padding: 0.6rem 0.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.bazel-recipe > summary::marker { color: var(--accent); }
+.bazel-recipe > summary strong {
+  display: inline-block;
+  min-inline-size: 4.75rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+.bazel-recipe[open] > summary strong { color: var(--accent); }
+.prose .bazel-recipe > p { margin-block: 0.35rem 0.85rem; }
+.bazel-recipe-variant { margin-block: 0.65rem; }
+.bazel-recipe-variant > summary { padding-block: 0.4rem; color: var(--accent); font-weight: 650; cursor: pointer; }
+.prose .bazel-recipe-variant > p { margin-block: 0.45rem 0.75rem; }
+.bazel-recipe-example {
+  display: grid;
+  align-items: start;
+  gap: 0.75rem 1rem;
+  margin-block-end: 0.95rem;
+}
+.prose .bazel-recipe-example > :is(pre, .code-block, p) { min-inline-size: 0; margin: 0; }
+.bazel-recipe-example > p:empty { display: none; }
+.prose .bazel-recipe-example pre { padding: 0.75rem; }
+.prose .bazel-recipe-example > p {
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid var(--accent);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.bazel-recipe-example > p > strong { display: block; color: var(--text); }
+@container bazel-recipe (min-width: 36rem) {
+  .bazel-recipe-example { grid-template-columns: minmax(0, 1fr) minmax(10rem, 29%); }
+}
 @container mnist (min-width: 36rem) {
   .bazel-platforms {
     display: grid;
