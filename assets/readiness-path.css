@@ -1,0 +1,136 @@
+.readiness-path {
+  container: readiness-path / inline-size;
+  min-inline-size: 0;
+}
+
+.prose .readiness-shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-block: 0.75rem 1rem;
+}
+
+.readiness-path .readiness-steps:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-block: 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.readiness-path .readiness-steps > li {
+  position: relative;
+  min-inline-size: 0;
+  margin: 0;
+}
+
+.readiness-path .readiness-steps > li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: -0.8rem;
+  inline-size: 0.4rem;
+  block-size: 0.4rem;
+  border: solid var(--muted);
+  border-width: 1px 1px 0 0;
+  transform: translateY(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.readiness-path :is([data-readiness-step], [data-readiness-choice]) {
+  inline-size: 100%;
+  min-block-size: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.readiness-path [data-readiness-step] { block-size: 100%; }
+.readiness-path [data-readiness-step] small {
+  display: block;
+  margin-block-start: 0.15rem;
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.readiness-path :is([data-readiness-step], [data-readiness-choice]):hover { border-color: var(--accent); }
+.readiness-path :is([data-readiness-step], [data-readiness-choice])[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--neon)) left / 2px 100% no-repeat, var(--selection);
+  color: var(--accent);
+}
+.readiness-path :is([data-readiness-step], [data-readiness-choice]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.readiness-path .readiness-stage-heading { margin-block: 0 0.75rem; }
+.readiness-path .readiness-stage-heading :is(h3, p) { margin-block: 0 0.25rem; }
+.readiness-path .readiness-stage-heading p { color: var(--muted); }
+.readiness-path:not(.is-enhanced) [data-readiness-stage] + [data-readiness-stage] {
+  margin-block-start: 1.5rem;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--border);
+}
+
+.readiness-path.is-enhanced .readiness-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: start;
+  gap: 1rem;
+}
+
+.readiness-path .readiness-choices:not([hidden]) { display: grid; gap: 0.375rem; }
+.readiness-path .readiness-choices-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.readiness-path .readiness-procedures { min-inline-size: 0; }
+.readiness-path [data-readiness-symptom] {
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+}
+.readiness-path:not(.is-enhanced) [data-readiness-symptom] + [data-readiness-symptom] { margin-block-start: 0.5rem; }
+.readiness-path [data-readiness-symptom] h4 { margin-block: 0 0.5rem; line-height: 1.35; }
+.readiness-path .readiness-checks { margin: 0; }
+.readiness-path .readiness-checks dt { font-weight: 650; font-size: 0.9rem; }
+.readiness-path .readiness-checks dd { margin: 0 0 0.65rem; }
+.readiness-path .readiness-checks dd:last-child { margin-block-end: 0; }
+.readiness-path .readiness-checks dd :is(p, pre, .code-block) { margin-block: 0.35rem 0; }
+.readiness-path .readiness-checks pre { padding: 0.65rem 0.75rem; }
+.readiness-path .readiness-status {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@container readiness-path (max-width: 36rem) {
+  .readiness-path .readiness-steps:not([hidden]) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  .readiness-path .readiness-steps > li:not(:last-child)::after { content: none; }
+  .readiness-path.is-enhanced .readiness-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .readiness-path :is([data-readiness-step], [data-readiness-choice])[aria-pressed="true"] { border-color: Highlight; }
+}

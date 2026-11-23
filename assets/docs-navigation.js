@@ -54,12 +54,14 @@ if (contents) {
     link, id: decodeURIComponent(link.hash.slice(1)),
   }));
   const walkthrough = article.querySelector(".model-walkthrough");
-  function revealWalkthroughTarget(hash) {
-    if (!walkthrough) return;
+  function revealSectionTarget(hash) {
     const target = document.getElementById(hash.slice(1));
-    if (target === walkthrough) walkthrough.querySelector("input").checked = true;
-    else if (target?.control?.type === "radio" && walkthrough.contains(target)) target.control.checked = true;
-    else if (target?.matches("details.model-source")) target.open = true;
+    if (!target) return;
+    const disclosure = target.closest(".client-branch")?.querySelector("details");
+    if (disclosure) disclosure.open = true;
+    else if (target.matches("details.model-source, details.client-disclosure")) target.open = true;
+    else if (target === walkthrough) walkthrough.querySelector("input").checked = true;
+    else if (target.control?.type === "radio" && walkthrough?.contains(target)) target.control.checked = true;
   }
   walkthrough?.addEventListener("change", event => {
     const label = event.target.closest("label[id]");
@@ -122,7 +124,7 @@ if (contents) {
   }
   function followHash() {
     requestedHash = location.hash;
-    revealWalkthroughTarget(requestedHash);
+    revealSectionTarget(requestedHash);
     landedAt = null;
     scheduleSection();
   }
@@ -130,13 +132,13 @@ if (contents) {
     const link = event.target.closest('a[href^="#"]');
     if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     requestedHash = link.hash;
-    revealWalkthroughTarget(requestedHash);
+    revealSectionTarget(requestedHash);
     landedAt = null;
     if (disclosure && !wideViewport.matches) {
       const heading = document.getElementById(decodeURIComponent(link.hash.slice(1)));
       disclosure.open = false;
       if (heading) {
-        const focusTarget = heading.matches("details.model-source") ? heading.querySelector("summary") : heading.control ?? heading;
+        const focusTarget = heading.matches("details.model-source, details.client-disclosure") ? heading.querySelector("summary") : heading.control ?? heading;
         if (!focusTarget.hasAttribute("tabindex") && focusTarget.tabIndex < 0) focusTarget.tabIndex = -1;
         focusTarget.focus({ preventScroll: true });
       }

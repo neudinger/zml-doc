@@ -4,8 +4,171 @@
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 ---
-Use the container name and port from [Deploy LLMD]($link.page('operations/deployment')).
-The examples use `llmd` and a host port bound to `127.0.0.1:8000`.
+# [Diagnose common failures]($heading.id('diagnose-common-failures'))
+
+Follow the checks in order until you find the first failure. Use the host and
+port from your launch command. The examples use `127.0.0.1:8000` and, for Docker,
+the container name `llmd` from [Deploy LLMD]($link.page('operations/deployment')).
+
+```=html
+<div class="readiness-path" data-readiness-path>
+  <p class="readiness-shortcuts">
+    <a href="#unknown-model">Unknown model</a>
+    <a href="#metrics-dictionary">Metrics dictionary</a>
+  </p>
+  <ol class="readiness-steps" data-readiness-controls aria-label="Readiness checks" data-pagefind-ignore hidden>
+    <li><button type="button" data-readiness-step="container" aria-controls="readiness-container" aria-pressed="false"><strong>1. Container</strong><small>Startup logs</small></button></li>
+    <li><button type="button" data-readiness-step="listener" aria-controls="readiness-listener" aria-pressed="false"><strong>2. Listener</strong><small>GET /health</small></button></li>
+    <li><button type="button" data-readiness-step="model" aria-controls="readiness-model" aria-pressed="false"><strong>3. Served model</strong><small>GET /v1/models</small></button></li>
+    <li><button type="button" data-readiness-step="inference" aria-controls="readiness-inference" aria-pressed="false"><strong>4. Inference</strong><small>Short request</small></button></li>
+  </ol>
+
+  <section id="readiness-container" data-readiness-stage="container" aria-labelledby="readiness-container-title">
+    <div class="readiness-stage-heading">
+      <h3 id="readiness-container-title">Container</h3>
+      <p>LLMD stays running and can access its model files and accelerator. For a native launch, check the LLMD process and its terminal output.</p>
+    </div>
+    <div class="readiness-layout">
+      <div class="readiness-choices" data-readiness-choices data-pagefind-ignore hidden></div>
+      <div class="readiness-procedures">
+        <section id="model-access-fails" data-readiness-symptom aria-labelledby="model-access-fails-title">
+          <h4 id="model-access-fails-title">Model access fails</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Read the model-loading error in the <a href="#check-startup-and-readiness">startup logs</a>. Check the URI, revision, and credentials, or check the local files and mount.</dd>
+            <dt>Expected result</dt>
+            <dd>LLMD can read all files for the selected model revision.</dd>
+            <dt>Recovery</dt>
+            <dd>Confirm <a href="../../llmd/reference/environment/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../llmd/cli/model-and-listener/#local-model-files">local model directory</a> and bind mount.</dd>
+          </dl>
+        </section>
+        <section id="device-unavailable" data-readiness-symptom aria-labelledby="device-unavailable-title">
+          <h4 id="device-unavailable-title">Device unavailable</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Check <a href="#inspect-accelerator-usage">device visibility on the host</a>. With CUDA in Docker, run the <a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html">NVIDIA Container Toolkit sample workload</a> to check container access.</dd>
+            <dt>Expected result</dt>
+            <dd>The selected accelerator is visible on the host and accessible to the LLMD runtime.</dd>
+            <dt>Recovery</dt>
+            <dd>Verify the host driver, image backend, and Docker device options against <a href="../../llmd/reference/compatibility/">Hardware compatibility</a>.</dd>
+          </dl>
+        </section>
+        <section id="startup-out-of-memory" data-readiness-symptom aria-labelledby="startup-out-of-memory-title">
+          <h4 id="startup-out-of-memory-title">Out of memory during startup</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Compare the weights at the selected precision with available device memory. In Docker, also check the container exit state.
+              <pre><code class="sh" data-copy-label="Copy Docker OOM check">docker inspect --format '{{.State.OOMKilled}}' llmd</code></pre>
+            </dd>
+            <dt>Expected result</dt>
+            <dd>The weights fit in device memory. If <code>OOMKilled</code> is <code>true</code>, Docker recorded a container memory kill.</dd>
+            <dt>Recovery</dt>
+            <dd>Use a smaller compatible model if device memory is insufficient. For a container memory kill, check the container’s memory limit and available host memory.</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section id="readiness-listener" data-readiness-stage="listener" aria-labelledby="readiness-listener-title">
+    <div class="readiness-stage-heading">
+      <h3 id="readiness-listener-title">Listener</h3>
+      <p><code>GET /health</code> returns <code>OK</code> on the host and port your client uses.</p>
+    </div>
+    <div class="readiness-layout">
+      <div class="readiness-choices" data-readiness-choices data-pagefind-ignore hidden></div>
+      <div class="readiness-procedures">
+        <section id="connection-refused" data-readiness-symptom aria-labelledby="connection-refused-title">
+          <h4 id="connection-refused-title">Connection refused or health check times out</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd><pre><code class="sh" data-copy-label="Copy health check">curl --max-time 5 -fsS http://127.0.0.1:8000/health</code></pre></dd>
+            <dt>Expected result</dt>
+            <dd>The HTTP handler returns <code>OK</code>.</dd>
+            <dt>Recovery</dt>
+            <dd>Let model loading and compilation finish. For Docker, confirm the published host port with <code>docker port llmd 8000/tcp</code> if the container listens on port 8000. If startup failed, resolve the first error in the <a href="#check-startup-and-readiness">startup logs</a>.</dd>
+          </dl>
+        </section>
+        <section id="port-in-use" data-readiness-symptom aria-labelledby="port-in-use-title">
+          <h4 id="port-in-use-title">Port already in use</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Read the bind error from LLMD or Docker to identify the address and port already in use.</dd>
+            <dt>Expected result</dt>
+            <dd>The selected host port is free and the health request succeeds after startup.</dd>
+            <dt>Recovery</dt>
+            <dd>Choose a free <strong>Host port</strong> under <strong>Launch options</strong> in the <a href="../../llmd/quickstart/">Quickstart</a>. Use it for the model check and API requests.</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section id="readiness-model" data-readiness-stage="model" aria-labelledby="readiness-model-title">
+    <div class="readiness-stage-heading">
+      <h3 id="readiness-model-title">Served model</h3>
+      <p><code>GET /v1/models</code> lists the model ID your client should send.</p>
+    </div>
+    <div class="readiness-layout">
+      <div class="readiness-choices" data-readiness-choices data-pagefind-ignore hidden></div>
+      <div class="readiness-procedures">
+        <section id="unknown-model" data-readiness-symptom aria-labelledby="unknown-model-title">
+          <h4 id="unknown-model-title">Request names an unknown model</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Query the same server and port your client used.
+              <pre><code class="sh" data-copy-label="Copy GET /v1/models">curl --max-time 5 -fsS http://127.0.0.1:8000/v1/models</code></pre>
+            </dd>
+            <dt>Expected result</dt>
+            <dd><code>data[0].id</code> contains the served model ID. For the deployment example, it is <code>lfm3</code>.
+              <span class="command-language">JSON · Example response excerpt</span>
+              <pre><code class="json" data-copy-label="Copy example models response">{ "data": [{ "id": "lfm3" }] }</code></pre>
+            </dd>
+            <dt>Recovery</dt>
+            <dd>Use that value verbatim as the <code>model</code> field in your request, for example <code>"model": "lfm3"</code>. The <a href="../../llmd/api/models/#read-the-model-id">Models API reference</a> explains how <code>--model-name</code> sets the served ID.</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section id="readiness-inference" data-readiness-stage="inference" aria-labelledby="readiness-inference-title">
+    <div class="readiness-stage-heading">
+      <h3 id="readiness-inference-title">Inference</h3>
+      <p>A short request supported by the loaded model returns a valid result before you route traffic to the instance.</p>
+    </div>
+    <div class="readiness-layout">
+      <div class="readiness-choices" data-readiness-choices data-pagefind-ignore hidden></div>
+      <div class="readiness-procedures">
+        <section id="context-length-exceeded" data-readiness-symptom aria-labelledby="context-length-exceeded-title">
+          <h4 id="context-length-exceeded-title">400 with <code>context_length_exceeded</code></h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Compare the tokenized conversation, including the chat template, with the configured context length.</dd>
+            <dt>Expected result</dt>
+            <dd>The complete prompt is shorter than the context limit.</dd>
+            <dt>Recovery</dt>
+            <dd>Shorten the conversation and retry the request. See <a href="../../llmd/api/chat-completions/#errors">Chat completion errors</a>.</dd>
+          </dl>
+        </section>
+        <section id="requests-out-of-memory" data-readiness-symptom aria-labelledby="requests-out-of-memory-title">
+          <h4 id="requests-out-of-memory-title">Requests exhaust memory after startup</h4>
+          <dl class="readiness-checks">
+            <dt>First check</dt>
+            <dd>Watch <code>requests_rejected_oom</code> alongside request sizes and device usage while replaying the workload.
+              <pre><code class="sh" data-copy-label="Copy metrics check">curl --max-time 5 -fsS http://127.0.0.1:8000/metrics</code></pre>
+            </dd>
+            <dt>Expected result</dt>
+            <dd>The rejection counter stays flat while those requests run.</dd>
+            <dt>Recovery</dt>
+            <dd>Reduce concurrency or context length and retest the same workload. See <a href="../../llmd/cli/batching-and-memory/">Batching and memory</a>.</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </section>
+</div>
+```
 
 # [Check startup and readiness]($heading.id('check-startup-and-readiness'))
 
@@ -56,6 +219,8 @@ scrape_configs:
 For a separate scraper, use a target reachable from its network and restrict
 access to the metrics route to operators.
 
+## [Metrics dictionary]($heading.id('metrics-dictionary'))
+
 | Metric in the reviewed LLMD source | What to check |
 | --- | --- |
 | `requests_waiting`, `requests_running` | Queue depth and the number of requests already scheduled. |
@@ -87,18 +252,7 @@ driver check. Compare those readings with the LLMD queue and token metrics for
 the same time window. See [Environment variables]($link.page('llmd/reference/environment'))
 for runtime diagnostics.
 
-# [Diagnose common failures]($heading.id('diagnose-common-failures'))
-
-| Symptom | Checks and next action |
-| --- | --- |
-| Connection refused or health check times out | Inspect startup logs. With Docker port publishing, run `docker port llmd 8000/tcp` to confirm the mapping for the default container port. Allow time for loading and compilation. If startup fails, resolve the first error in the logs. |
-| Port already in use | Choose a free **Host port** under **Launch options** in the quickstart. Use the new port for the model check and API requests. |
-| Model access fails | Check the URI, revision and credentials. For gated Hugging Face models, confirm [model access]($link.page('llmd/reference/environment').unsafeRef('gated-model-access')). For local weights, check the [model directory contents]($link.page('llmd/cli/model-and-listener').ref('local-model-files')) and any Docker mount. |
-| Request names an unknown model | Send `GET /v1/models` to the same server and use the returned `data[0].id` in the request. |
-| Device unavailable | Check the host driver and device visibility, then confirm the image backend and Docker device options. On CUDA, use the [NVIDIA Container Toolkit sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html) to verify access from a container. Compare other backends with [Hardware compatibility]($link.page('llmd/reference/compatibility')). |
-| Out of memory during startup | Inspect device memory and check Docker's `OOMKilled` state for a container memory kill. Compare the size of the weights at the selected precision with the available memory. Try a smaller compatible model if the weights cannot fit. |
-| Requests exhaust memory after startup | Compare `requests_rejected_oom` with device usage and the request sizes. Reduce concurrency or context length and retest the same workload. See [Batching and memory]($link.page('llmd/cli/batching-and-memory')). |
-| `400` with `context_length_exceeded` | Shorten the conversation, then retry the request. The configured context must accommodate the tokenized prompt, including the chat template. See [Chat completion errors]($link.page('llmd/api/chat-completions').ref('errors')). |
+# [Record the failure]($heading.id('record-the-failure'))
 
 Record the LLMD version, backend tag, model revision, accelerator and
 driver, model ID, relevant timestamps, and the exact error before changing

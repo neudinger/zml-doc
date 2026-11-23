@@ -1,57 +1,126 @@
 ---
 .title = "Connect an application to LLMD",
-.description = "Discover the served model, send a chat request, and handle streaming responses and tool calls.",
+.description = "Use the OpenAI Python SDK to send a message to LLMD and read its reply.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Developer Guide" },
 ---
-Start with a running server from the [LLMD quickstart]($link.page('llmd/quickstart')).
-The example below uses Python 3 and its standard library.
+[]($section.attrs('client-basic'))
 
-# [Connect an application]($heading.id('connect-an-application'))
+Start a chat model with the [LLMD quickstart]($link.page('llmd/quickstart')). Install the SDK in your Python environment with `python3 -m pip install openai`.
 
-Set the base URL to your server's address with the `/v1` suffix. Read the
-model ID from the server so the client also works when the operator sets a
-custom model name.
+# [Send a chat message]($heading.id('connect-an-application'))
 
-```python
-import json
-from urllib.request import Request, urlopen
+```=html
+<div class="client-recipe">
+  <div class="command-shell">
+    <span class="command-language icon-code">Python · client.py</span>
+    <pre><code class="python" data-copy-label="Copy client.py">from openai import OpenAI
 
-base_url = "http://127.0.0.1:8000/v1"
-with urlopen(f"{base_url}/models") as response:
-    model_id = json.load(response)["data"][0]["id"]
-
-payload = {
-    "model": model_id,
-    "messages": [{"role": "user", "content": "Reply with a short greeting."}],
-}
-request = Request(
-    f"{base_url}/chat/completions",
-    data=json.dumps(payload).encode(),
-    headers={"Content-Type": "application/json"},
+client = OpenAI(
+    base_url="http://127.0.0.1:8000/v1",
+    api_key="local",
 )
-with urlopen(request) as response:
-    print(json.load(response)["choices"][0]["message"]["content"])
+model_id = client.models.list().data[0].id
+messages = [{"role": "user", "content": "Say hello."}]
+
+reply = client.chat.completions.create(
+    model=model_id, messages=messages,
+)
+print(reply.choices[0].message.content)
+</code></pre>
+  </div>
+  <div class="client-result">
+    <figure>
+      <figcaption>Example terminal output</figcaption>
+      <samp>Hello!</samp>
+      <code>choices[0].message.content</code>
+    </figure>
+    <p>Save as <code>client.py</code> and run <code>python3 client.py</code>. The greeting will vary.</p>
+  </div>
+</div>
 ```
 
-For a deployment that requires authentication, supply its credentials on both
-requests. See the [chat completion reference]($link.page('llmd/api/chat-completions').ref('create-a-chat-completion'))
-for response fields and generation settings.
+The SDK reads the [served model ID]($link.page('llmd/api/models').ref('read-the-model-id')), including custom names. `local` is a placeholder for a local server without authentication. For a protected deployment, supply its base URL and token.
 
-# [Stream a chat completion]($heading.id('stream-a-chat-completion'))
+```=html
+<div data-toc-parent="connect-an-application">
+  <details class="client-disclosure" id="http-exchange" data-toc-label="View HTTP exchange">
+    <summary>View HTTP exchange</summary>
+    <p><strong>GET /v1/models</strong> returns the served model ID. This example shows the field the client reads.</p>
+    <pre><code class="json">{"data": [{"id": "LFM3-1.7B-FP8"}]}</code></pre>
+    <p><strong>POST /v1/chat/completions</strong> sends that same ID as <code>model</code>.</p>
+    <pre><code class="json">{
+  "model": "LFM3-1.7B-FP8",
+  "messages": [{"role": "user", "content": "Say hello."}]
+}</code></pre>
+    <p>The client prints <code>choices[0].message.content</code> from the reply.</p>
+    <pre><code class="json">{"choices": [{"message": {"role": "assistant", "content": "Hello!"}}]}</code></pre>
+  </details>
+</div>
+```
 
-Set `stream` to `true` to receive server-sent events. Read events as they
-arrive and append each `choices[0].delta.content` value when present.
-An optional usage event has an empty `choices` array. Stop at `[DONE]`.
-The [streaming request example]($link.page('llmd/api/chat-completions').ref('stream-a-chat-completion'))
-shows how to inspect the event stream with curl.
+[]($section.attrs('client-branch'))
 
-# [Call tools from a client]($heading.id('call-tools-from-a-client'))
+# [Stream the reply]($heading.id('stream-a-chat-completion'))
 
-Use a model and chat template that support tool calls. Pass function
-definitions in `tools`. When the assistant returns a tool call, validate its
-name and arguments, run the function in the client, and send the result in a
-new completion. Include the original assistant message and a `tool` message
-with the matching `tool_call_id`. The [tool call reference]($link.page('llmd/api/chat-completions').ref('call-tools-from-a-client'))
-includes a function schema and the expected message fields.
+> # [Read text as it arrives]($block.collapsible(false).attrs('client-disclosure'))
+>
+> Reuse `client`, `model_id`, and `messages` from the basic example. Replace the final request and print statement.
+>
+> ```python
+> stream = client.chat.completions.create(
+>     model=model_id, messages=messages, stream=True,
+> )
+> for chunk in stream:
+>     if chunk.choices and chunk.choices[0].delta.content:
+>         print(chunk.choices[0].delta.content, end="", flush=True)
+> print()
+> ```
+>
+> Each text delta extends the same line. An optional usage event has empty `choices`. The SDK stops at `[DONE]`. [Streaming HTTP example]($link.page('llmd/api/chat-completions').ref('stream-a-chat-completion'))
+
+[]($section.attrs('client-branch'))
+
+# [Handle a tool call]($heading.id('call-tools-from-a-client'))
+
+> # [Execute a function and return its result]($block.collapsible(false).attrs('client-disclosure'))
+>
+> Use a model and chat template with tool support. Replace the lines after `model_id` in `client.py`. Your application reads its clock when LLMD asks for the time.
+>
+> ```python
+> import json
+> from datetime import datetime, timezone
+>
+> tools = [{"type": "function", "function": {
+>     "name": "get_utc_time",
+>     "description": "Read the current UTC time.",
+>     "parameters": {
+>         "type": "object", "properties": {}, "additionalProperties": False,
+>     },
+> }}]
+> messages = [{"role": "user", "content": "What time is it in UTC?"}]
+> reply = client.chat.completions.create(
+>     model=model_id, messages=messages, tools=tools,
+> )
+> assistant = reply.choices[0].message
+>
+> if assistant.tool_calls:
+>     messages.append(assistant.model_dump(exclude_none=True))
+>     for call in assistant.tool_calls:
+>         if call.type != "function" or call.function.name != "get_utc_time":
+>             raise ValueError("Unexpected tool")
+>         if json.loads(call.function.arguments) != {}:
+>             raise ValueError("get_utc_time takes no arguments")
+>         utc_time = datetime.now(timezone.utc).strftime("%H:%M UTC")
+>         messages.append({
+>             "role": "tool",
+>             "tool_call_id": call.id,
+>             "content": utc_time,
+>         })
+>     reply = client.chat.completions.create(model=model_id, messages=messages)
+>
+> print(reply.choices[0].message.content)
+> ```
+>
+> The second request includes the original assistant message and one tool result per call. Each `tool_call_id` matches the ID LLMD supplied. [Tool call fields and schema]($link.page('llmd/api/chat-completions').ref('call-tools-from-a-client'))
