@@ -58,6 +58,7 @@ docker run --rm --name llmd \
   zmlai/llmd:cuda --model=/model
 ```
 
-For other platforms, see [Hardware compatibility]($link.page('llmd/reference/compatibility'))
-and the [published startup commands](https://zml.ai/llmd/). For running and
-monitoring the service, see [Operations]($link.page('operations')).
+Use the [LLMD quickstart]($link.page('llmd/quickstart')) to generate a launch
+command for your backend. See [Hardware compatibility]($link.page('llmd/reference/compatibility'))
+for host requirements and [Operations]($link.page('operations')) for deployment
+and monitoring.

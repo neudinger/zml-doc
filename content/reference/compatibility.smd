@@ -39,8 +39,6 @@ and models its examples recognize.
 | Furiosa RNGD | Linux amd64 | `zmlai/llmd:furiosa` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
 
 Check the architectures available for each backend on [Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags).
-See the [LLMD product page](https://zml.ai/llmd/) for device access options and
-native installation.
 
 # [Model examples]($heading.id('checkpoint-examples'))
 

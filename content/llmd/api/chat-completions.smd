@@ -86,11 +86,9 @@ before parsing the arguments.
 
 # [Call tools from a client]($heading.id('call-tools-from-a-client'))
 
-Use a model and chat template with
-[tool calling support](https://zml.ai/llmd/). Include function definitions in
-`tools`, and ask for the function in the conversation. For
-example, add this field to a chat request where the user asks for the time in
-Paris.
+Use a model and chat template that support tool calling. Include function
+definitions in `tools` and ask for the function in the conversation. For
+example, add this field to a chat request where the user asks for the time in Paris.
 
 ```json
 {

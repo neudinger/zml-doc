@@ -247,7 +247,7 @@
     </form>
   </details>
   <div class="llmd-launch-layout">
-    <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or use the <a href="https://zml.ai/llmd/#try-it">published launch commands</a>.</p></noscript>
+    <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or see the <a href="../cli/docker-options/#run-a-local-checkpoint">CUDA Docker example</a>.</p></noscript>
     <div class="llmd-launch-commands">
       <dl class="llmd-launch-context" aria-label="Server connection">
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
