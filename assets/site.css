@@ -447,14 +447,14 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .client-branch:has(details[open]) { flex-basis: 100%; }
 .client-disclosure { min-inline-size: 0; border-block-start: 1px solid var(--border); }
 .client-disclosure > summary { padding: 0.6rem 0.25rem; color: var(--accent); font-weight: 600; cursor: pointer; }
-.chat-example-pair {
+.api-example-pair {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
   align-items: start;
   gap: 1rem;
   margin-block: 1rem;
 }
-.chat-example-pair > .command-shell { min-inline-size: 0; }
+.api-example-pair > .command-shell { min-inline-size: 0; }
 .embedding-ranking { display: flex; flex-wrap: wrap; align-items: start; gap: 1rem; margin-block: 1rem; }
 .embedding-ranking figure { min-inline-size: 0; margin: 0; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--surface); overflow: hidden; }
 .embedding-batch { flex: 1.6 1 24rem; }

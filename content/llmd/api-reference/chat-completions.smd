@@ -14,7 +14,7 @@ The Basic and Streaming examples use `LiquidAI/LFM3-1.7B-FP8`.
 ## [Read the response]($heading.id('read-the-response'))
 
 ```=html
-<div class="chat-example-pair">
+<div class="api-example-pair">
   <div class="command-shell">
     <span class="command-language">Request · Shell</span>
     <pre><code class="sh" data-copy-label="Copy basic chat request">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -53,7 +53,7 @@ and token counts vary.
 Set `stream` to `true`. With curl, `-N` displays events as they arrive.
 
 ```=html
-<div class="chat-example-pair">
+<div class="api-example-pair">
   <div class="command-shell">
     <span class="command-language">Request · Shell</span>
     <pre><code class="sh" data-copy-label="Copy streaming chat request">curl -fsSN http://127.0.0.1:8000/v1/chat/completions \
@@ -92,7 +92,7 @@ model and chat template that support tool calling. The first request offers
 `get_local_time` and asks for the time in Paris.
 
 ```=html
-<div class="chat-example-pair">
+<div class="api-example-pair">
   <div class="command-shell">
     <span class="command-language">Request · Shell</span>
     <pre><code class="sh" data-copy-label="Copy tool call request">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -146,7 +146,7 @@ encoded as a JSON string. The client validates and executes the function.
 <details class="client-disclosure">
   <summary>Show the follow-up request</summary>
   <p>Keep the original user and assistant messages in order. Append a message with <code>role</code> set to <code>tool</code>, <code>content</code> set to your function result, and <code>tool_call_id</code> set to the ID from the assistant’s call. The example uses <code>0d4c9f2a7b3e6018</code> in both places. Use the actual assistant message, call ID, and result from your run.</p>
-  <div class="chat-example-pair">
+  <div class="api-example-pair">
     <div class="command-shell">
       <span class="command-language">Follow-up request · Shell</span>
       <pre><code class="sh" data-copy-label="Copy tool follow-up request">curl -fsS http://127.0.0.1:8000/v1/chat/completions \

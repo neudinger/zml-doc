@@ -11,15 +11,75 @@
 embedding model. Choose `Qwen/Qwen3-Embedding-8B` in the
 [Embeddings catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('embedding-checkpoints')).
 The [quickstart]($link.page('llmd/user-guide/quickstart').unsafeRef('send-an-embeddings-request'))
-generates this request with the selected host port.
+generates an embeddings request with the selected host port.
 
-```sh
-curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
+Both examples request 32 dimensions. The illustrative outputs show the
+index, vector length, and first four values using the filter under
+[Read the response]($link.ref('embedding-response')).
+
+## [Single input]($heading.id('single-input'))
+
+```=html
+<div class="api-example-pair">
+  <div class="command-shell">
+    <span class="command-language">Request · Shell</span>
+    <pre><code class="sh" data-copy-label="Copy single-input embeddings request">curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
   -H 'Content-Type: application/json' \
   -d '{
-    "input": "The quick brown fox jumps over the lazy dog.",
-    "encoding_format": "float"
-  }'
+    "input": "A generator supplies power.",
+    "encoding_format": "float",
+    "dimensions": 32
+  }'</code></pre>
+  </div>
+  <div class="command-shell">
+    <span class="command-language">Illustrative jq output · JSON</span>
+    <pre><code class="json">[
+  {
+    "index": 0,
+    "dimensions": 32,
+    "first_four": [0.08, -0.03, 0.14, 0.06]
+  }
+]</code></pre>
+  </div>
+</div>
+```
+
+## [Batch input]($heading.id('batch-input'))
+
+The generator sentence maps to `index: 0` and the bakery sentence maps to
+`index: 1`. The indices are zero-based positions in the input array.
+
+```=html
+<div class="api-example-pair">
+  <div class="command-shell">
+    <span class="command-language">Request · Shell</span>
+    <pre><code class="sh" data-copy-label="Copy batch embeddings request">curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "input": [
+      "A generator supplies power.",
+      "A bakery sells bread."
+    ],
+    "encoding_format": "float",
+    "dimensions": 32
+  }'</code></pre>
+  </div>
+  <div class="command-shell">
+    <span class="command-language">Illustrative jq output · JSON</span>
+    <pre><code class="json">[
+  {
+    "index": 0,
+    "dimensions": 32,
+    "first_four": [0.08, -0.03, 0.14, 0.06]
+  },
+  {
+    "index": 1,
+    "dimensions": 32,
+    "first_four": [-0.07, 0.12, 0.01, -0.09]
+  }
+]</code></pre>
+  </div>
+</div>
 ```
 
 # [Request fields]($heading.id('embedding-request-fields'))
@@ -37,18 +97,30 @@ curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
 model ID. Each `data` entry has `object: "embedding"`, the zero-based input
 `index`, and the vector in `embedding`. Entries follow input order.
 `usage.prompt_tokens` and `usage.total_tokens` both count the tokens
-embedded across all inputs. To inspect a float response, append
-`| jq '.data[0].embedding | {dimensions: length, first_four: .[:4]}'` to
-the command. See [Compare texts with embeddings]($link.page('llmd/developer-guide/compare-texts-with-embeddings'))
+embedded across all inputs. Pipe either successful float response into
+this command to reproduce the output format above.
+
+```sh
+jq '[.data[] | {index, dimensions: (.embedding | length), first_four: .embedding[:4]}]'
+```
+
+See [Compare texts with embeddings]($link.page('llmd/developer-guide/compare-texts-with-embeddings'))
 for a client that ranks passages using the returned vectors.
 
 # [Limits and errors]($heading.id('embedding-limits-and-errors'))
 
-LLMD revision `fe922cff` accepts up to 2,048 strings
-per request, up to 8,192 tokens per string, and up to 300,000 tokens in
-total. Each tokenized string must also be shorter than the server's context
-limit. An HTTP 400 response includes an `error.code`, such as
-`model_not_supported` for a model without embedding support,
-`invalid_dimensions` for a vector size outside the model's range, or
-`too_many_tokens` for exceeding the endpoint's token limits.
-A batch that LLMD cannot finish can return HTTP 503 with `resource_exhausted`.
+These checks apply to LLMD revision `fe922cff`. For example, a batch of
+2,049 strings returns HTTP 400 with `error.code` set to `invalid_input`.
+
+| Check | Requirement | HTTP status and `error.code` |
+| --- | --- | --- |
+| Request body | Valid JSON with `input` as a string or an array of strings. | 400 `invalid_request` |
+| Input count and content | 1–2,048 nonempty strings per request. | 400 `invalid_input` |
+| Server context | Each tokenized string is shorter than the configured context length. | 400 `context_length_exceeded` |
+| Endpoint token caps | Up to 8,192 tokens per string and 300,000 tokens in total. | 400 `too_many_tokens` |
+| Dimensions | Within the loaded model's range. Qwen3-Embedding-8B supports 32–4,096. | 400 `invalid_dimensions` |
+| Loaded model | The loaded model supports embeddings. | 400 `model_not_supported` |
+| Batch completion | LLMD can compute every vector in the batch. | 503 `resource_exhausted` |
+
+LLMD checks the server context for each string before checking the endpoint's
+token caps for that string.
