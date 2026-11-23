@@ -522,7 +522,60 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 @media (pointer: coarse) {
   .decision-key { padding-block: 0.25rem; }
 }
-.prose .bazel-platform-host { margin-block: 0.6rem; color: var(--muted); font-size: 0.9rem; }
+.prose:has(> .bazel-platforms) { container: mnist / inline-size; }
+.bazel-preflight {
+  margin-block-end: 0.75rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--code);
+}
+.bazel-backend:not([hidden]) { display: grid; gap: 0.35rem; margin-block-end: 0.65rem; }
+.bazel-backend label, .bazel-preflight strong { font-size: 0.9rem; font-weight: 650; }
+.bazel-backend select {
+  min-inline-size: 0;
+  min-block-size: 2.5rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--search-border);
+  border-radius: 0.35rem;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+}
+.prose .bazel-platform-host { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9rem; }
+.bazel-platforms > .bazel-platform-shell { margin-block-end: 0.75rem; }
+.prose .bazel-platforms > #read-the-prediction {
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem 0.45rem 0 0;
+  background: var(--code);
+  font-size: 1rem;
+}
+.bazel-prediction {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-block-start: 0;
+  border-radius: 0 0 0.45rem 0.45rem;
+  background: var(--code);
+}
+.prose .bazel-prediction pre { margin: 0; padding: 0; border: 0; font-size: 0.9rem; line-height: 1.25; }
+.bazel-prediction strong { color: var(--code-string); }
+.bazel-prediction figcaption { margin-block-start: 0.55rem; color: var(--muted); font-size: 0.9rem; }
+.bazel-platforms > details { border-block-end: 1px solid var(--border); }
+.bazel-platforms > details > summary { padding: 0.65rem 0; color: var(--accent); font-weight: 600; cursor: pointer; }
+.bazel-platforms > details .command-shell { margin-block-end: 0.75rem; }
+@container mnist (min-width: 36rem) {
+  .bazel-platforms {
+    display: grid;
+    grid-template-columns: minmax(11rem, 1fr) minmax(0, 2.6fr);
+    column-gap: 1rem;
+  }
+  .bazel-platforms > .bazel-preflight { grid-area: 1 / 1 / span 3; align-self: start; }
+  .bazel-platforms > :is(.bazel-platform-shell, #read-the-prediction, .bazel-prediction) { grid-column: 2; }
+  .bazel-platforms > details { grid-column: 1 / -1; }
+}
 .command-shell .code-block { margin-block: 0; }
 .prose .command-shell pre {
   margin-block: 0;
@@ -1215,6 +1268,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 
 @media (pointer: coarse) {
   :is(.product-tabs, .section-tabs) a { min-block-size: 44px; }
+  .bazel-backend select { min-block-size: 44px; }
   .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch-configurator summary { min-block-size: 44px; }
   .llmd-launch-field :is(input, select, textarea) { font-size: 1rem; }
   .model-catalog-field :is(input, select), .model-catalog-cell, .model-catalog-family-button,

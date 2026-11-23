@@ -4,9 +4,6 @@
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
 ---
-Start with a pretrained model. Bazel fetches the example's weights and test
-images, then ZML compiles the model and predicts the digit in one image.
-
 # [Before you start]($heading.id('before-you-start'))
 
 - Use a Linux or macOS development machine with Git and internet access for the
@@ -28,43 +25,69 @@ The [selected revision](https://github.com/zml/zml/commit/8fcff8c462070d06056f8a
 selects Bazel 9.3.0 through `.bazelversion`. Run the remaining commands from
 the checkout root.
 
-# [2. Build and run MNIST]($heading.id('build-and-run-mnist'))
+# [2. Run MNIST]($heading.id('build-and-run-mnist'))
+
+`bazel run` builds the target as needed and launches it with the pretrained
+weights and test images.
+
+[]($section.attrs('bazel-platforms'))
 
 ```=html
-<div class="bazel-platforms" data-bazel-target="//examples/mnist">
-  <p class="bazel-platform-host" role="status">Linux x86-64 or macOS (Intel or Apple Silicon). CPU is enabled by default.</p>
-  <div class="bazel-platform-shell command-shell">
-    <span class="command-language icon-code">Shell</span>
-    <pre><code class="sh">bazel build \
+<div class="bazel-preflight">
+  <div class="bazel-backend" hidden>
+    <label for="mnist-backend">Backend</label>
+    <select id="mnist-backend" aria-describedby="mnist-host-requirements"></select>
+  </div>
+  <strong>Host requirements</strong>
+  <p id="mnist-host-requirements" class="bazel-platform-host" role="status">Linux x86-64 or macOS (Intel or Apple Silicon). CPU is enabled by default.</p>
+</div>
+<div class="bazel-platform-shell command-shell" data-bazel-target="//examples/mnist">
+  <pre><code class="sh" data-bazel-command="run" data-copy-label="Copy MNIST run command">bazel run \
   --@zml//platforms:cpu=true \
   //examples/mnist
+</code></pre>
+</div>
+```
 
-bazel run \
+# [3. Read the prediction]($heading.id('read-the-prediction'))
+
+```=html
+<figure class="bazel-prediction">
+  <pre><samp><strong>✅ RECOGNIZED DIGIT:</strong>
++-------------+
+|   #######   |
+|   #    #    |
+|       #     |
+|      #      |
+|     #       |
+|     #       |
+|     #       |
++-------------+</samp></pre>
+  <figcaption>Sample prediction. Compare it with the input image printed in the terminal. The example picks a random image each run.</figcaption>
+</figure>
+
+<details>
+  <summary>Build only</summary>
+  <div class="bazel-platform-shell command-shell">
+    <pre><code class="sh" data-bazel-command="build" data-copy-label="Copy MNIST build command">bazel build \
   --@zml//platforms:cpu=true \
   //examples/mnist
 </code></pre>
   </div>
-</div>
+</details>
+
+<details>
+  <summary>Optional framework test</summary>
+  <div class="command-shell">
+    <pre><code class="sh" data-copy-label="Copy framework test command">bazel test //zml:test</code></pre>
+  </div>
+</details>
 ```
 
-`bazel build` compiles the example. `bazel run` launches it with the weights and
-test image data supplied by the target. The first build can take longer while
-Bazel downloads dependencies and compiles them. See the
-[Bazel guide]($link.page('zml/build-and-run').ref('choose-a-backend-and-target-platform'))
-for backend flags and target platforms.
+[]($section)
 
-# [3. Read the prediction]($heading.id('read-the-prediction'))
-
-The program prints a handwritten digit in the terminal, followed by
-`RECOGNIZED DIGIT` and its prediction. Compare the predicted digit with the
-image. The example chooses a random image each run. To try inputs and weights
-you choose yourself, [write your first ZML model]($link.page('zml/first-model')).
-
-To check the framework after a code change, run its test target separately.
-
-```sh
-bazel test //zml:test
-```
+[Bazel flags and target platforms]($link.page('zml/build-and-run').ref('choose-a-backend-and-target-platform'))
+· [Write your first ZML model]($link.page('zml/first-model'))
 
 # [Troubleshooting]($heading.id('troubleshooting'))
 

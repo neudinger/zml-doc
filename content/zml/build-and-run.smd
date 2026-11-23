@@ -27,7 +27,7 @@ distributes a batch of images across a device mesh.
 
 Set a backend with `--@zml//platforms:<backend>=true`. Bazel includes the
 runtime when the build target satisfies the backend's platform constraints.
-Use the [MNIST backend tabs]($link.page('zml/quickstart').ref('build-and-run-mnist'))
+Use the [MNIST backend picker]($link.page('zml/quickstart').ref('build-and-run-mnist'))
 for build and run commands on a compatible host.
 
 | Backend | Bazel flag | Default |

@@ -10,56 +10,30 @@
     ["furiosa", "Furiosa", "Linux x86-64 with a Furiosa accelerator and its device runtime."],
   ];
 
-  for (const [index, selector] of document.querySelectorAll(".bazel-platforms[data-bazel-target]").entries()) {
-    const host = selector.querySelector(".bazel-platform-host");
+  const continuation = " \\" + "\n  ";
+  for (const target of document.querySelectorAll(".bazel-platforms [data-bazel-target]")) {
+    const recipe = target.closest(".bazel-platforms");
+    const field = recipe.querySelector(".bazel-backend");
+    const picker = field.querySelector("select");
+    const host = recipe.querySelector(".bazel-platform-host");
     const cpuHost = host.textContent;
-    const cpuShell = selector.querySelector(".bazel-platform-shell");
-    let activeShell = cpuShell;
+    const commands = recipe.querySelectorAll("[data-bazel-command]");
 
-    const tabs = document.createElement("fieldset");
-    tabs.className = "command-tabs";
-    const legend = document.createElement("legend");
-    legend.textContent = "Backend";
-    tabs.append(legend);
-
-    // Create the variants before the deferred copy and highlighting scripts run.
-    for (const [backend, name, requirements] of backends) {
-      const isCpu = backend === "cpu";
-      const shell = isCpu ? cpuShell : cpuShell.cloneNode(true);
-      if (!isCpu) {
-        const args = [
-          `--@zml//platforms:${backend}=true`,
-          "--@zml//platforms:cpu=false",
-          selector.dataset.bazelTarget,
-        ];
-        const continuation = " \\" + "\n  ";
-        shell.querySelector("code").textContent = ["build", "run"]
-          .map(verb => [`bazel ${verb}`, ...args].join(continuation))
-          .join("\n\n") + "\n";
-        shell.hidden = true;
-        selector.append(shell);
-      }
-
-      const tab = document.createElement("label");
-      tab.className = "command-tab";
-      const input = document.createElement("input");
-      input.type = "radio";
-      input.name = `bazel-backend-${index}`;
-      input.value = backend;
-      input.checked = isCpu;
-      const caption = document.createElement("span");
-      caption.textContent = name;
-      tab.append(input, caption);
-      tabs.append(tab);
-
-      input.addEventListener("change", () => {
-        activeShell.hidden = true;
-        shell.hidden = false;
-        activeShell = shell;
-        host.textContent = isCpu ? cpuHost : `${requirements} CPU fallback disabled.`;
-      });
+    for (const [backend, name] of backends) {
+      picker.add(new Option(name, backend));
     }
 
-    selector.prepend(tabs);
+    picker.addEventListener("change", () => {
+      const [backend, , requirements] = backends[picker.selectedIndex];
+      const flags = [`--@zml//platforms:${backend}=true`];
+      if (backend !== "cpu") flags.push("--@zml//platforms:cpu=false");
+      host.textContent = requirements ? `${requirements} CPU fallback disabled.` : cpuHost;
+
+      for (const code of commands) {
+        code.textContent = [`bazel ${code.dataset.bazelCommand}`, ...flags, target.dataset.bazelTarget].join(continuation) + "\n";
+        code.dispatchEvent(new Event("codechange", { bubbles: true }));
+      }
+    });
+    field.hidden = false;
   }
 })();
