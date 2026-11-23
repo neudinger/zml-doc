@@ -23,6 +23,7 @@
   --code-comment: #5e566f;
   --search-border: #a170f0;
   --neon: #00bde8, #5e14ef, #de00cf;
+  --neon-text: #00677e, #5e14ef, #a50082;
   --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --docs-sticky-top: 0px;
   font-family: var(--font-sans);
@@ -47,6 +48,7 @@
   --code-name: #87d2ff;
   --code-comment: #b5a9c7;
   --search-border: #8672b1;
+  --neon-text: #50e2ff, #ac8aff, #ff70df;
 }
 
 * { box-sizing: border-box; }
@@ -144,18 +146,31 @@ pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
 :is(.product-tabs, .section-tabs) a {
   display: inline-flex;
   align-items: center;
-  border-block-end: 2px solid transparent;
   padding: 0.4rem 0.1rem 0.55rem;
   font-weight: 650;
 }
+.product-tabs a { border-block-end: 2px solid transparent; }
 .section-tabs a { padding-block: 0.5rem; font-weight: 500; }
 :is(.product-tabs, .section-tabs) a:hover { text-decoration: underline; }
-:is(.product-tabs, .section-tabs) a:is([aria-current="page"], [aria-current="location"]) {
+.product-tabs a:is([aria-current="page"], [aria-current="location"]) {
   color: var(--text);
   border-image: linear-gradient(90deg, var(--neon)) 1;
   text-decoration: none;
 }
-.section-tabs a:is([aria-current="page"], [aria-current="location"]) { color: var(--accent); font-weight: 650; }
+.section-tabs a:is([aria-current="page"], [aria-current="location"]) {
+  color: var(--accent);
+  font-weight: 650;
+  text-decoration: none;
+}
+@media screen and (forced-colors: none) {
+  @supports (background-clip: text) and (background-image: linear-gradient(90deg in srgb, #000, #fff)) {
+    .section-tabs a:is([aria-current="page"], [aria-current="location"]) > span {
+      background-image: linear-gradient(90deg in srgb, var(--neon-text));
+      background-clip: text;
+      color: transparent;
+    }
+  }
+}
 .skip-link { position: fixed; top: -5rem; left: 1rem; padding: 0.75rem 1rem; background: var(--surface); z-index: 6; }
 .skip-link:focus { top: 1rem; }
 .docs-layout { --rail-gap: 1rem; display: grid; grid-template-columns: clamp(12rem, 15vw, 14rem) minmax(0, 1fr); gap: clamp(1.25rem, 2vw, 2.5rem); align-items: start; padding-block-start: clamp(1.5rem, 2.5vw, 3rem); }
@@ -1163,7 +1178,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 
 @media (forced-colors: active) {
   .page-toc a[aria-current="location"] { border-inline-start-color: Highlight; outline: 1px solid Highlight; }
-  :is(.product-tabs, .section-tabs) a:is([aria-current="page"], [aria-current="location"]) { border-image: none; border-block-end-color: Highlight; }
+  .product-tabs a:is([aria-current="page"], [aria-current="location"]) { border-image: none; border-block-end-color: Highlight; }
   .command-tab input:checked + span { border-image: none; border-block-end-color: Highlight; }
   .sidebar-group a:is([aria-current="page"], [aria-current="location"]) { outline: 1px solid Highlight; }
   .sidebar-group a::before { forced-color-adjust: none; background: LinkText; opacity: 1; }

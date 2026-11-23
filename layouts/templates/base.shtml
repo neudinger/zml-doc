@@ -58,8 +58,10 @@
             <ctx :loop="$ctx.catalog.get('sections')">
               <ctx tab="$loop.it" group="$loop.it.get($ctx.zml.then('zml', 'llmd')).at(0)">
                 <ctx target="$site.page($ctx.group.get('pages').at(0).get('path'))">
-                  <a href="$ctx.target.link()" :text="$ctx.group.get('label')"
-                     aria-current="$ctx.target.isCurrent().then('page', $ctx.tab.get('label').eql($ctx.section).then('location', 'false'))"></a>
+                  <a href="$ctx.target.link()"
+                     aria-current="$ctx.target.isCurrent().then('page', $ctx.tab.get('label').eql($ctx.section).then('location', 'false'))">
+                    <span :text="$ctx.group.get('label')"></span>
+                  </a>
                 </ctx>
               </ctx>
             </ctx>
