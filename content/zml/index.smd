@@ -4,30 +4,20 @@
 .date = .date("2026-11-06T00:00:00"),
 .layout = "content.shtml",
 ---
-ZML provides the inference framework and compilation machinery for model
-applications. Its public project uses Zig, MLIR, and Bazel.
-
-Follow the [ZML quickstart]($link.page('zml/quickstart')) to build and run MNIST
-on CPU. Continue to [Build and run with Bazel]($link.page('zml/build-and-run'))
-for accelerator flags, LLM examples, and packaging.
+[Run MNIST]($link.page('zml/quickstart').attrs('zml-run-mnist'))
+Build with Bazel and classify a handwritten digit.
 
 # [Follow the model lifecycle]($heading.id('follow-the-model-lifecycle'))
-
-Read [ZML concepts]($link.page('zml/concepts')) for tensors, shapes, and dimension tags.
-Use the [Tensor reference]($link.page('zml/api/tensor')) to look up model operations
-and the [Exe reference]($link.page('zml/api/exe')) for calls that run a compiled model.
-Use the [first model guide]($link.page('zml/first-model')) to build a tagged
-linear layer. Then [load and inspect model weights]($link.page('zml/checkpoints'))
-and [run ZML across devices]($link.page('zml/sharding'))
-to partition work across a device mesh.
 
 ```=html
 <figure class="execution-diagram" aria-label="ZML model execution">
   <div class="execution-paths">
-    <ol class="execution-path" role="list" aria-label="Compile the model">
+    <span class="execution-path-title" id="compile-model-code">Compile model code</span>
+    <ol class="execution-path" role="list" aria-labelledby="compile-model-code">
       <li class="execution-node">
         <strong>Zig model code</strong>
         <span><code>forward</code> and symbolic tensor shapes and types</span>
+        <a class="execution-guide" href="first-model/">Write your first ZML model</a>
       </li>
       <li class="execution-node">
         <strong>Compile for the selected backend</strong>
@@ -35,32 +25,41 @@ to partition work across a device mesh.
       </li>
       <li class="execution-artifact">Executable</li>
     </ol>
-    <ol class="execution-path" role="list" aria-label="Prepare runtime data">
+    <span class="execution-path-title" id="prepare-runtime-data">Prepare runtime data</span>
+    <ol class="execution-path" role="list" aria-labelledby="prepare-runtime-data">
       <li class="execution-node">
         <strong>Model weights and inputs</strong>
         <span>Weight values from Safetensors and input data</span>
       </li>
       <li class="execution-node">
         <strong>Fill backend buffers</strong>
-        <span>Load weight values and transfer inputs to the selected backend</span>
+        <span>Load weights and transfer inputs to the selected backend</span>
+        <a class="execution-guide" href="checkpoints/">Load model weights</a>
       </li>
-      <li class="execution-artifact">Buffers</li>
+      <li class="execution-artifact">Device buffers</li>
     </ol>
   </div>
   <div class="execution-run">
     <strong>Run on the selected backend</strong>
     <span>Call the executable with the weight and input buffers to produce output tensors.</span>
+    <a class="execution-guide" href="sharding/">Run ZML across devices</a>
   </div>
   <figcaption>Safetensors metadata can supply weight shapes and data types for the symbolic tensors used during compilation.</figcaption>
 </figure>
 ```
 
+Read [ZML concepts]($link.page('zml/concepts')) for tensors, shapes, and dimension tags.
+Use the [Tensor reference]($link.page('zml/api/tensor')) to look up model operations
+and the [Exe reference]($link.page('zml/api/exe')) for calls that run a compiled model.
+See [Build and run with Bazel]($link.page('zml/build-and-run')) for accelerator
+flags, LLM examples, and packaging.
+
 See [LLMD on ZML]($link.page('llmd/architecture')) for how the serving engine uses
 these executables and buffers to run inference requests.
 
-The [upstream ZML repository](https://github.com/zml/zml) contains examples and
-framework documentation. A reproducible procedure needs a selected source
-revision and a recorded environment.
+ZML uses Zig, MLIR, and Bazel. The [upstream ZML repository](https://github.com/zml/zml)
+contains examples and framework documentation. Record the source revision and
+environment to reproduce your build.
 
 # [Choose the server path when appropriate]($heading.id('choose-the-server-path-when-appropriate'))
 
