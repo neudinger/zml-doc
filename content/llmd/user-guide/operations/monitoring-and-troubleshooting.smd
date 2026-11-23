@@ -121,7 +121,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             </dd>
             <dt>Expected result</dt>
             <dd><code>data[0].id</code> contains the served model ID. For the deployment example, it is <code>lfm3</code>.
-              <span class="command-language">JSON · Example response excerpt</span>
+              <span class="command-language">JSON · Example response</span>
               <pre><code class="json" data-copy-label="Copy example models response">{ "data": [{ "id": "lfm3" }] }</code></pre>
             </dd>
             <dt>Recovery</dt>
