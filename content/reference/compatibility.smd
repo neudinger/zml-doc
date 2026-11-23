@@ -3,7 +3,12 @@
 .description = "Choose a ZML build target or an LLMD artifact and model for your hardware.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .reference_source = "reference/compatibility" },
+.custom = .{
+    .reference_source = "reference/compatibility",
+    .reference_path = "user-guide/reference/hardware-compatibility",
+    .related_reference = "reference/environment",
+    .related_note = "for model credentials and backend settings.",
+},
 ---
 Choose the product and then check the host, backend, and model together. A
 framework build setting describes which runtime can be included. A server image
@@ -12,7 +17,7 @@ precision determine what the selected runtime needs to serve.
 
 # [Build with ZML]($heading.id('build-with-zml'))
 
-Start with the [ZML quickstart]($link.page('zml/quickstart')) to run the
+Start with the [ZML quickstart]($link.page('zml/user-guide/quickstart')) to run the
 pretrained MNIST example on CPU. For another backend, pass
 `--@zml//platforms:<backend>=true` to Bazel. CPU is enabled by default.
 
@@ -31,19 +36,19 @@ and models its examples recognize.
 
 | Platform | Host architecture | Distribution |
 | --- | --- | --- |
-| NVIDIA CUDA | Linux amd64 or arm64 | `zmlai/llmd:cuda` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda')) |
-| AMD ROCm | Linux amd64 | `zmlai/llmd:rocm` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-rocm')) |
-| Intel oneAPI | Linux amd64 | `zmlai/llmd:oneapi` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-oneapi')) |
-| Google TPU | Google TPU VM, Linux amd64 | `zmlai/llmd:tpu` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-tpu')) |
-| Apple Metal | macOS Tahoe or later on Apple Silicon | `brew install zml/zml/llmd` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-metal')) |
-| Furiosa RNGD | Linux amd64 | `zmlai/llmd:furiosa` · [Configure]($link.page('llmd/quickstart').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
+| NVIDIA CUDA | Linux amd64 or arm64 | `zmlai/llmd:cuda` · [Configure]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-cuda')) |
+| AMD ROCm | Linux amd64 | `zmlai/llmd:rocm` · [Configure]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-rocm')) |
+| Intel oneAPI | Linux amd64 | `zmlai/llmd:oneapi` · [Configure]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-oneapi')) |
+| Google TPU | Google TPU VM, Linux amd64 | `zmlai/llmd:tpu` · [Configure]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-tpu')) |
+| Apple Metal | macOS Tahoe or later on Apple Silicon | `brew install zml/zml/llmd` · [Configure]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-metal')) |
+| Furiosa RNGD | Linux amd64 | `zmlai/llmd:furiosa` · [Configure]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
 
 Check the architectures available for each backend on [Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags).
 
 # [Model examples]($heading.id('checkpoint-examples'))
 
 These combinations come from the upstream LLMD release recipes. See
-[Model compatibility]($link.page('llmd/models')) for additional models and
+[Model compatibility]($link.page('llmd/user-guide/model-compatibility')) for additional models and
 backend-specific launch recipes.
 
 | Model | Precision | Backends in the published recipe | Evidence |
@@ -57,7 +62,3 @@ The tables are source-reviewed. Local hardware runs for the quickstart recipes
 are pending. When documenting a run, record the ZML commit or LLMD version,
 along with the host OS and device, model revision and precision, and observed
 prediction or completion.
-
-~~~=html
-<p>See <a href="../environment/">Environment variables</a> for model credentials and backend settings.</p>
-~~~

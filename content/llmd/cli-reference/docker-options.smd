@@ -1,0 +1,64 @@
+---
+.title = "Docker options",
+.description = "Publish ports, expose accelerators, mount local weights, and manage the LLMD container.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "CLI Reference" },
+---
+Pass Docker options before the image name and LLMD options after it.
+
+These are Docker defaults. An image or daemon configuration can also provide
+settings. See the [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/)
+and [daemon defaults](https://docs.docker.com/reference/cli/dockerd/).
+
+# [Ports and networking]($heading.id('docker-run-options'))
+
+| Docker option | Default | Use with LLMD |
+| --- | --- | --- |
+| `-p`, `--publish` | No published host ports | `-p 127.0.0.1:8000:8000` maps LLMD's port to host loopback. An omitted bind address usually publishes to all host interfaces. |
+| `--network` or `--net` | Default bridge on a standard Linux Docker host | The published TPU recipe uses `--net=host` to share the host network. |
+
+# [Accelerators and shared memory]($heading.id('accelerators-and-shared-memory'))
+
+| Docker option | Default | Use with LLMD |
+| --- | --- | --- |
+| `--gpus` | No explicit request | `--gpus=all` makes GPUs available to the CUDA image with NVIDIA container integration. |
+| `--device` | No additional devices | Grant access to specific host devices. The ROCm recipe uses `/dev/kfd` and `/dev/dri`. The oneAPI recipe uses `/dev/dri`. |
+| `--shm-size` | Daemon default, normally `64 MiB` | Configure `/dev/shm`. The published CUDA recipe sets `256GB`. |
+| `--privileged` | Off | The published TPU recipe enables this to grant broad host-device access. |
+
+# [Environment and mounts]($heading.id('environment-and-mounts'))
+
+| Docker option | Default | Use with LLMD |
+| --- | --- | --- |
+| `-e`, `--env` | No explicit override | `-e HF_TOKEN` forwards a value from the invoking environment. |
+| `--mount` | No explicit mount | Mount a local model directory and pass the container path to `--model`. Bind mounts are writable by default. Add `readonly` for weights. |
+
+# [Container lifecycle]($heading.id('container-lifecycle'))
+
+| Docker option | Default | Use with LLMD |
+| --- | --- | --- |
+| `--name` | Automatically generated | Use a fixed name for `docker logs` and `docker stop`. |
+| `--rm` | Off | Remove the container when it exits. |
+| `-d`, `--detach` | Off | Run in the background. Inspect startup with `docker logs <name>`. |
+| `-i`, `-t` | Both off | Keep stdin open or allocate a terminal. Use them for interactive terminal sessions. |
+| `--pull` | `missing` | Pull the image when it is absent locally. |
+| `--restart` | `no` | Set a restart policy for a retained container. Docker rejects `--rm` with a restart policy. |
+
+# [Run a local model]($heading.id('run-a-local-checkpoint'))
+
+The following CUDA example serves weights from a local model directory.
+Replace `/absolute/path/to/model` with an existing host path containing
+the model configuration, tokenizer, and weight files.
+
+```sh
+docker run --rm --name llmd \
+  -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
+  --mount type=bind,source=/absolute/path/to/model,target=/model,readonly \
+  zmlai/llmd:cuda --model=/model
+```
+
+Use the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')) to generate a launch
+command for your backend. See [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility'))
+for host requirements and [Operations]($link.page('llmd/user-guide/operations')) for deployment
+and monitoring.

@@ -1,0 +1,80 @@
+---
+.title = "Model and listener flags",
+.description = "Select a model, set the served model ID, and bind the LLMD HTTP listener.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "CLI Reference" },
+---
+These defaults come from the LLMD source reviewed on 16 November 2026.
+Use `--name=value` for an option with a value and a bare flag for a boolean
+switch.
+
+# [Choose the model]($heading.id('model-and-listener'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--model=<path>` | Required | Path to a model directory or supported model URI. |
+| `--model-name=<text>` | Basename of the model path | Set the identifier reported by `/v1/models` and used in requests. |
+
+See [Models]($link.page('llmd/api-reference/models')) to check the ID reported by a running
+server, and [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
+for model credentials, proxy settings, and diagnostics.
+
+## [Local model files]($heading.id('local-model-files'))
+
+Point `--model` to the directory containing `config.json`. Keep the tokenizer,
+Safetensors weights, weight index and all its shards, and any supplied chat
+template or generation settings together from the same revision.
+`Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
+pooling configuration files.
+
+In the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')), **Download first**
+generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
+To pin a download, add `--revision <commit>` to that command and give each
+revision its own local directory. Native LLMD reads the host path directly.
+For Docker, see [Run a local model]($link.page('llmd/cli-reference/docker-options').ref('run-a-local-checkpoint')).
+
+## [Cloud model URIs]($heading.id('cloud-model-uris'))
+
+Use `--model=hf://org/repo@revision` to select a Hugging Face revision at
+launch. For S3 or Google Cloud Storage, keep the model files together under
+one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
+`--model=gs://my-bucket/llm/model`. To adapt a quickstart command, choose
+**Load at launch** and replace its `--model` value with the bucket URI.
+Configure [model storage credentials]($link.page('llmd/cli-reference/environment-variables').unsafeRef('model-storage-and-credentials'))
+in the environment that runs LLMD.
+
+# [Bind the listener]($heading.id('bind-the-listener'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--listen=<address>` | `0.0.0.0:8000` | Bind HTTP to an IP address and port. A bare IPv4 address uses port `8000`. |
+
+# [Select the I/O implementation]($heading.id('io-implementation'))
+
+The reviewed source exposes this advanced option. Check availability in
+your LLMD build.
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--io-impl=<name>` | `zio` | Choose the I/O implementation. `threaded` is also available in the reviewed source. |
+
+# [Check installed flags]($heading.id('check-installed-flags'))
+
+Check the help from your installed binary or container for the options
+it exposes. The CUDA recipe in the
+[LLMD quickstart]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-cuda')) uses
+`zmlai/llmd:cuda`. Docker options go before the image name. LLMD options go
+after it.
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `-h`, `--help` | Off | Print the supported usage. |
+
+```sh
+# Native installation
+llmd --help
+
+# CUDA container
+docker run --rm zmlai/llmd:cuda --help
+```

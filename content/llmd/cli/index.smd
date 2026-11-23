@@ -4,13 +4,13 @@
 .layout = "api-redirect.shtml",
 .custom = .{
     .anchors = [
-        .{ .path = "llmd/cli/model-and-listener", .id = "model-and-listener", .label = "Model and listener flags" },
-        .{ .path = "llmd/cli/batching-and-memory", .id = "batching-context-and-memory", .label = "Batching and memory" },
-        .{ .path = "llmd/cli/sampling-and-decoding", .id = "sampling-and-speculative-decoding", .label = "Sampling and decoding" },
-        .{ .path = "llmd/cli/sampling-and-decoding", .id = "choose-a-decoding-mode", .label = "Choose a decoding mode" },
-        .{ .path = "llmd/cli/benchmarking", .id = "advanced-and-benchmark-flags", .label = "Benchmarking (Work In Progress)" },
-        .{ .path = "llmd/cli/docker-options", .id = "docker-run-options", .label = "Docker options" },
+        .{ .path = "llmd/cli-reference/model-and-listener-flags", .id = "model-and-listener", .label = "Model and listener flags" },
+        .{ .path = "llmd/cli-reference/batching-and-memory", .id = "batching-context-and-memory", .label = "Batching and memory" },
+        .{ .path = "llmd/cli-reference/sampling-and-decoding", .id = "sampling-and-speculative-decoding", .label = "Sampling and decoding" },
+        .{ .path = "llmd/cli-reference/sampling-and-decoding", .id = "choose-a-decoding-mode", .label = "Choose a decoding mode" },
+        .{ .path = "llmd/cli-reference/benchmarking", .id = "advanced-and-benchmark-flags", .label = "Benchmarking (Work In Progress)" },
+        .{ .path = "llmd/cli-reference/docker-options", .id = "docker-run-options", .label = "Docker options" },
     ],
-    .pager = "llmd/cli/docker-options",
+    .pager = "llmd/cli-reference/docker-options",
 },
 ---

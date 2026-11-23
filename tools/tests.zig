@@ -149,8 +149,9 @@ fn pairingTable(fixture: *Fixture, path: []const u8) ![]const u8 {
 
 fn checkDrafterHandoffs(fixture: *Fixture) !void {
     const allocator = fixture.arena.allocator();
-    const catalog = try pairingTable(fixture, "dist/llmd/models/index.html");
-    const quickstart = try pairingTable(fixture, "dist/llmd/quickstart/index.html");
+    const catalog = try pairingTable(fixture, "dist/llmd/user-guide/model-compatibility/index.html");
+    const quickstart_route = "/llmd/user-guide/quickstart/";
+    const quickstart = try pairingTable(fixture, "dist" ++ quickstart_route ++ "index.html");
     var checkpoints: std.StringHashMapUnmanaged(void) = .empty;
     var pairs: std.StringHashMapUnmanaged(void) = .empty;
     var quickstart_rows = std.mem.splitSequence(u8, quickstart, "</tr>");
@@ -182,7 +183,7 @@ fn checkDrafterHandoffs(fixture: *Fixture) !void {
             var hrefs = website.attributes(rest, "href");
             while (hrefs.next()) |href| {
                 const path, const query = std.mem.cutScalar(u8, href, '?') orelse continue;
-                try std.testing.expect(std.mem.endsWith(u8, path, "/llmd/quickstart/"));
+                try std.testing.expect(std.mem.endsWith(u8, path, quickstart_route));
                 var params: std.StringHashMapUnmanaged([]const u8) = .empty;
                 var fields = std.mem.splitScalar(u8, try std.mem.replaceOwned(u8, allocator, query, "&amp;", "&"), '&');
                 while (fields.next()) |field| {
@@ -201,6 +202,33 @@ fn checkDrafterHandoffs(fixture: *Fixture) !void {
     }
     try std.testing.expectEqual(@as(usize, 0), pairs.count());
     try std.testing.expectEqual(@as(usize, 0), checkpoints.count());
+}
+
+fn checkLegacyRoutes(fixture: *Fixture) !void {
+    const allocator = fixture.arena.allocator();
+    const cases = [_]struct { source: []const u8, destination: []const u8 }{
+        .{ .source = "llmd/", .destination = "/llmd/user-guide/" },
+        .{
+            .source = "llmd/developer-guide/",
+            .destination = "/llmd/developer-guide/connect-an-application-to-llmd/#send-a-chat-message",
+        },
+        .{ .source = "llmd/quickstart/", .destination = "/llmd/user-guide/quickstart/" },
+        .{
+            .source = "operations/deployment/",
+            .destination = "/llmd/user-guide/operations/deploy-llmd/",
+        },
+    };
+    for (cases) |case| {
+        const output = try std.fmt.allocPrint(allocator, "dist/{s}index.html", .{case.source});
+        const page = try files.read(allocator, std.testing.io, try fixture.path(output));
+        try std.testing.expect(std.mem.indexOf(u8, page, "data-pagefind-ignore") != null);
+        var links = website.attributes(page, "href");
+        const found = while (links.next()) |href| {
+            if (std.mem.endsWith(u8, href, case.destination)) break true;
+        } else false;
+        if (!found) std.debug.print("Missing legacy destination for /{s}\n", .{case.source});
+        try std.testing.expect(found);
+    }
 }
 
 test "render and validation failures preserve the last site; success removes stale output" {
@@ -247,6 +275,7 @@ test "render and validation failures preserve the last site; success removes sta
     try fixture.put("content/index.smd", original);
     _ = try website.build(allocator, std.testing.io, options);
     try checkDrafterHandoffs(&fixture);
+    try checkLegacyRoutes(&fixture);
     try std.testing.expect(try files.exists(
         std.testing.io,
         try fixture.path("dist/index.html"),

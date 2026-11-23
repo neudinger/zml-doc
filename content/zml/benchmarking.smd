@@ -1,29 +1,5 @@
 ---
-.title = "ZML benchmarking (Work In Progress)",
-.description = "Separate build time from model execution and choose a profiler for the selected backend.",
-.date = .date("2026-11-18T00:00:00"),
-.layout = "content.shtml",
-.custom = .{ .doc_section = "Benchmarking" },
+.date = .date("2026-11-23T00:00:00"),
+.layout = "doc-redirect.shtml",
+.custom = .{ .destination = "zml/benchmarking/profiling-configurations" },
 ---
-Use a working model run as the baseline. The [LLM example]($link.page('zml/build-and-run').ref('run-an-llm-example'))
-accepts a model path and a fixed prompt and prints the selected runtime and
-attention backend. Record those settings and the ZML revision with your results.
-
-# [Select a build or profiling configuration]($heading.id('select-a-build-or-profiling-configuration'))
-
-Build the target once with the flags you will use for the run. A first Bazel
-invocation can fetch dependencies and compile the executable. Starting the
-executable can still load weights and compile the model for the device.
-Timing the entire command includes all of that work.
-
-For a device trace, choose a Bazel configuration for your profiler, such as
-`--config=nsys` for NVIDIA Nsight Systems or `--config=rocprofv3` for AMD ROCm.
-The LLM example also accepts `--profile` with a non-interactive prompt to
-capture a PJRT trace. The [profiling configuration reference]($link.page('zml/build-and-run').ref('select-a-build-or-profiling-configuration'))
-lists the wrappers and the backends they enable.
-
-When comparing two configurations, keep the model weights, input, device, and
-build mode fixed. Compare startup separately from execution and use runs with
-profiling disabled for elapsed-time comparisons. For a running LLMD HTTP
-service, use [LLMD service metrics]($link.page('operations/monitoring').ref('scrape-service-metrics'))
-to observe time to first token and generation throughput.

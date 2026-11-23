@@ -1,0 +1,124 @@
+---
+.title = "Chat completions",
+.description = "Send chat requests to LLMD, read streaming completions, and handle tool calls.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "API Reference" },
+---
+# [Create a chat completion]($heading.id('create-a-chat-completion'))
+
+Send JSON to `POST /v1/chat/completions` with the ID returned by
+[Models]($link.page('llmd/api-reference/models').ref('read-the-model-id')).
+This chat example uses `LiquidAI/LFM3-1.7B-FP8`.
+
+```sh
+curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "LFM3-1.7B-FP8",
+    "messages": [{"role": "user", "content": "Reply with one short greeting."}],
+    "max_completion_tokens": 64
+  }'
+```
+
+## [Request fields]($heading.id('request-fields'))
+
+| Request field | Type and default | Behavior |
+| --- | --- | --- |
+| `model` | String, required | ID from `GET /v1/models`. |
+| `messages` | Array, required | Conversation history in order. A text message has a `role` and `content`. The loaded model's chat template determines supported roles and content types. |
+| `max_completion_tokens` | Integer, optional | Limit generated tokens. The server also enforces its context limit. The older `max_tokens` field is used when `max_completion_tokens` is absent. |
+| `stream` | Boolean, `false` | Set to `true` for server-sent events. |
+| `stream_options.include_usage` | Boolean, `false` | Emit an additional usage event when streaming. |
+| `temperature` | Number, optional | Request-level sampling temperature. |
+| `top_p` | Number, optional | Request-level nucleus sampling threshold. Use `0` through `1`. |
+| `tools` | Array, optional | Offer function definitions to a tool-capable model and chat template. |
+
+For the request-level sampling behavior documented in
+[LLMD 20261112.0](https://zml.ai/posts/llmd-20261112.0/#sampling-controls),
+`temperature` and `top_p` override the CLI value, then the model recommendation
+and fallback apply when needed. See [Sampling and decoding]($link.page('llmd/cli-reference/sampling-and-decoding'))
+for server defaults. Additional request fields and modalities depend on the
+release and model. Verify that optional fields have the intended effect on
+your release because the server can ignore unknown JSON fields.
+
+## [Read the response]($heading.id('read-the-response'))
+
+The JSON response includes `model`, `choices`, and `usage`. Read
+`choices[0].message.content` for the text and `choices[0].finish_reason` for
+the reason generation ended. A typical text response includes the following
+fields. The generated text and token counts vary.
+
+```json
+{
+  "model": "LFM3-1.7B-FP8",
+  "choices": [
+    {
+      "index": 0,
+      "message": {"role": "assistant", "content": "Hello!"},
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
+
+# [Stream a chat completion]($heading.id('stream-a-chat-completion'))
+
+Set `stream` to `true`. With curl, `-N` displays events as they arrive.
+
+```sh
+curl -fsSN http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "LFM3-1.7B-FP8",
+    "messages": [{"role": "user", "content": "Reply with one short greeting."}],
+    "max_completion_tokens": 64,
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  }'
+```
+
+The response uses `text/event-stream`. Parse each `data:` event as JSON and
+append text from `choices[0].delta.content` when present. A usage event has an
+empty `choices` array. A completed stream ends with `data: [DONE]`. For a streaming
+tool call, assemble the `delta.tool_calls` fragments by their tool-call index
+before parsing the arguments.
+
+# [Call tools from a client]($heading.id('call-tools-from-a-client'))
+
+Use a model and chat template that support tool calling. Include function
+definitions in `tools` and ask for the function in the conversation. For
+example, add this field to a chat request where the user asks for the time in Paris.
+
+```json
+{
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_local_time",
+        "description": "Return the local time in a city",
+        "parameters": {
+          "type": "object",
+          "properties": {"city": {"type": "string"}},
+          "required": ["city"]
+        }
+      }
+    }
+  ]
+}
+```
+
+When the model requests a call, read `choices[0].message.tool_calls`. Each
+function call carries an `id`, a `function.name`, and `function.arguments`
+encoded as a JSON string. The client validates and executes the function.
+For the next completion, include the assistant message with its tool calls,
+followed by a message with `role` set to `tool`, `tool_call_id` set to the
+matching ID, and `content` set to the tool result.
+
+# [Errors]($heading.id('errors'))
+
+| Result | Meaning |
+| --- | --- |
+| `400 Bad Request` | Check required fields, JSON types, and the model's supported content types. |
+| `400` with `error.code` set to `context_length_exceeded` | The tokenized prompt reached the server context cap. Shorten the conversation or review the server configuration. |

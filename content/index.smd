@@ -4,5 +4,5 @@
 .date = .date("2026-11-06T00:00:00"),
 .layout = "content.shtml",
 ---
-- [Build with ZML]($link.page('zml').id('build-with-zml'))
-- [Serve models with LLMD]($link.page('llmd').id('serve-models-with-llmd'))
+- [Build with ZML]($link.page('zml/user-guide').id('build-with-zml'))
+- [Serve models with LLMD]($link.page('llmd/user-guide').id('serve-models-with-llmd'))

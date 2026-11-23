@@ -1,0 +1,40 @@
+---
+.title = "ZML CLI reference",
+.description = "Use Bazel commands and pass runtime arguments to ZML examples.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "CLI Reference" },
+---
+Run these commands from the ZML checkout used in the
+[quickstart]($link.page('zml/user-guide/quickstart')). Bazel selects and builds the target.
+Each example executable defines its runtime arguments.
+
+# [Build, run, or test a target]($heading.id('build-run-or-test-a-target'))
+
+Use `bazel query '//examples/...'` to list example targets.
+`bazel build //examples/mnist` builds MNIST. `bazel run //examples/mnist`
+also launches it with its test data. Run the framework tests with
+`bazel test //zml:test`. See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('build-run-or-test-a-target'))
+for the target workflow.
+
+# [Choose a backend and target platform]($heading.id('choose-a-backend-and-target-platform'))
+
+The backend flags select the runtimes compiled into the executable.
+`--platforms` selects the target operating system and architecture.
+Choose your hardware in the [MNIST quickstart]($link.page('zml/user-guide/quickstart').ref('build-and-run-mnist'))
+to get a complete command. The [backend flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('choose-a-backend-and-target-platform'))
+cover cross-builds and runtime selection.
+
+# [Run an LLM example]($heading.id('run-an-llm-example'))
+
+Place Bazel options before the target. Use `--` after the target to pass the
+remaining arguments to the executable. The example lists its own options
+when called with `--help`.
+
+```sh
+bazel run //examples/llm -- --help
+```
+
+Set `--model` to a model directory or URI and pass `--prompt` for a single response.
+See [LLM example flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('llm-example-flags'))
+for the supported model locations and attention backends.

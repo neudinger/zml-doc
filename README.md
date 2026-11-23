@@ -68,7 +68,9 @@ revision or hardware verification is claimed yet.
 
 ## Add a page
 
-Create `content/<section>/<slug>.smd`:
+Create `content/<product>/<section>/<slug>.smd`. Use lowercase hyphenated
+slugs that follow the tab and sidebar labels. Include a group directory for
+Operations and User Guide reference pages.
 
 ```text
 ---
@@ -88,24 +90,29 @@ The layout supplies the page's single H1. With `headings_h2` enabled, body `#`
 headings render as H2. Use a stable ID such as
 `# [First section]($heading.id('first-section'))` to link an article heading
 from the **On this page** list. Use Zine page links such as
-`[Build with ZML]($link.page('zml'))` and site asset references instead of hard-coding a
+`[Build with ZML]($link.page('zml/user-guide'))` and site asset references instead of hard-coding a
 deployment prefix. Assets are published when referenced; static asset directories
 can be declared explicitly in `zine.ziggy` when needed.
 
 Set `custom.doc_section` to the section label in the page front matter. It defaults
 to `User Guide`. Add the page to a group under its section and product in
 [`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Each section’s
-first page is its header tab destination. The sidebar and Previous/Next follow
+first page is its header tab destination. Breadcrumbs, the sidebar, and Previous/Next follow
 the same group and page order within that section. Put LLMD operations pages
 in the User Guide’s Operations group. Article headings supply the anchors for
 the On this page navigation.
 
 Edit Hardware compatibility and Environment variables in [`content/reference/`](content/reference/).
-The entries in `content/zml/reference/` and `content/llmd/reference/` point to
+The entries in each product's `user-guide/reference/` directory point to
 those sources through `reference_source`. Each product renders the same article
 and section IDs with its own sidebar and Previous/Next links. The CLI Reference
 also links to Environment variables in its own section. Pagefind indexes one
 copy per product. The original `/reference/` URLs preserve existing bookmarks.
+
+When moving an existing page, keep a source stub at its former URL with
+`doc-redirect.shtml` and a `custom.destination` set to the new page path.
+The redirect carries the query and fragment. Add a `custom.anchors` mapping
+when a fragment changes.
 
 ## Validation and scope
 

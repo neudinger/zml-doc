@@ -1,0 +1,95 @@
+---
+.title = "Load and inspect model weights",
+.description = "Inspect local or remote Safetensors weights and load them into buffers for a ZML executable.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Developer Guide" },
+---
+Inspect the names, shapes, and sizes of weight tensors before binding them
+to a ZML model. Run the commands from the checkout in the
+[ZML quickstart]($link.page('zml/user-guide/quickstart')).
+
+# [Inspect local model weights]($heading.id('inspect-a-local-checkpoint'))
+
+Pass an absolute path to the `safetensors` command in the I/O playground.
+Replace the path with the location of your weights.
+
+```sh
+bazel run //examples/io:playground -- safetensors \
+  "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors"
+```
+
+The output groups tensors by name and shows their shapes and byte sizes.
+For weights split across several files, pass `model.safetensors.index.json`
+and keep the referenced shards alongside the index. A model directory also
+works when it contains a [recognized entry point](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/safetensors.zig#L597-L615).
+
+# [Inspect remote model weights]($heading.id('inspect-a-remote-checkpoint'))
+
+Use `ls` to find the weights, then pass the file URI to `safetensors`. This
+example selects a fixed revision of
+[LiquidAI/LFM2-350M](https://huggingface.co/LiquidAI/LFM2-350M/tree/f37d3f5c8c5484bc01dad379a595cf4c68c4e70e).
+
+```sh
+model_uri='hf://LiquidAI/LFM2-350M@f37d3f5c8c5484bc01dad379a595cf4c68c4e70e'
+bazel run //examples/io:playground -- ls "$model_uri"
+bazel run //examples/io:playground -- safetensors "$model_uri/model.safetensors"
+```
+
+The inspector reads Safetensors metadata. The `hf://` loader uses `main` when
+you omit `@revision`. For gated repositories, request access and set
+`HF_TOKEN`. The playground also registers `s3://` and `gs://` for object
+storage. See [Environment variables]($link.page('zml/user-guide/reference/environment-variables').unsafeRef('model-storage-and-credentials'))
+for credentials and storage settings.
+
+# [Load weights for execution]($heading.id('load-weights-for-execution'))
+
+To check that weights transfer to the selected backend, pass a small local
+model's weights file to the playground's `load` command.
+
+```sh
+bazel run //examples/io:playground -- load \
+  "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors" replicated
+```
+
+`replicated` places a full copy on each logical device. Allow memory for the
+copies and transfer buffers. The playground logs bytes loaded and elapsed time,
+then releases the buffers. [Load command source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/io/main.zig#L153-L222)
+
+Run the MNIST example to see ZML load pretrained model weights and classify a
+digit. Its Bazel target supplies the weights and sample dataset.
+
+```sh
+bazel run //examples/mnist
+```
+
+The [MNIST source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist.zig#L17-L122)
+opens a `TensorRegistry` and creates a `TensorStore` that borrows that registry
+and the platform's replicated mesh. The model uses a view with prefix `fc1`
+to create symbolic tensors bound to `fc1.weight` and `fc1.bias`. For example,
+`store.view().withPrefix("fc1").createReplicatedTensor("weight", .{ .d_out, .d })`
+reads the shape of `fc1.weight` from the model file and tags the matrix's two axes.
+
+After compiling `forward`, the example fills a buffer structure that mirrors
+the model. Here is the loading sequence inside `Mnist.load`, with `self` as
+the model and `store` as a pointer to its tensor store.
+
+```zig
+var buffers = try zml.mem.bufferize(allocator, Mnist, self);
+errdefer unloadBuffers(&buffers);
+
+var loader: zml.io.Loader = try .init(allocator, platform, .default);
+defer loader.deinit();
+
+try loader.load(io, Mnist, self, &buffers, store, .{});
+try loader.await(io);
+return buffers;
+```
+
+Keep the model, store, registry, and platform alive while the transfer is in
+flight. After `await`, bind the loaded buffers and the input buffer with
+[`args.set`]($link.page('zml/developer-guide/write-your-first-model').ref('compile-and-call-the-layer')).
+The caller owns the returned `zml.Bufferized(Mnist)` and releases
+each weight buffer with `deinit` before releasing the platform.
+
+The walkthrough follows the pinned source. Execution checks are pending.

@@ -1,0 +1,17 @@
+---
+.title = "Benchmarking (Work In Progress)",
+.description = "Use service metrics to inspect a running LLMD deployment.",
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Benchmarking" },
+---
+```=html
+<span id="run-a-baseline"></span><span id="compare-decoding-modes"></span><span id="read-and-compare-the-results"></span>
+```
+
+For queue depth, time to first token, and output throughput on a running
+server, see [Scrape service metrics]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting').ref('scrape-service-metrics')).
+
+# [Tune context and concurrency]($heading.id('tune-context-and-concurrency'))
+
+To size the KV cache for your workload, see [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory').ref('kv-cache-and-memory-limits')).

@@ -4,11 +4,11 @@
 .layout = "api-redirect.shtml",
 .custom = .{
     .anchors = [
-        .{ .path = "zml/api/tensor", .id = "tensor", .label = "Tensor" },
-        .{ .path = "zml/api/shape", .id = "shape", .label = "Shape" },
-        .{ .path = "zml/api/buffer", .id = "buffer", .label = "Buffer" },
-        .{ .path = "zml/api/platform", .id = "platform", .label = "Platform" },
-        .{ .path = "zml/api/exe", .id = "exe", .label = "Exe" },
+        .{ .path = "zml/api-reference/tensor", .id = "tensor", .label = "Tensor" },
+        .{ .path = "zml/api-reference/shape", .id = "shape", .label = "Shape" },
+        .{ .path = "zml/api-reference/buffer", .id = "buffer", .label = "Buffer" },
+        .{ .path = "zml/api-reference/platform", .id = "platform", .label = "Platform" },
+        .{ .path = "zml/api-reference/exe", .id = "exe", .label = "Exe" },
     ],
 },
 ---

@@ -1,0 +1,136 @@
+---
+.title = "Deploy LLMD with Docker",
+.description = "Deploy the LLMD CUDA container, verify inference, and retain a rollback path on one host.",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+---
+Deploy a single LLMD instance on a Linux x86-64 host with an NVIDIA GPU.
+Use the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')) for a first chat
+request. This guide uses a local model and shows how to retain the
+running container for rollback when you upgrade.
+
+# [1. Prepare the host and model]($heading.id('prepare-the-host-and-model'))
+
+- Verify the NVIDIA driver with `nvidia-smi`. Install Docker and configure the
+  NVIDIA Container Toolkit, then check container GPU access with
+  [NVIDIA's sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html).
+- Choose a device with memory for the model and its KV cache. The example
+  uses `LiquidAI/LFM3-1.7B-FP8`. Check
+  [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility')) for other image
+  architectures, backends, and precisions.
+- Place all model files for the selected revision in one directory. Keep
+  that directory available for restarts and rollback. For a remote model URI,
+  see [Cloud model URIs]($link.page('llmd/cli-reference/model-and-listener-flags').ref('cloud-model-uris')).
+
+Record the LLMD version, model ID and revision, driver and device,
+and the exact startup flags. Record which credentials the deployment uses
+separately from their values.
+
+# [2. Start the container]($heading.id('start-the-container'))
+
+Pull the CUDA image from Docker Hub. Replace `/srv/models/lfm3-fp8` with the
+absolute path to your model directory. The bound port is on the Docker host.
+
+```sh
+LLMD_MODEL_DIR='/srv/models/lfm3-fp8'
+
+docker pull zmlai/llmd:cuda &&
+docker run -d --name llmd --restart unless-stopped \
+  --gpus=all --shm-size=256GB \
+  -p 127.0.0.1:8000:8000 \
+  --mount "type=bind,source=${LLMD_MODEL_DIR},target=/model,readonly" \
+  zmlai/llmd:cuda --model=/model --model-name=lfm3
+```
+
+This command requests every available NVIDIA GPU and sets the `/dev/shm`
+limit from the published CUDA recipe. See [Docker options]($link.page('llmd/cli-reference/docker-options'))
+for device selection and [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory'))
+for the server’s context and memory limits. The container and its logs
+remain available after it exits. Docker's restart policy starts the container
+again after an unexpected exit, subject to
+[restart policy behavior](https://docs.docker.com/engine/containers/start-containers-automatically/).
+
+# [3. Verify readiness]($heading.id('verify-readiness'))
+
+Watch the startup output while LLMD loads the weights and compiles the model.
+Check the HTTP service, the advertised model ID, and a completion in that
+order.
+
+```sh
+docker logs --tail 100 llmd
+curl -fsS http://127.0.0.1:8000/health
+curl -fsS http://127.0.0.1:8000/v1/models
+```
+
+`/health` should return `OK`, and `/v1/models` should list `lfm3`. Use that ID
+in the request. If you used another `--model-name`, use the ID returned by your
+server.
+
+```sh
+curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "lfm3",
+    "messages": [{"role": "user", "content": "Reply with a short greeting."}],
+    "max_completion_tokens": 64
+  }'
+```
+
+Confirm the response contains text in `choices[0].message.content` before
+routing traffic. See [Monitoring and troubleshooting]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting'))
+if startup stalls, the model ID differs, or generation fails.
+
+# [4. Route client traffic]($heading.id('route-client-traffic'))
+
+For local clients, keep the host mapping on `127.0.0.1`. For remote clients,
+route the chat and model endpoints through a reverse proxy that terminates TLS
+and authenticates requests. Restrict backend access to the proxy and restrict
+metrics and profiling endpoints to operators. Check your Docker Engine's
+[port publishing behavior](https://docs.docker.com/engine/network/port-publishing/)
+when configuring the host network.
+
+Set proxy timeouts for your expected inference duration and allow streaming
+events to pass through as they arrive. Repeat the chat request through the
+client-facing endpoint. See [Stream a chat completion]($link.page('llmd/api-reference/chat-completions').ref('stream-a-chat-completion'))
+for streaming request and response formats.
+
+# [5. Upgrade or roll back]($heading.id('upgrade-or-roll-back'))
+
+Record the running LLMD version, model revision, and launch options.
+Pull `zmlai/llmd:cuda` on the deployment host before the maintenance window.
+If you have a spare GPU, start the candidate with a distinct container name
+and port, expose only that GPU, then repeat the readiness checks and compare
+representative requests. Drain client traffic before stopping the previous
+container.
+
+For an in-place replacement, stop the running container and reserve the name
+`llmd-previous` for rollback. Use a different name for any older retained
+container before this step.
+
+```sh
+docker stop --timeout 30 llmd
+docker rename llmd llmd-previous
+```
+
+Use the `docker run` command above to start the candidate with the image you
+already pulled and the selected model. Restore traffic only after the
+model ID and chat completion checks succeed. Retain the previous container
+and its model files until the upgrade is accepted.
+
+To roll back, drain traffic again. If the candidate container exists, stop it
+and remove it before restoring the retained container. The retained container
+uses its original image even after a new pull of the `cuda` tag.
+
+```sh
+docker stop --timeout 30 llmd
+docker rm llmd
+```
+
+```sh
+docker rename llmd-previous llmd
+docker start llmd
+```
+
+Repeat the readiness checks against the restored instance. The commands are
+source-reviewed. Deployment and rollback execution on the described host
+remain pending.

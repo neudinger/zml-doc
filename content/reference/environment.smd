@@ -3,12 +3,17 @@
 .description = "Configure model access, proxies, reporting, and diagnostics for ZML and LLMD.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .reference_source = "reference/environment" },
+.custom = .{
+    .reference_source = "reference/environment",
+    .reference_path = "user-guide/reference/environment-variables",
+    .related_reference = "reference/compatibility",
+    .related_note = "to identify the runtime and artifact before applying backend-specific settings.",
+},
 ---
 Set these variables in the environment of the process that loads the model or
 initializes the backend. The defaults refer to the ZML revision used in the
-[ZML quickstart]($link.page('zml/quickstart')) and the source snapshot covered
-by the [LLMD CLI reference]($link.page('llmd/cli/model-and-listener')).
+[ZML quickstart]($link.page('zml/user-guide/quickstart')) and the source snapshot covered
+by the [LLMD CLI reference]($link.page('llmd/cli-reference/model-and-listener-flags')).
 
 # [Pass variables to Docker]($heading.id('pass-variables-to-docker'))
 
@@ -61,7 +66,7 @@ the approved account. For a host download, export `HF_TOKEN` or sign in
 with `uvx --from huggingface_hub hf auth login`. For a Docker launch
 that fetches weights from Hugging Face, export `HF_TOKEN` on the host and
 enable **Forward HF_TOKEN** under **Launch options** in the
-[LLMD quickstart]($link.page('llmd/quickstart').unsafeRef('lfm3-fp8-cuda')).
+[LLMD quickstart]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-cuda')).
 
 # [LLMD outbound proxies]($heading.id('llmd-outbound-proxies'))
 
@@ -118,7 +123,3 @@ launching. Choose a writable output directory inside the runtime. See the
 | AWS Neuron | `NEURON_RT_LOG_LEVEL` | `error` when unset. Controls Neuron runtime logging. |
 | AWS Neuron | `NEURON_CC_FLAGS` | Generated from the backend configuration when unset. An explicit value overrides those compiler flags. |
 | Furiosa | `FURIOSA_SDK_ROOT` | Set by the pinned loader to the packaged SDK location. |
-
-~~~=html
-<p>Use <a href="../compatibility/">Hardware compatibility</a> to identify the runtime and artifact before applying backend-specific settings.</p>
-~~~

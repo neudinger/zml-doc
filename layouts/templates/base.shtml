@@ -37,8 +37,8 @@
     <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))"
-         reference="$page.custom.getOr('reference_route', $page.custom.getOr('reference_source', ''))">
+         llmd="$page.link().startsWith($site.page('llmd').link())"
+         reference="$page.custom.getOr('reference_route', $site.page($page.custom.getOr('reference_source', '')).custom.getOr('reference_path', ''))">
       <nav class="page-width product-tabs" aria-label="Product documentation">
         <ctx :loop="$ctx.catalog.get('sections')">
           <ctx :if="$loop.it.get('label').eql($ctx.section)">
@@ -74,7 +74,7 @@
     <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.page('llmd').link()).or($page.link().startsWith($site.page('operations').link()))">
+         llmd="$page.link().startsWith($site.page('llmd').link())">
       <ctx :if="$ctx.zml.or($ctx.llmd)">
         <details class="docs-sidebar" open>
           <summary :text="$ctx.section.prefix('Pages in ')"></summary>

@@ -1,15 +1,5 @@
 ---
-.title = "CLI benchmarking (Work In Progress)",
-.description = "See the serving references for current LLMD configuration options.",
-.date = .date("2026-11-16T00:00:00"),
-.layout = "content.shtml",
-.custom = .{ .doc_section = "CLI Reference" },
+.date = .date("2026-11-23T00:00:00"),
+.layout = "doc-redirect.shtml",
+.custom = .{ .destination = "llmd/cli-reference/benchmarking" },
 ---
-```=html
-<span id="choose-a-prompt"></span><span id="configure-the-workload"></span><span id="capture-a-profile"></span>
-```
-
-# [Serving options]($heading.id('advanced-and-benchmark-flags'))
-
-To configure a running server, see [Model and listener flags]($link.page('llmd/cli/model-and-listener'))
-and [Batching and memory]($link.page('llmd/cli/batching-and-memory')).
