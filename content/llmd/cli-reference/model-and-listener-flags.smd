@@ -9,16 +9,72 @@ These defaults come from the LLMD source reviewed on 16 November 2026.
 Use `--name=value` for an option with a value and a bare flag for a boolean
 switch.
 
-# [Choose the model]($heading.id('model-and-listener'))
+# [Model flags]($heading.id('model-and-listener'))
 
 | LLMD option | Default | Effect |
 | --- | --- | --- |
 | `--model=<path>` | Required | Path to a model directory or supported model URI. |
 | `--model-name=<text>` | Basename of the model path | Set the identifier reported by `/v1/models` and used in requests. |
 
-See [Models]($link.page('llmd/api-reference/models')) to check the ID reported by a running
-server, and [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
-for model credentials, proxy settings, and diagnostics.
+# [Bind the listener]($heading.id('bind-the-listener'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--listen=<address>` | `0.0.0.0:8000` | Bind HTTP to an IP address and port. A bare IPv4 address uses port `8000`. |
+
+# [Launch by model source]($heading.id('launch-by-model-source'))
+
+```=html
+<fieldset class="command-tabs model-walkthrough" data-toc-parent="launch-by-model-source">
+  <legend>Model source</legend>
+  <div class="model-stage">
+    <label id="model-source-local" class="command-tab" data-toc-label="Local directory"><input type="radio" name="model-source" aria-controls="model-command-local" checked><span>Local directory</span></label>
+    <div class="model-stage-panel" id="model-command-local">
+      <pre><code class="sh" data-copy-label="Copy local launch command">llmd --model="${HOME}/models/Qwen/Qwen3-4B" \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Point LLMD to a directory with the <a href="#local-model-files">configuration, tokenizer and weights</a>.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label id="model-source-hugging-face" class="command-tab" data-toc-label="Hugging Face"><input type="radio" name="model-source" aria-controls="model-command-hugging-face"><span>Hugging Face</span></label>
+    <div class="model-stage-panel" id="model-command-hugging-face">
+      <pre><code class="sh" data-copy-label="Copy Hugging Face launch command">llmd --model=hf://Qwen/Qwen3-4B \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Append <code>@revision</code> to pin a revision. Set <code>HF_TOKEN</code> for gated access.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label id="model-source-s3" class="command-tab" data-toc-label="S3"><input type="radio" name="model-source" aria-controls="model-command-s3"><span>S3</span></label>
+    <div class="model-stage-panel" id="model-command-s3">
+      <pre><code class="sh" data-copy-label="Copy S3 launch command">llmd --model=s3://my-bucket/llm/Qwen3-4B \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Replace the bucket and prefix. For private storage, configure <a href="#cloud-model-uris">AWS credentials</a>.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label id="model-source-gcs" class="command-tab" data-toc-label="GCS"><input type="radio" name="model-source" aria-controls="model-command-gcs"><span>GCS</span></label>
+    <div class="model-stage-panel" id="model-command-gcs">
+      <pre><code class="sh" data-copy-label="Copy GCS launch command">llmd --model=gs://my-bucket/llm/Qwen3-4B \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Replace the bucket and prefix. For private storage, configure <a href="#cloud-model-uris">Google Cloud credentials</a>.</p>
+    </div>
+  </div>
+</fieldset>
+```
+
+- `--model` selects the directory or URI.
+- `--model-name` makes the examples serve `qwen3-4b`. Verify the ID with [Models]($link.page('llmd/api-reference/models')).
+- `--listen` binds these native examples to `127.0.0.1:8000` for local access.
+
+# [Model storage prerequisites]($heading.id('model-storage-prerequisites'))
 
 ## [Local model files]($heading.id('local-model-files'))
 
@@ -42,13 +98,8 @@ one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
 `--model=gs://my-bucket/llm/model`. To adapt a quickstart command, choose
 **Load at launch** and replace its `--model` value with the bucket URI.
 Configure [model storage credentials]($link.page('llmd/cli-reference/environment-variables').unsafeRef('model-storage-and-credentials'))
-in the environment that runs LLMD.
-
-# [Bind the listener]($heading.id('bind-the-listener'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--listen=<address>` | `0.0.0.0:8000` | Bind HTTP to an IP address and port. A bare IPv4 address uses port `8000`. |
+in the environment that runs LLMD. See [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
+for proxy settings and diagnostics.
 
 # [Select the I/O implementation]($heading.id('io-implementation'))
 

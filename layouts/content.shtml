@@ -38,6 +38,9 @@
         <script defer data-manual src="$site.asset('prism/prism.min.js').link()"></script>
         <script defer src="$site.asset('code-highlight.js').link()"></script>
       </ctx>
+      <ctx :if="$ctx.html.contains('data-cli-workload').or($ctx.html.contains('data-cli-options'))">
+        <script defer src="$site.asset('llmd-cli-reference.js').link()"></script>
+      </ctx>
       <ctx :if="$ctx.html.contains('data-llmd-launch')">
         <script type="module" src="$site.asset('llmd-launch.js').link()"></script>
       </ctx>

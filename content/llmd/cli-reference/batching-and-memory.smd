@@ -7,7 +7,59 @@
 ---
 These defaults come from the LLMD source reviewed on 16 November 2026.
 
-# [Batching and context length]($heading.id('batching-context-and-memory'))
+# [KV-cache pages and memory limits]($heading.id('kv-cache-and-memory-limits'))
+
+LLMD plans cache capacity from the device memory available after fixed
+allocations such as model weights.
+
+```=html
+<ol class="cli-cache-flow">
+  <li><strong>Device limit</strong><span>Use the smallest reported limit.</span></li>
+  <li><strong>Cache budget</strong><span>Apply <code>--cache-memory-fraction</code>.</span></li>
+  <li><strong>Space for pages</strong><span>Deduct fixed allocations.</span></li>
+</ol>
+```
+
+The planner budgets the remaining memory across the model’s cache kinds and
+divides each budget by that kind’s bytes per page. If capacity is too low for
+your workload, reduce concurrency or context length.
+
+# [Estimate workload demand]($heading.id('page-estimate'))
+
+Estimate logical KV-cache pages for full-length sequences in one data-parallel
+group, with the default 16 tokens per page and before page reuse. The estimate
+describes demand. Actual capacity depends on the model, backend, and device
+memory. LFM3 uses one data-parallel group in the reviewed build.
+
+```=html
+<div class="cli-workload" data-cli-workload>
+  <fieldset class="cli-workload-inputs" data-workload-inputs hidden data-pagefind-ignore>
+    <legend>Workload</legend>
+    <label class="cli-reference-field">
+      Active sequences <span>1–16</span>
+      <input type="number" name="sequences" min="1" max="16" step="1" value="1" required aria-describedby="cli-workload-error">
+    </label>
+    <label class="cli-reference-field">
+      Tokens per sequence <span>1,024–32,768</span>
+      <input type="number" name="context" min="1024" max="32768" step="1" value="4096" required aria-describedby="cli-workload-error">
+    </label>
+  </fieldset>
+  <p class="cli-workload-error" id="cli-workload-error" role="alert" hidden></p>
+  <div class="cli-workload-results" data-workload-results>
+    <output data-workload-report aria-live="polite"><strong data-workload-pages>256</strong> estimated logical pages</output>
+    <p class="cli-workload-equation" data-workload-equation>1 × ⌈4,096 tokens ÷ 16 tokens/page⌉</p>
+    <p>Apply these overrides to your LLMD command in place of any existing values.</p>
+    <div class="command-shell">
+      <span class="command-language">LLMD overrides</span>
+      <pre><code class="sh" data-workload-flags data-copy-label="Copy LLMD workload flags">--batch-size=1 --max-context-len=4096</code></pre>
+    </div>
+  </div>
+</div>
+```
+
+For example, four sequences of 4,096 tokens each need 1,024 logical pages.
+
+# [Batching and cache defaults]($heading.id('batching-context-and-memory'))
 
 | LLMD option | Default | Effect |
 | --- | --- | --- |
@@ -15,22 +67,9 @@ These defaults come from the LLMD source reviewed on 16 November 2026.
 | `--token-batch-size=<tokens>` | `1024` | Limit the number of tokens processed in one inference step. |
 | `--max-context-len=<tokens>` | `128000` | Set the server context cap. Check the model’s context length and the memory available. |
 | `--prefill-chunk-size=<tokens>` | `256` | Limit the prefill chunk for each sequence. |
-
-# [KV-cache pages and memory limits]($heading.id('kv-cache-and-memory-limits'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
 | `--page-chunk-size=<tokens>` | `16` | Set the number of tokens per KV-cache page. |
 | `--gpu-memory-fraction=<fraction>` | `0.9` | Set an allocator limit on CUDA, ROCm, oneAPI, and Metal. Accepted values are greater than `0` and at most `1`. |
 | `--cache-memory-fraction=<fraction>` | `0.95` | Scale the smallest reported per-device memory limit. The cache planner subtracts fixed allocations before sizing pages. Accepted values are greater than `0` and at most `1`. |
-
-The KV cache holds attention state for tokens in active sequences. Increasing
-the context limit or the number of concurrent requests can increase the cache
-space needed. In the reviewed build, LFM3 uses `--data-parallel=1`. Four
-sequences of 4,096 tokens each need up to 1,024 pages at 16 tokens per page.
-Weights and other fixed allocations reduce the
-memory available for those pages. If the cache does not fit, lower the context
-or batch limit.
 
 # [Parallel work and Decision requests]($heading.id('parallel-work-and-decision-requests'))
 

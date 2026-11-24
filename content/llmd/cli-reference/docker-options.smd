@@ -5,36 +5,66 @@
 .layout = "content.shtml",
 .custom = .{ .doc_section = "CLI Reference" },
 ---
-Pass Docker options before the image name and LLMD options after it.
+Pass Docker options before the image name and LLMD flags after it. The CUDA
+example below shows how a host port and model directory reach LLMD.
 
-These are Docker defaults. An image or daemon configuration can also provide
-settings. See the [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/)
+# [Published port]($heading.id('port-path'))
+
+```=html
+<dl class="cli-docker-flow">
+  <div><dt>Host address</dt><dd><code>127.0.0.1:8080</code></dd></div>
+  <div><dt>Container port</dt><dd><code>8000/tcp</code></dd></div>
+  <div><dt>LLMD listener</dt><dd><code>--listen=0.0.0.0:8000</code></dd></div>
+</dl>
+```
+
+Connect from the host at `http://127.0.0.1:8080`. Docker forwards requests
+to port `8000`, where LLMD listens inside the container.
+
+# [Model directory]($heading.id('model-path'))
+
+```=html
+<dl class="cli-docker-flow">
+  <div><dt>Host directory</dt><dd><code>${HOME}/models/LiquidAI/LFM3-1.7B-FP8</code></dd></div>
+  <div><dt>Container directory</dt><dd><code>/model</code> (read-only)</dd></div>
+  <div><dt>LLMD model path</dt><dd><code>--model=/model</code></dd></div>
+</dl>
+```
+
+# [Run a local model]($heading.id('run-a-local-checkpoint'))
+
+Use **Download first** in the [CUDA quickstart preset]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-cuda'))
+to download the example model. If the files are elsewhere, change the mount's
+`source` to your [local model directory]($link.page('llmd/cli-reference/model-and-listener-flags').ref('local-model-files')).
+
+```=html
+<div class="cli-docker-command-order" aria-label="Argument order">
+  <span>Docker options</span><code>zmlai/llmd:cuda</code><span>LLMD flags</span>
+</div>
+```
+
+```sh
+docker run --rm --name llmd \
+  -p 127.0.0.1:8080:8000 \
+  --gpus=all --shm-size=256GB \
+  --mount "type=bind,source=${HOME}/models/LiquidAI/LFM3-1.7B-FP8,target=/model,readonly" \
+  zmlai/llmd:cuda \
+  --model=/model \
+  --listen=0.0.0.0:8000
+```
+
+# [General Docker options]($heading.id('docker-run-options'))
+
+Images and daemon configurations can supply their own settings.
+See the [Docker run reference](https://docs.docker.com/reference/cli/docker/container/run/)
 and [daemon defaults](https://docs.docker.com/reference/cli/dockerd/).
 
-# [Ports and networking]($heading.id('docker-run-options'))
-
 | Docker option | Default | Use with LLMD |
 | --- | --- | --- |
-| `-p`, `--publish` | No published host ports | `-p 127.0.0.1:8000:8000` maps LLMD's port to host loopback. An omitted bind address usually publishes to all host interfaces. |
-| `--network` or `--net` | Default bridge on a standard Linux Docker host | The published TPU recipe uses `--net=host` to share the host network. |
+| `-p`, `--publish` | No published host ports | `-p 127.0.0.1:8080:8000` publishes the container port on host loopback. Omitting the host address usually publishes to all host interfaces. |
+| `--network`, `--net` | Default bridge on a standard Linux Docker host | The TPU recipe uses [host networking](https://docs.docker.com/engine/network/drivers/host/) and connects directly to the LLMD listener. |
 
-# [Accelerators and shared memory]($heading.id('accelerators-and-shared-memory'))
-
-| Docker option | Default | Use with LLMD |
-| --- | --- | --- |
-| `--gpus` | No explicit request | `--gpus=all` makes GPUs available to the CUDA image with NVIDIA container integration. |
-| `--device` | No additional devices | Grant access to specific host devices. The ROCm recipe uses `/dev/kfd` and `/dev/dri`. The oneAPI recipe uses `/dev/dri`. |
-| `--shm-size` | Daemon default, normally `64 MiB` | Configure `/dev/shm`. The published CUDA recipe sets `256GB`. |
-| `--privileged` | Off | The published TPU recipe enables this to grant broad host-device access. |
-
-# [Environment and mounts]($heading.id('environment-and-mounts'))
-
-| Docker option | Default | Use with LLMD |
-| --- | --- | --- |
-| `-e`, `--env` | No explicit override | `-e HF_TOKEN` forwards a value from the invoking environment. |
-| `--mount` | No explicit mount | Mount a local model directory and pass the container path to `--model`. Bind mounts are writable by default. Add `readonly` for weights. |
-
-# [Container lifecycle]($heading.id('container-lifecycle'))
+## [Container lifecycle]($heading.id('container-lifecycle'))
 
 | Docker option | Default | Use with LLMD |
 | --- | --- | --- |
@@ -45,18 +75,86 @@ and [daemon defaults](https://docs.docker.com/reference/cli/dockerd/).
 | `--pull` | `missing` | Pull the image when it is absent locally. |
 | `--restart` | `no` | Set a restart policy for a retained container. Docker rejects `--rm` with a restart policy. |
 
-# [Run a local model]($heading.id('run-a-local-checkpoint'))
+# [Platform recipe options]($heading.id('accelerators-and-shared-memory'))
 
-The following CUDA example serves weights from a local model directory.
-Replace `/absolute/path/to/model` with an existing host path containing
-the model configuration, tokenizer, and weight files.
+Docker requests no extra accelerator devices by default. Use the device flags
+for your backend. On Apple Silicon, use the native Homebrew build.
 
-```sh
-docker run --rm --name llmd \
-  -p 127.0.0.1:8000:8000 --gpus=all --shm-size=256GB \
-  --mount type=bind,source=/absolute/path/to/model,target=/model,readonly \
-  zmlai/llmd:cuda --model=/model
+```=html
+<div class="cli-platform-box" data-cli-options>
+  <fieldset class="cli-platform-tabs command-tabs" aria-label="Docker platforms" data-cli-option-control hidden data-pagefind-ignore>
+    <label class="command-tab"><input type="radio" name="docker-recipe-platform" value="cuda" aria-controls="docker-platform-cuda" checked><span><strong>CUDA</strong><small>NVIDIA GPU</small></span></label>
+    <label class="command-tab"><input type="radio" name="docker-recipe-platform" value="rocm" aria-controls="docker-platform-rocm"><span><strong>ROCm</strong><small>AMD GPU</small></span></label>
+    <label class="command-tab"><input type="radio" name="docker-recipe-platform" value="oneapi" aria-controls="docker-platform-oneapi"><span><strong>oneAPI</strong><small>Intel GPU</small></span></label>
+    <label class="command-tab"><input type="radio" name="docker-recipe-platform" value="tpu" aria-controls="docker-platform-tpu"><span><strong>TPU</strong><small>Google TPU</small></span></label>
+    <label class="command-tab"><input type="radio" name="docker-recipe-platform" value="furiosa" aria-controls="docker-platform-furiosa"><span><strong>Furiosa</strong><small>RNGD NPU</small></span></label>
+  </fieldset>
+  <section id="docker-platform-cuda" data-cli-option="cuda">
+    <header><h3>CUDA</h3><code>zmlai/llmd:cuda</code></header>
+    <ul>
+      <li><code>--gpus=all</code> exposes NVIDIA GPUs through NVIDIA Container Toolkit. You can select specific GPUs.</li>
+    </ul>
+    <p><strong>Optional shared memory</strong> <code>--shm-size=256GB</code></p>
+  </section>
+  <section id="docker-platform-rocm" data-cli-option="rocm">
+    <header><h3>ROCm</h3><code>zmlai/llmd:rocm</code></header>
+    <ul>
+      <li><code>--device=/dev/kfd</code> exposes the AMD compute device.</li>
+      <li><code>--device=/dev/dri</code> exposes the GPU device nodes.</li>
+    </ul>
+    <p><strong>Optional shared memory</strong> <code>--shm-size=256GB</code></p>
+  </section>
+  <section id="docker-platform-oneapi" data-cli-option="oneapi">
+    <header><h3>oneAPI</h3><code>zmlai/llmd:oneapi</code></header>
+    <ul>
+      <li><code>--device=/dev/dri</code> exposes the Intel GPU device nodes.</li>
+    </ul>
+  </section>
+  <section id="docker-platform-tpu" data-cli-option="tpu">
+    <header><h3>TPU</h3><code>zmlai/llmd:tpu</code></header>
+    <ul>
+      <li><code>--net=host</code> shares the host network. Connect directly to the LLMD listener and omit port publishing.</li>
+      <li><code>--privileged</code> grants broad host-device access in this recipe. Docker leaves it off by default.</li>
+    </ul>
+  </section>
+  <section id="docker-platform-furiosa" data-cli-option="furiosa">
+    <header><h3>Furiosa</h3><code>zmlai/llmd:furiosa</code></header>
+    <p>The Docker recipe is pending hardware validation.</p>
+    <ul>
+      <li><code>--device=furiosa.ai/npu=npu0</code> selects an NPU through the Container Device Interface (CDI).</li>
+      <li><code>--device=/dev/dma_heap/system</code> exposes the system DMA heap.</li>
+      <li><code>--security-opt=seccomp=unconfined</code> allows driver syscalls by disabling the container's seccomp filter. A custom profile that allows the required syscalls can retain filtering.</li>
+    </ul>
+  </section>
+</div>
 ```
+
+`--shm-size` sets `/dev/shm`. Its default comes from the daemon, normally
+`64 MiB`. The shared-memory value in a recipe is adjustable and can vary by model.
+
+# [Optional model files and environment]($heading.id('environment-and-mounts'))
+
+Pass these options before the image name when the container needs host files
+or environment values. Docker adds no explicit mounts or environment overrides
+unless requested.
+
+| Docker option | Use with LLMD |
+| --- | --- |
+| `--mount …,target=/model,readonly` | Expose local weights at `/model`. Bind mounts are writable by default, so use `readonly` for weights. |
+| `--mount …,target=/drafter,readonly` | Expose a local drafter at `/drafter` and pass that path to `--speculative-drafter-model`. |
+| `-e HF_TOKEN` or `--env HF_TOKEN` | Forward the exported host value when Hugging Face access requires a token. |
+| `-v HOST_DIR:/cache/furiosa` and `-e FURIOSA_COMPILER_CACHE=/cache/furiosa` | Persist the Furiosa compiler cache in a writable host directory when enabled. |
+
+# [LLMD flags after the image]($heading.id('llmd-arguments'))
+
+| LLMD flag | Effect |
+| --- | --- |
+| `--model=/model` | Read the mounted directory inside the container. |
+| `--listen=0.0.0.0:8000` | Bind HTTP inside the container. For bridge networking, match Docker's container port. |
+| `--model-name=<text>` | Set the served model ID. With `--model=/model`, the default ID is `model`. |
+
+See [Model and listener flags]($link.page('llmd/cli-reference/model-and-listener-flags'))
+and [Environment variables]($link.page('llmd/cli-reference/environment-variables')) for other inputs.
 
 Use the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')) to generate a launch
 command for your backend. See [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility'))

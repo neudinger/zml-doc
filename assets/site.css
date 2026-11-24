@@ -455,6 +455,151 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   margin-block: 1rem;
 }
 .api-example-pair > .command-shell { min-inline-size: 0; }
+.prose:has(> :is(.cli-cache-flow, .cli-docker-flow, .cli-decoding-comparison, .cli-platform-box)) { container: llmd-cli / inline-size; }
+.prose :is(.cli-cache-flow, .cli-docker-flow) {
+  display: grid;
+  gap: 0.9rem;
+  margin-block: 1rem;
+  padding: 0;
+  list-style: none;
+}
+.prose :is(.cli-cache-flow, .cli-docker-flow) > * {
+  position: relative;
+  display: grid;
+  align-content: start;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.35rem;
+  background: var(--code);
+}
+:is(.cli-cache-flow, .cli-docker-flow) > :not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(100% + 0.14rem);
+  inset-inline-start: calc(50% - 0.15rem);
+  inline-size: 0.35rem;
+  block-size: 0.35rem;
+  border-block-end: 1px solid var(--accent);
+  border-inline-end: 1px solid var(--accent);
+  transform: rotate(45deg);
+}
+.cli-cache-flow span, .cli-docker-flow dd { margin: 0; color: var(--muted); }
+.cli-docker-flow dt { font-weight: 650; }
+.cli-docker-command-order {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.55rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.prose .cli-docker-command-order > code { color: var(--accent); background: var(--selection); }
+.prose :is(.cli-docker-command-order + pre, .cli-docker-command-order + .code-block) { margin-block-start: 0.5rem; }
+.cli-workload {
+  --cli-invalid: light-dark(#a41d36, #ffa7bb);
+  margin-block: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+}
+.cli-workload-inputs:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  min-inline-size: 0;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  border: 0;
+}
+.cli-workload-inputs legend { padding: 0; font-weight: 650; }
+.cli-reference-field {
+  display: grid;
+  gap: 0.2rem;
+  max-inline-size: 100%;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.cli-reference-field span { color: var(--muted); font-weight: 400; }
+.cli-reference-field input {
+  min-inline-size: 0;
+  inline-size: 100%;
+  min-block-size: 2.25rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--search-border);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+}
+.cli-reference-field input[aria-invalid="true"] { border-color: var(--cli-invalid); }
+.cli-workload-results strong { color: var(--accent); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.prose :is(.cli-workload-equation, .cli-workload-error, .cli-workload-results > p) { margin-block: 0.3rem 0.55rem; }
+.prose .cli-workload-equation { color: var(--muted); font-size: 0.85rem; }
+.prose .cli-workload-error { color: var(--cli-invalid); }
+.cli-decoding-comparison { display: grid; gap: 1rem; align-items: start; margin-block: 1rem; }
+.cli-decoding-comparison > .command-shell { min-inline-size: 0; }
+.cli-platform-box:has(> .cli-platform-tabs:not([hidden])) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+}
+.cli-platform-tabs[hidden] { display: none; }
+.cli-platform-tabs:not([hidden]) {
+  display: grid;
+  align-content: start;
+  padding: 0.5rem;
+  border-block-end: 1px solid var(--border);
+  border-radius: 0.45rem 0.45rem 0 0;
+  background: var(--code);
+}
+.cli-platform-tabs .command-tab > span {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 0.1rem 0.45rem;
+  min-block-size: 2.75rem;
+  padding-block: 0.25rem;
+  border-block-end: 0;
+  border-inline-start: 2px solid transparent;
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+.cli-platform-tabs .command-tab small { color: var(--muted); font-size: 0.75rem; }
+.cli-platform-tabs .command-tab input:checked + span { border-image: linear-gradient(180deg, var(--neon)) 1; }
+.cli-platform-tabs:not([hidden]) ~ [data-cli-option] { min-inline-size: 0; padding: 0.85rem 1rem; }
+.cli-platform-box [data-cli-option] header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.65rem; }
+.prose .cli-platform-box [data-cli-option] h3 { margin: 0; }
+.prose .cli-platform-box [data-cli-option] :is(p, ul) { margin-block: 0.5rem; }
+.cli-platform-tabs[hidden] ~ [data-cli-option] { margin-block: 1rem; }
+@container llmd-cli (min-width: 33rem) {
+  .prose :is(.cli-cache-flow, .cli-docker-flow) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :is(.cli-cache-flow, .cli-docker-flow) > :not(:last-child)::after {
+    inset-block-start: calc(50% - 0.15rem);
+    inset-inline-start: calc(100% + 0.14rem);
+    transform: rotate(-45deg);
+  }
+}
+@container llmd-cli (min-width: 34rem) {
+  .cli-platform-box:has(> .cli-platform-tabs:not([hidden])) { grid-template-columns: 9.5rem minmax(0, 1fr); }
+  .cli-platform-tabs:not([hidden]) {
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--border);
+    border-radius: 0.45rem 0 0 0.45rem;
+  }
+  .cli-platform-tabs .command-tab > span {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+  }
+}
+@container llmd-cli (min-width: 44rem) {
+  .cli-decoding-comparison { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (pointer: coarse) {
+  .cli-reference-field input { min-block-size: 44px; font-size: 1rem; }
+}
 .embedding-ranking { display: flex; flex-wrap: wrap; align-items: start; gap: 1rem; margin-block: 1rem; }
 .embedding-ranking figure { min-inline-size: 0; margin: 0; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--surface); overflow: hidden; }
 .embedding-batch { flex: 1.6 1 24rem; }
@@ -1353,6 +1498,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   .page-toc a[aria-current="location"] { border-inline-start-color: Highlight; outline: 1px solid Highlight; }
   .product-tabs a:is([aria-current="page"], [aria-current="location"]) { border-image: none; border-block-end-color: Highlight; }
   .command-tab input:checked + span { border-image: none; border-block-end-color: Highlight; }
+  .cli-platform-tabs .command-tab input:checked + span { border-inline-start-color: Highlight; }
   .sidebar-group a:is([aria-current="page"], [aria-current="location"]) { outline: 1px solid Highlight; }
   .sidebar-group a::before { forced-color-adjust: none; background: LinkText; opacity: 1; }
   .theme-toggle::before { forced-color-adjust: none; background: ButtonText; }
