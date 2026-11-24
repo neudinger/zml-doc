@@ -39,7 +39,7 @@ bazel run //examples/io:playground -- safetensors "$model_uri/model.safetensors"
 The inspector reads Safetensors metadata. The `hf://` loader uses `main` when
 you omit `@revision`. For gated repositories, request access and set
 `HF_TOKEN`. The playground also registers `s3://` and `gs://` for object
-storage. See [Environment variables]($link.page('zml/user-guide/reference/environment-variables').unsafeRef('model-storage-and-credentials'))
+storage. See [Environment variables]($link.page('zml/cli-reference/environment-variables').unsafeRef('model-storage-and-credentials'))
 for credentials and storage settings.
 
 # [Load weights for execution]($heading.id('load-weights-for-execution'))

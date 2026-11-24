@@ -39,7 +39,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             <dt>Expected result</dt>
             <dd>LLMD can read all files for the selected model revision.</dd>
             <dt>Recovery</dt>
-            <dd>Confirm <a href="../../reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../../cli-reference/model-and-listener-flags/#local-model-files">local model directory</a> and bind mount.</dd>
+            <dd>Confirm <a href="../../../cli-reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../../cli-reference/model-and-listener-flags/#local-model-files">local model directory</a> and bind mount.</dd>
           </dl>
         </section>
         <section id="device-unavailable" data-readiness-symptom aria-labelledby="device-unavailable-title">
@@ -249,7 +249,7 @@ Use [zml-smi](https://zml.ai/posts/zml-smi/) on a supported host to list
 devices, and run `zml-smi --top` to view available utilization, memory, and
 temperature readings. With CUDA, `nvidia-smi` provides a host-side device and
 driver check. Compare those readings with the LLMD queue and token metrics for
-the same time window. See [Environment variables]($link.page('llmd/user-guide/reference/environment-variables'))
+the same time window. See [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
 for runtime diagnostics.
 
 # [Record the failure]($heading.id('record-the-failure'))

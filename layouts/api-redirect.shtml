@@ -16,7 +16,7 @@
     <p>Choose a reference topic to continue.</p>
     <ul data-api-destinations>
       <ctx :loop="$page.custom.get('anchors')">
-        <li><a id="$loop.it.get('id')" href="$site.page($loop.it.get('path')).linkRef($loop.it.get('id'))" :text="$loop.it.get('label')"></a></li>
+        <li><a id="$loop.it.get('id')" href="$site.page($loop.it.get('path')).linkRef($loop.it.getOr('fragment', $loop.it.get('id')))" :text="$loop.it.get('label')"></a></li>
       </ctx>
       <ctx :if="$page.custom.get?('pager')">
         <li><a id="next-steps" href="$site.page($if).link().suffix('#next-steps')">Previous and next pages</a></li>

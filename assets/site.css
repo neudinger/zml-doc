@@ -879,7 +879,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   border-radius: 0.55rem;
 }
 .llmd-launch [hidden] { display: none; }
-.llmd-launch :is(#llmd-benchmark, [data-moved-topic]):not(:target) { display: none; }
+.llmd-launch [data-moved-topic]:not(:target) { display: none; }
 .llmd-launch-field-hint summary { color: var(--accent); cursor: pointer; }
 .llmd-launch-recipe, .llmd-launch-storage, .llmd-launch-option-groups {
   display: grid;

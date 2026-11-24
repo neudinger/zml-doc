@@ -1,5 +1,5 @@
 ---
 .date = .date("2026-11-23T00:00:00"),
 .layout = "doc-redirect.shtml",
-.custom = .{ .destination = "zml/user-guide/reference/environment-variables" },
+.custom = .{ .destination = "zml/cli-reference/environment-variables" },
 ---

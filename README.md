@@ -103,11 +103,10 @@ in the User Guide’s Operations group. Article headings supply the anchors for
 the On this page navigation.
 
 Edit Hardware compatibility and Environment variables in [`content/reference/`](content/reference/).
-The entries in each product's `user-guide/reference/` directory point to
-those sources through `reference_source`. Each product renders the same article
-and section IDs with its own sidebar and Previous/Next links. The CLI Reference
-also links to Environment variables in its own section. Pagefind indexes one
-copy per product. The original `/reference/` URLs preserve existing bookmarks.
+The quickstarts link to Hardware compatibility. Each product's CLI Reference
+lists Environment variables. Each topic uses one source article through
+`reference_source`, and Pagefind indexes the product views. The original
+`/reference/` URLs preserve existing bookmarks.
 
 When moving an existing page, keep a source stub at its former URL with
 `doc-redirect.shtml` and a `custom.destination` set to the new page path.

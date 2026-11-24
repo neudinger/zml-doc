@@ -158,5 +158,5 @@ and [Environment variables]($link.page('llmd/cli-reference/environment-variables
 
 Use the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')) to generate a launch
 command for your backend. See [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility'))
-for host requirements and [Operations]($link.page('llmd/user-guide/operations')) for deployment
-and monitoring.
+for host requirements and [Deploy LLMD with Docker]($link.page('llmd/user-guide/operations/deploy-llmd'))
+for deployment, readiness checks, and rollback.

@@ -1,9 +1,6 @@
 <extend template="base.shtml">
 <head id="site-head">
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
-    <ctx :if="$page.custom.has('reference_route')">
-      <link rel="canonical" href="$site.page($page.custom.get('product').lower(), $ctx.article.custom.get('reference_path')).link()">
-    </ctx>
     <meta name="description" content="$ctx.article.description">
     <ctx title="$ctx.article.title.suffix($page.custom.has('product').then(' · '), $page.custom.getOr('product', ''))">
       <title :text="$ctx.title"></title>
@@ -167,10 +164,10 @@
           </ctx>
         </ctx>
         <ctx legacy="$page.custom.has('reference_source').and($page.custom.has('product').not())">
-          <ctx :if="$ctx.legacy.or($page.custom.has('reference_route'))">
+          <ctx :if="$ctx.legacy">
             <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
           </ctx>
-          <ctx :if="$ctx.legacy.not().and($page.custom.has('reference_route').not())">
+          <ctx :if="$ctx.legacy.not()">
             <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
           </ctx>
           <ctx :if="$site.page('llmd/user-guide/quickstart').isCurrent()">

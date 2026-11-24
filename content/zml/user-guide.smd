@@ -64,5 +64,5 @@ environment to reproduce your build.
 # [Choose the server path when appropriate]($heading.id('choose-the-server-path-when-appropriate'))
 
 For an application that calls a model over HTTP, continue to
-[LLMD]($link.page('llmd/user-guide')). For service management, continue to
-[Operations]($link.page('llmd/user-guide/operations')).
+[LLMD]($link.page('llmd/user-guide')). To run your own service, see
+[Deploy LLMD with Docker]($link.page('llmd/user-guide/operations/deploy-llmd')).

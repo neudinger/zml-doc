@@ -30,7 +30,7 @@ Load a model and run inference on your hardware.
 
 Deploy, monitor, and troubleshoot the LLMD server.
 
-[Operate a service]($link.page('llmd/user-guide/operations'))
+[Deploy LLMD]($link.page('llmd/user-guide/operations/deploy-llmd'))
 
 []($section.attrs('service-map-reference'))
 

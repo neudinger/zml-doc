@@ -1,5 +1,13 @@
 ---
 .date = .date("2026-11-23T00:00:00"),
 .layout = "doc-redirect.shtml",
-.custom = .{ .destination = "llmd/cli-reference/benchmarking" },
+.custom = .{
+    .destination = "llmd/cli-reference/model-and-listener-flags",
+    .anchors = [
+        .{ .from = "choose-a-prompt", .path = "llmd/api-reference/chat-completions", .to = "create-a-chat-completion", .label = "Create a chat completion" },
+        .{ .from = "configure-the-workload", .path = "llmd/cli-reference/batching-and-memory", .to = "page-estimate", .label = "Estimate workload demand" },
+        .{ .from = "capture-a-profile", .path = "llmd/cli-reference/environment-variables", .to = "runtime-diagnostics", .label = "Runtime diagnostics" },
+        .{ .from = "advanced-and-benchmark-flags", .path = "llmd/cli-reference/batching-and-memory", .to = "kv-cache-and-memory-limits", .label = "KV-cache pages and memory limits" },
+    ],
+},
 ---

@@ -1,37 +1,13 @@
 ---
-.title = "Operate deployments",
-.description = "Prepare, observe, and maintain an LLMD service.",
 .date = .date("2026-11-06T00:00:00"),
-.layout = "content.shtml",
+.layout = "doc-redirect.shtml",
+.custom = .{
+    .destination = "llmd/user-guide/operations/deploy-llmd",
+    .anchors = [
+        .{ .from = "establish-a-known-configuration", .to = "prepare-the-host-and-model", .label = "Prepare the host and model" },
+        .{ .from = "separate-startup-from-readiness", .to = "verify-readiness", .label = "Verify readiness" },
+        .{ .from = "observe-the-service-and-its-hardware", .to = "scrape-service-metrics", .path = "llmd/user-guide/operations/monitoring-and-troubleshooting", .label = "Scrape service metrics" },
+        .{ .from = "measure-changes-and-retain-a-rollback-path", .to = "upgrade-or-roll-back", .label = "Upgrade or roll back" },
+    ],
+},
 ---
-Start with [Deploy LLMD with Docker]($link.page('llmd/user-guide/operations/deploy-llmd')) for
-image setup, readiness checks, and rollback. Use
-[Monitoring and troubleshooting]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting')) to
-inspect startup, service metrics, and accelerator state.
-
-# [Establish a known configuration]($heading.id('establish-a-known-configuration'))
-
-Record the server version, host operating system and architecture, accelerator
-and driver, model revision, and precision. Validate that combination before
-expanding deployment coverage.
-
-# [Separate startup from readiness]($heading.id('separate-startup-from-readiness'))
-
-Model access, storage, loading, and compilation can affect startup. A process
-that is running is not sufficient evidence that requests can succeed. Confirm
-readiness with a successful request using the configured model name.
-
-# [Observe the service and its hardware]($heading.id('observe-the-service-and-its-hardware'))
-
-Use service metrics to understand request behavior and hardware metrics to
-understand resource usage. zml-smi provides hardware diagnostics; its available
-backends must be checked separately from LLMD's inference support.
-
-# [Measure changes and retain a rollback path]($heading.id('measure-changes-and-retain-a-rollback-path'))
-
-Compare [service metrics]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting').ref('scrape-service-metrics'))
-before and after a deployment under comparable traffic. Preserve the previous
-release and configuration so an upgrade can be reversed.
-
-Return to the [LLMD overview]($link.page('llmd/user-guide')) for server setup and client
-connections.

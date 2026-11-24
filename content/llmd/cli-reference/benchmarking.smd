@@ -1,15 +1,13 @@
 ---
-.title = "CLI benchmarking (Work In Progress)",
-.description = "See the serving references for current LLMD configuration options.",
 .date = .date("2026-11-16T00:00:00"),
-.layout = "content.shtml",
-.custom = .{ .doc_section = "CLI Reference" },
+.layout = "doc-redirect.shtml",
+.custom = .{
+    .destination = "llmd/cli-reference/model-and-listener-flags",
+    .anchors = [
+        .{ .from = "choose-a-prompt", .path = "llmd/api-reference/chat-completions", .to = "create-a-chat-completion", .label = "Create a chat completion" },
+        .{ .from = "configure-the-workload", .path = "llmd/cli-reference/batching-and-memory", .to = "page-estimate", .label = "Estimate workload demand" },
+        .{ .from = "capture-a-profile", .path = "llmd/cli-reference/environment-variables", .to = "runtime-diagnostics", .label = "Runtime diagnostics" },
+        .{ .from = "advanced-and-benchmark-flags", .path = "llmd/cli-reference/batching-and-memory", .to = "kv-cache-and-memory-limits", .label = "KV-cache pages and memory limits" },
+    ],
+},
 ---
-```=html
-<span id="choose-a-prompt"></span><span id="configure-the-workload"></span><span id="capture-a-profile"></span>
-```
-
-# [Serving options]($heading.id('advanced-and-benchmark-flags'))
-
-To configure a running server, see [Model and listener flags]($link.page('llmd/cli-reference/model-and-listener-flags'))
-and [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory')).

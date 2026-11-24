@@ -13,6 +13,9 @@
 </dl>
 ```
 
+Check [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility').unsafeRef('serve-models-with-llmd'))
+for supported host architectures and the install option for your accelerator.
+
 # [Choose a loading method]($heading.id('loading-methods'))
 
 | Method | When to use it |
@@ -23,10 +26,10 @@
 
 ```=html
 <div class="llmd-launch" data-llmd-launch data-toc-parent="loading-methods">
-  <p id="llmd-benchmark" data-pagefind-ignore>Benchmarking (Work In Progress)</p>
+  <a id="llmd-benchmark" data-moved-topic data-pagefind-ignore href="../operations/monitoring-and-troubleshooting/#scrape-service-metrics">Scrape service metrics</a>
   <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../../cli-reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
   <a id="checkpoint-storage" data-moved-topic data-pagefind-ignore href="../../cli-reference/model-and-listener-flags/#local-model-files">Required model files</a>
-  <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../reference/environment-variables/#gated-model-access">Gated model access</a>
+  <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../../cli-reference/environment-variables/#gated-model-access">Gated model access</a>
   <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../cli-reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a>
   <details class="llmd-launch-configurator" data-configurator hidden>
     <summary id="llmd-launch-settings-heading" data-toc-label="Configure launch">Configure launch</summary>
@@ -88,7 +91,7 @@
           <span class="llmd-launch-field-hint" id="llmd-launch-source-hint"><span data-hint></span> <span data-download-tools hidden>Requires <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> on the host.</span></span>
           <details class="llmd-launch-field-hint" data-source-help>
             <summary>Access and storage</summary>
-            <a href="../reference/environment-variables/#gated-model-access">Gated model access</a><span data-cloud-help> · <a href="../../cli-reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a></span>
+            <a href="../../cli-reference/environment-variables/#gated-model-access">Gated model access</a><span data-cloud-help> · <a href="../../cli-reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a></span>
           </details>
         </div>
       </div>
@@ -241,7 +244,7 @@
           <label class="llmd-launch-checkbox">
             <input name="hfToken" type="checkbox" aria-describedby="llmd-launch-token-hint"> Forward <code>HF_TOKEN</code>
           </label>
-          <p class="llmd-launch-hint" id="llmd-launch-token-hint">Pass the host’s token to Docker for <a href="../reference/environment-variables/#gated-model-access">gated model access</a>.</p>
+          <p class="llmd-launch-hint" id="llmd-launch-token-hint">Pass the host’s token to Docker for <a href="../../cli-reference/environment-variables/#gated-model-access">gated model access</a>.</p>
         </div>
       </details>
     </form>

@@ -18,7 +18,7 @@
       <ul>
         <ctx :loop="$if">
           <li><a id="$loop.it.get('from')" data-legacy-fragment
-                 href="$site.page($page.custom.get('destination')).link().suffix('#', $loop.it.get('to'))"
+                 href="$site.page($loop.it.getOr('path', $page.custom.get('destination'))).link().suffix('#', $loop.it.get('to'))"
                  :text="$loop.it.get('label')"></a></li>
         </ctx>
       </ul>

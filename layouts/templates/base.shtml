@@ -38,7 +38,7 @@
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
          llmd="$page.link().startsWith($site.page('llmd').link())"
-         reference="$page.custom.getOr('reference_route', $site.page($page.custom.getOr('reference_source', '')).custom.getOr('reference_path', ''))">
+         reference="$site.page($page.custom.getOr('reference_source', '')).custom.getOr('reference_path', '')">
       <nav class="page-width product-tabs" aria-label="Product documentation">
         <ctx :loop="$ctx.catalog.get('sections')">
           <ctx :if="$loop.it.get('label').eql($ctx.section)">

@@ -1,5 +1,10 @@
 ---
 .date = .date("2026-11-23T00:00:00"),
 .layout = "doc-redirect.shtml",
-.custom = .{ .destination = "zml/benchmarking/profiling-configurations" },
+.custom = .{
+    .destination = "zml/developer-guide/build-and-run-with-bazel",
+    .anchors = [
+        .{ .from = "select-a-build-or-profiling-configuration", .to = "select-a-build-or-profiling-configuration", .label = "Build and profiling configurations" },
+    ],
+},
 ---

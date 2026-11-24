@@ -20,7 +20,7 @@ checkout using Bazel 9.3.0.
 >
 > **Before you run.** Request access to Llama 3.2 1B Instruct on Hugging Face.
 > Authenticate with `bazel run //tools/hf -- auth login` or set `HF_TOKEN`.
-> See [Environment variables]($link.page('zml/user-guide/reference/environment-variables')) for credentials.
+> See [Environment variables]($link.page('zml/cli-reference/environment-variables')) for credentials.
 >
 > > []($block.attrs('bazel-recipe-example'))
 > >

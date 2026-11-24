@@ -10,13 +10,6 @@
                         .{ .path = "zml/user-guide/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
                     ],
                 },
-                .{
-                    .label = "Reference",
-                    .pages = [
-                        .{ .path = "zml/user-guide/reference/hardware-compatibility", .label = "Hardware compatibility", .icon = "icon-check" },
-                        .{ .path = "zml/user-guide/reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
-                    ],
-                },
             ],
             .llmd = [
                 .{
@@ -28,16 +21,8 @@
                     ],
                 },
                 .{
-                    .label = "Reference",
-                    .pages = [
-                        .{ .path = "llmd/user-guide/reference/hardware-compatibility", .label = "Hardware compatibility", .icon = "icon-check" },
-                        .{ .path = "llmd/user-guide/reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
-                    ],
-                },
-                .{
                     .label = "Operations",
                     .pages = [
-                        .{ .path = "llmd/user-guide/operations", .label = "Operations overview", .icon = "icon-server" },
                         .{ .path = "llmd/user-guide/operations/deploy-llmd", .label = "Deploy LLMD", .icon = "icon-rocket" },
                         .{ .path = "llmd/user-guide/operations/monitoring-and-troubleshooting", .label = "Monitoring and troubleshooting", .icon = "icon-activity" },
                     ],
@@ -66,25 +51,6 @@
                         .{ .path = "llmd/developer-guide/llmd-on-zml", .label = "LLMD on ZML", .icon = "icon-boxes" },
                         .{ .path = "llmd/developer-guide/ask-structured-questions", .label = "Ask structured questions", .icon = "icon-code" },
                         .{ .path = "llmd/developer-guide/compare-texts-with-embeddings", .label = "Compare texts with embeddings", .icon = "icon-code" },
-                    ],
-                },
-            ],
-        },
-        .{
-            .label = "Benchmarking",
-            .zml = [
-                .{
-                    .label = "Benchmarking (Work In Progress)",
-                    .pages = [
-                        .{ .path = "zml/benchmarking/profiling-configurations", .label = "Profiling configurations", .icon = "icon-activity" },
-                    ],
-                },
-            ],
-            .llmd = [
-                .{
-                    .label = "Benchmarking (Work In Progress)",
-                    .pages = [
-                        .{ .path = "llmd/benchmarking", .label = "Overview", .icon = "icon-activity" },
                     ],
                 },
             ],
@@ -133,7 +99,6 @@
                         .{ .path = "llmd/cli-reference/model-and-listener-flags", .label = "Model and listener flags", .icon = "icon-server" },
                         .{ .path = "llmd/cli-reference/batching-and-memory", .label = "Batching and memory", .icon = "icon-cpu" },
                         .{ .path = "llmd/cli-reference/sampling-and-decoding", .label = "Sampling and decoding", .icon = "icon-sliders" },
-                        .{ .path = "llmd/cli-reference/benchmarking", .label = "Benchmarking (Work In Progress)", .icon = "icon-activity" },
                         .{ .path = "llmd/cli-reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
                         .{ .path = "llmd/cli-reference/docker-options", .label = "Docker options", .icon = "icon-container" },
                     ],

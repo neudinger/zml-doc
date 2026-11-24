@@ -35,6 +35,6 @@ for local model files and supported URIs.
 | Endpoint | Behavior |
 | --- | --- |
 | `GET /health` | Returns `OK` from the running HTTP service. Send an inference request supported by the loaded model to confirm it can answer. |
-| `GET /metrics` | Exposes Prometheus metrics. See [Operations]($link.page('llmd/user-guide/operations')). |
+| `GET /metrics` | Exposes Prometheus metrics. See [Scrape service metrics]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting').ref('scrape-service-metrics')). |
 
 For errors from a chat request, see [Chat completion errors]($link.page('llmd/api-reference/chat-completions').ref('errors')).
