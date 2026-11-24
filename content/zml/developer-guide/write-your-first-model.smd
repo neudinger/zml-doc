@@ -52,7 +52,7 @@ Create `examples/first_model/` in your ZML checkout. Save both files there.
 <details class="model-source" id="main-zig" data-toc-label="main.zig">
   <summary>main.zig</summary>
   <pre><code class="zig" data-copy-label="Copy main.zig">const std = @import("std");
-const zml = @import("zml/user-guide");
+const zml = @import("zml");
 
 const Linear = struct {
     weight: zml.Tensor,
@@ -132,7 +132,7 @@ zig_binary(
 
 The [MNIST example](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist.zig)
 uses the same steps with pretrained weights. See how to
-[load model weights into device buffers]($link.page('zml/developer-guide/load-and-inspect-model-weights').ref('load-weights-for-execution')).
+[load model weights into device buffers]($link.page('zml/developer-guide/load-and-inspect-model-weights').unsafeRef('load-weights-for-execution')).
 
 The example above follows the pinned ZML source APIs. Execution of the new
 target remains pending.

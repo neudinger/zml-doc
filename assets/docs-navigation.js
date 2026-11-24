@@ -53,7 +53,7 @@ if (contents) {
   const sections = Array.from(contents.querySelectorAll('a[href^="#"]'), link => ({
     link, id: decodeURIComponent(link.hash.slice(1)),
   }));
-  const walkthrough = article.querySelector(".model-walkthrough");
+  const walkthrough = article.querySelector(".model-walkthrough, .weights-source-tabs");
   const sectionDisclosures = "details.model-source, details.client-disclosure, details.bazel-recipe";
   function revealSectionTarget(hash) {
     const target = document.getElementById(hash.slice(1));

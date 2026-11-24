@@ -10,6 +10,45 @@ holds backend handles for a concrete tensor. Create the inputs on the platform
 used to compile your executable. The `io` argument is a `std.Io`, and
 `allocator` is a `std.mem.Allocator`. A return type with `!` can carry an error.
 
+# [Follow a buffer transfer]($heading.id('transfer-example'))
+
+Use the input tensor's `shape` and matching host `bytes` with the platform that will run the model.
+
+```=html
+<div class="buffer-walkthrough">
+  <fieldset class="command-tabs buffer-steps">
+    <legend>Transfer stage</legend>
+    <label class="command-tab"><input type="radio" name="buffer-stage" id="buffer-step-upload" aria-controls="buffer-example buffer-rule-upload" checked><span>Start transfer</span></label>
+    <label class="command-tab"><input type="radio" name="buffer-stage" id="buffer-step-ready" aria-controls="buffer-example buffer-rule-ready"><span>Wait for device</span></label>
+    <label class="command-tab"><input type="radio" name="buffer-stage" id="buffer-step-read" aria-controls="buffer-example buffer-rule-read"><span>Allocate readback</span></label>
+    <label class="command-tab"><input type="radio" name="buffer-stage" id="buffer-step-release" aria-controls="buffer-example buffer-rule-release"><span>Release resources</span></label>
+  </fieldset>
+  <div id="buffer-example" class="command-shell buffer-example">
+    <span class="command-language icon-code">Zig</span>
+    <pre><code data-copy-label="Copy the Buffer transfer example"><span data-buffer-line="upload"><span class="token keyword">var</span> buffer = <span class="token keyword">try</span> zml.Buffer.<span class="token function">fromBytesOpts</span>(
+    io,
+    platform,
+    shape,
+    bytes,
+    .{ .wait = <span class="token boolean">false</span> },
+);</span>
+<span data-buffer-line="release"><span class="token keyword">defer</span> buffer.<span class="token function">deinit</span>();</span>
+
+<span data-buffer-line="ready"><span class="token keyword">try</span> buffer.<span class="token function">await</span>(io);</span>
+
+<span data-buffer-line="read"><span class="token keyword">const</span> host = <span class="token keyword">try</span> buffer.<span class="token function">toSliceAlloc</span>(allocator, io);</span>
+<span data-buffer-line="release"><span class="token keyword">defer</span> host.<span class="token function">free</span>(allocator);</span>
+</code></pre>
+  </div>
+  <div class="buffer-rules" aria-live="polite">
+    <p id="buffer-rule-upload" data-buffer-stage="upload">With <code>.wait = false</code>, keep <code>bytes</code> alive and unchanged until <code>buffer.await(io)</code> succeeds.</p>
+    <p id="buffer-rule-ready" data-buffer-stage="ready">After <code>await</code> succeeds, the device buffer is ready and you can reuse or release the source bytes.</p>
+    <p id="buffer-rule-read" data-buffer-stage="read"><code>toSliceAlloc</code> returns a separate host slice that you own.</p>
+    <p id="buffer-rule-release" data-buffer-stage="release"><code>host.free(allocator)</code> releases the readback using the same allocator. <code>buffer.deinit()</code> releases the device handle.</p>
+  </div>
+</div>
+```
+
 # [Create device buffers]($heading.id('buffer'))
 
 - `zml.Buffer.fromSlice(io, platform, slice)`\

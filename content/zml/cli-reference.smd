@@ -9,13 +9,45 @@ Run these commands from the ZML checkout used in the
 [quickstart]($link.page('zml/user-guide/quickstart')). Bazel selects and builds the target.
 Each example executable defines its runtime arguments.
 
-# [Build, run, or test a target]($heading.id('build-run-or-test-a-target'))
+# [List, build, run, and test targets]($heading.id('build-run-or-test-a-target'))
 
-Use `bazel query '//examples/...'` to list example targets.
-`bazel build //examples/mnist` builds MNIST. `bazel run //examples/mnist`
-also launches it with its test data. Run the framework tests with
-`bazel test //zml:test`. See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('build-run-or-test-a-target'))
+```=html
+<div class="zml-command-index" role="list" aria-label="Bazel commands">
+  <div class="zml-command-row" role="listitem">
+    <div class="zml-command-task"><strong>List</strong><p>Find example target labels.</p></div>
+    <pre><code class="sh" data-copy-label="Copy list command">bazel query '//examples/...'</code></pre>
+  </div>
+  <div class="zml-command-row" role="listitem">
+    <div class="zml-command-task"><strong>Build</strong><p>Compile MNIST.</p></div>
+    <pre><code class="sh" data-copy-label="Copy build command">bazel build //examples/mnist</code></pre>
+  </div>
+  <div class="zml-command-row" role="listitem">
+    <div class="zml-command-task"><strong>Run</strong><p>Launch MNIST with its test data.</p></div>
+    <pre><code class="sh" data-copy-label="Copy run command">bazel run //examples/mnist</code></pre>
+  </div>
+  <div class="zml-command-row" role="listitem">
+    <div class="zml-command-task"><strong>Test</strong><p>Run the ZML framework tests.</p></div>
+    <pre><code class="sh" data-copy-label="Copy test command">bazel test //zml:test</code></pre>
+  </div>
+</div>
+```
+
+See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('build-run-or-test-a-target'))
 for the target workflow.
+
+# [Run an LLM example]($heading.id('run-an-llm-example'))
+
+```=html
+<div class="zml-command-boundary">
+  <span class="command-language icon-code">Shell</span>
+  <pre><code data-copy-label="Copy LLM help command"><span class="token function">bazel</span> run //examples/llm <mark>--</mark> --help</code></pre>
+  <p><strong><code>--</code> separates the arguments.</strong> Place Bazel options before the target. After <code>--</code>, the executable receives <code>--help</code> and prints its own options.</p>
+</div>
+```
+
+Set `--model` to a model directory or URI and pass `--prompt` for a single response.
+See [LLM example flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('llm-example-flags'))
+for the supported model locations and attention backends.
 
 # [Choose a backend and target platform]($heading.id('choose-a-backend-and-target-platform'))
 
@@ -24,17 +56,3 @@ The backend flags select the runtimes compiled into the executable.
 Choose your hardware in the [MNIST quickstart]($link.page('zml/user-guide/quickstart').ref('build-and-run-mnist'))
 to get a complete command. The [backend flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('choose-a-backend-and-target-platform'))
 cover cross-builds and runtime selection.
-
-# [Run an LLM example]($heading.id('run-an-llm-example'))
-
-Place Bazel options before the target. Use `--` after the target to pass the
-remaining arguments to the executable. The example lists its own options
-when called with `--help`.
-
-```sh
-bazel run //examples/llm -- --help
-```
-
-Set `--model` to a model directory or URI and pass `--prompt` for a single response.
-See [LLM example flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('llm-example-flags'))
-for the supported model locations and attention backends.

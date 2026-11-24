@@ -3,58 +3,74 @@
 .description = "Inspect local or remote Safetensors weights and load them into buffers for a ZML executable.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "Developer Guide" },
+.custom = .{
+    .doc_section = "Developer Guide",
+    .recipe_outline = [
+        .{ .id = "inspect-a-local-checkpoint", .label = "Inspect local model weights" },
+        .{ .id = "inspect-a-remote-checkpoint", .label = "Inspect remote model weights" },
+        .{ .id = "load-weights-for-execution", .label = "Load weights for execution" },
+    ],
+},
 ---
-Inspect the names, shapes, and sizes of weight tensors before binding them
-to a ZML model. Run the commands from the checkout in the
+Run the commands from the checkout in the
 [ZML quickstart]($link.page('zml/user-guide/quickstart')).
 
-# [Inspect local model weights]($heading.id('inspect-a-local-checkpoint'))
+```=html
+<div class="weights-workspaces">
+  <section class="weights-workspace" aria-labelledby="inspect-model-weights">
+    <h2 id="inspect-model-weights">Inspect weights</h2>
+    <p>Read tensor names, shapes, data types and sizes from Safetensors metadata.</p>
 
-Pass an absolute path to the `safetensors` command in the I/O playground.
-Replace the path with the location of your weights.
-
-```sh
-bazel run //examples/io:playground -- safetensors \
-  "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors"
-```
-
-The output groups tensors by name and shows their shapes and byte sizes.
-For weights split across several files, pass `model.safetensors.index.json`
-and keep the referenced shards alongside the index. A model directory also
-works when it contains a [recognized entry point](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/safetensors.zig#L597-L615).
-
-# [Inspect remote model weights]($heading.id('inspect-a-remote-checkpoint'))
-
-Use `ls` to find the weights, then pass the file URI to `safetensors`. This
-example selects a fixed revision of
-[LiquidAI/LFM2-350M](https://huggingface.co/LiquidAI/LFM2-350M/tree/f37d3f5c8c5484bc01dad379a595cf4c68c4e70e).
-
-```sh
-model_uri='hf://LiquidAI/LFM2-350M@f37d3f5c8c5484bc01dad379a595cf4c68c4e70e'
+    <fieldset class="command-tabs weights-source-tabs">
+      <legend>Weight source</legend>
+      <label id="inspect-a-local-checkpoint" class="command-tab"><input type="radio" name="weights-source" value="local" aria-controls="weights-source-local" checked><span>Local</span></label>
+      <label id="inspect-a-remote-checkpoint" class="command-tab"><input type="radio" name="weights-source" value="hugging-face" aria-controls="weights-source-hugging-face"><span>Hugging Face</span></label>
+    </fieldset>
+    <div class="weights-source-content">
+      <div id="weights-source-local" class="weights-source-panel" role="group" aria-labelledby="inspect-a-local-checkpoint">
+        <p>Replace the example path with the absolute path to your weights.</p>
+        <pre><code class="sh" data-copy-label="Copy local weights inspection command">bazel run //examples/io:playground -- safetensors \
+  "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors"</code></pre>
+        <p>For sharded weights, pass <code>model.safetensors.index.json</code> and keep the shards beside it. A model directory also works when it contains a <a href="https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/safetensors.zig#L597-L615">recognized entry point</a>.</p>
+      </div>
+      <div id="weights-source-hugging-face" class="weights-source-panel" role="group" aria-labelledby="inspect-a-remote-checkpoint">
+        <p>List the files with <code>ls</code>, then inspect the file URI. The example pins a revision of <a href="https://huggingface.co/LiquidAI/LFM2-350M/tree/f37d3f5c8c5484bc01dad379a595cf4c68c4e70e">LiquidAI/LFM2-350M</a>.</p>
+        <pre><code class="sh" data-copy-label="Copy Hugging Face weights inspection commands">model_uri='hf://LiquidAI/LFM2-350M@f37d3f5c8c5484bc01dad379a595cf4c68c4e70e'
 bazel run //examples/io:playground -- ls "$model_uri"
-bazel run //examples/io:playground -- safetensors "$model_uri/model.safetensors"
+bazel run //examples/io:playground -- safetensors "$model_uri/model.safetensors"</code></pre>
+        <p>Omit <code>@revision</code> to use <code>main</code>. For gated repositories, request access and set <code>HF_TOKEN</code>. The playground also accepts <code>s3://</code> and <code>gs://</code>. See <a href="../../cli-reference/environment-variables/#model-storage-and-credentials">Environment variables</a> for storage credentials.</p>
+      </div>
+    </div>
+
+    <figure class="weights-metadata">
+      <figcaption>Illustrative metadata</figcaption>
+      <dl>
+        <dt>Name</dt><dd><code>projection.weight</code></dd>
+        <dt>Shape</dt><dd>2 × 3</dd>
+        <dt>Data type</dt><dd><code>f32</code></dd>
+        <dt>Size</dt><dd>24 bytes</dd>
+      </dl>
+    </figure>
+  </section>
+
+  <section class="weights-workspace" aria-labelledby="load-weights-for-execution">
+    <h2 id="load-weights-for-execution">Load weights for execution</h2>
+    <p>Check transfer to the selected backend with a small local weights file.</p>
+    <pre><code class="sh" data-copy-label="Copy local weights transfer command">bazel run //examples/io:playground -- load \
+  "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors" replicated</code></pre>
+    <p><code>replicated</code> places a full copy on each logical device. Allow memory for the copies and transfer buffers. The <a href="https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/io/main.zig#L153-L222">load command</a> measures transfer time and bytes loaded, then releases the buffers.</p>
+
+    <h3>Loading in your application</h3>
+    <ol class="weights-lifecycle">
+      <li><strong><code>loader.load(…)</code></strong> Keep the loader, model, registry, store, destination buffers and platform alive during transfer.</li>
+      <li><strong><code>loader.await(io)</code></strong> Wait for transfer before binding the buffers to the executable.</li>
+      <li><strong><code>Buffer.deinit()</code></strong> The caller releases each weight buffer after its last use, before releasing the platform.</li>
+    </ol>
+  </section>
+</div>
 ```
 
-The inspector reads Safetensors metadata. The `hf://` loader uses `main` when
-you omit `@revision`. For gated repositories, request access and set
-`HF_TOKEN`. The playground also registers `s3://` and `gs://` for object
-storage. See [Environment variables]($link.page('zml/cli-reference/environment-variables').unsafeRef('model-storage-and-credentials'))
-for credentials and storage settings.
-
-# [Load weights for execution]($heading.id('load-weights-for-execution'))
-
-To check that weights transfer to the selected backend, pass a small local
-model's weights file to the playground's `load` command.
-
-```sh
-bazel run //examples/io:playground -- load \
-  "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors" replicated
-```
-
-`replicated` places a full copy on each logical device. Allow memory for the
-copies and transfer buffers. The playground logs bytes loaded and elapsed time,
-then releases the buffers. [Load command source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/io/main.zig#L153-L222)
+# [Load weights and run MNIST]($heading.id('load-weights-and-run-mnist'))
 
 Run the MNIST example to see ZML load pretrained model weights and classify a
 digit. Its Bazel target supplies the weights and sample dataset.
@@ -86,10 +102,9 @@ try loader.await(io);
 return buffers;
 ```
 
-Keep the model, store, registry, and platform alive while the transfer is in
-flight. After `await`, bind the loaded buffers and the input buffer with
+After `await`, bind the loaded buffers and the input buffer with
 [`args.set`]($link.page('zml/developer-guide/write-your-first-model').ref('compile-and-call-the-layer')).
-The caller owns the returned `zml.Bufferized(Mnist)` and releases
-each weight buffer with `deinit` before releasing the platform.
+The caller owns the returned `zml.Bufferized(Mnist)` and releases its weight
+buffers with `Mnist.unloadBuffers`.
 
 The walkthrough follows the pinned source. Execution checks are pending.
