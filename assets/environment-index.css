@@ -1,0 +1,165 @@
+.environment-index {
+  container: environment-index / inline-size;
+  min-inline-size: 0;
+  margin-block: 1rem;
+}
+
+.environment-index [hidden] { display: none; }
+
+.environment-index.is-enhanced {
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--surface);
+}
+
+.environment-index :is(.environment-index-groups, .environment-index-names):not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border-block-end: 1px solid var(--border);
+}
+
+.environment-index :is(.environment-index-groups, .environment-index-names, .environment-index-launch-controls) button {
+  min-inline-size: 0;
+  min-block-size: 2.25rem;
+  max-inline-size: 100%;
+  padding: 0.35rem 0.6rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--text);
+  font: 600 0.9rem / 1.35 var(--font-sans);
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.environment-index :is(.environment-index-groups, .environment-index-names, .environment-index-launch-controls) button:hover { background: var(--code); }
+.environment-index :is(.environment-index-groups, .environment-index-names, .environment-index-launch-controls) button:focus-visible { outline-offset: 0; }
+
+.environment-index :is(.environment-index-groups, .environment-index-names, .environment-index-launch-controls) button:is([aria-selected="true"], [aria-pressed="true"]) {
+  background: linear-gradient(90deg, var(--neon)) center bottom / 100% 2px no-repeat, var(--selection);
+  color: var(--accent);
+}
+
+.environment-index .environment-index-names button {
+  font: 500 0.8125rem / 1.35 ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+.prose .environment-index button > code { padding: 0; background: transparent; font: inherit; }
+
+.environment-index-group { position: relative; }
+
+.prose .environment-index.is-enhanced .environment-index-group > h2:not(:focus-within) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.environment-index.is-enhanced .environment-index-records {
+  min-inline-size: 0;
+  padding: 0.85rem clamp(0.65rem, 2.5cqi, 1.25rem);
+}
+
+.prose .environment-index.is-enhanced .environment-index-record h3 { margin-block: 0 0.6rem; }
+.prose .environment-index-record h3 > code { padding: 0; background: transparent; font-weight: 650; }
+.environment-index-record dl { margin: 0; }
+.environment-index-record dt { color: var(--muted); font-size: 0.825rem; font-weight: 650; }
+.environment-index-record dd { margin: 0.1rem 0 0; }
+.environment-index-record dd + dt { margin-block-start: 0.55rem; }
+.environment-index-record :is(pre, .code-block) { margin-block: 0.75rem 0; }
+.prose .environment-index-record pre { padding: 0.65rem 0.75rem; overflow-wrap: anywhere; }
+
+.environment-index-launch {
+  margin-block-start: 0.8rem;
+  padding-block-start: 0.55rem;
+  border-block-start: 1px solid var(--border);
+}
+.environment-index-launch-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem 0.7rem;
+}
+.environment-index-launch-controls { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.environment-index-launch > [data-environment-mode]:not([hidden]) + [data-environment-mode]:not([hidden]) {
+  margin-block-start: 0.75rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--border);
+}
+.prose .environment-index-launch :is(h4, p) { margin-block: 0.4rem; }
+.environment-index-launch > [data-environment-mode] { position: relative; }
+.prose .environment-index.is-enhanced .environment-index-launch h4:not(:focus-within) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.prose .environment-index-launch :is(pre, .code-block) { margin-block: 0.45rem 0; }
+.prose .environment-index-launch .environment-launch-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  margin-block: 0.45rem;
+  padding: 0;
+  list-style: none;
+}
+.prose .environment-index-launch .environment-launch-flow > li {
+  position: relative;
+  max-inline-size: 100%;
+  margin: 0;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.environment-index-launch .environment-launch-flow > li + li::before {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(50% - 0.15rem);
+  inset-inline-start: -0.55rem;
+  inline-size: 0.3rem;
+  block-size: 0.3rem;
+  border-block-start: 1px solid var(--accent);
+  border-inline-end: 1px solid var(--accent);
+  transform: rotate(45deg);
+}
+.environment-index-launch .environment-launch-flow:dir(rtl) > li + li::before { transform: rotate(-45deg); }
+
+@container environment-index (min-width: 37rem) {
+  .environment-index.is-enhanced .environment-index-layout {
+    display: grid;
+    grid-template-columns: minmax(16rem, 2fr) minmax(0, 3fr);
+  }
+
+  .environment-index .environment-index-names:not([hidden]) {
+    display: grid;
+    align-content: start;
+    border-block-end: 0;
+    border-inline-end: 1px solid var(--border);
+  }
+
+  .environment-index .environment-index-names button[aria-pressed="true"] {
+    background: linear-gradient(180deg, var(--neon)) left center / 2px 100% no-repeat, var(--selection);
+  }
+}
+
+@media (pointer: coarse) {
+  .environment-index :is(.environment-index-groups, .environment-index-names, .environment-index-launch-controls) button,
+  .environment-index .code-copy { min-block-size: 44px; }
+}
+
+@media (forced-colors: active) {
+  .environment-index :is(.environment-index-groups, .environment-index-names, .environment-index-launch-controls) button:is([aria-selected="true"], [aria-pressed="true"]) {
+    border: 1px solid Highlight;
+  }
+}

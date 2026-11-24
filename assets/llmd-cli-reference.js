@@ -51,14 +51,36 @@
   if (options) {
     const control = options.querySelector("[data-cli-option-control]");
     const panels = options.querySelectorAll("[data-cli-option]");
+    const choices = Array.from(control.querySelectorAll('input[type="radio"]'));
 
-    function showPlatformOptions() {
-      const selected = control.querySelector("input:checked");
+    function showOptions() {
+      const selected = choices.find(choice => choice.checked);
       for (const panel of panels) panel.hidden = panel.dataset.cliOption !== selected.value;
     }
 
-    control.addEventListener("change", showPlatformOptions);
+    function revealOption(hash) {
+      const target = document.getElementById(hash.slice(1));
+      const panel = target?.closest("[data-cli-option]");
+      if (!panel || !options.contains(panel)) return null;
+      const choice = choices.find(input => input.value === panel.dataset.cliOption);
+      if (!choice || choice.checked) return null;
+      choice.checked = true;
+      showOptions();
+      return target;
+    }
+
+    control.addEventListener("change", showOptions);
+    // Reveal the destination before the browser follows a same-page link.
+    document.addEventListener("click", event => {
+      const link = event.target.closest('a[href^="#"]');
+      if (!link || event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      revealOption(link.hash);
+    }, { capture: true });
+    window.addEventListener("hashchange", () => revealOption(location.hash)?.scrollIntoView());
+
+    const initialTarget = revealOption(location.hash);
     control.hidden = false;
-    showPlatformOptions();
+    showOptions();
+    if (initialTarget) requestAnimationFrame(() => initialTarget.scrollIntoView());
   }
 })();

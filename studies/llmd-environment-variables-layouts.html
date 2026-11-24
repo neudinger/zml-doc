@@ -1,0 +1,340 @@
+<div id="llmd-env-layouts">
+  <style>
+    #llmd-env-layouts {
+      --llmd-bg: light-dark(#fff, #0d0c14);
+      --llmd-text: light-dark(#0c0c15, #f5f3fa);
+      --llmd-muted: light-dark(#474657, #bdb8cc);
+      --llmd-accent: light-dark(#4800dc, #c6a5ff);
+      --llmd-line: light-dark(#dce0ed, #383449);
+      --llmd-selected: light-dark(#f0e5ff, #2a2043);
+      --llmd-code: light-dark(#f5f4f9, #1e1a2c);
+      --llmd-neon: linear-gradient(90deg, #00bde8, #7335ff, #de00cf);
+      container-type: inline-size;
+    }
+    #llmd-env-layouts .llmd-page {
+      min-block-size: 36rem;
+      color: var(--llmd-text);
+      background: var(--llmd-bg);
+      border: 1px solid var(--llmd-line);
+      border-radius: 8px;
+      font: 14px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-wrap: anywhere;
+    }
+    #llmd-env-layouts .llmd-top, #llmd-env-layouts .llmd-products, #llmd-env-layouts .llmd-sections {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .2rem 1rem;
+      padding: .55rem .9rem;
+      border-bottom: 1px solid var(--llmd-line);
+    }
+    #llmd-env-layouts .llmd-top { justify-content: space-between; }
+    #llmd-env-layouts .llmd-brand { font-size: 16px; font-weight: 720; }
+    #llmd-env-layouts .llmd-search { padding: .2rem .55rem; flex: 0 1 17rem; background: var(--llmd-code); border: 1px solid var(--llmd-line); border-radius: 5px; }
+    #llmd-env-layouts .llmd-products { padding-block: 0; }
+    #llmd-env-layouts .llmd-products > span { padding: .45rem .3rem; }
+    #llmd-env-layouts .llmd-current-product { font-weight: 700; background: var(--llmd-neon) left bottom / 100% 2px no-repeat; }
+    #llmd-env-layouts .llmd-sections, #llmd-env-layouts .llmd-muted { color: var(--llmd-muted); }
+    #llmd-env-layouts .llmd-current-section { color: var(--llmd-accent); font-weight: 700; }
+    #llmd-env-layouts .llmd-frame { display: grid; grid-template-columns: 10rem minmax(0, 1fr); }
+    #llmd-env-layouts .llmd-sidebar { border-right: 1px solid var(--llmd-line); padding: 1rem .6rem; font-size: 12px; }
+    #llmd-env-layouts .llmd-sidebar span { display: block; padding: .35rem .45rem; }
+    #llmd-env-layouts .llmd-current-page { color: var(--llmd-accent); background: var(--llmd-neon) left bottom / 100% 2px no-repeat, var(--llmd-selected); border-radius: 4px; font-weight: 650; }
+    #llmd-env-layouts .llmd-content { padding: .9rem 1.1rem 1.1rem; min-width: 0; }
+    #llmd-env-layouts h2, #llmd-env-layouts h3, #llmd-env-layouts p, #llmd-env-layouts dl, #llmd-env-layouts dd { margin: 0; }
+    #llmd-env-layouts h2 { font-size: clamp(23px, 4cqw, 31px); letter-spacing: -.04em; line-height: 1.2; margin: .25rem 0 .38rem; }
+    #llmd-env-layouts h3 { font-size: 15px; font-weight: 675; }
+    #llmd-env-layouts .llmd-note { font-size: 12px; color: var(--llmd-muted); }
+    #llmd-env-layouts .llmd-lede { margin-bottom: .8rem; }
+    #llmd-env-layouts .llmd-panel { border: 1px solid var(--llmd-line); border-radius: 6px; }
+    #llmd-env-layouts .llmd-bar { display: flex; align-items: center; gap: .2rem; flex-wrap: wrap; padding: .3rem; border-bottom: 1px solid var(--llmd-line); }
+    #llmd-env-layouts button { font: inherit; }
+    #llmd-env-layouts .llmd-choice { border: 0; border-radius: 4px; background: var(--llmd-bg); color: var(--llmd-text); text-align: start; padding: .35rem .5rem; font-size: 13px; }
+    #llmd-env-layouts .llmd-choice[aria-pressed="true"] { color: var(--llmd-accent); background: var(--llmd-neon) left bottom / 100% 2px no-repeat, var(--llmd-selected); }
+    #llmd-env-layouts .llmd-split { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+    #llmd-env-layouts .llmd-variables { display: flex; flex-direction: column; gap: .2rem; padding: .35rem; border-right: 1px solid var(--llmd-line); }
+    #llmd-env-layouts .llmd-variables button, #llmd-env-layouts code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .9em; overflow-wrap: anywhere; }
+    #llmd-env-layouts .llmd-detail { min-width: 0; display: grid; align-content: start; gap: .6rem; padding: .75rem; }
+    #llmd-env-layouts dt { font-size: 12px; font-weight: 620; color: var(--llmd-muted); }
+    #llmd-env-layouts dd + dt { margin-top: .4rem; }
+    #llmd-env-layouts .llmd-code { background: var(--llmd-code); border: 1px solid var(--llmd-line); border-radius: 5px; }
+    #llmd-env-layouts .llmd-code-header { display: flex; align-items: center; justify-content: space-between; gap: .25rem; padding: .25rem .5rem; border-bottom: 1px solid var(--llmd-line); }
+    #llmd-env-layouts .llmd-copy { color: var(--llmd-text); background: var(--llmd-bg); border: 1px solid var(--llmd-line); border-radius: 4px; padding: .1rem .4rem; font-size: 12px; }
+    #llmd-env-layouts pre { margin: 0; padding: .45rem .55rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+    #llmd-env-layouts .llmd-launch-body { display: grid; gap: .65rem; padding: .75rem; }
+    #llmd-env-layouts .llmd-flow { display: flex; gap: .3rem .65rem; align-items: center; flex-wrap: wrap; font-size: 13px; }
+    #llmd-env-layouts .llmd-flow > strong { padding: .2rem .5rem; border: 1px solid var(--llmd-line); border-radius: 4px; }
+    #llmd-env-layouts .llmd-launch-examples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+    #llmd-env-layouts .llmd-launch-examples > div { display: grid; align-content: start; gap: .4rem; min-width: 0; }
+    #llmd-env-layouts .llmd-summary details { border: 1px solid var(--llmd-line); margin: 0 0 .4rem; border-radius: 5px; }
+    #llmd-env-layouts .llmd-summary summary { padding: .4rem .6rem; font-weight: 650; }
+    #llmd-env-layouts .llmd-summary details[open] > summary { background: var(--llmd-selected); color: var(--llmd-accent); }
+    #llmd-env-layouts .llmd-summary summary code { margin-inline-start: .3rem; font-weight: 400; }
+    #llmd-env-layouts .llmd-note-row { padding-top: .65rem; }
+    #llmd-env-layouts [hidden] { display: none !important; }
+    @container (max-width: 710px) {
+      #llmd-env-layouts .llmd-frame { grid-template-columns: minmax(0,1fr); }
+      #llmd-env-layouts .llmd-sidebar { display: none; }
+      #llmd-env-layouts .llmd-content { padding-inline: .75rem; }
+    }
+    @container (max-width: 545px) {
+      #llmd-env-layouts .llmd-page { min-block-size: 42rem; }
+      #llmd-env-layouts .llmd-search { flex-basis: 9rem; }
+      #llmd-env-layouts .llmd-split, #llmd-env-layouts .llmd-launch-examples { grid-template-columns: minmax(0,1fr); }
+      #llmd-env-layouts .llmd-variables { flex-flow: row wrap; border-right: 0; border-bottom: 1px solid var(--llmd-line); }
+    }
+    @media (pointer: coarse) {
+      #llmd-env-layouts button, #llmd-env-layouts summary { min-block-size: 44px; }
+    }
+  </style>
+
+  <template id="llmd-env-chrome">
+    <div class="llmd-page" aria-label="LLMD CLI Reference preview">
+      <div class="llmd-top"><span class="llmd-brand">ZML <span class="llmd-muted">/ documentation</span></span><span class="llmd-search llmd-note">Search docs</span></div>
+      <div class="llmd-products"><span>ZML</span><span class="llmd-current-product">LLMD</span></div>
+      <div class="llmd-sections"><span>User Guide</span><span>Developer Guide</span><span>API Reference</span><span class="llmd-current-section">CLI Reference</span></div>
+      <div class="llmd-frame">
+        <aside class="llmd-sidebar" aria-label="Pages in LLMD CLI Reference"><span>Model and listener flags</span><span>Batching and memory</span><span>Sampling and decoding</span><span class="llmd-current-page">Environment variables</span><span>Docker options</span></aside>
+        <div class="llmd-content"><p class="llmd-note">LLMD / CLI Reference</p><h2>Environment variables</h2><p class="llmd-lede" data-intro></p></div>
+      </div>
+    </div>
+  </template>
+
+  <div class="viz-carousel" aria-label="LLMD Environment variables layouts">
+    <section data-variant="Variable index" aria-label="Variable index" data-subtitle="Settings for model loading, networking, reporting, and runtime diagnostics.">
+      <div data-content>
+        <div class="llmd-panel">
+          <div class="llmd-bar" role="group" aria-label="Variable groups" data-groups></div>
+          <div class="llmd-split">
+            <div class="llmd-variables" role="group" aria-label="Variables in this group" data-variables></div>
+            <div class="llmd-detail" aria-live="polite">
+              <h3><code data-variable></code></h3>
+              <dl><dt>Default or precedence</dt><dd data-fallback></dd><dt>Effect</dt><dd data-effect></dd></dl>
+              <div class="llmd-code" data-index-code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-variant="Launch context" aria-label="Launch context" data-subtitle="Set variables in the process that runs LLMD." hidden>
+      <div data-content>
+        <div class="llmd-panel">
+          <div class="llmd-bar" role="group" aria-label="Launch method" data-context></div>
+          <div class="llmd-launch-body">
+            <div class="llmd-flow" aria-live="polite" data-flow></div>
+            <div class="llmd-launch-examples">
+              <div><h3>Use an exported token</h3><p class="llmd-note" data-token-note></p><div class="llmd-code" data-token-code></div></div>
+              <div><h3>Use a GCS credentials file</h3><p class="llmd-note" data-file-note></p><div class="llmd-code" data-file-code></div></div>
+            </div>
+          </div>
+        </div>
+        <p class="llmd-note llmd-note-row">Reference sections · Model access / Network / Reporting / Diagnostics / Backend settings</p>
+      </div>
+    </section>
+
+    <section data-variant="Task recipes" aria-label="Task recipes" data-subtitle="Find the setting for the operation you need." hidden>
+      <div class="llmd-summary" data-content>
+        <details name="llmd-env-tasks" data-task="auth" open><summary>Authenticate a gated model <code>HF_TOKEN</code></summary><div class="llmd-detail"><p>Export a read token approved for the model on the host. Forward it before the Docker image name.</p><div class="llmd-code" data-command="auth"></div></div></details>
+        <details name="llmd-env-tasks" data-task="proxy"><summary>Route model downloads <code>https_proxy</code></summary><div class="llmd-detail"><p>LLMD checks <code>https_proxy</code>, <code>HTTPS_PROXY</code>, <code>all_proxy</code>, and <code>ALL_PROXY</code> in that order. The first nonempty value wins.</p><div class="llmd-code" data-command="proxy"></div></div></details>
+        <details name="llmd-env-tasks" data-task="report"><summary>Disable reporting <code>DO_NOT_TRACK</code></summary><div class="llmd-detail"><p>Disable crash and usage reporting. Use <code>LLMD_NO_USAGE_STATS=1</code> to disable usage statistics only.</p><div class="llmd-code" data-command="report"></div></div></details>
+        <details name="llmd-env-tasks" data-task="profile"><summary>Profile the device <code>LLMD_PROFILE_DEVICE_ONLY</code></summary><div class="llmd-detail"><p>Choose device-only tracing when profiling is enabled. The default is <code>0</code>.</p><div class="llmd-code" data-command="profile"></div></div></details>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('llmd-env-layouts');
+  const views = Array.from(root.querySelectorAll('[data-variant]'));
+  for (const view of views) {
+    const shell = root.querySelector('#llmd-env-chrome').content.cloneNode(true);
+    shell.querySelector('[data-intro]').textContent = view.dataset.subtitle;
+    shell.querySelector('.llmd-content').append(view.querySelector('[data-content]'));
+    view.append(shell);
+  }
+  const [index, launch, recipes] = views;
+  const dockerLabel = 'Docker options · before the image';
+  const shellLabel = 'Shell · before starting LLMD';
+  const examples = {
+    auth: [dockerLabel, '-e HF_TOKEN'],
+    proxy: [shellLabel, 'export https_proxy=http://proxy.example:3128'],
+    report: [shellLabel, 'export DO_NOT_TRACK=1'],
+    profile: [shellLabel, 'export LLMD_PROFILE_DEVICE_ONLY=1'],
+  };
+  const variables = {
+    'Model access': {
+      HF_TOKEN: ['When unset, tries the token file, then anonymous access.', 'An explicit value overrides the token file. An empty value skips it. Docker forwards an exported host value.', examples.auth],
+      AWS_ACCESS_KEY_ID: ['Unset. Requests are anonymous unless both access keys are set.', 'Pairs with AWS_SECRET_ACCESS_KEY to sign S3 requests.'],
+      GOOGLE_APPLICATION_CREDENTIALS: ['When unset, tries the default gcloud credentials file on Linux and macOS.', 'Selects an application default credentials file visible to LLMD.'],
+    },
+    Network: {
+      https_proxy: ['Uses the first nonempty value among https_proxy, HTTPS_PROXY, all_proxy, and ALL_PROXY, in that order. The default is a direct connection.', 'Sets the proxy for HTTPS model downloads.', examples.proxy],
+      http_proxy: ['Uses the first nonempty value among http_proxy, HTTP_PROXY, all_proxy, and ALL_PROXY, in that order. The default is a direct connection.', 'Sets the proxy for HTTP model downloads.'],
+    },
+    Reporting: {
+      DO_NOT_TRACK: ['Unset unless configured.', 'Set to 1 to disable crash reporting and usage statistics.', examples.report],
+      LLMD_NO_USAGE_STATS: ['Unset unless configured.', 'Set to 1 to disable usage statistics.'],
+    },
+    Diagnostics: {
+      LLMD_PROFILE_DEVICE_ONLY: ['0 when unset.', 'Set to 1 to select device-only tracing when profiling is enabled.', examples.profile],
+      ZML_AUTOTUNE_CACHE_DIR: ['Unset.', 'Selects the per-fusion autotune cache on CUDA, ROCm, and oneAPI. Use a writable mount to persist it in Docker.'],
+    },
+    'Backend settings': {
+      LD_LIBRARY_PATH: ['Supplied by the host or image.', 'The loader checks it for library paths during CUDA diagnostics.'],
+      FURIOSA_SDK_ROOT: ['Set by the packaged loader.', 'Points to the packaged Furiosa SDK.'],
+    },
+  };
+
+  const contexts = {
+    Docker: {
+      flow: ['Host process environment', 'Docker options', 'LLMD container'],
+      tokenNote: 'Export HF_TOKEN on the host first.', token: examples.auth,
+      fileNote: 'Mount the credentials file and pass its container path.',
+      file: [dockerLabel, '--mount type=bind,source=/absolute/path/to/adc.json,target=/run/gcs-adc.json,readonly \\\n-e GOOGLE_APPLICATION_CREDENTIALS=/run/gcs-adc.json'],
+    },
+    Native: {
+      flow: ['Host shell', 'LLMD process'],
+      tokenNote: 'Export a read token from the account approved for the model.',
+      token: ['Shell · after exporting HF_TOKEN', 'llmd --model=hf://org/repo'],
+      fileNote: 'Use a path the host process can read.',
+      file: [shellLabel, 'export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/adc.json'],
+    },
+  };
+
+  const state = { group: 'Model access', variable: 'HF_TOKEN', context: 'Docker', task: 'auth' };
+  const groups = index.querySelector('[data-groups]');
+  const names = index.querySelector('[data-variables]');
+  const modes = launch.querySelector('[data-context]');
+  const tasks = [...recipes.querySelectorAll('[data-task]')];
+
+  function save() {
+    window.openai?.setWidgetState?.({ modelContent: { llmdEnvironmentLayout: { ...state } }, privateContent: { ...state } })?.catch(() => {});
+  }
+
+  function command(target, value) {
+    target.replaceChildren();
+    target.hidden = !value;
+    if (!value) return;
+    const header = document.createElement('div');
+    header.className = 'llmd-code-header';
+    const label = document.createElement('span');
+    label.className = 'llmd-note';
+    label.textContent = value[0];
+    const copy = document.createElement('button');
+    copy.className = 'llmd-copy';
+    copy.type = 'button';
+    copy.textContent = 'Copy';
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.textContent = value[1];
+    pre.append(code);
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        copy.textContent = 'Copied';
+      } catch {
+        window.getSelection().selectAllChildren(code);
+        copy.textContent = document.execCommand('copy') ? 'Copied' : 'Selected';
+      }
+    });
+    header.append(label, copy);
+    target.append(header, pre);
+  }
+
+  function choice(parent, label, change) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'llmd-choice';
+    button.textContent = label;
+    button.addEventListener('click', () => { change(label); save(); });
+    parent.append(button);
+  }
+
+  function highlight(parent, label) {
+    for (const button of parent.children) button.setAttribute('aria-pressed', String(button.textContent === label));
+  }
+
+  function selectVariable(name) {
+    state.variable = name;
+    highlight(names, name);
+    const [fallback, effect, example] = variables[state.group][name];
+    index.querySelector('[data-variable]').textContent = name;
+    index.querySelector('[data-fallback]').textContent = fallback;
+    index.querySelector('[data-effect]').textContent = effect;
+    command(index.querySelector('[data-index-code]'), example);
+  }
+
+  function selectGroup(group, variable) {
+    state.group = group;
+    highlight(groups, group);
+    const keys = Object.keys(variables[group]);
+    names.replaceChildren();
+    for (const name of keys) choice(names, name, selectVariable);
+    selectVariable(keys.includes(variable) ? variable : keys[0]);
+  }
+
+  function selectContext(key) {
+    state.context = key;
+    highlight(modes, key);
+    const data = contexts[key];
+    const flow = launch.querySelector('[data-flow]');
+    flow.replaceChildren();
+    for (const [position, label] of data.flow.entries()) {
+      const step = document.createElement('strong');
+      step.textContent = label;
+      if (position) flow.append('→');
+      flow.append(step);
+    }
+    launch.querySelector('[data-token-note]').textContent = data.tokenNote;
+    launch.querySelector('[data-file-note]').textContent = data.fileNote;
+    command(launch.querySelector('[data-token-code]'), data.token);
+    command(launch.querySelector('[data-file-code]'), data.file);
+  }
+
+  function selectTask(key) {
+    state.task = key;
+    for (const details of tasks) details.open = details.dataset.task === key;
+  }
+
+  function restore(saved) {
+    if (!saved) return;
+    if (Object.hasOwn(variables, saved.group)) {
+      if (saved.group !== state.group) selectGroup(saved.group, saved.variable);
+      else if (saved.variable !== state.variable && Object.hasOwn(variables[state.group], saved.variable)) selectVariable(saved.variable);
+    }
+    if (saved.context !== state.context && Object.hasOwn(contexts, saved.context)) selectContext(saved.context);
+    if (saved.task !== state.task && (saved.task === '' || tasks.some(details => details.dataset.task === saved.task))) selectTask(saved.task);
+  }
+
+  for (const group of Object.keys(variables)) choice(groups, group, selectGroup);
+  for (const key of Object.keys(contexts)) choice(modes, key, selectContext);
+  for (const details of tasks) {
+    details.querySelector('summary').addEventListener('click', event => {
+      event.preventDefault();
+      selectTask(details.open ? '' : details.dataset.task);
+      save();
+    });
+    const box = details.querySelector('[data-command]');
+    command(box, examples[box.dataset.command]);
+  }
+  selectGroup(state.group);
+  selectContext(state.context);
+  restore(window.openai?.widgetState?.privateContent);
+  window.addEventListener('openai:set_globals', event => restore(event.detail?.globals?.widgetState?.privateContent));
+
+  if (globalThis.Tweak) {
+    const preferences = { group: state.group, context: state.context, task: state.task || 'auth' };
+    const options = [
+      [index, 'group', 'Initial group', Object.keys(variables), selectGroup],
+      [launch, 'context', 'Launch method', Object.keys(contexts), selectContext],
+      [recipes, 'task', 'Open recipe', tasks.map(details => ({ value: details.dataset.task, label: details.querySelector('summary').childNodes[0].textContent.trim() })), selectTask],
+    ];
+    for (const [view, key, label, values, select] of options) {
+      const tweak = new Tweak({ container: view.querySelector('.llmd-page'), onChange: () => select(preferences[key]) });
+      tweak.addSelect(preferences, key, { label, options: values });
+    }
+  }
+})();
+</script>

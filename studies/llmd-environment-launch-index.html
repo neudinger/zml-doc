@@ -1,0 +1,270 @@
+<div id="llmd-launch-index-preview" class="viz-dotted-background">
+  <style>
+    #llmd-launch-index-preview {
+      --page: light-dark(#fff, #0d0c14);
+      --text: light-dark(#0c0c15, #f5f3fa);
+      --quiet: light-dark(#474657, #bdb8cc);
+      --line: light-dark(#dce0ed, #383449);
+      --code: light-dark(#f5f4f9, #1e1a2c);
+      --selected: light-dark(#f0e5ff, #2a2043);
+      --accent: light-dark(#4800dc, #c6a5ff);
+      --neon: linear-gradient(90deg, #00bde8, #7133ff, #de00cf);
+      container-type: inline-size;
+    }
+    #llmd-launch-index-preview .preview-page {
+      background: var(--page);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font: 14px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-wrap: anywhere;
+    }
+    #llmd-launch-index-preview .preview-top {
+      display: flex;
+      align-items: baseline;
+      gap: .45rem .7rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--line);
+      padding: .65rem .85rem;
+      color: var(--quiet);
+    }
+    #llmd-launch-index-preview .preview-top strong { color: var(--text); font-weight: 720; }
+    #llmd-launch-index-preview .preview-body { padding: .8rem .85rem .95rem; }
+    #llmd-launch-index-preview h2, #llmd-launch-index-preview h3, #llmd-launch-index-preview p, #llmd-launch-index-preview dl, #llmd-launch-index-preview dd { margin: 0; }
+    #llmd-launch-index-preview h2 { font-size: 24px; letter-spacing: -.035em; margin-bottom: .6rem; }
+    #llmd-launch-index-preview h3 { font-size: 17px; min-width: 0; }
+    #llmd-launch-index-preview .preview-index { border: 1px solid var(--line); border-radius: 6px; }
+    #llmd-launch-index-preview :is(.preview-groups, .preview-names, .preview-modes) { display: flex; flex-wrap: wrap; gap: .25rem; padding: .3rem; }
+    #llmd-launch-index-preview .preview-groups { border-bottom: 1px solid var(--line); }
+    #llmd-launch-index-preview .preview-names { flex-direction: column; border-right: 1px solid var(--line); }
+    #llmd-launch-index-preview .preview-choice {
+      min-inline-size: 0;
+      border: 0;
+      border-radius: 4px;
+      background: var(--page);
+      color: var(--text);
+      font: inherit;
+      text-align: start;
+      overflow-wrap: anywhere;
+      padding: .34rem .5rem;
+    }
+    #llmd-launch-index-preview .preview-choice[aria-pressed="true"] {
+      color: var(--accent);
+      background: var(--neon) left bottom / 100% 2px no-repeat, var(--selected);
+    }
+    #llmd-launch-index-preview :is(.preview-names button, code) { font: .91em/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    #llmd-launch-index-preview .preview-split { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 4fr); }
+    #llmd-launch-index-preview .preview-detail { display: grid; gap: .55rem; align-content: start; min-inline-size: 0; padding: .75rem; }
+    #llmd-launch-index-preview dt, #llmd-launch-index-preview .preview-note { font-size: 12px; color: var(--quiet); }
+    #llmd-launch-index-preview dt { font-weight: 650; }
+    #llmd-launch-index-preview dd + dt { margin-top: .35rem; }
+    #llmd-launch-index-preview .preview-example { padding-top: .55rem; border-top: 1px solid var(--line); }
+    #llmd-launch-index-preview .preview-example-head { display: flex; align-items: center; justify-content: space-between; gap: .35rem; flex-wrap: wrap; }
+    #llmd-launch-index-preview .preview-modes { padding: 0; }
+    #llmd-launch-index-preview .preview-modes button { font-size: 13px; }
+    #llmd-launch-index-preview .preview-path { display: flex; align-items: center; flex-wrap: wrap; gap: .28rem .45rem; margin: .35rem 0; color: var(--quiet); font-size: 12px; }
+    #llmd-launch-index-preview .preview-step { padding: .11rem .4rem; border: 1px solid var(--line); border-radius: 4px; }
+    #llmd-launch-index-preview .preview-code { border: 1px solid var(--line); border-radius: 5px; background: var(--code); margin-top: .4rem; }
+    #llmd-launch-index-preview .preview-code-head { display: flex; justify-content: space-between; align-items: center; gap: .35rem; border-bottom: 1px solid var(--line); padding: .23rem .48rem; }
+    #llmd-launch-index-preview .preview-copy { color: var(--text); background: var(--page); border: 1px solid var(--line); border-radius: 4px; font: inherit; font-size: 12px; padding: .14rem .42rem; }
+    #llmd-launch-index-preview pre { padding: .45rem .55rem; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    #llmd-launch-index-preview [hidden] { display: none !important; }
+    @container (max-width: 610px) {
+      #llmd-launch-index-preview .preview-split { grid-template-columns: minmax(0, 1fr); }
+      #llmd-launch-index-preview .preview-names { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+    @media (pointer: coarse) {
+      #llmd-launch-index-preview button { min-block-size: 44px; }
+    }
+  </style>
+
+  <section class="preview-page" aria-label="LLMD Environment variables preview">
+    <div class="preview-top"><strong>LLMD</strong><span aria-hidden="true">/</span><span>CLI Reference</span></div>
+    <div class="preview-body">
+      <h2>Environment variables</h2>
+      <div class="preview-index">
+        <div class="preview-groups" role="group" aria-label="Variable groups" data-groups></div>
+        <div class="preview-split">
+          <div class="preview-names" role="group" aria-label="Variables in this group" data-names></div>
+          <div class="preview-detail">
+            <h3><code data-name></code></h3>
+            <dl aria-live="polite"><dt>Default or precedence</dt><dd data-default></dd><dt>Effect</dt><dd data-effect></dd></dl>
+            <div class="preview-example" data-example>
+              <div class="preview-example-head">
+                <strong>Launch example</strong>
+                <div class="preview-modes" role="group" aria-label="Launch method" data-modes></div>
+              </div>
+              <div class="preview-path" aria-label="How the variable reaches LLMD" data-path></div>
+              <p class="preview-note" data-hint></p>
+              <div class="preview-code">
+                <div class="preview-code-head"><span class="preview-note" data-language></span><button type="button" class="preview-copy" data-copy>Copy</button></div>
+                <pre><code aria-live="polite" data-command></code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('llmd-launch-index-preview');
+  const groups = root.querySelector('[data-groups]');
+  const names = root.querySelector('[data-names]');
+  const modes = root.querySelector('[data-modes]');
+  const example = root.querySelector('[data-example]');
+  const path = root.querySelector('[data-path]');
+  const code = root.querySelector('[data-command]');
+  const copy = root.querySelector('[data-copy]');
+
+  const launchMethods = {
+    Docker: { path: ['Host environment', 'Docker options', 'LLMD container'], label: 'Docker options · before the image' },
+    Native: { path: ['Host shell', 'LLMD process'], label: 'Shell' },
+  };
+  const records = {
+    'Model access': {
+      HF_TOKEN: {
+        fallback: 'When unset, LLMD tries the token file, then anonymous access.', effect: 'An explicit value overrides the token file. An empty value skips the file.',
+        Docker: ['Export a read token as HF_TOKEN on the host first.', '-e HF_TOKEN'],
+        Native: ['Export HF_TOKEN before launch. Replace org/repo with the model your token can access.', 'llmd --model=hf://org/repo'],
+      },
+      GOOGLE_APPLICATION_CREDENTIALS: {
+        fallback: 'When unset, LLMD tries the default gcloud credentials file on Linux and macOS.', effect: 'Points LLMD to a credentials file for Google Cloud Storage.',
+        Docker: ['Mount the file read-only and pass its container path.', '--mount type=bind,source=/absolute/path/to/adc.json,target=/run/gcs-adc.json,readonly \\\n-e GOOGLE_APPLICATION_CREDENTIALS=/run/gcs-adc.json'],
+        Native: ['Use a host path the LLMD process can read.', 'export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/adc.json'],
+      },
+    },
+    Network: {
+      https_proxy: {
+        fallback: 'Checks https_proxy, HTTPS_PROXY, all_proxy, and ALL_PROXY in that order. The first nonempty value wins. Defaults to a direct connection.', effect: 'Routes HTTPS model downloads from LLMD through a proxy.',
+        Docker: ['Export your proxy URL as https_proxy on the host first.', '-e https_proxy'],
+        Native: ['Replace the example address with your proxy URL.', 'export https_proxy=http://proxy.example:3128'],
+      },
+      http_proxy: {
+        fallback: 'Checks http_proxy, HTTP_PROXY, all_proxy, and ALL_PROXY in that order. The first nonempty value wins. Defaults to a direct connection.', effect: 'Routes HTTP model downloads from LLMD through a proxy.',
+        Docker: ['Export your proxy URL as http_proxy on the host first.', '-e http_proxy'],
+        Native: ['Replace the example address with your proxy URL.', 'export http_proxy=http://proxy.example:3128'],
+      },
+    },
+    Reporting: {
+      DO_NOT_TRACK: {
+        fallback: 'Unset unless configured.', effect: 'Set to 1 to disable crash reporting and usage statistics.',
+        Docker: ['Pass the value to the LLMD container.', '-e DO_NOT_TRACK=1'],
+        Native: ['Set the value before starting LLMD.', 'export DO_NOT_TRACK=1'],
+      },
+      LLMD_NO_USAGE_STATS: {
+        fallback: 'Unset unless configured.', effect: 'Set to 1 to disable usage statistics.',
+        Docker: ['Pass the value to the LLMD container.', '-e LLMD_NO_USAGE_STATS=1'],
+        Native: ['Set the value before starting LLMD.', 'export LLMD_NO_USAGE_STATS=1'],
+      },
+    },
+    Diagnostics: {
+      LLMD_PROFILE_DEVICE_ONLY: {
+        fallback: '0 when unset.', effect: 'Set to 1 to select device-only tracing when profiling is enabled.',
+        Docker: ['Pass the value to the LLMD container.', '-e LLMD_PROFILE_DEVICE_ONLY=1'],
+        Native: ['Set the value before starting LLMD.', 'export LLMD_PROFILE_DEVICE_ONLY=1'],
+      },
+    },
+    'Backend settings': {
+      FURIOSA_SDK_ROOT: { fallback: 'Supplied by the packaged Furiosa loader.', effect: 'Points to the packaged Furiosa SDK.' },
+      NEURON_RT_LOG_LEVEL: {
+        fallback: 'error when unset.', effect: 'Sets the Neuron runtime log level.',
+        Docker: ['Pass the log level to the LLMD container.', '-e NEURON_RT_LOG_LEVEL=error'],
+        Native: ['Set the log level before starting LLMD.', 'export NEURON_RT_LOG_LEVEL=error'],
+      },
+    },
+  };
+
+  const state = { group: 'Model access', variable: 'GOOGLE_APPLICATION_CREDENTIALS', mode: 'Docker' };
+
+  function addChoice(container, label, activate) {
+    const button = document.createElement('button');
+    button.className = 'preview-choice';
+    button.type = 'button';
+    button.textContent = label;
+    button.addEventListener('click', () => {
+      activate(label);
+      const snapshot = { ...state };
+      window.openai?.setWidgetState?.({ modelContent: { llmdLaunchIndex: snapshot }, privateContent: snapshot })?.catch(() => {});
+    });
+    container.append(button);
+  }
+
+  function mark(container, label) {
+    for (const button of container.children) button.setAttribute('aria-pressed', String(button.textContent === label));
+  }
+
+  function selectMode(mode) {
+    state.mode = mode;
+    const command = records[state.group][state.variable][mode];
+    example.hidden = !command;
+    if (!command) return;
+    mark(modes, mode);
+    path.replaceChildren();
+    const launch = launchMethods[mode];
+    for (const [position, label] of launch.path.entries()) {
+      if (position) {
+        const arrow = document.createElement('span');
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = '→';
+        path.append(arrow);
+      }
+      const step = document.createElement('span');
+      step.className = 'preview-step';
+      step.textContent = label;
+      path.append(step);
+    }
+    root.querySelector('[data-language]').textContent = launch.label;
+    root.querySelector('[data-hint]').textContent = command[0];
+    code.textContent = command[1];
+    copy.textContent = 'Copy';
+  }
+
+  function selectVariable(variable) {
+    state.variable = variable;
+    mark(names, variable);
+    const data = records[state.group][variable];
+    root.querySelector('[data-name]').textContent = variable;
+    root.querySelector('[data-default]').textContent = data.fallback;
+    root.querySelector('[data-effect]').textContent = data.effect;
+    selectMode(state.mode);
+  }
+
+  function selectGroup(group, variable) {
+    state.group = group;
+    mark(groups, group);
+    names.replaceChildren();
+    const candidates = Object.keys(records[group]);
+    for (const name of candidates) addChoice(names, name, selectVariable);
+    selectVariable(candidates.includes(variable) ? variable : candidates[0]);
+  }
+
+  function restore(saved) {
+    if (!saved) return;
+    if (Object.hasOwn(records, saved.group)) {
+      if (saved.group !== state.group) selectGroup(saved.group, saved.variable);
+      else if (saved.variable !== state.variable && Object.hasOwn(records[state.group], saved.variable)) selectVariable(saved.variable);
+    }
+    if (saved.mode !== state.mode && Object.hasOwn(launchMethods, saved.mode)) selectMode(saved.mode);
+  }
+
+  for (const group of Object.keys(records)) addChoice(groups, group, selectGroup);
+  for (const mode of Object.keys(launchMethods)) addChoice(modes, mode, selectMode);
+  selectGroup(state.group, state.variable);
+  restore(window.openai?.widgetState?.privateContent);
+  window.addEventListener('openai:set_globals', event => restore(event.detail?.globals?.widgetState?.privateContent));
+  copy.addEventListener('click', async () => {
+    const command = code.textContent;
+    try {
+      await navigator.clipboard.writeText(command);
+      if (code.textContent === command) copy.textContent = 'Copied';
+    } catch {
+      if (code.textContent !== command) return;
+      window.getSelection().selectAllChildren(code);
+      copy.textContent = document.execCommand('copy') ? 'Copied' : 'Selected';
+    }
+  });
+})();
+</script>

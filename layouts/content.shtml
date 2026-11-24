@@ -8,7 +8,7 @@
         <meta data-pagefind-meta="title[content]" content="$ctx.title">
       </ctx>
     </ctx>
-    <ctx html="$ctx.article.content()">
+    <ctx html="$ctx.article.content()" environment="$ctx.article.custom.has('environment_groups')">
       <ctx :if="$page.custom.has('architecture')">
         <link rel="stylesheet" href="$site.asset('llmd-architecture.css').link()">
         <script defer src="$site.asset('llmd-architecture.js').link()"></script>
@@ -28,10 +28,10 @@
         <link rel="stylesheet" href="$site.asset('readiness-path.css').link()">
         <script defer src="$site.asset('readiness-path.js').link()"></script>
       </ctx>
-      <ctx :if="$ctx.html.contains('<pre><code')">
+      <ctx :if="$ctx.html.contains('<pre><code').or($ctx.environment)">
         <script defer src="$site.asset('code-copy.js').link()"></script>
       </ctx>
-      <ctx :if="$ctx.html.contains('<pre><code class=')">
+      <ctx :if="$ctx.html.contains('<pre><code class=').or($ctx.environment)">
         <script defer data-manual src="$site.asset('prism/prism.min.js').link()"></script>
         <script defer src="$site.asset('code-highlight.js').link()"></script>
       </ctx>
@@ -43,6 +43,10 @@
       </ctx>
       <ctx :if="$ctx.html.contains('data-model-catalog')">
         <script type="module" src="$site.asset('model-catalog.js').link()"></script>
+      </ctx>
+      <ctx :if="$ctx.environment">
+        <link rel="stylesheet" href="$site.asset('environment-index.css').link()">
+        <script defer src="$site.asset('environment-index.js').link()"></script>
       </ctx>
     </ctx>
   </ctx>
@@ -146,29 +150,120 @@
         </header>
       </ctx>
       <ctx :if="$site.index().isCurrent().not()">
-        <ctx toc="$ctx.article.toc()">
-          <ctx :if="$ctx.toc.contains('href=').or($ctx.article.custom.has('recipe_outline'))">
-            <nav class="page-toc" aria-labelledby="page-toc-heading">
-              <details open>
-                <summary id="page-toc-heading">On this page</summary>
-                <ctx :if="$ctx.article.custom.has('recipe_outline')">
-                  <ul>
-                    <ctx :loop="$ctx.article.custom.get('recipe_outline')">
-                      <li><a href="$loop.it.get('id').prefix('#')" :text="$loop.it.get('label')"></a></li>
+        <ctx appendix="$page.custom.getOr('reference_append', $ctx.article.custom.getOr('reference_append', ''))"
+             environment="$ctx.article.custom.has('environment_groups')"
+             llmd_environment="$page.custom.has('launch_modes')">
+          <ctx toc="$ctx.llmd_environment.then('', $ctx.article.toc()).suffix($ctx.appendix.eql('').then('', $site.page($ctx.appendix).toc()))">
+            <ctx :if="$ctx.toc.contains('href=').or($ctx.environment, $ctx.article.custom.has('recipe_outline'))">
+              <nav class="page-toc" aria-labelledby="page-toc-heading">
+                <details open>
+                  <summary id="page-toc-heading">On this page</summary>
+                  <ctx :if="$ctx.environment">
+                    <ul>
+                      <ctx :if="$ctx.llmd_environment"><li><a href="#launch-context">Variable index</a></li></ctx>
+                      <ctx :loop="$ctx.article.custom.get('environment_groups')">
+                        <ctx :if="$ctx.llmd_environment.or($loop.it.has('llmd_only').not()).and($ctx.llmd_environment.not().or($loop.it.has('zml_only').not()))">
+                          <li><a href="$loop.it.get('id').prefix('#')" :text="$loop.it.get('label')"></a></li>
+                        </ctx>
+                      </ctx>
+                    </ul>
+                  </ctx>
+                  <ctx :if="$ctx.article.custom.has('recipe_outline')">
+                    <ul>
+                      <ctx :loop="$ctx.article.custom.get('recipe_outline')">
+                        <li><a href="$loop.it.get('id').prefix('#')" :text="$loop.it.get('label')"></a></li>
+                      </ctx>
+                    </ul>
+                  </ctx>
+                  <div :html="$ctx.toc"></div>
+                </details>
+              </nav>
+            </ctx>
+          </ctx>
+          <ctx :if="$ctx.environment">
+            <div class="prose" data-pagefind-body>
+              <p>Select a group and a variable to see its default and effect.</p>
+              <ctx :if="$ctx.llmd_environment"><span id="launch-and-package-notes"></span></ctx>
+              <div class="environment-index" id="$ctx.llmd_environment.then('launch-context', 'environment-index')"
+                   data-initial-variable="$page.custom.getOr('environment_initial_variable', '')">
+                <div class="environment-index-groups" role="group" aria-label="Variable groups" hidden></div>
+                <ctx :if="$ctx.llmd_environment">
+                  <div class="environment-index-launch-controls" role="group" aria-label="Launch method" hidden data-pagefind-ignore>
+                    <ctx :loop="$page.custom.get('launch_modes')">
+                      <button type="button" data-launch-mode="$loop.it.get('id')" :text="$loop.it.get('label')"></button>
                     </ctx>
-                  </ul>
+                  </div>
                 </ctx>
-                <div :html="$ctx.toc"></div>
-              </details>
-            </nav>
+                <div class="environment-index-layout">
+                  <div class="environment-index-names" role="group" aria-label="Variables in this group" hidden></div>
+                  <div class="environment-index-records">
+                    <ctx :loop="$ctx.article.custom.get('environment_groups')">
+                      <ctx :if="$ctx.llmd_environment.or($loop.it.has('llmd_only').not()).and($ctx.llmd_environment.not().or($loop.it.has('zml_only').not()))">
+                        <section class="environment-index-group" aria-labelledby="$loop.it.get('id')" data-group="$loop.it.get('label')">
+                          <h2 id="$loop.it.get('id')" :text="$loop.it.get('label')"></h2>
+                          <ctx :loop="$loop.it.get('variables')">
+                            <ctx :if="$ctx.llmd_environment.or($loop.it.has('llmd_only').not())"
+                                 variable="$loop.it" has_launch="$ctx.llmd_environment.and($loop.it.has('launch'))">
+                              <div class="environment-index-record">
+                                <h3 id="$ctx.variable.get('name').prefix('env-')"><code :text="$ctx.variable.get('name')"></code></h3>
+                                <ctx :if="$ctx.llmd_environment.and($ctx.variable.has('llmd_aliases'))">
+                                  <ctx :loop="$ctx.variable.get('llmd_aliases')"><span id="$loop.it"></span></ctx>
+                                </ctx>
+                                <dl>
+                                  <dt>Default or precedence</dt><dd :text="$ctx.variable.get('fallback')"></dd>
+                                  <dt>Effect</dt><dd :text="$ctx.variable.get('effect')"></dd>
+                                </dl>
+                                <ctx :if="$ctx.has_launch.not().and($ctx.variable.has('example'))">
+                                  <pre><code class="sh" :text="$ctx.variable.get('example')"></code></pre>
+                                </ctx>
+                                <ctx :if="$ctx.has_launch">
+                                  <div class="environment-index-launch">
+                                    <div class="environment-index-launch-heading"><strong>Launch example</strong></div>
+                                    <ctx :loop="$page.custom.get('launch_modes')">
+                                      <ctx mode="$loop.it" example="$ctx.variable.get('launch').get($loop.it.get('id'))">
+                                        <section data-environment-mode="$ctx.mode.get('id')" id="$ctx.variable.get('name').prefix('env-').suffix('-', $ctx.mode.get('id'), '-panel')">
+                                          <h4 id="$ctx.example.getOr('id', $ctx.variable.get('name').prefix('env-').suffix('-', $ctx.mode.get('id')))"
+                                              :text="$ctx.mode.get('label').suffix(' · ', $ctx.variable.get('name'))"></h4>
+                                          <ctx :if="$ctx.example.has('aliases')">
+                                            <ctx :loop="$ctx.example.get('aliases')"><span id="$loop.it"></span></ctx>
+                                          </ctx>
+                                          <ol class="environment-launch-flow" aria-label="How the variable reaches LLMD" role="list">
+                                            <ctx :loop="$ctx.mode.get('flow')"><li :text="$loop.it"></li></ctx>
+                                          </ol>
+                                          <p :text="$ctx.example.get('hint')"></p>
+                                          <span class="command-language" :text="$ctx.mode.get('command_label')"></span>
+                                          <pre><code class="sh" data-copy-label="$ctx.mode.get('label').prefix('Copy ').suffix(' example for ', $ctx.variable.get('name'))"
+                                              :text="$ctx.example.get('command')"></code></pre>
+                                        </section>
+                                      </ctx>
+                                    </ctx>
+                                  </div>
+                                </ctx>
+                                <ctx :if="$ctx.variable.has('source')">
+                                  <p><a href="$ctx.variable.get('source')" :text="$ctx.variable.get('source_label')"></a></p>
+                                </ctx>
+                              </div>
+                            </ctx>
+                          </ctx>
+                        </section>
+                      </ctx>
+                    </ctx>
+                  </div>
+                </div>
+              </div>
+              <ctx :if="$ctx.llmd_environment.not()" :html="$ctx.article.content()"></ctx>
+              <ctx :if="$ctx.appendix.eql('').not()" :html="$site.page($ctx.appendix).content()"></ctx>
+            </div>
           </ctx>
         </ctx>
         <ctx legacy="$page.custom.has('reference_source').and($page.custom.has('product').not())">
-          <ctx :if="$ctx.legacy">
-            <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
-          </ctx>
-          <ctx :if="$ctx.legacy.not()">
-            <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
+          <ctx :if="$ctx.article.custom.has('environment_groups').not()">
+            <ctx :if="$ctx.legacy">
+              <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
+            </ctx>
+            <ctx :if="$ctx.legacy.not()">
+              <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
+            </ctx>
           </ctx>
           <ctx :if="$site.page('llmd/user-guide/quickstart').isCurrent()">
             <table hidden data-llmd-pairings data-pagefind-ignore>
@@ -313,14 +408,14 @@
               </ctx>
             </ctx>
           </ctx>
-          <ctx :if="$ctx.article.custom.get?('related_reference')">
-            <ctx related="$site.page($if)">
+          <ctx related_reference="$page.custom.getOr('related_reference', $ctx.article.custom.getOr('related_reference', ''))">
+            <ctx :if="$ctx.related_reference.eql('').not()" related="$site.page($ctx.related_reference)">
               <p class="prose" data-pagefind-ignore>See
                 <a :if="$ctx.legacy" href="$ctx.related.link()" :text="$ctx.related.title"></a>
                 <ctx :if="$ctx.legacy.not()">
                   <a href="$site.page($page.custom.get('product').lower(), $ctx.related.custom.get('reference_path')).link()" :text="$ctx.related.title"></a>
                 </ctx>
-                <span :text="$ctx.article.custom.get('related_note')"></span></p>
+                <span :text="$page.custom.getOr('related_note', $ctx.article.custom.getOr('related_note', ''))"></span></p>
             </ctx>
           </ctx>
           <ctx :if="$ctx.legacy">

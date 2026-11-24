@@ -1,0 +1,435 @@
+<div id="zml-env-options">
+  <style>
+    #zml-env-options {
+      --env-bg: light-dark(#fff, #0d0c14);
+      --env-fg: light-dark(#0c0c15, #f5f3fa);
+      --env-muted: light-dark(#474657, #bdb8cc);
+      --env-accent: light-dark(#4800dc, #c6a5ff);
+      --env-line: light-dark(#dce0ed, #383449);
+      --env-selected: light-dark(#f0e5ff, #2a2043);
+      --env-code: light-dark(#f5f4f9, #1e1a2c);
+      --env-neon: linear-gradient(90deg, #00bde8, #7533ff, #de00cf);
+      --env-neon-text: linear-gradient(90deg, light-dark(#00677e,#50e2ff), light-dark(#5e14ef,#ac8aff), light-dark(#a50082,#ff70df));
+      container-type: inline-size;
+    }
+    #zml-env-options .env-page {
+      min-height: 39rem;
+      color: var(--env-fg);
+      background: var(--env-bg);
+      border: 1px solid var(--env-line);
+      border-radius: 9px;
+      font: 14px/1.5 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow-wrap: anywhere;
+    }
+    #zml-env-options .env-header, #zml-env-options .env-product, #zml-env-options .env-navigation {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: .55rem 1rem;
+      border-bottom: 1px solid var(--env-line);
+    }
+    #zml-env-options .env-header {justify-content: space-between;}
+    #zml-env-options .env-brand {font-size: 17px; font-weight: 750; letter-spacing: -.035em;}
+    #zml-env-options .env-search {
+      flex: 0 1 20rem;
+      color: var(--env-muted);
+      border: 1px solid var(--env-line);
+      border-radius: 6px;
+      padding: .27rem .55rem;
+      background: var(--env-code);
+    }
+    #zml-env-options .env-product {padding-block: 0;}
+    #zml-env-options .env-product span {padding: .48rem .45rem;}
+    #zml-env-options .env-active-product {background: var(--env-neon) left bottom / 100% 2px no-repeat; font-weight: 700;}
+    #zml-env-options .env-navigation {column-gap: 1rem; row-gap: .25rem; color: var(--env-muted);}
+    #zml-env-options .env-active-section {color: var(--env-accent); font-weight: 700;}
+    @supports (background-clip: text) {
+      #zml-env-options .env-active-section {background: var(--env-neon-text); background-clip: text; color: transparent;}
+    }
+    #zml-env-options .env-layout {display: grid; grid-template-columns: 10.25rem minmax(0, 1fr);}
+    #zml-env-options .env-sidebar {border-right: 1px solid var(--env-line); padding: 1rem .7rem; font-size: 12px;}
+    #zml-env-options .env-sidebar span {display: block; padding: .38rem .55rem;}
+    #zml-env-options .env-current-page {
+      background: var(--env-neon) left top / 100% 2px no-repeat, var(--env-selected);
+      border-radius: 4px;
+      color: var(--env-accent);
+      font-weight: 650;
+    }
+    #zml-env-options .env-content {padding: 1rem 1.25rem 1.15rem; min-width: 0;}
+    #zml-env-options h2, #zml-env-options h3, #zml-env-options p, #zml-env-options dl, #zml-env-options dd {margin: 0;}
+    #zml-env-options h2 {font-size: clamp(24px, 4cqw, 32px); letter-spacing: -.045em; line-height: 1.15; margin-top: .25rem;}
+    #zml-env-options h3 {font-size: 16px; font-weight: 680; line-height: 1.35;}
+    #zml-env-options .env-crumb, #zml-env-options .env-note {font-size: 12px; color: var(--env-muted);}
+    #zml-env-options .env-lede {color: var(--env-muted); margin: .35rem 0 1rem;}
+    #zml-env-options code, #zml-env-options pre {font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .91em;}
+    #zml-env-options :not(pre) > code {background: var(--env-code); padding: .1em .22em; border-radius: .25rem;}
+    #zml-env-options .env-provider, #zml-env-options .env-directory, #zml-env-options .env-recipes {
+      border: 1px solid var(--env-line); border-radius: 7px; background: var(--env-bg);
+    }
+    #zml-env-options .env-provider {margin-top: .4rem;}
+    #zml-env-options summary {padding: .53rem .7rem; font-weight: 650;}
+    #zml-env-options summary > code {margin-left: .25rem; font-weight: 400;}
+    #zml-env-options details[open] > summary {color: var(--env-accent); background: var(--env-selected); border-radius: 6px 6px 0 0;}
+    #zml-env-options .env-provider-body {padding: .6rem .7rem; display: grid; gap: .5rem;}
+    #zml-env-options .env-rules {display: grid; grid-template-columns: auto minmax(0,1fr); column-gap: .8rem; row-gap: .22rem;}
+    #zml-env-options .env-rules dt {font-weight: 600;}
+    #zml-env-options .env-command {
+      background: var(--env-code);
+      border: 1px solid var(--env-line);
+      border-radius: 6px;
+      min-width: 0;
+    }
+    #zml-env-options .env-command-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .4rem;
+      border-bottom: 1px solid var(--env-line);
+      padding: .24rem .5rem;
+    }
+    #zml-env-options button {font: inherit;}
+    #zml-env-options .env-copy {
+      border: 1px solid var(--env-line);
+      border-radius: 4px;
+      background: var(--env-bg);
+      color: var(--env-fg);
+      padding: .16rem .45rem;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    #zml-env-options pre {white-space: pre-wrap; overflow-wrap: anywhere; padding: .47rem .55rem; margin: 0;}
+    #zml-env-options .env-index-layout {display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);}
+    #zml-env-options .env-switch, #zml-env-options .env-names {display: flex; flex-wrap: wrap;}
+    #zml-env-options .env-switch {border-bottom: 1px solid var(--env-line); gap: .15rem; padding: .25rem;}
+    #zml-env-options .env-choice {
+      border: 0;
+      border-radius: 4px;
+      background: var(--env-bg);
+      color: var(--env-muted);
+      padding: .35rem .52rem;
+      text-align: left;
+      font-size: 13px;
+    }
+    #zml-env-options .env-choice[aria-pressed="true"] {
+      color: var(--env-accent);
+      background: var(--env-neon) left bottom / 100% 2px no-repeat, var(--env-selected);
+    }
+    #zml-env-options .env-names {padding: .35rem; flex-direction: column; gap: .15rem; border-right: 1px solid var(--env-line);}
+    #zml-env-options .env-names .env-choice {font-family: ui-monospace, monospace; font-size: 12px;}
+    #zml-env-options .env-detail {padding: .8rem; display: grid; align-content: start; gap: .55rem; min-width: 0;}
+    #zml-env-options .env-detail h3 code {background: transparent; padding: 0; font-size: inherit;}
+    #zml-env-options .env-detail dd + dt {margin-top: .5rem;}
+    #zml-env-options .env-recipe-body {display: grid; grid-template-columns: minmax(0,3fr) minmax(0,2fr); gap: .9rem; padding: .8rem;}
+    #zml-env-options .env-recipe-body > div {display: grid; align-content: start; gap: .45rem; min-width: 0;}
+    #zml-env-options .env-recipe-body > div + div {border-left: 1px solid var(--env-line); padding-left: .8rem;}
+    #zml-env-options .env-foot {margin-top: .7rem; font-size: 12px; color: var(--env-muted);}
+    #zml-env-options .env-note > strong {color: var(--env-fg);}
+    #zml-env-options [hidden] {display: none !important;}
+    @container (max-width: 720px) {
+      #zml-env-options .env-layout {grid-template-columns: minmax(0,1fr);}
+      #zml-env-options .env-sidebar {display: none;}
+      #zml-env-options .env-content {padding: .9rem;}
+    }
+    @container (max-width: 520px) {
+      #zml-env-options .env-page {min-height: 45rem;}
+      #zml-env-options .env-header {padding: .5rem .75rem;}
+      #zml-env-options .env-search {flex-basis: 11rem;}
+      #zml-env-options .env-index-layout, #zml-env-options .env-recipe-body {grid-template-columns: minmax(0,1fr);}
+      #zml-env-options .env-names {flex-direction: row; border-right: 0; border-bottom: 1px solid var(--env-line);}
+      #zml-env-options .env-recipe-body > div + div {border-left: 0; border-top: 1px solid var(--env-line); padding: .65rem 0 0;}
+    }
+    @media (pointer: coarse) {
+      #zml-env-options .env-choice, #zml-env-options .env-copy, #zml-env-options summary {min-height: 44px;}
+    }
+  </style>
+
+  <template id="zml-env-shell">
+    <div class="env-page" aria-label="ZML CLI Reference preview">
+      <div class="env-header">
+        <span class="env-brand">ZML <span class="env-note">Docs</span></span>
+        <span class="env-search">Search documentation…</span>
+      </div>
+      <div class="env-product"><span class="env-active-product">ZML</span><span>LLMD</span></div>
+      <div class="env-navigation"><span>User Guide</span><span>Developer Guide</span><span>API Reference</span><span class="env-active-section">CLI Reference</span></div>
+      <div class="env-layout">
+        <aside class="env-sidebar" aria-label="Pages in CLI Reference">
+          <span>ZML CLI reference</span>
+          <span class="env-current-page">Environment variables</span>
+        </aside>
+        <div class="env-content">
+          <p class="env-crumb">ZML / CLI Reference</p>
+          <h2>Environment variables</h2>
+          <p class="env-lede" data-lede></p>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <div class="viz-carousel" aria-label="ZML environment variables layouts">
+    <section data-variant="Provider accordion" aria-label="Provider accordion" data-intro="Credentials by storage provider, followed by runtime and backend settings.">
+      <div data-article>
+        <h3>Model access</h3>
+        <div aria-label="Storage providers">
+          <details open class="env-provider" name="zml-env-provider" data-provider="Hugging Face">
+            <summary>Hugging Face <code>hf://</code></summary>
+            <div class="env-provider-body">
+              <dl class="env-rules">
+                <dt>Set</dt><dd><code>HF_TOKEN</code> takes precedence.</dd>
+                <dt>Empty</dt><dd>Skips the token file.</dd>
+                <dt>Unset</dt><dd>Tries <code>$HOME/.cache/huggingface/token</code>, then anonymous access.</dd>
+              </dl>
+              <div class="env-command" data-command="login"></div>
+            </div>
+          </details>
+          <details class="env-provider" name="zml-env-provider" data-provider="Amazon S3">
+            <summary>Amazon S3 <code>s3://</code></summary>
+            <div class="env-provider-body">
+              <p><code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> sign requests when both are set.</p>
+              <p><code>AWS_ENDPOINT_URL</code> takes precedence over <code>AWS_ENDPOINT_URL_S3</code>. <code>AWS_REGION</code> takes precedence over <code>AWS_DEFAULT_REGION</code>.</p>
+              <p class="env-note">Defaults <code>https://s3.amazonaws.com</code> and <code>us-east-1</code>.</p>
+            </div>
+          </details>
+          <details class="env-provider" name="zml-env-provider" data-provider="Google Cloud Storage">
+            <summary>Google Cloud Storage <code>gs://</code></summary>
+            <div class="env-provider-body">
+              <p>Use <code>GOOGLE_APPLICATION_CREDENTIALS</code> to select an ADC file. When unset, ZML looks for the gcloud ADC file on Linux and macOS.</p>
+              <p class="env-note">Without a usable file, the loader can try GCE metadata, then anonymous access.</p>
+            </div>
+          </details>
+        </div>
+        <details class="env-provider">
+          <summary>Runtime diagnostics</summary>
+          <div class="env-provider-body"><p><code>XLA_FLAGS</code> passes compiler options to the selected backend. <code>TF_CPP_MIN_LOG_LEVEL</code> sets its log threshold.</p></div>
+        </details>
+        <details class="env-provider">
+          <summary>Backend settings</summary>
+          <div class="env-provider-body"><p class="env-note"><strong>ROCm</strong> · <code>ROCPROFILER_LOG_LEVEL</code> defaults to <code>error</code>.</p><p class="env-note"><strong>Furiosa</strong> · The packaged loader sets <code>FURIOSA_SDK_ROOT</code>.</p></div>
+        </details>
+        <details class="env-provider">
+          <summary>Set by Bazel</summary>
+          <div class="env-provider-body"><p><code>BUILD_WORKING_DIRECTORY</code> holds the caller’s working directory. The ZML LLM example uses it to resolve relative paths.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section data-variant="Variable index" aria-label="Variable index" data-intro="Choose a variable to see its default, effect, and example." hidden>
+      <div data-article>
+        <div class="env-directory" aria-label="Variable directory">
+          <div class="env-switch" role="group" aria-label="Variable groups" data-groups></div>
+          <div class="env-index-layout">
+            <div class="env-names" role="group" aria-label="Variables in this group" data-names></div>
+            <div class="env-detail" aria-live="polite" data-record>
+              <h3><code data-name></code></h3>
+              <dl><dt class="env-note">Default or precedence</dt><dd data-default></dd><dt class="env-note">Effect</dt><dd data-effect></dd></dl>
+              <div class="env-command" data-example></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-variant="Setup recipes" aria-label="Setup recipes" data-intro="Start with a task, then check which variable controls it." hidden>
+      <div data-article>
+        <div class="env-recipes" aria-label="Setup tasks">
+          <div class="env-switch" role="group" aria-label="Setup task">
+            <button class="env-choice" type="button" data-task="login" aria-pressed="true">Open a gated model</button>
+            <button class="env-choice" type="button" data-task="hlo" aria-pressed="false">Capture HLO</button>
+            <button class="env-choice" type="button" data-task="working" aria-pressed="false">Check relative paths</button>
+          </div>
+          <div class="env-recipe-body" data-recipe="login">
+            <div><h3>Save a Hugging Face token</h3><p>Request access on the model page and sign in with a read token from that account.</p><div class="env-command" data-command="login"></div></div>
+            <div><h3>Verify model access</h3><p>Use <code>hf://org/repo@revision</code> when loading weights. With <code>HF_TOKEN</code> unset, the loader reads the token file.</p></div>
+          </div>
+          <div class="env-recipe-body" data-recipe="hlo" hidden>
+            <div><h3>Enable HLO dumps</h3><p>Set <code>XLA_FLAGS</code> before launch on a plugin that supports HLO dumps.</p><div class="env-command" data-command="hlo"></div></div>
+            <div><h3>Find the output</h3><p>Compile the model and check the writable output directory for text HLO files.</p></div>
+          </div>
+          <div class="env-recipe-body" data-recipe="working" hidden>
+            <div><h3>Resolve relative model paths</h3><p>Replace <code>./models/your-model</code> with the path to your model from the current directory.</p><div class="env-command" data-command="working"></div></div>
+            <div><h3>Check the base directory</h3><p>Bazel supplies <code>BUILD_WORKING_DIRECTORY</code> with that starting directory.</p></div>
+          </div>
+        </div>
+        <div class="env-foot">Reference order · Model access / Diagnostics / Backend settings / Set by Bazel</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('zml-env-options');
+  const shell = root.querySelector('#zml-env-shell');
+  const variants = Array.from(root.querySelectorAll('[data-variant]'));
+  for (const variant of variants) {
+    const frame = shell.content.cloneNode(true);
+    frame.querySelector('[data-lede]').textContent = variant.dataset.intro;
+    frame.querySelector('.env-content').append(variant.querySelector('[data-article]'));
+    variant.append(frame);
+  }
+
+  const commands = {
+    login: 'bazel run //tools/hf -- auth login',
+    hlo: 'export XLA_FLAGS="--xla_dump_to=/tmp/zml-hlo --xla_dump_hlo_as_text"',
+    working: 'bazel run //examples/llm -- --model=./models/your-model --prompt="Hello"',
+    log: 'export TF_CPP_MIN_LOG_LEVEL=3',
+    region: 'export AWS_REGION=us-east-1',
+    adc: 'export GOOGLE_APPLICATION_CREDENTIALS=/path/to/adc.json',
+    trace: 'export SKIP_PJRT_PROFILER=true',
+  };
+  const variables = {
+    'Model access': {
+      HF_TOKEN: ['When unset, tries the cached token file, then anonymous access.', 'Overrides the token file, including when explicitly empty.', 'login'],
+      AWS_ACCESS_KEY_ID: ['Unset. Both access keys are required to sign requests.', 'Identifies the S3 access key used for request signing.'],
+      AWS_SECRET_ACCESS_KEY: ['Unset. Both access keys are required to sign requests.', 'Supplies the secret key used for S3 signing.'],
+      AWS_ENDPOINT_URL: ['Takes precedence over AWS_ENDPOINT_URL_S3. Default is https://s3.amazonaws.com.', 'Selects the S3 endpoint.'],
+      AWS_ENDPOINT_URL_S3: ['Used when AWS_ENDPOINT_URL is unset. Default is https://s3.amazonaws.com.', 'Selects the S3 endpoint.'],
+      AWS_REGION: ['Takes precedence over AWS_DEFAULT_REGION. Default is us-east-1.', 'Selects the region for S3 request signing.', 'region'],
+      AWS_DEFAULT_REGION: ['Used when AWS_REGION is unset. Default is us-east-1.', 'Selects the region for S3 request signing.'],
+      GOOGLE_APPLICATION_CREDENTIALS: ['When unset, tries the gcloud ADC file on Linux and macOS.', 'Selects the ADC file for the GCS loader.', 'adc'],
+    },
+    Diagnostics: {
+      XLA_FLAGS: ['Uses the selected backend’s defaults when unset.', 'Passes compiler flags supported by the backend plugin.', 'hlo'],
+      ZML_AUTOTUNE_CACHE_DIR: ['Unset.', 'Selects a per-fusion autotune cache directory on CUDA, ROCm, and oneAPI.'],
+      TF_CPP_MIN_LOG_LEVEL: ['3 in the pinned ZML platform setup.', 'Sets the compiler runtime log threshold.', 'log'],
+      SKIP_PJRT_PROFILER: ['Unset.', 'Set to true to skip nested backend profiling while keeping host tracing.', 'trace'],
+      NO_COLOR: ['Unset. Takes precedence over CLICOLOR_FORCE when nonempty.', 'Disables logo color.'],
+      CLICOLOR_FORCE: ['Unset.', 'Requests logo color when nonempty.'],
+      COLORTERM: ['Supplied by the terminal.', 'Helps select the logo’s color depth.'],
+      TERM: ['Supplied by the terminal.', 'Helps select the logo’s color depth.'],
+    },
+    'Backend settings': {
+      LD_LIBRARY_PATH: ['Supplied by the host or image.', 'Checked for library paths during CUDA diagnostics.'],
+      ROCPROFILER_LOG_LEVEL: ['error when unset.', 'Controls ROCm profiler logging.'],
+      CCL_LOG_LEVEL: ['error when unset.', 'Controls Intel oneAPI collective library logging.'],
+      NEURON_RT_LOG_LEVEL: ['error when unset.', 'Controls Neuron runtime logging.'],
+      NEURON_CC_FLAGS: ['Generated from the backend configuration when unset.', 'Overrides Neuron compiler flags.'],
+      FURIOSA_SDK_ROOT: ['Set by the pinned loader.', 'Points to the packaged Furiosa SDK.'],
+    },
+    'Set by Bazel': {
+      BUILD_WORKING_DIRECTORY: ['Set by bazel run to the caller’s working directory.', 'The ZML LLM example uses it to resolve relative paths.'],
+    },
+  };
+
+  const provider = variants[0];
+  const index = variants[1];
+  const recipes = variants[2];
+  const providers = [...provider.querySelectorAll('[data-provider]')];
+  const groups = index.querySelector('[data-groups]');
+  const names = index.querySelector('[data-names]');
+  const record = index.querySelector('[data-record]');
+  const taskButtons = [...recipes.querySelectorAll('[data-task]')];
+  const taskPanels = [...recipes.querySelectorAll('[data-recipe]')];
+  const state = { provider: 'Hugging Face', group: 'Model access', variable: 'HF_TOKEN', task: 'login' };
+  const choices = { firstProvider: state.provider, firstGroup: state.group, firstTask: state.task };
+
+  function save() {
+    window.openai?.setWidgetState?.({ modelContent: { environmentVariables: { ...state } }, privateContent: { ...state } })?.catch(() => {});
+  }
+
+  function showCommand(target, key) {
+    target.replaceChildren();
+    target.hidden = !key;
+    if (!key) return;
+    const bar = document.createElement('div');
+    bar.className = 'env-command-bar';
+    const label = document.createElement('span');
+    label.className = 'env-note';
+    label.textContent = 'Shell';
+    const copy = document.createElement('button');
+    copy.className = 'env-copy';
+    copy.type = 'button';
+    copy.textContent = 'Copy';
+    copy.setAttribute('aria-label', 'Copy shell command');
+    const block = document.createElement('pre');
+    const code = document.createElement('code');
+    code.textContent = commands[key];
+    block.append(code);
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        copy.textContent = 'Copied';
+      } catch {
+        const selection = window.getSelection();
+        selection.selectAllChildren(code);
+        copy.textContent = document.execCommand('copy') ? 'Copied' : 'Selected';
+      }
+    });
+    bar.append(label, copy);
+    target.append(bar, block);
+  }
+
+  function makeChoice(container, label, activate) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'env-choice';
+    button.textContent = label;
+    button.addEventListener('click', activate);
+    container.append(button);
+    return button;
+  }
+
+  function showVariable(name) {
+    state.variable = name;
+    const [fallback, effect, command] = variables[state.group][name];
+    for (const button of names.children) button.setAttribute('aria-pressed', String(button.textContent === name));
+    record.querySelector('[data-name]').textContent = name;
+    record.querySelector('[data-default]').textContent = fallback;
+    record.querySelector('[data-effect]').textContent = effect;
+    showCommand(record.querySelector('[data-example]'), command);
+  }
+
+  function showGroup(group, variable) {
+    state.group = group;
+    for (const button of groups.children) button.setAttribute('aria-pressed', String(button.textContent === group));
+    names.replaceChildren();
+    const members = Object.keys(variables[group]);
+    for (const name of members) makeChoice(names, name, () => { showVariable(name); save(); });
+    showVariable(members.includes(variable) ? variable : members[0]);
+  }
+
+  function showTask(task) {
+    state.task = task;
+    for (const button of taskButtons) button.setAttribute('aria-pressed', String(button.dataset.task === task));
+    for (const panel of taskPanels) panel.hidden = panel.dataset.recipe !== task;
+  }
+
+  function showProvider(name) {
+    state.provider = name;
+    for (const details of providers) details.open = details.dataset.provider === name;
+  }
+
+  function restore(saved) {
+    if (!saved) return;
+    if (saved.provider === '' || providers.some(item => item.dataset.provider === saved.provider)) showProvider(saved.provider);
+    if (Object.hasOwn(variables, saved.group)) showGroup(saved.group, saved.variable);
+    if (taskButtons.some(item => item.dataset.task === saved.task)) showTask(saved.task);
+  }
+
+  for (const target of root.querySelectorAll('[data-command]')) showCommand(target, target.dataset.command);
+  for (const details of providers) {
+    details.querySelector('summary').addEventListener('click', event => {
+      event.preventDefault();
+      showProvider(details.open ? '' : details.dataset.provider);
+      save();
+    });
+  }
+  for (const group of Object.keys(variables)) makeChoice(groups, group, () => { showGroup(group); save(); });
+  for (const button of taskButtons) button.addEventListener('click', () => { showTask(button.dataset.task); save(); });
+  showGroup(state.group, state.variable);
+  restore(window.openai?.widgetState?.privateContent);
+  window.addEventListener('openai:set_globals', event => restore(event.detail?.globals?.widgetState?.privateContent));
+
+  if (globalThis.Tweak) {
+    const layoutOptions = [
+      [provider, 'firstProvider', 'Open provider', providers.map(item => item.dataset.provider), showProvider],
+      [index, 'firstGroup', 'Initial group', Object.keys(variables), showGroup],
+      [recipes, 'firstTask', 'Initial task', taskButtons.map(item => ({ label: item.textContent, value: item.dataset.task })), showTask],
+    ];
+    for (const [variant, key, label, options, render] of layoutOptions) {
+      const tweak = new Tweak({ container: variant.querySelector('.env-page'), onChange: () => render(choices[key]) });
+      tweak.addSelect(choices, key, { label, options });
+    }
+  }
+})();
+</script>
