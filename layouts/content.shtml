@@ -10,8 +10,8 @@
     </ctx>
     <ctx html="$ctx.article.content()" environment="$ctx.article.custom.has('environment_groups')">
       <ctx :if="$page.custom.has('architecture')">
-        <link rel="stylesheet" href="$site.asset('llmd-architecture.css').link()">
-        <script defer src="$site.asset('llmd-architecture.js').link()"></script>
+        <link rel="stylesheet" href="$site.asset('llmd-architecture-compact.css').link()">
+        <script defer src="$site.asset('llmd-architecture-compact.js').link()"></script>
       </ctx>
       <ctx :if="$ctx.html.contains('data-bazel-target=')">
         <script defer src="$site.asset('bazel-platforms.js').link()"></script>
@@ -96,50 +96,33 @@
     </ctx>
   </ctx>
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
-    <ctx :if="$page.custom.has('architecture')" diagram="$site.asset('llmd-architecture.svg')">
+    <ctx :if="$page.custom.has('architecture')" compact="$site.asset('llmd-architecture-compact.svg')">
       <section class="architecture-overview" aria-labelledby="architecture-title">
         <header class="document-header">
           <h1 id="architecture-title" :text="$ctx.article.title"></h1>
           <p class="description" :text="$ctx.article.description"></p>
         </header>
-        <figure class="architecture-figure" data-pagefind-ignore aria-label="Interactive LLMD on ZML architecture">
-          <div class="architecture-map-pane">
-            <div class="architecture-toolbar">
-              <strong>System map</strong>
-              <label hidden data-map-control><input type="checkbox" data-map-fit checked> Fit map to screen</label>
-              <a href="$ctx.diagram.link()">Open full-size SVG</a>
-            </div>
-            <div class="architecture-canvas" :html="$ctx.diagram.bytes()"></div>
+        <div id="system-map" class="architecture-compact" data-notes="off" data-pagefind-ignore>
+          <div class="source-tools">
+            <strong>System map</strong>
+            <label hidden data-compact-control>Component
+              <select data-picker><option value="">Whole map</option></select>
+            </label>
+            <label hidden data-compact-control><input type="checkbox" data-notes-toggle> Original annotations</label>
+            <a href="#detailed-atlas">Component references</a>
+            <a href="$ctx.compact.link()">Open full-size SVG</a>
           </div>
-          <figcaption class="architecture-inspector">
-            <div hidden data-map-control>
-              <fieldset class="architecture-layers">
-                <legend>Explore a layer</legend>
-                <button type="button" data-map-entry="chat-completions">Serving APIs</button>
-                <button type="button" data-map-entry="scheduler">Serving engine</button>
-                <button type="button" data-map-entry="decoder-layer">DeepSeek model</button>
-                <button type="button" data-map-entry="kernel-attention">Kernels</button>
-                <button type="button" data-map-entry="compiler">ZML runtime</button>
-                <button type="button" data-map-entry="nvidia">Platforms</button>
-              </fieldset>
-              <label class="architecture-picker">Component
-                <select data-map-picker><option value="">Whole map</option></select>
-              </label>
+          <div class="source-geometry" :html="$ctx.compact.bytes()"></div>
+          <div class="source-mobile" aria-label="LLMD on ZML system map"></div>
+          <div class="source-selection" hidden>
+            <div aria-live="polite" aria-atomic="true">
+              <h3 data-selected-title></h3>
+              <p class="source-path" data-selected-path></p>
+              <p data-selected-detail></p>
             </div>
-            <div class="architecture-detail">
-              <div aria-live="polite" aria-atomic="true">
-                <strong data-map-title>LLMD on ZML</strong>
-                <p data-map-detail>LLMD schedules inference. ZML compiles the model and runs it on the selected hardware using the loaded weights.</p>
-              </div>
-              <dl hidden data-map-mappings></dl>
-              <a hidden data-map-section></a>
-            </div>
-            <div class="architecture-connections" hidden>
-              <strong>Connected components</strong>
-              <div data-map-neighbors></div>
-            </div>
-          </figcaption>
-        </figure>
+            <a hidden data-selected-reference>Read component reference</a>
+          </div>
+        </div>
       </section>
     </ctx>
     <article class="$site.index().isCurrent().then('home-hero', 'document')">

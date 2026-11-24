@@ -5,6 +5,8 @@
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Developer Guide", .architecture = true },
 ---
+**[Component references]($text.id('detailed-atlas'))**
+
 # [Applications and serving APIs]($heading.id('serving-apis'))
 
 [Applications and agents]($text.id('component-applications')) send HTTP requests to
@@ -23,21 +25,76 @@ See [Monitor and troubleshoot LLMD]($link.page('llmd/user-guide/operations/monit
 
 The [engine]($text.id('component-engine')) prepares input, schedules model execution and returns results to clients.
 
-- **[Chat templates.]($text.id('component-chat-templates'))** For chat, a Jinja2 engine in Zig formats messages into the prompt expected by the model.
-- **[Tokenizers.]($text.id('component-tokenizers'))** The tokenizer converts that prompt into token IDs. The map lists BPE, WordPiece and SentencePiece.
-- **[Output parsers.]($text.id('component-output-parsers'))** On the return path, parsers extract reasoning traces and tool calls from generated content.
-- **[Scheduler.]($text.id('component-scheduler'))** Continuous batching mixes prefill and decode work from active requests. Long prefills can be split into chunks.
-- **[Paged KV cache.]($text.id('component-paged-kv-cache'))** Pages hold attention keys and values. Requests with a shared prefix can reuse cached state.
-- **[Speculative decoding.]($text.id('component-speculative-decoding'))** A drafter proposes tokens for the target model to verify. The map names DSpark, DFlash and DSpine. Find [external drafters for your model]($link.page('llmd/user-guide/model-compatibility').unsafeRef('external-drafters')).
-- **[Async execution.]($text.id('component-async-execution'))** The host prepares the next step while the device runs the current one.
-- **[Parallelism.]($text.id('component-parallelism'))** Tensor and expert parallelism distribute parts of a model across devices. Data parallelism distributes inputs across replicas.
-- **[Weight preparation.]($text.id('component-weight-preparation'))** The engine can fuse, stack or swizzle weights into the layout a kernel expects. The map gives FP8, MXFP4 and NVFP4 as examples.
+## [Input and output]($heading.id('engine-input-and-output'))
 
-See [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory')) for the flags that control scheduling and cache capacity.
+```=html
+<dl class="architecture-reference-rows">
+  <div>
+    <dt id="component-chat-templates">Chat templates</dt>
+    <dd>Format messages into the model’s prompt with a Jinja2 engine in Zig.</dd>
+  </div>
+  <div>
+    <dt id="component-tokenizers">Tokenizers</dt>
+    <dd>Convert prompts into token IDs using tokenizers such as BPE, WordPiece or SentencePiece.</dd>
+  </div>
+  <div>
+    <dt id="component-output-parsers">Output parsers</dt>
+    <dd>Extract reasoning traces and tool calls from generated content.</dd>
+  </div>
+</dl>
+```
+
+## [Scheduling and decoding]($heading.id('engine-scheduling-and-decoding'))
+
+```=html
+<dl class="architecture-reference-rows">
+  <div>
+    <dt id="component-scheduler">Scheduler</dt>
+    <dd>Mixes prefill and decode in active batches and splits long prefills into chunks.</dd>
+  </div>
+  <div>
+    <dt id="component-paged-kv-cache">Paged KV cache</dt>
+    <dd>Stores attention keys and values in pages for reuse across requests with a shared prefix.</dd>
+  </div>
+  <div>
+    <dt id="component-speculative-decoding">Speculative decoding</dt>
+    <dd>Uses a drafter such as DSpark, DFlash or DSpine to propose tokens for the target model to verify.</dd>
+  </div>
+  <div>
+    <dt id="component-async-execution">Async execution</dt>
+    <dd>The host prepares the next step while the device runs the current one.</dd>
+  </div>
+</dl>
+```
+
+See [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory')) for scheduler and cache flags,
+and [External drafters]($link.page('llmd/user-guide/model-compatibility').unsafeRef('external-drafters')) for model pairings.
+
+## [Execution setup]($heading.id('engine-execution-setup'))
+
+```=html
+<dl class="architecture-reference-rows">
+  <div>
+    <dt id="component-parallelism">Parallelism</dt>
+    <dd>Tensor and expert parallelism split model work across devices, while data parallelism distributes inputs across replicas.</dd>
+  </div>
+  <div>
+    <dt id="component-weight-preparation">Weight preparation</dt>
+    <dd>Fuse, stack or swizzle weights in formats such as FP8, MXFP4 and NVFP4 into the layout a kernel expects.</dd>
+  </div>
+</dl>
+```
+
+# [Qwen 3.5 example]($heading.id('qwen-3-5'))
+
+The compact map traces embedding, repeated decoder layers, the LM head and sampling.
+In this Qwen 3.5 example, a decoder layer runs RMSNorm, then Gated DeltaNet or attention,
+followed by RMSNorm and a mixture of experts (MoE). The reusable components row shows
+building blocks shared by other models written in Zig.
 
 # [DeepSeek V4.1-Flash example]($heading.id('deepseek-v4-1-flash'))
 
-[DeepSeek V4.1-Flash]($text.id('component-model')) is the Zig model expanded in the map.
+Follow a token through [DeepSeek V4.1-Flash]($text.id('component-model')).
 
 1. **[Embedding.]($text.id('component-embedding'))** Look up a vector for each input token ID.
 2. **[Decoder layer × N.]($text.id('component-decoder-layer'))** Pass the vectors through the repeated decoder layers. The table below expands one layer.
@@ -59,12 +116,12 @@ The [model compatibility catalog]($link.page('llmd/user-guide/model-compatibilit
 # [Kernel implementations]($heading.id('kernels'))
 
 The [kernel matrix]($text.id('component-kernels')) maps five operation families to eight platforms.
-A cell names a platform-specific implementation or portable StableHLO. A dash means the diagram leaves that implementation unspecified.
+A cell names a platform-specific implementation or portable StableHLO. A dash marks an unspecified implementation.
 
 - **[Attention.]($text.id('component-kernel-attention'))** Includes MLA and grouped-query attention.
 - **[Indexer.]($text.id('component-kernel-indexer'))** Selects candidates for sparse attention. DSA and QSA are examples.
-- **[Gated DeltaNet.]($text.id('component-kernel-deltanet'))** Six platforms list custom kernels. The map leaves the Trainium and CPU entries unspecified.
-- **[Mixture of experts.]($text.id('component-kernel-experts'))** Routed expert computation uses a custom kernel on NVIDIA, AMD, Google TPU, Apple and Furiosa. The other three targets use StableHLO in the map.
+- **[Gated DeltaNet.]($text.id('component-kernel-deltanet'))** Six platforms list custom kernels. The Trainium and CPU entries are unspecified.
+- **[Mixture of experts.]($text.id('component-kernel-experts'))** The matrix lists custom kernels for routed expert computation on NVIDIA, AMD, Google TPU, Apple and Furiosa. It lists StableHLO on the other three targets.
 - **[mHC.]($text.id('component-kernel-mhc'))** Residual-stream mixing uses CuTe on NVIDIA, Fly on AMD and StableHLO on the other six targets.
 
 | Platform | Attention | Indexer | Gated DeltaNet | Mixture of experts | mHC |
@@ -78,17 +135,63 @@ A cell names a platform-specific implementation or portable StableHLO. A dash me
 | Furiosa | TCL | StableHLO | TCL | TCL | StableHLO |
 | CPU | StableHLO | StableHLO | — | StableHLO | StableHLO |
 
+## [Named kernel examples]($heading.id('named-kernel-examples'))
+
+The compact map names DeepGEMM MegaMoE, FlashMLA, FlashAttention, FlashInfer,
+Flash Linear Attention, DeepGEMM mHC and DeepSelect as examples of kernel implementations.
+
 # [ZML compilation and execution]($heading.id('zml'))
 
 [ZML]($text.id('component-zml')) compiles model code into an executable and loads weights into device buffers for that executable.
 
-- **[Tensor API.]($text.id('component-tensor-api'))** Zig model code expresses matrix multiplication, gather, scan and sort. For example, `q.dot(k, .hd).softmax(.k)` computes a dot product followed by softmax. See the [Tensor API]($link.page('zml/api-reference/tensor')).
-- **[Compiler.]($text.id('component-compiler'))** ZML generates MLIR using dialects including `stablehlo`, `sdy` and `func`, with one program per shape bucket.
-- **[Kernel languages.]($text.id('component-kernel-languages'))** The compiler can embed custom kernels in the graph. The diagram names Triton, CuTe, CUDA Tile, FlyDSL, Mosaic, NKI, Metal and TCL.
-- **[Sharding.]($text.id('component-sharding'))** Tensor shardings describe placement on a device mesh with named axes. XLA partitions the computation accordingly. See [Run ZML across devices]($link.page('zml/developer-guide/run-across-devices')).
-- **[I/O.]($text.id('component-io'))** ZML reads tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk and moves data between host and device using DMA. See [Load and inspect model weights]($link.page('zml/developer-guide/load-and-inspect-model-weights')).
-- **[Execution.]($text.id('component-execution'))** The runtime launches a compiled executable asynchronously with device buffers holding parameters and inputs. See [Exe]($link.page('zml/api-reference/exe')).
-- **[PJRT C API.]($text.id('component-pjrt'))** ZML uses a common plugin interface for compilation, data transfer and execution on each platform. See the [OpenXLA source](https://github.com/openxla/xla).
+## [Express the model]($heading.id('zml-express-the-model'))
+
+```=html
+<dl class="architecture-reference-rows">
+  <div>
+    <dt id="component-tensor-api">Tensor API</dt>
+    <dd>Express matrix multiplication, gather, scan and sort in Zig. <code>q.dot(k, .hd).softmax(.k)</code> computes a dot product followed by softmax. <a href="../../../zml/api-reference/tensor/">Tensor API reference</a></dd>
+  </div>
+  <div>
+    <dt id="component-sharding">Sharding</dt>
+    <dd>Describe tensor placement on a device mesh with named axes so XLA can partition the computation. <a href="../../../zml/developer-guide/run-across-devices/">Run ZML across devices</a></dd>
+  </div>
+</dl>
+```
+
+## [Compile]($heading.id('zml-compile'))
+
+```=html
+<dl class="architecture-reference-rows">
+  <div>
+    <dt id="component-compiler">Compiler</dt>
+    <dd>Generates one MLIR program per shape bucket using dialects such as <code>stablehlo</code>, <code>sdy</code> and <code>func</code>.</dd>
+  </div>
+  <div>
+    <dt id="component-kernel-languages">Kernel languages</dt>
+    <dd>Embed custom kernels in the graph. Examples include Triton, CuTe, CUDA Tile, FlyDSL, Mosaic, NKI, Metal and TCL.</dd>
+  </div>
+</dl>
+```
+
+## [Load and run]($heading.id('zml-load-and-run'))
+
+```=html
+<dl class="architecture-reference-rows">
+  <div>
+    <dt id="component-io">I/O</dt>
+    <dd>Read tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk, and transfer them between host and device using DMA. <a href="../../../zml/developer-guide/load-and-inspect-model-weights/">Load and inspect model weights</a></dd>
+  </div>
+  <div>
+    <dt id="component-execution">Execution</dt>
+    <dd>Launches compiled programs asynchronously with device buffers for parameters and inputs. <a href="../../../zml/api-reference/exe/">Exe reference</a></dd>
+  </div>
+  <div>
+    <dt id="component-pjrt">PJRT C API</dt>
+    <dd>Provides a common plugin interface for compilation, data transfer and execution on each platform. <a href="https://github.com/openxla/xla">OpenXLA source</a></dd>
+  </div>
+</dl>
+```
 
 # [Platforms]($heading.id('platforms'))
 

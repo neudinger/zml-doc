@@ -1,0 +1,248 @@
+<svg viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" id="llmd-compact-source-map" role="img" aria-label="LLMD on ZML. One LLMD engine serves OpenAI-compatible HTTP APIs and runs many models. Each model is written once in Zig from reusable components; Qwen 3.5 is shown as an embedding, a decoder layer of RMSNorm, Gated DeltaNet or attention, RMSNorm and MoE repeated N times, an LM head and sampling. Each operation picks the best kernel per platform, such as DeepGEMM MegaMoE, FlashMLA or FlashAttention, written in the most appropriate DSL. ZML compiles the models and kernels and runs them through the PJRT C API on NVIDIA, AMD, Google TPU, Trainium, Intel, Apple, Furiosa and CPU.">
+<style>
+/* Source bands and typography from LLMD-ZML-compact.html. The in-page map
+   inherits the site theme. The standalone image follows the system setting. */
+:root#llmd-compact-source-map { color-scheme: light dark; }
+#llmd-compact-source-map {
+  --map-surface: light-dark(#fff, #121518);
+  --fg: light-dark(#14181c, #e6eaee);
+  --map-muted: light-dark(#5c6670, #9aa4ae);
+  --edge: light-dark(#6f7984, #8b96a1);
+  --item: light-dark(#fff, #1b1f23);
+  --llmd: light-dark(#5646c8, #a99ff6);
+  --llmd-band: light-dark(#f2f0fd, #1c1a31);
+  --llmd-comp: light-dark(#e2ddfa, #2e2a5c);
+  --ops: light-dark(#9a5806, #e7ab5a);
+  --ops-band: light-dark(#fcf2e3, #261e12);
+  --zml: light-dark(#2765ae, #79aef0);
+  --zml-band: light-dark(#e9f1fb, #13223a);
+  --plat: light-dark(#525d68, #a7b1bb);
+  --plat-band: light-dark(#edf0f2, #1f252a);
+  --key: light-dark(#c2255c, #f06595);
+  --f-head: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  display: block;
+  background: var(--map-surface);
+  color: var(--edge);
+}
+
+/* One hue per band; everything inside a band is drawn from --tier. */
+#llmd-compact-source-map .llmd { --tier: var(--llmd); --tier-band: var(--llmd-band); }
+#llmd-compact-source-map .ops  { --tier: var(--ops);  --tier-band: var(--ops-band); }
+#llmd-compact-source-map .zml  { --tier: var(--zml);  --tier-band: var(--zml-band); }
+#llmd-compact-source-map .plat { --tier: var(--plat); --tier-band: var(--plat-band); }
+
+#llmd-compact-source-map .band { fill: var(--tier-band); }
+#llmd-compact-source-map .item { fill: var(--item); stroke: var(--tier); stroke-opacity: .6; stroke-width: 1.2; }
+#llmd-compact-source-map .item.comp { --tier: var(--llmd); fill: var(--llmd-comp); stroke-opacity: 1; stroke-width: 1.3; }
+#llmd-compact-source-map .item.client { --tier: var(--fg); stroke-opacity: .7; }
+#llmd-compact-source-map .item.more { fill: none; stroke: var(--edge); stroke-opacity: .8; stroke-dasharray: 4 4; }
+#llmd-compact-source-map .frame { fill: none; stroke: var(--llmd); stroke-opacity: .7; stroke-dasharray: 6 5; stroke-width: 1.3; }
+#llmd-compact-source-map .patch { fill: var(--llmd-band); }
+#llmd-compact-source-map .divider { stroke: var(--llmd); stroke-opacity: .25; stroke-width: 1.2; }
+#llmd-compact-source-map .edge { fill: none; stroke: currentColor; stroke-width: 1.6; }
+
+#llmd-compact-source-map .t-band { font: 700 26px var(--f-head); fill: var(--tier); }
+#llmd-compact-source-map .t-group { font: 600 19px var(--f-head); fill: var(--llmd); }
+#llmd-compact-source-map .tagline { font: 600 15px var(--f-body); fill: var(--key); }
+#llmd-compact-source-map [data-source-copy="kernel-tagline"] { font-size: 14px; }
+#llmd-compact-source-map .l-card { font: 600 18px var(--f-head); fill: var(--fg); }
+#llmd-compact-source-map .l-item { font: 500 15px var(--f-body); fill: var(--fg); }
+#llmd-compact-source-map .l-strong { font: 600 15px var(--f-body); fill: var(--fg); }
+#llmd-compact-source-map .l-row { font: 600 14px var(--f-body); fill: var(--fg); }
+#llmd-compact-source-map .note { font: 500 12.5px var(--f-mono); fill: var(--map-muted); }
+#llmd-compact-source-map .dsl { font: 500 12.5px var(--f-mono); fill: var(--ops); }
+#llmd-compact-source-map .sub { font: 400 13.5px var(--f-body); fill: var(--map-muted); }
+#llmd-compact-source-map .muted { fill: var(--map-muted); }
+</style>
+<defs><marker id="llmd-compact-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" fill="currentColor"/></marker></defs>
+<rect x="24" y="89" width="1552" height="330" rx="14" class="band llmd"/>
+<text x="44" y="134.1" class="t-band llmd" text-anchor="start">LLMD</text>
+<rect x="197" y="107" width="179" height="36" rx="8" class="item llmd" data-source-group="LLMD APIs" data-source-detail="The OpenAI-compatible chat endpoint accepts messages and returns a completion. Clients can also stream the generated content." data-source-reference="component-chat-completions"/>
+<text x="286.5" y="130.2" class="l-item" text-anchor="middle">Chat Completions API</text>
+<rect x="386" y="107" width="142" height="36" rx="8" class="item llmd" data-source-group="LLMD APIs" data-source-detail="The embeddings endpoint converts input text into a vector. The model output is pooled on the device." data-source-reference="component-embeddings"/>
+<text x="457" y="130.2" class="l-item" text-anchor="middle">Embeddings API</text>
+<rect x="538" y="107" width="116" height="36" rx="8" class="item llmd" data-source-group="LLMD APIs" data-source-detail="The Decision endpoint evaluates typed questions against one shared state. Questions can depend on earlier answers." data-source-reference="component-decision"/>
+<text x="596" y="130.2" class="l-item" text-anchor="middle">Decision API</text>
+<rect x="664" y="107" width="44" height="36" rx="8" class="item more"/>
+<text x="686" y="130.2" class="l-item muted" text-anchor="middle">…</text>
+<rect x="1341" y="107" width="215" height="36" rx="8" class="item llmd" data-source-group="LLMD APIs" data-source-detail="The slide labels Prometheus as the observability interface." data-source-reference="component-observability"/>
+<text x="1448.5" y="130.2" class="l-item" text-anchor="middle">Observability · Prometheus</text>
+<rect x="197" y="23" width="511" height="36" rx="8" class="item client" data-source-group="Applications" data-source-title="Applications and agents" data-source-detail="Applications and agents send HTTP requests to LLMD. Chat clients can receive generated content as a stream." data-source-reference="component-applications"/>
+<text x="452.5" y="46.2" text-anchor="middle"><tspan class="l-strong">Applications and agents</tspan><tspan class="sub" dx="10" data-source-copy="client-type" data-annotation="">OpenAI-compatible clients</tspan></text>
+<text x="276.5" y="78.4" class="note" text-anchor="end" data-source-copy="client-protocol" data-annotation="">HTTP · streaming</text>
+<text x="44" y="175" class="t-group" text-anchor="start">Engine</text>
+<rect x="44" y="189" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The Jinja2 engine in Zig formats conversation messages into the prompt expected by the selected chat model." data-source-reference="component-chat-templates"/>
+<text x="131.5" y="212.2" class="l-item" text-anchor="middle">Chat templates</text>
+<rect x="44" y="233" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="Tokenizers turn input text into token IDs. The diagram lists BPE, WordPiece and SentencePiece." data-source-reference="component-tokenizers"/>
+<text x="131.5" y="256.2" class="l-item" text-anchor="middle">Tokenizers</text>
+<rect x="44" y="277" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The serving engine handles tool calls returned by the model." data-source-reference="component-output-parsers"/>
+<text x="131.5" y="300.2" class="l-item" text-anchor="middle">Tool calls</text>
+<rect x="44" y="321" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The scheduler combines work from active requests into batches. Chunked prefill lets it process a prompt in pieces." data-source-reference="component-scheduler"/>
+<text x="131.5" y="344.2" class="l-item" text-anchor="middle">Continuous batching</text>
+<rect x="44" y="365" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The engine batches prefill and decode work." data-source-reference="component-scheduler"/>
+<text x="131.5" y="388.2" class="l-item" text-anchor="middle">Mixed batching</text>
+<rect x="229" y="189" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The engine stores attention keys and values in pages. Requests with a common prefix can reuse cached state." data-source-reference="component-paged-kv-cache"/>
+<text x="316.5" y="212.2" class="l-item" text-anchor="middle">Paged KV cache</text>
+<rect x="229" y="233" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="A drafter proposes candidate tokens for the target model to verify." data-source-reference="component-speculative-decoding"/>
+<text x="316.5" y="256.2" class="l-item" text-anchor="middle">Speculative decoding</text>
+<rect x="229" y="277" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The host prepares the next execution step while the device runs the current one." data-source-reference="component-async-execution"/>
+<text x="316.5" y="300.2" class="l-item" text-anchor="middle">Async execution</text>
+<rect x="229" y="321" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="LLMD can divide tensors or experts across devices, or distribute inputs across model replicas." data-source-reference="component-parallelism"/>
+<text x="316.5" y="344.2" class="l-item" text-anchor="middle">Parallelism</text>
+<rect x="229" y="365" width="175" height="36" rx="8" class="item llmd" data-source-group="Engine" data-source-detail="The engine prepares weights in the layout expected by the selected kernel." data-source-reference="component-weight-preparation"/>
+<text x="316.5" y="388.2" class="l-item" text-anchor="middle">Weight preparation</text>
+<path d="M424,157 L424,401" class="divider"/>
+<text x="444" y="175" class="t-group" text-anchor="start">Models</text>
+<text x="524" y="175" class="tagline" text-anchor="start" data-source-copy="model-tagline" data-annotation="">Each model is written once in Zig</text>
+<text x="444" y="223.9" class="l-row" text-anchor="start">Qwen 3.5</text>
+<text x="444" y="303.4" class="l-row" text-anchor="start">Reusable</text>
+<text x="444" y="320.4" class="l-row" text-anchor="start">components</text>
+<text x="444" y="379.4" class="l-row" text-anchor="start">Other models</text>
+<text x="444" y="396.4" class="l-row" text-anchor="start">built from them</text>
+<rect x="565" y="201" width="106" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-reference="qwen-3-5" data-source-detail="The embedding stage looks up a vector for each token ID and passes those vectors to the decoder."/>
+<text x="618" y="224.2" class="l-item" text-anchor="middle">Embedding</text>
+<rect x="717" y="201" width="97" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-option="RMSNorm before sequence operation" data-source-detail="The Qwen 3.5 row shows RMSNorm before the sequence operation and again before MoE." data-source-reference="qwen-3-5"/>
+<text x="765.5" y="224.2" class="l-item" text-anchor="middle">RMSNorm</text>
+<rect x="846" y="201" width="229" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-detail="The Qwen 3.5 decoder row shows these as alternative sequence operations between its two RMSNorm blocks." data-source-reference="qwen-3-5"/>
+<text x="960.5" y="224.2" text-anchor="middle"><tspan class="l-item">Gated DeltaNet</tspan><tspan class="note" dx="8">or</tspan><tspan class="l-item" dx="8">Attention</tspan></text>
+<rect x="1107" y="201" width="97" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-option="RMSNorm before MoE" data-source-detail="The Qwen 3.5 row shows RMSNorm before the sequence operation and again before MoE." data-source-reference="qwen-3-5"/>
+<text x="1155.5" y="224.2" class="l-item" text-anchor="middle">RMSNorm</text>
+<rect x="1236" y="201" width="64" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-detail="The Qwen 3.5 decoder example shows a mixture-of-experts block after its second RMSNorm." data-source-reference="qwen-3-5"/>
+<text x="1268" y="224.2" class="l-item" text-anchor="middle">MoE</text>
+<rect x="703" y="189" width="611" height="60" rx="10" class="frame"/>
+<rect x="712" y="181" width="108" height="16" rx="0" class="patch"/>
+<text x="717" y="193.4" class="note" text-anchor="start">decoder layer</text>
+<rect x="1272" y="181" width="33" height="16" rx="0" class="patch"/>
+<text x="1300" y="193.4" class="note" text-anchor="end">× N</text>
+<rect x="1346" y="201" width="86" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-reference="qwen-3-5" data-source-detail="The language model head maps the decoder output to scores over the token vocabulary."/>
+<text x="1389" y="224.2" class="l-item" text-anchor="middle">LM head</text>
+<rect x="1464" y="201" width="92" height="36" rx="8" class="item comp" data-source-group="Qwen 3.5" data-source-reference="qwen-3-5" data-source-detail="The sampler uses the model’s output scores to select tokens for generation."/>
+<text x="1510" y="224.2" class="l-item" text-anchor="middle">Sampling</text>
+<rect x="565" y="289" width="112.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-reference="qwen-3-5" data-source-detail="The embedding stage looks up a vector for each token ID and passes those vectors to the decoder."/>
+<text x="621.4" y="312.2" class="l-item" text-anchor="middle">Embedding</text>
+<rect x="685.9" y="289" width="103.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-detail="The Qwen 3.5 row shows RMSNorm before the sequence operation and again before MoE." data-source-reference="qwen-3-5"/>
+<text x="737.8" y="312.2" class="l-item" text-anchor="middle">RMSNorm</text>
+<rect x="797.8" y="289" width="70.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-detail="RoPE appears in the slide’s row of reusable model components." data-source-reference="qwen-3-5"/>
+<text x="833.2" y="312.2" class="l-item" text-anchor="middle">RoPE</text>
+<rect x="876.7" y="289" width="98.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-detail="Attention appears both in the Qwen 3.5 decoder example and among the reusable components." data-source-reference="qwen-3-5"/>
+<text x="926.1" y="312.2" class="l-item" text-anchor="middle">Attention</text>
+<rect x="983.6" y="289" width="140.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-detail="Gated DeltaNet appears both in the Qwen 3.5 decoder example and among the reusable components." data-source-reference="qwen-3-5"/>
+<text x="1054" y="312.2" class="l-item" text-anchor="middle">Gated DeltaNet</text>
+<rect x="1132.4" y="289" width="115.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-detail="Sparse MLA appears in the slide’s row of reusable model components." data-source-reference="qwen-3-5"/>
+<text x="1190.4" y="312.2" class="l-item" text-anchor="middle">Sparse MLA</text>
+<rect x="1256.3" y="289" width="64.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-detail="The Qwen 3.5 decoder example shows a mixture-of-experts block after its second RMSNorm." data-source-reference="qwen-3-5"/>
+<text x="1288.8" y="312.2" class="l-item" text-anchor="middle">MoE</text>
+<rect x="1329.2" y="289" width="67.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-reference="qwen-3-5" data-source-detail="The example mixes residual streams before and after the attention and expert computations."/>
+<text x="1363.2" y="312.2" class="l-item" text-anchor="middle">mHC</text>
+<rect x="1405.1" y="289" width="98.9" height="36" rx="8" class="item comp" data-source-group="Reusable components" data-source-reference="qwen-3-5" data-source-detail="The sampler uses the model’s output scores to select tokens for generation."/>
+<text x="1454.6" y="312.2" class="l-item" text-anchor="middle">Sampling</text>
+<rect x="1512" y="289" width="44" height="36" rx="8" class="item more"/>
+<text x="1534" y="312.2" class="l-item muted" text-anchor="middle">…</text>
+<rect x="565" y="365" width="136.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="633.2" y="388.2" class="l-item" text-anchor="middle">DeepSeek V4.1</text>
+<rect x="709.3" y="365" width="90.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="754.5" y="388.2" class="l-item" text-anchor="middle">GLM-5.3</text>
+<rect x="807.7" y="365" width="83.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="849.3" y="388.2" class="l-item" text-anchor="middle">Qwen 4</text>
+<rect x="899" y="365" width="97.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="947.7" y="388.2" class="l-item" text-anchor="middle">Gemma 4</text>
+<rect x="1004.3" y="365" width="132.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="1070.5" y="388.2" class="l-item" text-anchor="middle">Mistral Large 4</text>
+<rect x="1144.7" y="365" width="103.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="1196.3" y="388.2" class="l-item" text-anchor="middle">Ministral 3</text>
+<rect x="1256" y="365" width="72.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="1292.2" y="388.2" class="l-item" text-anchor="middle">LFM 3</text>
+<rect x="1336.3" y="365" width="78.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="1375.5" y="388.2" class="l-item" text-anchor="middle">DFlash</text>
+<rect x="1422.7" y="365" width="81.3" height="36" rx="8" class="item llmd" data-source-group="Other models built from them" data-source-reference="qwen-3-5"/>
+<text x="1463.3" y="388.2" class="l-item" text-anchor="middle">DSpark</text>
+<rect x="1512" y="365" width="44" height="36" rx="8" class="item more"/>
+<text x="1534" y="388.2" class="l-item muted" text-anchor="middle">…</text>
+<rect x="262.5" y="457" width="1075" height="112" rx="14" class="band ops"/>
+<text x="282.5" y="498.1" class="t-band ops" text-anchor="start">Kernels</text>
+<text x="391.5" y="498.1" class="tagline" text-anchor="start" data-source-copy="kernel-tagline" data-annotation="">The best kernels, in the most appropriate DSL for each platform:</text>
+<text x="844.5" y="498.1" class="dsl" text-anchor="start" data-source-copy="kernel-dsls" data-annotation="">CuTe · CUDA Tile · Triton · FlyDSL · Mosaic · NKI · Metal · TCL</text>
+<rect x="282.5" y="515" width="178.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="371.7" y="538.2" class="l-item" text-anchor="middle">DeepGEMM MegaMoE</text>
+<rect x="468.9" y="515" width="95.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="516.6" y="538.2" class="l-item" text-anchor="middle">FlashMLA</text>
+<rect x="572.4" y="515" width="129.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="637.1" y="538.2" class="l-item" text-anchor="middle">FlashAttention</text>
+<rect x="709.8" y="515" width="99.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="759.5" y="538.2" class="l-item" text-anchor="middle">FlashInfer</text>
+<rect x="817.2" y="515" width="179.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="906.9" y="538.2" class="l-item" text-anchor="middle">Flash Linear Attention</text>
+<rect x="1004.6" y="515" width="145.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="1077.4" y="538.2" class="l-item" text-anchor="middle">DeepGEMM mHC</text>
+<rect x="1158.1" y="515" width="107.4" height="36" rx="8" class="item ops" data-source-group="Kernels" data-source-reference="named-kernel-examples"/>
+<text x="1211.8" y="538.2" class="l-item" text-anchor="middle">DeepSelect</text>
+<rect x="1273.5" y="515" width="44" height="36" rx="8" class="item more"/>
+<text x="1295.5" y="538.2" class="l-item muted" text-anchor="middle">…</text>
+<text x="810" y="442.4" class="note" text-anchor="start" data-source-copy="kernel-selection" data-annotation="">each operation picks the best kernel per platform</text>
+<rect x="24" y="607" width="1552" height="140" rx="14" class="band zml"/>
+<text x="44" y="658.1" class="t-band zml" text-anchor="start">ZML</text>
+<rect x="197" y="625" width="318.8" height="48" rx="8" class="item zml" data-source-group="ZML" data-source-detail="The original connections are labeled “runs programs” and “loads weights.”" data-source-reference="zml"/>
+<text x="356.4" y="655.3" class="l-card" text-anchor="middle">Runtime &amp; IO</text>
+<rect x="543.8" y="625" width="318.8" height="48" rx="8" class="item zml" data-source-group="ZML" data-source-detail="Specialized kernels written in these languages can be embedded in the model graph alongside portable operations." data-source-reference="component-kernel-languages"/>
+<text x="703.1" y="655.3" class="l-card" text-anchor="middle">Kernel languages</text>
+<rect x="890.5" y="625" width="318.8" height="48" rx="8" class="item zml" data-source-group="ZML" data-source-detail="The compiler generates MLIR from Zig model code, with one program per shape bucket. The diagram identifies StableHLO, Shardy (sdy) and func dialects." data-source-reference="component-compiler"/>
+<text x="1049.9" y="655.3" class="l-card" text-anchor="middle">Compiler</text>
+<rect x="1237.2" y="625" width="318.8" height="48" rx="8" class="item zml" data-source-group="ZML" data-source-detail="Model authors express tensor operations in Zig, including matrix multiplication, gather, scan and sort." data-source-reference="component-tensor-api"/>
+<text x="1396.6" y="655.3" class="l-card" text-anchor="middle">Tensor API</text>
+<rect x="44" y="693" width="1512" height="36" rx="8" class="item zml" data-source-group="ZML" data-source-title="PJRT C API" data-source-detail="ZML uses the PJRT C API to compile programs, transfer buffers and execute through a platform plugin." data-source-reference="component-pjrt"/>
+<text x="800" y="716.2" text-anchor="middle"><tspan class="l-strong">PJRT C API</tspan><tspan class="sub" dx="12" data-source-copy="pjrt-source" data-annotation="">github.com/openxla/xla</tspan></text>
+<text x="232.5" y="509.9" class="note" text-anchor="end" data-source-copy="runtime-runs" data-annotation="">runs programs</text>
+<text x="232.5" y="524.9" class="note" text-anchor="end" data-source-copy="runtime-loads" data-annotation="">loads weights</text>
+<text x="1367.5" y="509.9" class="note" text-anchor="start" data-source-copy="tensor-model" data-annotation="">model logic</text>
+<text x="1367.5" y="524.9" class="note" text-anchor="start" data-source-copy="tensor-ops" data-annotation="">as tensor ops</text>
+<text x="713.1" y="592.4" class="note" text-anchor="start" data-source-copy="custom-kernels" data-annotation="">custom kernels</text>
+<text x="1277.4" y="592.4" class="note" text-anchor="end" data-source-copy="portable-ops" data-annotation="">portable ops</text>
+<rect x="24" y="793" width="1552" height="84" rx="14" class="band plat"/>
+<text x="44" y="844.1" class="t-band plat" text-anchor="start">Platforms</text>
+<rect x="197" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The NVIDIA target uses CUDA. The schematic lists CuTe, CUDA Tile and Triton for custom kernels." data-source-reference="component-nvidia"/>
+<text x="276.7" y="841.3" class="l-card" text-anchor="middle">NVIDIA</text>
+<rect x="368.4" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The AMD target uses ROCm. The schematic lists FlyDSL and Triton for custom kernels." data-source-reference="component-amd"/>
+<text x="448.1" y="841.3" class="l-card" text-anchor="middle">AMD</text>
+<rect x="539.8" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The Google TPU target uses libtpu, with Mosaic for custom kernels." data-source-reference="component-google-tpu"/>
+<text x="619.4" y="841.3" class="l-card" text-anchor="middle">Google TPU</text>
+<rect x="711.1" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The AWS Trainium target uses Neuron, with NKI for custom kernels." data-source-reference="component-trainium"/>
+<text x="790.8" y="841.3" class="l-card" text-anchor="middle">Trainium</text>
+<rect x="882.5" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The Intel target uses oneAPI, with Triton for custom kernels." data-source-reference="component-intel"/>
+<text x="962.2" y="841.3" class="l-card" text-anchor="middle">Intel</text>
+<rect x="1053.9" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The Apple target uses Metal for the runtime and for custom GPU kernels." data-source-reference="component-apple"/>
+<text x="1133.6" y="841.3" class="l-card" text-anchor="middle">Apple</text>
+<rect x="1225.2" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The Furiosa target uses the Furiosa SDK, with TCL for custom kernels." data-source-reference="component-furiosa"/>
+<text x="1304.9" y="841.3" class="l-card" text-anchor="middle">Furiosa</text>
+<rect x="1396.6" y="811" width="159.4" height="48" rx="8" class="item plat" data-source-group="Platforms" data-source-detail="The schematic includes x86 and Arm CPUs as framework targets." data-source-reference="component-cpu"/>
+<text x="1476.3" y="841.3" class="l-card" text-anchor="middle">CPU</text>
+<text x="266.7" y="766.9" class="note" text-anchor="end" data-source-copy="pjrt-plugins" data-annotation="">via PJRT plugins</text>
+<text x="266.7" y="781.9" class="note" text-anchor="end" data-source-copy="platform-dsls" data-annotation="">+ custom kernel DSLs</text>
+<path d="M286.5,59 L286.5,107" class="edge" marker-end="url(#llmd-compact-arrow)" marker-start="url(#llmd-compact-arrow)"/>
+<path d="M457,59 L457,107" class="edge" marker-end="url(#llmd-compact-arrow)" marker-start="url(#llmd-compact-arrow)"/>
+<path d="M596,59 L596,107" class="edge" marker-end="url(#llmd-compact-arrow)" marker-start="url(#llmd-compact-arrow)"/>
+<path d="M671,219 L703,219" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M814,219 L846,219" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1075,219 L1107,219" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1204,219 L1236,219" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1314,219 L1346,219" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1432,219 L1464,219" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M800,419 L800,457" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M862.5,649 L890.5,649" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1237.2,649 L1209.2,649" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M356.4,673 L356.4,693" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1049.9,673 L1049.9,693" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M242.5,419 L242.5,625" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1357.5,419 L1357.5,625" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M703.1,569 L703.1,625" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1287.4,569 L1287.4,625" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M276.7,729 L276.7,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M448.1,729 L448.1,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M619.4,729 L619.4,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M790.8,729 L790.8,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M962.2,729 L962.2,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1133.6,729 L1133.6,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1304.9,729 L1304.9,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+<path d="M1476.3,729 L1476.3,811" class="edge" marker-end="url(#llmd-compact-arrow)"/>
+</svg>
