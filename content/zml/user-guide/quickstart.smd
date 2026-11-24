@@ -18,12 +18,9 @@
 ```sh
 git clone https://github.com/zml/zml.git
 cd zml
-git checkout --detach 8fcff8c462070d06056f8a85ba0c8a81f0f3a636
 ```
 
-The [selected revision](https://github.com/zml/zml/commit/8fcff8c462070d06056f8a85ba0c8a81f0f3a636)
-selects Bazel 9.3.0 through `.bazelversion`. Run the remaining commands from
-the checkout root.
+Run the remaining commands from the checkout root.
 
 # [2. Run MNIST]($heading.id('build-and-run-mnist'))
 
