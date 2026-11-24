@@ -5,10 +5,16 @@
 .layout = "content.shtml",
 .custom = .{
     .doc_section = "Developer Guide",
+    .outline_complete = true,
     .recipe_outline = [
-        .{ .id = "inspect-a-local-checkpoint", .label = "Inspect local model weights" },
-        .{ .id = "inspect-a-remote-checkpoint", .label = "Inspect remote model weights" },
-        .{ .id = "load-weights-for-execution", .label = "Load weights for execution" },
+        .{ .id = "inspect-model-weights", .label = "Inspect weights", .children = [
+            .{ .id = "inspect-a-local-checkpoint", .label = "Inspect local model weights" },
+            .{ .id = "inspect-a-remote-checkpoint", .label = "Inspect remote model weights" },
+        ] },
+        .{ .id = "load-weights-for-execution", .label = "Load weights for execution", .children = [
+            .{ .id = "loading-in-your-application", .label = "Loading in your application" },
+        ] },
+        .{ .id = "load-weights-and-run-mnist", .label = "Load weights and run MNIST" },
     ],
 },
 ---
@@ -60,7 +66,7 @@ bazel run //examples/io:playground -- safetensors "$model_uri/model.safetensors"
   "${HOME}/models/LiquidAI/LFM2-350M/model.safetensors" replicated</code></pre>
     <p><code>replicated</code> places a full copy on each logical device. Allow memory for the copies and transfer buffers. The <a href="https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/io/main.zig#L153-L222">load command</a> measures transfer time and bytes loaded, then releases the buffers.</p>
 
-    <h3>Loading in your application</h3>
+    <h3 id="loading-in-your-application">Loading in your application</h3>
     <ol class="weights-lifecycle">
       <li><strong><code>loader.load(…)</code></strong> Keep the loader, model, registry, store, destination buffers and platform alive during transfer.</li>
       <li><strong><code>loader.await(io)</code></strong> Wait for transfer before binding the buffers to the executable.</li>

@@ -50,9 +50,9 @@ if (contents) {
       subtree: true, attributes: true, attributeFilter: ["hidden", "open"],
     });
   }
-  const sections = Array.from(contents.querySelectorAll('a[href^="#"]'), link => ({
-    link, id: decodeURIComponent(link.hash.slice(1)),
-  }));
+  const sections = Array.from(contents.querySelectorAll("a[href]"))
+    .filter(link => link.hash && link.pathname === location.pathname && link.search === location.search)
+    .map(link => ({ link, id: decodeURIComponent(link.hash.slice(1)) }));
   const walkthrough = article.querySelector(".model-walkthrough, .weights-source-tabs");
   const sectionDisclosures = "details.model-source, details.client-disclosure, details.bazel-recipe";
   function revealSectionTarget(hash) {
@@ -95,6 +95,8 @@ if (contents) {
       if (hidden || heading.closest("details:not([open]) > :not(summary)")) continue;
       // Stage labels share a row. Only the selected stage represents the visible content.
       if (heading.control?.type === "radio" && !heading.control.checked) continue;
+      // Catalog filter fragments share a scroll position with the catalog.
+      if (heading.hasAttribute("data-toc-alias") && link.hash !== requestedHash) continue;
       const top = heading.getBoundingClientRect().top;
       first ??= link;
       last = link;
@@ -151,6 +153,7 @@ if (contents) {
   window.addEventListener("resize", scheduleSection);
   window.addEventListener("hashchange", followHash);
   window.addEventListener("pageshow", followHash);
+  article.addEventListener("model-catalog-viewchange", followHash);
   new ResizeObserver(scheduleSection).observe(article);
   followHash();
 }

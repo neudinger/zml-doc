@@ -171,11 +171,22 @@
                   <ctx :if="$ctx.article.custom.has('recipe_outline')">
                     <ul>
                       <ctx :loop="$ctx.article.custom.get('recipe_outline')">
-                        <li><a href="$loop.it.get('id').prefix('#')" :text="$loop.it.get('label')"></a></li>
+                        <li>
+                          <a href="$loop.it.get('id').prefix($loop.it.getOr('query', ''), '#')" :text="$loop.it.get('label')"></a>
+                          <ctx :if="$loop.it.has('children')">
+                            <ul>
+                              <ctx :loop="$loop.it.get('children')">
+                                <li><a href="$loop.it.get('id').prefix('#')" :text="$loop.it.get('label')"></a></li>
+                              </ctx>
+                            </ul>
+                          </ctx>
+                        </li>
                       </ctx>
                     </ul>
                   </ctx>
-                  <div :html="$ctx.toc"></div>
+                  <ctx :if="$ctx.article.custom.has('outline_complete').not()">
+                    <div :html="$ctx.toc"></div>
+                  </ctx>
                 </details>
               </nav>
             </ctx>

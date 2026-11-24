@@ -390,10 +390,8 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   }
 
   search.addEventListener("input", updateFilters);
-  capabilityFilter.addEventListener("change", updateFilters);
   backendFilter.addEventListener("change", updateFilters);
   precisionFilter.addEventListener("change", updateFilters);
-  pairingsOnly.addEventListener("change", updateFilters);
   decodingSelect.addEventListener("change", updateLaunch);
   drafterSelect.addEventListener("change", updateLaunch);
   requestSelect.addEventListener("change", updateLaunch);
@@ -406,26 +404,53 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   matrix.classList.add("is-interactive");
   // Keep indexed fragment links pointing to the visible catalog after enhancement.
   const fragments = new Map();
+  const catalogHeading = "choose-a-checkpoint";
   for (const [capability, section] of sources) {
     const heading = section.querySelector("h2[id]");
     const anchor = document.createElement("span");
     anchor.id = heading.id;
+    anchor.dataset.tocAlias = "";
     heading.removeAttribute("id");
     catalog.prepend(anchor);
     fragments.set(anchor.id, capability);
     section.hidden = true;
   }
   catalog.hidden = false;
-  function followFragment() {
-    const id = location.hash.slice(1);
-    if (!fragments.has(id)) return;
-    const capability = fragments.get(id);
-    capabilityFilter.value = capability === "pairings" ? "chat" : capability === "chat" ? "" : capability;
-    pairingsOnly.checked = capability === "pairings";
-    updateFilters();
-    document.getElementById(id).scrollIntoView();
+  function applyFragment(id) {
+    const view = fragments.get(id);
+    if (!view && id !== catalogHeading) return;
+    const pairings = view === "pairings";
+    const capability = pairings ? "chat" : view && view !== "chat" ? view : "";
+    if (capabilityFilter.value !== capability || pairingsOnly.checked !== pairings) {
+      capabilityFilter.value = capability;
+      pairingsOnly.checked = pairings;
+      updateFilters();
+    }
+    return document.getElementById(id);
   }
+  function followFragment(event) {
+    const id = location.hash.slice(1);
+    // Browser Back to the original catalog removes its filter bookmark.
+    if (!id && event?.oldURL && fragments.has(new URL(event.oldURL).hash.slice(1))) applyFragment(catalogHeading);
+    else applyFragment(id)?.scrollIntoView();
+  }
+  function changeView() {
+    updateFilters();
+    if (!fragments.has(location.hash.slice(1))) return;
+    const url = new URL(location.href);
+    url.hash = "";
+    history.replaceState(history.state, "", url);
+    catalog.dispatchEvent(new Event("model-catalog-viewchange", { bubbles: true }));
+  }
+  capabilityFilter.addEventListener("change", changeView);
+  pairingsOnly.addEventListener("change", changeView);
   updateFilters();
   followFragment();
   window.addEventListener("hashchange", followFragment);
+  // Apply before the outline focuses the destination, including same-hash clicks.
+  document.addEventListener("click", event => {
+    if (event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest('a[href^="#"]');
+    if (link) applyFragment(link.hash.slice(1));
+  }, true);
 })();

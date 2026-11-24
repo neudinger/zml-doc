@@ -3,7 +3,18 @@
 .description = "Bind device buffers, run a compiled executable, retrieve its outputs, and handle ownership.",
 .date = .date("2026-11-17T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "API Reference" },
+.custom = .{
+    .doc_section = "API Reference",
+    .outline_complete = true,
+    .recipe_outline = [
+        .{ .id = "exe", .label = "Bind arguments and allocate results" },
+        .{ .id = "run-and-read-results", .label = "Run the executable and read results", .children = [
+            .{ .id = "exe-call-recipe", .label = "call with explicit slots" },
+            .{ .id = "exe-eval-recipe", .label = "eval for one output" },
+        ] },
+        .{ .id = "ownership-and-cleanup", .label = "Release slots and buffers" },
+    ],
+},
 ---
 [`zml.Exe`](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/zml/exe.zig)
 is the loaded executable returned by [Platform compilation]($link.page('zml/api-reference/platform').ref('compile-a-model-or-function')).

@@ -3,6 +3,17 @@
 .description = "Find LLMD models for Chat, Decision, or Embeddings. Look up external drafters and configure a launch on your backend.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{
+    .outline_complete = true,
+    .recipe_outline = [
+        .{ .id = "choose-a-checkpoint", .label = "Model catalog", .children = [
+            .{ .id = "external-drafters", .label = "External drafters" },
+            .{ .id = "decision-checkpoints", .label = "Decision models" },
+            .{ .id = "embedding-checkpoints", .label = "Embedding models" },
+        ] },
+        .{ .id = "routine-configurations", .label = "Routine test configurations", .query = "?view=records" },
+    ],
+},
 ---
 Choose a model for your accelerator. Check the
 [host and backend requirements]($link.page('llmd/user-guide/reference/hardware-compatibility'))
