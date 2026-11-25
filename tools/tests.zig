@@ -150,12 +150,12 @@ fn pairingTable(fixture: *Fixture, path: []const u8) ![]const u8 {
 fn checkDrafterHandoffs(fixture: *Fixture) !void {
     const allocator = fixture.arena.allocator();
     const catalog = try pairingTable(fixture, "dist/llmd/user-guide/model-compatibility/index.html");
-    const quickstart_route = "/llmd/user-guide/quickstart/";
-    const quickstart = try pairingTable(fixture, "dist" ++ quickstart_route ++ "index.html");
+    const launch_route = "/llmd/user-guide/configure-launch/2026.11.3/";
+    const workspace = try pairingTable(fixture, "dist" ++ launch_route ++ "index.html");
     var checkpoints: std.StringHashMapUnmanaged(void) = .empty;
     var pairs: std.StringHashMapUnmanaged(void) = .empty;
-    var quickstart_rows = std.mem.splitSequence(u8, quickstart, "</tr>");
-    while (quickstart_rows.next()) |row| {
+    var workspace_rows = std.mem.splitSequence(u8, workspace, "</tr>");
+    while (workspace_rows.next()) |row| {
         var model = website.attributes(row, "data-checkpoint");
         const checkpoint = model.next() orelse continue;
         try std.testing.expect(!(try checkpoints.getOrPut(allocator, checkpoint)).found_existing);
@@ -183,7 +183,7 @@ fn checkDrafterHandoffs(fixture: *Fixture) !void {
             var hrefs = website.attributes(rest, "href");
             while (hrefs.next()) |href| {
                 const path, const query = std.mem.cutScalar(u8, href, '?') orelse continue;
-                try std.testing.expect(std.mem.endsWith(u8, path, quickstart_route));
+                try std.testing.expect(std.mem.endsWith(u8, path, launch_route));
                 var params: std.StringHashMapUnmanaged([]const u8) = .empty;
                 var fields = std.mem.splitScalar(u8, try std.mem.replaceOwned(u8, allocator, query, "&amp;", "&"), '&');
                 while (fields.next()) |field| {
@@ -213,6 +213,18 @@ fn checkLegacyRoutes(fixture: *Fixture) !void {
             .destination = "/llmd/developer-guide/connect-an-application-to-llmd/#send-a-chat-message",
         },
         .{ .source = "llmd/quickstart/", .destination = "/llmd/user-guide/quickstart/" },
+        .{
+            .source = "llmd/user-guide/configure-launch/",
+            .destination = "/llmd/user-guide/configure-launch/2026.11.3/",
+        },
+        .{
+            .source = "llmd/launch/",
+            .destination = "/llmd/user-guide/configure-launch/2026.11.3/#gemma-4-31b-it-cuda",
+        },
+        .{
+            .source = "llmd/quickstart-apple-silicon/",
+            .destination = "/llmd/user-guide/configure-launch/2026.11.3/#lfm3-fp8-metal",
+        },
         .{
             .source = "operations/deployment/",
             .destination = "/llmd/user-guide/operations/deploy-llmd/",

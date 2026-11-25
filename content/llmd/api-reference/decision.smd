@@ -10,7 +10,7 @@
 `POST /v1/systemone` accepts a JSON object and returns scored labels for the
 requested questions. The loaded model must support Decision. Use the
 [worked request]($link.page('llmd/developer-guide/ask-structured-questions').ref('send-a-decision-request'))
-or copy one from the [quickstart]($link.page('llmd/user-guide/quickstart').unsafeRef('send-a-decision-request')).
+or copy one from [Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('send-a-decision-request')).
 
 | Request field | Type | Meaning |
 | --- | --- | --- |

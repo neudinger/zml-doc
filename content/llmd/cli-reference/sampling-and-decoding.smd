@@ -88,5 +88,5 @@ configuration.
 >
 > The published Qwen3.8-27B recipe pairs the model with
 > `tencent/Qwen3.8-27B-DSpine-b16` and sets `--batch-size=1` on both
-> [CUDA]($link.page('llmd/user-guide/quickstart').unsafeRef('qwen3-8-27b-cuda-dspine'))
-> and [ROCm]($link.page('llmd/user-guide/quickstart').unsafeRef('qwen3-8-27b-rocm-dspine')).
+> [CUDA]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('qwen3-8-27b-cuda-dspine'))
+> and [ROCm]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('qwen3-8-27b-rocm-dspine')).

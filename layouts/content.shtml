@@ -42,6 +42,9 @@
       <ctx :if="$ctx.html.contains('data-llmd-launch')">
         <script type="module" src="$site.asset('llmd-launch.js').link()"></script>
       </ctx>
+      <ctx :if="$site.page('llmd/user-guide/quickstart').isCurrent()">
+        <script defer src="$site.asset('llmd-quickstart-redirect.js').link()"></script>
+      </ctx>
       <ctx :if="$ctx.html.contains('data-model-catalog')">
         <script type="module" src="$site.asset('model-catalog.js').link()"></script>
       </ctx>
@@ -260,7 +263,7 @@
               <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
             </ctx>
           </ctx>
-          <ctx :if="$site.page('llmd/user-guide/quickstart').isCurrent()">
+          <ctx :if="$ctx.article.content().contains('data-llmd-launch')">
             <table hidden data-llmd-pairings data-pagefind-ignore>
               <tbody>
                 <ctx :loop="$site.asset('llmd-drafters.ziggy').ziggy().get('checkpoints')">
@@ -303,7 +306,7 @@
               <table>
                 <thead><tr><th scope="col">Target model</th><th scope="col">Drafter model</th></tr></thead>
                 <tbody>
-                  <ctx backends="$site.asset('llmd-routines.ziggy').ziggy().get('backends')" quickstart="$site.page('llmd/user-guide/quickstart').link()"
+                  <ctx backends="$site.asset('llmd-routines.ziggy').ziggy().get('backends')" configure="$site.page('llmd/user-guide/configure-launch/2026.11.3').link()"
                        :loop="$site.asset('llmd-drafters.ziggy').ziggy().get('checkpoints')">
                     <ctx model="$loop.it">
                       <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
@@ -317,7 +320,7 @@
                                 <ctx drafter="$loop.it">
                                   <ctx :loop="$ctx.backends">
                                     <li><a data-backend="$loop.it.get('id')"
-                                           href="$ctx.quickstart.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=external&drafter=', $ctx.drafter)"
+                                           href="$ctx.configure.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=external&drafter=', $ctx.drafter)"
                                            :text="$loop.it.get('name').prefix('Configure launch · ')"></a></li>
                                   </ctx>
                                 </ctx>
@@ -337,7 +340,7 @@
               <table data-llmd-routines>
                 <thead><tr><th scope="col">Model</th><th scope="col">Decoding and launch</th></tr></thead>
                 <tbody>
-                  <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()" quickstart="$site.page('llmd/user-guide/quickstart').link()">
+                  <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()" configure="$site.page('llmd/user-guide/configure-launch/2026.11.3').link()">
                     <ctx :loop="$ctx.routines.get('checkpoints')">
                       <ctx model="$loop.it" :if="$loop.it.has('modes')">
                         <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
@@ -353,7 +356,7 @@
                                   <ul data-pagefind-ignore>
                                     <ctx :loop="$ctx.routines.get('backends')">
                                       <li><a data-backend="$loop.it.get('id')"
-                                             href="$ctx.quickstart.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=', $ctx.mode)"
+                                             href="$ctx.configure.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=', $ctx.mode)"
                                              :text="$loop.it.get('name')"></a></li>
                                     </ctx>
                                   </ul>
@@ -368,7 +371,7 @@
                 </tbody>
               </table>
             </section>
-            <ctx inventory="$site.asset('llmd-routines.ziggy').ziggy()" quickstart="$site.page('llmd/user-guide/quickstart').link()">
+            <ctx inventory="$site.asset('llmd-routines.ziggy').ziggy()" configure="$site.page('llmd/user-guide/configure-launch/2026.11.3').link()">
               <ctx :loop="$ctx.inventory.get('capabilities')">
                 <ctx capability="$loop.it">
                   <section data-llmd-capability-list data-request="$ctx.capability.get('id')" class="prose" data-pagefind-body aria-labelledby="$ctx.capability.get('anchor')">
@@ -388,7 +391,7 @@
                                 <ul data-pagefind-ignore>
                                   <ctx :loop="$ctx.inventory.get('backends')">
                                     <li><a data-backend="$loop.it.get('id')"
-                                           href="$ctx.quickstart.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=standard&request=', $ctx.capability.get('id'))"
+                                           href="$ctx.configure.suffix('?model=', $ctx.model.get('id'), '&backend=', $loop.it.get('id'), '&decoding=standard&request=', $ctx.capability.get('id'))"
                                            :text="$loop.it.get('name')"></a></li>
                                   </ctx>
                                 </ul>

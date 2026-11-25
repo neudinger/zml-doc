@@ -1,5 +1,5 @@
 ---
-.title = "LLMD quickstart",
+.title = "Configure launch",
 .date = .date("2026-11-17T00:00:00"),
 .layout = "quickstart-redirect.shtml",
 .custom = .{ .recipe = "lfm3-fp8-metal" },

@@ -11,7 +11,7 @@ Choose `Qwen/Qwen3-Embedding-8B` and your backend in the
 [Embeddings catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('embedding-checkpoints')),
 then choose **Configure launch**. Use an LLMD build with the embeddings
 endpoint. Start the server and send the
-[first embeddings request]($link.page('llmd/user-guide/quickstart').unsafeRef('send-an-embeddings-request'))
+[first embeddings request]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('send-an-embeddings-request'))
 to confirm it returns a vector.
 
 # [Rank two passages]($heading.id('rank-two-passages'))
@@ -52,7 +52,7 @@ to confirm it returns a vector.
 ## [Run the complete Python example]($heading.id('run-the-python-example'))
 
 Save as `compare.py` and run `python3 compare.py`. Set `endpoint` to the
-address used by your quickstart request. Send all three inputs in one batch
+address used by your first embeddings request. Send all three inputs in one batch
 so they use the same model and dimensions. For retrieval, put the task
 instruction in the query and send the passages as plain text. [Qwen model card](https://huggingface.co/Qwen/Qwen3-Embedding-8B#usage)
 

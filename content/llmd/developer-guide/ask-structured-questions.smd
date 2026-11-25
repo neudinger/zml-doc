@@ -14,11 +14,11 @@ asks a follow-up for cats, and rates playfulness on a three-label scale.
 In the [Decision catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('decision-checkpoints')),
 choose `LiquidAI/LFM3-1.7B` and your backend, then choose **Configure launch**.
 The catalog also lists the StartLux Decision v1.1 Instant and AutoThink
-models. Use the [quickstart]($link.page('llmd/user-guide/quickstart')) to start LLMD
+models. Use the generated commands to start LLMD
 and check the loaded model with `GET /v1/models`.
 
 Explore either animal answer below. To try the request, run it in a second
-terminal. It uses port `8000`. The quickstart uses your selected port.
+terminal. It uses port `8000`. Configure launch uses your selected port.
 
 ```=html
 <div class="decision-example" data-toc-parent="send-a-decision-request">

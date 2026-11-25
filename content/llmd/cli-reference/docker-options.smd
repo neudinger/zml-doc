@@ -33,7 +33,7 @@ to port `8000`, where LLMD listens inside the container.
 
 # [Run a local model]($heading.id('run-a-local-checkpoint'))
 
-Use **Download first** in the [CUDA quickstart preset]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-cuda'))
+Use **Download first** in the [CUDA launch preset]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-fp8-cuda'))
 to download the example model. If the files are elsewhere, change the mount's
 `source` to your [local model directory]($link.page('llmd/cli-reference/model-and-listener-flags').ref('local-model-files')).
 
@@ -156,7 +156,7 @@ unless requested.
 See [Model and listener flags]($link.page('llmd/cli-reference/model-and-listener-flags'))
 and [Environment variables]($link.page('llmd/cli-reference/environment-variables')) for other inputs.
 
-Use the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')) to generate a launch
+Use [Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3')) to generate a launch
 command for your backend. See [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility'))
 for host requirements and [Deploy LLMD with Docker]($link.page('llmd/user-guide/operations/deploy-llmd'))
 for deployment, readiness checks, and rollback.

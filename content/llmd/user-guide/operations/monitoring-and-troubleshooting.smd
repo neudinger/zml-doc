@@ -97,7 +97,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             <dt>Expected result</dt>
             <dd>The selected host port is free and the health request succeeds after startup.</dd>
             <dt>Recovery</dt>
-            <dd>Choose a free <strong>Host port</strong> under <strong>Launch options</strong> in the <a href="../../quickstart/">Quickstart</a>. Use it for the model check and API requests.</dd>
+            <dd>Choose a free <strong>Host port</strong> under <strong>Launch options</strong> in <a href="../../configure-launch/2026.11.3/">Configure launch</a>. Use it for the model check and API requests.</dd>
           </dl>
         </section>
       </div>

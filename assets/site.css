@@ -1095,21 +1095,32 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .llmd-quickstart-concepts dd { grid-column: 2; margin: 0; color: var(--muted); }
 .llmd-launch {
   --llmd-launch-invalid: #ae193f;
-  container-type: inline-size;
+  container: llmd-launch / inline-size;
   margin-block: 1.5rem;
 }
 :root[data-theme="dark"] .llmd-launch { --llmd-launch-invalid: #ffa7bb; }
-.llmd-launch-configurator > summary {
-  inline-size: fit-content;
-  padding: 0.55rem 0.9rem;
-  border-radius: 0.35rem;
-  background: var(--text);
-  color: var(--background);
-  font-weight: 650;
-  cursor: pointer;
+.llmd-launch-release {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.7rem;
+  padding-block-end: 0.8rem;
+  margin-block-end: 1rem;
+  border-block-end: 1px solid var(--border);
+  font-size: 0.85rem;
 }
-.llmd-launch-configurator[open] > summary { margin-block-end: 0.8rem; }
-.llmd-launch-layout, .llmd-launch-settings, .llmd-launch-commands {
+.llmd-launch-release > strong {
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  background: var(--selection);
+  color: var(--accent);
+}
+.prose .llmd-launch-release > p {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted);
+}
+.llmd-launch-layout, .llmd-launch-controls, .llmd-launch-settings, .llmd-launch-commands {
   display: grid;
   min-inline-size: 0;
   align-content: start;
@@ -1119,6 +1130,16 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   margin-block-start: 1rem;
+}
+@container llmd-launch (min-width: 40rem) {
+  .llmd-launch-layout:has(.llmd-launch-settings:not([hidden])) {
+    grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1fr);
+    gap: clamp(1rem, 2.5cqi, 2rem);
+    align-items: start;
+  }
+}
+.prose .llmd-launch :is(.llmd-launch-controls, .llmd-launch-commands, .llmd-launch-requirements) > h2 {
+  margin: 0;
 }
 .llmd-launch-settings {
   padding: clamp(0.75rem, 2cqi, 1.15rem);
@@ -1272,15 +1293,6 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .prose .llmd-launch-requirements p { margin-block: 0.25rem 0; color: var(--muted); }
 .llmd-launch-requirements p:empty { display: none; }
 .document:has(> .prose .llmd-launch) > .document-header { margin-block-end: 1.25rem; }
-@container (min-width: 39rem) {
-  .llmd-launch-storage { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
-  .llmd-launch-option-groups {
-    grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
-  }
-}
-@container (min-width: 48rem) {
-  .llmd-launch-recipe { grid-template-columns: minmax(9rem, 1fr) minmax(22.5rem, 1.8fr) minmax(11.5rem, 1fr); }
-}
 .prose blockquote { margin-inline: 0; padding-left: 1.25rem; border-left: 3px solid var(--accent); color: var(--muted); }
 .prose table { width: 100%; border-collapse: collapse; }
 .prose th, .prose td { text-align: left; vertical-align: top; padding: 0.65rem; border-bottom: 1px solid var(--border); }
@@ -1788,7 +1800,7 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 @media (pointer: coarse) {
   :is(.product-tabs, .section-tabs) a { min-block-size: 44px; }
   .bazel-backend select { min-block-size: 44px; }
-  .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch :is(.llmd-launch-configurator, .llmd-launch-commands) summary { min-block-size: 44px; }
+  .command-tab span, .llmd-launch-field :is(input, select, textarea), .llmd-launch :is(.llmd-launch-controls, .llmd-launch-commands) summary { min-block-size: 44px; }
   .llmd-launch-field :is(input, select, textarea) { font-size: 1rem; }
   .model-catalog-field :is(input, select), .model-catalog-cell, .model-catalog-family-button,
   .model-catalog-actions [data-model-configure], .model-catalog-filter-panel summary, .model-catalog-pairings { min-block-size: 44px; }

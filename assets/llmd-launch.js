@@ -246,7 +246,6 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     const form = root.querySelector("form");
     const part = name => root.querySelector(`[data-${name}]`);
     const field = name => form.elements.namedItem(name);
-    const configurator = part("configurator");
     const steps = [...root.querySelectorAll(".llmd-launch-step")];
     const codeBlocks = [...root.querySelectorAll("code[data-command]")];
     const checkpointField = field("checkpoint");
@@ -386,14 +385,11 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       } else if (drafter !== null) {
         invalidLink = true;
       } else {
-        return applyPreset(query.get("recipe"));
+        applyPreset(query.get("recipe"));
       }
-      return true;
     }
 
-    function applyFragment() {
-      const fragment = window.location.hash.slice(1);
-      if (applyPreset(fragment)) return true;
+    function applyFragment(fragment) {
       if (fragment === "download-checkpoint") field("source").value = "download";
       if (fragment === "download-drafter") {
         if (decodingField.value !== "dspine" && decodingField.value !== "external"
@@ -412,7 +408,6 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
         }
       }
       if (fragment === "before-you-start" && backendField.value === "furiosa") part("furiosa-requirements").open = true;
-      return false;
     }
 
     function showCommands(commands) {
@@ -582,33 +577,35 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       render();
     });
 
-    function renderFragment(querySelected) {
-      const target = document.getElementById(window.location.hash.slice(1));
+    function renderFragment(readQuery = false) {
+      const fragment = window.location.hash.slice(1);
+      const target = document.getElementById(fragment);
       if (target?.matches("a[data-moved-topic]")) {
         window.location.replace(target.href);
         return;
       }
-      const presetSelected = applyFragment();
+      // A named bookmark overrides the default recipe carried by a legacy alias.
+      if (!applyPreset(fragment)) {
+        if (readQuery) applyQuery();
+        applyFragment(fragment);
+      }
       render();
-      const inside = root.contains(target);
-      if (!inside && !querySelected && !presetSelected) return;
-      if (querySelected || presetSelected) configurator.open = true;
-      if (!inside && window.location.hash && !presetSelected) return;
-      const destination = inside && !target.closest("[hidden]") ? target : configurator.querySelector("summary");
+      if (!root.contains(target)) return;
+      const destination = target.closest("[hidden]") ? document.getElementById(form.getAttribute("aria-labelledby")) : target;
       for (let details = destination.closest("details"); root.contains(details); details = details.parentElement.closest("details")) {
         details.open = true;
       }
       destination.scrollIntoView();
     }
     window.addEventListener("hashchange", () => {
-      renderFragment(!window.location.hash && applyQuery());
+      renderFragment(!window.location.hash);
     });
     // A repeated table-of-contents link must reopen a step even when its hash is unchanged.
     document.addEventListener("click", event => {
       if (event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
       const link = event.target.closest('a[href^="#"]');
       if (link?.hash && link.hash === window.location.hash && root.contains(document.getElementById(link.hash.slice(1)))) {
-        renderFragment(false);
+        renderFragment();
       }
     });
 
@@ -616,6 +613,6 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     refreshDecoding();
     refreshRequest("chat");
     form.hidden = false;
-    renderFragment(applyQuery());
+    renderFragment(true);
   }
 })();

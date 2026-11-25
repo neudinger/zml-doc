@@ -17,6 +17,7 @@
                     .pages = [
                         .{ .path = "llmd/user-guide", .label = "Overview", .icon = "icon-book" },
                         .{ .path = "llmd/user-guide/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
+                        .{ .path = "llmd/user-guide/configure-launch/2026.11.3", .label = "Configure launch", .icon = "icon-rocket" },
                         .{ .path = "llmd/user-guide/model-compatibility", .label = "Model compatibility", .icon = "icon-boxes" },
                     ],
                 },

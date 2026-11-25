@@ -84,7 +84,7 @@ template or generation settings together from the same revision.
 `Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
 pooling configuration files.
 
-In the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')), **Download first**
+In [Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3')), **Download first**
 generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
 To pin a download, add `--revision <commit>` to that command and give each
 revision its own local directory. Native LLMD reads the host path directly.
@@ -95,7 +95,7 @@ For Docker, see [Run a local model]($link.page('llmd/cli-reference/docker-option
 Use `--model=hf://org/repo@revision` to select a Hugging Face revision at
 launch. For S3 or Google Cloud Storage, keep the model files together under
 one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
-`--model=gs://my-bucket/llm/model`. To adapt a quickstart command, choose
+`--model=gs://my-bucket/llm/model`. To adapt a generated launch command, choose
 **Load at launch** and replace its `--model` value with the bucket URI.
 Configure [model storage credentials]($link.page('llmd/cli-reference/environment-variables').unsafeRef('model-storage-and-credentials'))
 in the environment that runs LLMD. See [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
@@ -114,7 +114,7 @@ your LLMD build.
 
 Check the help from your installed binary or container for the options
 it exposes. The CUDA recipe in the
-[LLMD quickstart]($link.page('llmd/user-guide/quickstart').unsafeRef('lfm3-fp8-cuda')) uses
+[Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-fp8-cuda')) uses
 `zmlai/llmd:cuda`. Docker options go before the image name. LLMD options go
 after it.
 
