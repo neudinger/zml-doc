@@ -525,7 +525,32 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
   font: 600 0.95rem ui-monospace, monospace;
   cursor: pointer;
 }
-.model-expected-output { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.75rem; }
+.prose:has(> .first-model-stage) { container: first-model / inline-size; }
+.prose h3:has(+ .first-model-stage) {
+  margin-block: 1rem 0.45rem;
+  padding-block-start: 0.65rem;
+  border-block-start: 1px solid var(--border);
+}
+.first-model-stage, .first-model-run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0.65rem 1rem;
+}
+.prose :is(.first-model-stage, .first-model-run) > :is(.code-block, pre, p) { min-inline-size: 0; margin: 0; }
+.prose :is(.first-model-stage, .first-model-run) pre { padding: 0.7rem 0.75rem; }
+.first-model-stage > p, .model-expected-output { border-inline-start: 2px solid var(--accent); padding-inline-start: 0.75rem; }
+.model-expected-output {
+  align-self: stretch;
+  padding-block: 0.5rem;
+  padding-inline-end: 0.75rem;
+  border-radius: 0.25rem;
+  background: var(--selection);
+}
+@container first-model (width >= 38rem) {
+  .first-model-stage { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+  .first-model-run { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+}
 .client-recipe { display: flex; flex-wrap: wrap; align-items: start; gap: 1rem; }
 .client-recipe > .command-shell { flex: 2 1 24rem; min-inline-size: 0; }
 .client-result { flex: 1 1 13rem; min-inline-size: 0; }
