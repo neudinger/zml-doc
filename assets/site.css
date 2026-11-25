@@ -124,6 +124,13 @@ nav a[aria-current="page"] { color: var(--accent); text-decoration: underline; }
 }
 pagefind-modal-trigger.site-search { --pf-border: var(--search-border); }
 .site-search:not(:defined) { display: none; }
+.site-search :is(.search-result-context, .search-result-exact-label) {
+  margin: 0 0 0.2rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.site-search .search-result-exact-label { color: var(--accent); }
+.site-search .search-result-exact { --pf-border: var(--accent); }
 .theme-toggle:not([hidden]) {
   display: inline-grid;
   place-items: center;

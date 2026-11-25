@@ -4,6 +4,7 @@
     <meta name="description" content="$ctx.article.description">
     <ctx title="$ctx.article.title.suffix($page.custom.has('product').then(' · '), $page.custom.getOr('product', ''))">
       <title :text="$ctx.title"></title>
+      <meta data-pagefind-filter="page_title[content]" content="$ctx.title">
       <ctx :if="$page.custom.has('product')">
         <meta data-pagefind-meta="title[content]" content="$ctx.title">
       </ctx>

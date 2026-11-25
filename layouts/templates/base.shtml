@@ -19,7 +19,7 @@
 <body class="$site.index().isCurrent().then('homepage', '')" data-site-root="$site.index().link()">
   <a class="skip-link" href="#site-content">Skip to content</a>
   <ctx :if="$build.development.not()">
-    <pagefind-config base-url="$site.index().link()" bundle-path="$site.index().link().addPath('pagefind/')"></pagefind-config>
+    <pagefind-config base-url="$site.index().link()" bundle-path="$site.index().link().addPath('docs-search/')"></pagefind-config>
   </ctx>
   <header class="site-header">
     <div class="page-width header-inner">
@@ -117,7 +117,32 @@
       </pagefind-modal-header>
       <pagefind-modal-body>
         <pagefind-summary default-message="Start typing to search the ZML and LLMD docs."></pagefind-summary>
-        <pagefind-results></pagefind-results>
+        <pagefind-results>
+          <script type="text/pagefind-template">
+            <li class="pf-result">
+              {{#if meta.exact_title}}<p class="search-result-exact-label">Exact page title</p>{{/if}}
+              <div class="pf-result-card{{#if meta.exact_title}} search-result-exact{{/if}}">
+                <div class="pf-result-content">
+                  {{#if meta.search_context}}<p class="search-result-context">{{ meta.search_context }}</p>{{/if}}
+                  <p class="pf-result-title">
+                    <a class="pf-result-link" href='{{ meta.url | default(url) | safeUrl }}'>{{ meta.title }}</a>
+                  </p>
+                  {{#if excerpt}}<p class="pf-result-excerpt">{{+ excerpt +}}</p>{{/if}}
+                </div>
+              </div>
+              {{#if sub_results}}
+              <ul class="pf-heading-chips">
+                {{#each sub_results as sub}}
+                <li class="pf-heading-chip">
+                  <a class="pf-heading-link" href='{{ sub.url | safeUrl }}'>{{ sub.title }}</a>
+                  <p class="pf-heading-excerpt">{{+ sub.excerpt +}}</p>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
+            </li>
+          </script>
+        </pagefind-results>
       </pagefind-modal-body>
       <pagefind-modal-footer>
         <pagefind-keyboard-hints></pagefind-keyboard-hints>
