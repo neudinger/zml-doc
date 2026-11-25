@@ -14,7 +14,6 @@
     ],
     .checkpoints = [
         .{ .id = "Qwen/Qwen3-Embedding-8B", .family = "Qwen3 Embedding", .precision = "BF16", .embeddings = true },
-        .{ .id = "deepseek-ai/DeepSeek-V4-Flash", .family = "DeepSeek V4", .modes = ["standard", "native"] },
         .{ .id = "Qwen/Qwen3.8-27B", .family = "Qwen3.8", .precision = "BF16", .modes = ["standard", "external"], .drafter = "incoai/Qwen3.8-27B-DFlash2" },
         .{ .id = "Qwen/Qwen3.8-27B-FP8", .family = "Qwen3.8", .precision = "FP8", .modes = ["standard"] },
         .{ .id = "Qwen/Qwen3.6-35B-A3B", .family = "Qwen3.6", .modes = ["standard", "external"], .drafter = "z-lab/Qwen3.6-35B-A3B-DFlash" },

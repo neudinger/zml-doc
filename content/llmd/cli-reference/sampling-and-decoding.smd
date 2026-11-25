@@ -30,9 +30,8 @@ context length, and sampling settings.
 ```
 
 Standard decoding takes only the target model. Native multi-token prediction
-(MTP) uses the target's own drafter. Both `deepseek-ai/DeepSeek-V4-Flash` and
-`Qwen/Qwen3.8-Flash-Next` have a routine native MTP configuration. The external
-example loads a compatible target and drafter from Hugging Face at launch.
+(MTP) uses the target's own drafter, as shown with `Qwen/Qwen3.8-Flash-Next`.
+The external example loads a compatible target and drafter from Hugging Face at launch.
 See [Model compatibility]($link.page('llmd/user-guide/model-compatibility')) for other models and modes.
 
 # [Sampling controls and precedence]($heading.id('sampling-and-speculative-decoding'))

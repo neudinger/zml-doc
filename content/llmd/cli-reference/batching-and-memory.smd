@@ -81,12 +81,10 @@ For example, four sequences of 4,096 tokens each need 1,024 logical pages.
 The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/#data-parallelism-beta)
 describe data parallelism on Llama as a beta feature.
 
-# [Scheduling and attention workers]($heading.id('scheduling-and-attention-workers'))
+# [Asynchronous scheduling]($heading.id('scheduling-and-attention-workers'))
 
-These options are present in the reviewed source. Availability can vary by
-model, backend, and release.
+Availability can vary by model, backend, and release.
 
 | LLMD option | Default | Effect |
 | --- | --- | --- |
 | `--async-scheduling` | Off | Enable asynchronous scheduling on supported models. The initial beta covers Llama and Gemma 4 without speculative decoding. |
-| `--attnd-workers=<count>`, `--attnd-memory=<GiB>` | Both unset | Set both to enable the attention daemon backend with the given worker count and memory budget. |
