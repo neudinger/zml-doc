@@ -1047,6 +1047,28 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .prose pre code .token:is(.function, .builtin, .class-name, .property, .key, .attr-name, .variable) { color: var(--code-name); }
 .prose pre code .token:is(.comment, .shebang) { color: var(--code-comment); }
 .prose .bazel-platform-shell .token.zml-command { color: var(--code-keyword); }
+.prose:has(> .llmd-first-run-pair) { container: llmd-first-run / inline-size; }
+.llmd-first-run-prerequisites {
+  padding: 0.65rem 0.8rem;
+  border-inline-start: 2px solid var(--accent);
+  border-radius: 0.35rem;
+  background: var(--selection);
+}
+.prose .llmd-first-run-prerequisites p { margin: 0; }
+.prose .llmd-first-run-prerequisites p + p { margin-block-start: 0.2rem; color: var(--muted); }
+.llmd-first-run-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 0.8rem 1rem;
+}
+.llmd-first-run-pair > section { min-inline-size: 0; }
+.prose .llmd-first-run-pair h3 { margin-block: 0 0.35rem; }
+.prose .llmd-first-run-pair :is(.code-block, p) { margin-block: 0.45rem; }
+.prose .llmd-first-run-pair pre { padding: 0.7rem 0.75rem; }
+@container llmd-first-run (width >= 40rem) {
+  .llmd-first-run-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .llmd-quickstart-concepts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));

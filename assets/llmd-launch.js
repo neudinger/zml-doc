@@ -615,7 +615,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     updateCheckpointDirectory();
     refreshDecoding();
     refreshRequest("chat");
-    configurator.hidden = false;
+    form.hidden = false;
     renderFragment(applyQuery());
   }
 })();
