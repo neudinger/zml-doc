@@ -1,6 +1,6 @@
 ---
 .title = "ZML CLI reference",
-.description = "Use Bazel commands and pass runtime arguments to ZML examples.",
+.description = "Look up Bazel commands, backend flags, build configurations, and ZML example defaults.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "CLI Reference" },
@@ -8,6 +8,8 @@
 Run these commands from the ZML checkout used in the
 [quickstart]($link.page('zml/user-guide/quickstart')). Bazel selects and builds the target.
 Each example executable defines its runtime arguments.
+See [Environment variables]($link.page('zml/cli-reference/environment-variables'))
+for model access and runtime settings.
 
 # [List, build, run, and test targets]($heading.id('build-run-or-test-a-target'))
 
@@ -22,7 +24,7 @@ Each example executable defines its runtime arguments.
     <pre><code class="sh" data-copy-label="Copy build command">bazel build //examples/mnist</code></pre>
   </div>
   <div class="zml-command-row" role="listitem">
-    <div class="zml-command-task"><strong>Run</strong><p>Launch MNIST with its test data.</p></div>
+    <div class="zml-command-task"><strong>Run</strong><p>Launch MNIST with its declared data and runtime files.</p></div>
     <pre><code class="sh" data-copy-label="Copy run command">bazel run //examples/mnist</code></pre>
   </div>
   <div class="zml-command-row" role="listitem">
@@ -32,8 +34,13 @@ Each example executable defines its runtime arguments.
 </div>
 ```
 
-See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('build-run-or-test-a-target'))
-for the target workflow.
+For complete workflows, see the recipes to
+[run an LLM]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('run-an-llm-example')),
+[test ZML]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('test-zml')),
+[capture a trace]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('profile-an-llm-example')), or
+[package a build]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('package-a-build-for-a-different-host')).
+The [data-parallel MNIST example]($link.page('zml/developer-guide/run-across-devices').ref('run-data-parallel-mnist'))
+distributes a batch of images across a device mesh.
 
 # [Run an LLM example]($heading.id('run-an-llm-example'))
 
@@ -45,14 +52,74 @@ for the target workflow.
 </div>
 ```
 
-Set `--model` to a model directory or URI and pass `--prompt` for a single response.
-See [LLM example flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('llm-example-flags'))
-for the supported model locations and attention backends.
+See [LLM example flags]($link.ref('llm-example-flags')) for model locations,
+attention backends, and defaults.
 
 # [Choose a backend and target platform]($heading.id('choose-a-backend-and-target-platform'))
 
-The backend flags select the runtimes compiled into the executable.
-`--platforms` selects the target operating system and architecture.
-Choose your hardware in the [MNIST quickstart]($link.page('zml/user-guide/quickstart').ref('build-and-run-mnist'))
-to get a complete command. The [backend flags and defaults]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('choose-a-backend-and-target-platform'))
-cover cross-builds and runtime selection.
+Set a backend with `--@zml//platforms:<backend>=true`. Bazel includes the
+runtime when the build target satisfies the backend's platform constraints.
+Use the [MNIST backend picker]($link.page('zml/user-guide/quickstart').ref('build-and-run-mnist'))
+for build and run commands on a compatible host.
+
+| Backend | Bazel flag | Default |
+| --- | --- | --- |
+| CPU | `--@zml//platforms:cpu` | `true` |
+| NVIDIA CUDA | `--@zml//platforms:cuda` | `false` |
+| AMD ROCm | `--@zml//platforms:rocm` | `false` |
+| Intel oneAPI | `--@zml//platforms:oneapi` | `false` |
+| Google TPU | `--@zml//platforms:tpu` | `false` |
+| AWS Neuron | `--@zml//platforms:neuron` | `false` |
+| Apple Metal | `--@zml//platforms:metal` | `false` |
+| Furiosa | `--@zml//platforms:furiosa` | `false` |
+
+Set `--platforms=@zml//platforms:linux_amd64` to target Linux x86-64. Other
+labels with the same prefix are `linux_arm64`, `macos_amd64`, and
+`macos_arm64`. Bazel uses the host platform by default for these commands
+unless a configuration selects another target platform. Check
+[Hardware compatibility]($link.page('zml/user-guide/reference/hardware-compatibility')) for backend and host
+constraints before cross-building.
+
+At runtime, `Platform.auto()` tries compiled-in backends in this order: TPU,
+Neuron, ROCm, CUDA, oneAPI, Metal, Furiosa, then CPU. Check the platform
+printed by the example. The LLM example's `--backend` option selects its
+attention implementation within the chosen runtime.
+
+# [LLM example flags]($heading.id('llm-example-flags'))
+
+Omit `--prompt` for an interactive prompt, or pass `--model=/path/to/model`
+for local weights. The example selects the implementation from `model_type`
+in `config.json`. To serve a model over HTTP, [start an LLMD server]($link.page('llmd/user-guide/quickstart')).
+
+| Example flag | Default | Effect |
+| --- | --- | --- |
+| `--model=<path>` | Required | Local model directory or `hf://`, `s3://`, or `gs://` URI. |
+| `--prompt=<text>` | Unset | Generate a single response. |
+| `--seqlen=<tokens>` | `2048` | Sequence length used for compilation and generation. |
+| `--topk=<number>` | `4` | Top-k sampling cutoff for the example. |
+| `--backend=<name>` | Automatic | Choose `stablehlo`, `cute`, `nki`, or `metal` attention on a compatible runtime. |
+| `--profile` | Off | Capture a PJRT trace for a non-interactive run. |
+| `-h`, `--help` | Off | Print the executable's help. |
+
+# [Build and profiling configurations]($heading.id('select-a-build-or-profiling-configuration'))
+
+| Bazel option | Default in this checkout | Effect |
+| --- | --- | --- |
+| `--compilation_mode=<mode>` | `dbg` | Select the Bazel target compilation mode. The checkout configures Zig modes separately. |
+| `--config=<name>` | Unset. Base `.bazelrc` settings apply. | Apply a named group of settings from `.bazelrc`. |
+| `--run_under=<wrapper>` | Unset | Run a target through a wrapper, such as a profiler. |
+| `--test_output=<mode>` | `errors` | Print test logs for failures. Use `all` when diagnosing a passing test. |
+
+| Named profile | Scope | Effect when selected |
+| --- | --- | --- |
+| `--config=debug` | Build, run, test | Use optimized Bazel compilation mode and debug mode for target Zig code. |
+| `--config=alldebug` | Build, run, test | Use debug compilation mode, debug Zig mode, and local execution. |
+| `--config=release` | Build, run, test | Use optimized compilation mode, Zig `release_safe`, and symbol stripping. |
+| `--config=native` | Host-tuned builds | Tune code generation to the build machine. Omit this profile for portable artifacts. |
+| `--config=silent` | Build, run, test | Reduce Bazel output. |
+| `--config=nsys` | `bazel run` | Enable CUDA and wrap the executable with Nsight Systems. |
+| `--config=rocprofv3` | `bazel run` | Enable ROCm and wrap the executable with ROCm's profiler. |
+| `--config=neuron-profile` | `bazel run` | Enable Neuron, disable CPU, and invoke the Neuron profiling wrapper. |
+
+See the [ZML Bazel configuration](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/.bazelrc)
+and the [Bazel command reference](https://bazel.build/reference/command-line-reference).

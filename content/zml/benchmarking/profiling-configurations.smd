@@ -4,7 +4,7 @@
 .custom = .{
     .destination = "zml/developer-guide/build-and-run-with-bazel",
     .anchors = [
-        .{ .from = "select-a-build-or-profiling-configuration", .to = "select-a-build-or-profiling-configuration", .label = "Build and profiling configurations" },
+        .{ .from = "select-a-build-or-profiling-configuration", .to = "select-a-build-or-profiling-configuration", .path = "zml/cli-reference", .label = "Build and profiling configurations" },
     ],
 },
 ---

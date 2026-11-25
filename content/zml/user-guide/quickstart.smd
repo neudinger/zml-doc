@@ -83,7 +83,7 @@ weights and test images.
 
 []($section)
 
-[Bazel flags and target platforms]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('choose-a-backend-and-target-platform'))
+[Bazel flags and target platforms]($link.page('zml/cli-reference').ref('choose-a-backend-and-target-platform'))
 · [Write your first ZML model]($link.page('zml/developer-guide/write-your-first-model'))
 
 # [Troubleshooting]($heading.id('troubleshooting'))

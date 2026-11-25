@@ -51,8 +51,8 @@ Build with Bazel and classify a handwritten digit.
 Read [ZML concepts]($link.page('zml/developer-guide/tensors-and-shapes')) for tensors, shapes, and dimension tags.
 Use the [Tensor reference]($link.page('zml/api-reference/tensor')) to look up model operations
 and the [Exe reference]($link.page('zml/api-reference/exe')) for calls that run a compiled model.
-See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel')) for accelerator
-flags, LLM examples, and packaging.
+See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel')) for LLM examples and packaging,
+and [Bazel backend flags]($link.page('zml/cli-reference').ref('choose-a-backend-and-target-platform')) for accelerator settings.
 
 See [LLMD on ZML]($link.page('llmd/developer-guide/llmd-on-zml')) for how the serving engine uses
 these executables and buffers to run inference requests.

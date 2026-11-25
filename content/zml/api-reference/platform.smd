@@ -17,8 +17,8 @@ and a `std.Io` for `io`. A return type with `!` can carry an error.
 - `zml.Platform.init(allocator, io, target, options)`\
   `!*Platform`. Initialize a specific `zml.Target`, such as `.cpu` or `.cuda`, when present in the build.
 
-See [Build and run with Bazel]($link.page('zml/developer-guide/build-and-run-with-bazel')) for backend flags
-and the selection order used by `auto`.
+See [Bazel backend flags]($link.page('zml/cli-reference').ref('choose-a-backend-and-target-platform'))
+for build settings and the selection order used by `auto`.
 
 # [Compile a model or function]($heading.id('compile-a-model-or-function'))
 

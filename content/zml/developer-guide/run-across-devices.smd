@@ -128,7 +128,7 @@ Look for the printed mesh, a weight-transfer message, and four
 the batch. If you enable an accelerator backend, the available device
 topology must support a data axis of size two. Use the CPU commands above
 to try the examples on a machine with a single accelerator.
-See [Bazel backend flags]($link.page('zml/developer-guide/build-and-run-with-bazel').ref('choose-a-backend-and-target-platform'))
+See [Bazel backend flags]($link.page('zml/cli-reference').ref('choose-a-backend-and-target-platform'))
 and the [MNIST source](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/examples/mnist/mnist_data_parallel.zig).
 
 The commands and expected output follow the pinned source. Device execution
