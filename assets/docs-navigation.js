@@ -26,6 +26,58 @@ function syncDisclosure(details, wideViewport) {
 
 syncDisclosure(document.querySelector(".docs-sidebar"), window.matchMedia("(width > 48rem)"));
 
+const clientExampleControls = document.querySelector(".client-example-controls");
+if (clientExampleControls) {
+  const viewport = document.scrollingElement;
+  let scrollSpace = 0;
+
+  // A collapse near the footer can clamp the scroll offset. Release the extra space as the reader scrolls back.
+  function fitScrollSpace(position) {
+    const contentHeight = document.body.getBoundingClientRect().height - scrollSpace;
+    const needed = position > 0 ? Math.max(0, Math.ceil(position + viewport.clientHeight - contentHeight)) : 0;
+    if (needed === scrollSpace) return;
+    scrollSpace = needed;
+    document.body.style.paddingBlockEnd = needed ? needed + "px" : "";
+  }
+  function trimScrollSpace() {
+    if (scrollSpace) fitScrollSpace(viewport.scrollTop);
+  }
+  window.addEventListener("scroll", trimScrollSpace, { passive: true });
+  window.addEventListener("resize", trimScrollSpace);
+
+  const branches = clientExampleControls.closest(".prose").querySelectorAll(":scope > .client-branch");
+  for (const branch of branches) {
+    const heading = branch.querySelector("h2[id]");
+    const detail = branch.querySelector("details.client-disclosure");
+    if (!heading || !detail) continue;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = heading.textContent.trim();
+    branch.id = heading.id + "-example";
+    branch.classList.add("client-example-panel");
+    button.setAttribute("aria-controls", branch.id);
+
+    function syncExpanded() {
+      button.setAttribute("aria-expanded", String(detail.open));
+    }
+    detail.addEventListener("toggle", () => {
+      syncExpanded();
+      trimScrollSpace();
+    });
+    button.addEventListener("click", () => {
+      const position = viewport.scrollTop;
+      detail.open = !detail.open;
+      syncExpanded();
+      fitScrollSpace(position);
+      viewport.scrollTop = position;
+    });
+    syncExpanded();
+    clientExampleControls.append(button);
+  }
+  clientExampleControls.hidden = !clientExampleControls.childElementCount;
+}
+
 const contents = document.querySelector(".page-toc");
 if (contents) {
   const disclosure = contents.querySelector("details");
@@ -59,8 +111,11 @@ if (contents) {
     const target = document.getElementById(hash.slice(1));
     if (!target) return;
     const disclosure = target.closest(".client-branch")?.querySelector("details");
-    if (disclosure) disclosure.open = true;
-    else if (target.matches(sectionDisclosures)) target.open = true;
+    if (disclosure) {
+      const wasHidden = !target.getClientRects().length;
+      disclosure.open = true;
+      if (wasHidden) return target;
+    } else if (target.matches(sectionDisclosures)) target.open = true;
     else if (target === walkthrough) walkthrough.querySelector("input").checked = true;
     else if (target.control?.type === "radio" && walkthrough?.contains(target)) target.control.checked = true;
   }
@@ -127,7 +182,7 @@ if (contents) {
   }
   function followHash() {
     requestedHash = location.hash;
-    revealSectionTarget(requestedHash);
+    revealSectionTarget(requestedHash)?.scrollIntoView();
     landedAt = null;
     scheduleSection();
   }

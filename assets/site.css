@@ -566,10 +566,43 @@ h1 { margin: 0; font-size: clamp(2.15rem, 6vw, 3.5rem); line-height: 1.1; letter
 .client-result figcaption { color: var(--muted); font-size: 0.85rem; }
 .client-result samp { font-size: 1.35rem; font-weight: 650; }
 .client-result figure code { padding: 0; background: transparent; color: var(--accent); }
-.prose:has(> .client-basic) { display: flex; flex-wrap: wrap; align-content: start; column-gap: 1rem; }
-.client-basic { inline-size: 100%; min-inline-size: 0; }
-.client-branch { flex: 1 1 17rem; min-inline-size: 0; }
-.client-branch:has(details[open]) { flex-basis: 100%; }
+html:has(.client-example-controls:not([hidden])) { scrollbar-gutter: stable; }
+.client-example-controls:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr));
+  gap: 0.5rem;
+  margin-block: 1rem;
+}
+.client-example-controls > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-block-size: 2.75rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 650;
+  text-align: start;
+  cursor: pointer;
+}
+.client-example-controls > button::after {
+  content: "+" / "";
+  flex: 0 0 1em;
+  color: var(--accent);
+  text-align: center;
+}
+.client-example-controls > button:is(:hover, [aria-expanded="true"]) {
+  border-color: var(--accent);
+  background: var(--selection);
+}
+.client-example-controls > button[aria-expanded="true"]::after { content: "−" / ""; }
+.client-example-panel:not(:has(> details[open])),
+.client-example-panel > details > summary { display: none; }
+.prose .client-example-panel > h2 { margin-block-start: 1.25rem; }
 .client-disclosure { min-inline-size: 0; border-block-start: 1px solid var(--border); }
 .client-disclosure > summary { padding: 0.6rem 0.25rem; color: var(--accent); font-weight: 600; cursor: pointer; }
 .api-example-pair {

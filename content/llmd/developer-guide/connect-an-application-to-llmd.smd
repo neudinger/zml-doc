@@ -58,6 +58,7 @@ The SDK reads the [served model ID]($link.page('llmd/api-reference/models').ref(
     <pre><code class="json">{"choices": [{"message": {"role": "assistant", "content": "Hello!"}}]}</code></pre>
   </details>
 </div>
+<div class="client-example-controls" role="group" aria-label="Application examples" data-pagefind-ignore hidden></div>
 ```
 
 []($section.attrs('client-branch'))
