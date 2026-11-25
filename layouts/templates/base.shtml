@@ -11,6 +11,7 @@
     <script type="module" src="$site.index().link().addPath('pagefind/pagefind-component-ui.js')"></script>
   </ctx>
   <link rel="stylesheet" href="$site.asset('site.css').link()">
+  <script defer src="$site.asset('mobile-navigation.js').link()"></script>
   <ctx :if="$site.index().isCurrent().not()">
     <script defer src="$site.asset('docs-navigation.js').link()"></script>
   </ctx>
@@ -32,6 +33,8 @@
           <pagefind-modal-trigger class="site-search" placeholder="Search docs"></pagefind-modal-trigger>
         </ctx>
         <button class="theme-toggle" type="button" aria-label="Night mode" aria-pressed="true" title="Night mode" hidden></button>
+        <button class="mobile-navigation-button mobile-navigation-trigger" type="button"
+                aria-label="Open navigation" aria-haspopup="dialog" aria-controls="mobile-navigation" aria-expanded="false" hidden></button>
       </div>
     </div>
     <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
@@ -44,9 +47,9 @@
           <ctx :if="$loop.it.get('label').eql($ctx.section)">
             <ctx zml_target="$site.page($ctx.reference.eql('').then($loop.it.get('zml').at(0).get('pages').at(0).get('path'), $ctx.reference.prefix('zml/')))"
                  llmd_target="$site.page($ctx.reference.eql('').then($loop.it.get('llmd').at(0).get('pages').at(0).get('path'), $ctx.reference.prefix('llmd/')))">
-              <a href="$ctx.zml_target.link()"
+              <a href="$ctx.zml.then($ctx.zml_target.link(), $site.page('zml/user-guide').link())"
                  aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
-              <a href="$ctx.llmd_target.link()"
+              <a href="$ctx.llmd.then($ctx.llmd_target.link(), $site.page('llmd/user-guide').link())"
                  aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
             </ctx>
           </ctx>
@@ -110,6 +113,56 @@
     </ctx>
     <a href="https://github.com/zml/zml" :text="$site.index().isCurrent().then('GitHub', 'ZML source')"></a>
   </footer>
+  <dialog id="mobile-navigation" class="mobile-navigation" aria-labelledby="mobile-navigation-title" data-pagefind-ignore>
+    <div class="mobile-navigation-header">
+      <h2 id="mobile-navigation-title">Navigation</h2>
+      <form method="dialog">
+        <button class="mobile-navigation-button mobile-navigation-close" type="submit" aria-label="Close navigation" autofocus></button>
+      </form>
+    </div>
+    <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
+         section="$page.custom.getOr('doc_section', 'User Guide')"
+         zml="$page.link().startsWith($site.page('zml').link())"
+         llmd="$page.link().startsWith($site.page('llmd').link())">
+      <nav class="mobile-navigation-overview" aria-label="Site navigation" data-mobile-overview>
+        <div class="mobile-navigation-products" data-mobile-products></div>
+        <ctx :if="$ctx.zml.or($ctx.llmd)">
+          <ul class="mobile-navigation-sections">
+            <ctx :loop="$ctx.catalog.get('sections')">
+              <li><button type="button" data-mobile-section="$loop.it.get('label')"
+                          aria-current="$loop.it.get('label').eql($ctx.section).then('location', 'false')"
+                          :text="$loop.it.get('label')"></button></li>
+            </ctx>
+          </ul>
+        </ctx>
+      </nav>
+      <ctx :if="$ctx.zml.or($ctx.llmd)">
+        <ctx :loop="$ctx.catalog.get('sections')">
+          <ctx label="$loop.it.get('label')" groups="$loop.it.get($ctx.zml.then('zml', 'llmd'))">
+            <nav class="mobile-navigation-pages" data-mobile-pages="$ctx.label" aria-label="$ctx.label.prefix('Pages in ')" hidden>
+              <button class="mobile-navigation-back" type="button" aria-label="Back to documentation sections">Sections</button>
+              <h3 :text="$ctx.label"></h3>
+              <ctx :loop="$ctx.groups">
+                <div class="sidebar-group">
+                  <ctx :if="$loop.first.not()">
+                    <p class="sidebar-heading" :text="$loop.it.get('label')"></p>
+                  </ctx>
+                  <ul>
+                    <ctx :loop="$loop.it.get('pages')">
+                      <ctx entry="$loop.it" target="$site.page($loop.it.get('path'))">
+                        <li><a class="$ctx.entry.get('icon')" href="$ctx.target.link()"
+                               aria-current="$ctx.target.isCurrent().then('page', 'false')" :text="$ctx.entry.get('label')"></a></li>
+                      </ctx>
+                    </ctx>
+                  </ul>
+                </div>
+              </ctx>
+            </nav>
+          </ctx>
+        </ctx>
+      </ctx>
+    </ctx>
+  </dialog>
   <ctx :if="$build.development.not()">
     <pagefind-modal class="site-search">
       <pagefind-modal-header>
