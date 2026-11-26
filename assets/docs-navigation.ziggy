@@ -54,65 +54,76 @@
     ],
     .llmd = [
         .{
-            .label = "User Guide",
+            .label = "Tutorials",
             .groups = [
                 .{
-                    .label = "User Guide",
+                    .label = "Tutorials",
                     .pages = [
-                        .{ .path = "llmd/user-guide", .label = "Overview", .icon = "icon-book" },
-                        .{ .path = "llmd/user-guide/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
-                        .{ .path = "llmd/user-guide/configure-launch/2026.11.3", .label = "Configure launch", .icon = "icon-rocket" },
-                        .{ .path = "llmd/user-guide/model-compatibility", .label = "Model compatibility", .icon = "icon-boxes" },
+                        .{ .path = "llmd", .label = "Quickstart", .icon = "icon-bolt" },
+                        .{ .path = "llmd/tutorial/start", .label = "Start LLMD on any platform", .icon = "icon-rocket" },
+                        .{ .path = "llmd/tutorial/ask-structured-questions", .label = "Ask structured questions", .icon = "icon-code" },
+                        .{ .path = "llmd/tutorial/compare-texts-with-embeddings", .label = "Compare texts with embeddings", .icon = "icon-code" },
+                    ],
+                },
+            ],
+        },
+        .{
+            .label = "How To",
+            .groups = [
+                .{
+                    .label = "Setup",
+                    .pages = [
+                        .{ .path = "llmd/howto/connect-an-application-to-llmd", .label = "Connect an application to LLMD", .icon = "icon-code" },
                     ],
                 },
                 .{
                     .label = "Operations",
                     .pages = [
-                        .{ .path = "llmd/user-guide/operations/deploy-llmd", .label = "Deploy LLMD", .icon = "icon-rocket" },
-                        .{ .path = "llmd/user-guide/operations/monitoring-and-troubleshooting", .label = "Monitoring and troubleshooting", .icon = "icon-activity" },
+                        .{ .path = "llmd/howto/deploy-llmd", .label = "Deploy LLMD", .icon = "icon-rocket" },
+                        .{ .path = "llmd/howto/monitoring-and-troubleshooting", .label = "Monitoring and troubleshooting", .icon = "icon-activity" },
                     ],
                 },
             ],
         },
         .{
-            .label = "Developer Guide",
+            .label = "Learn",
             .groups = [
                 .{
-                    .label = "Developer Guide",
+                    .label = "Learn",
                     .pages = [
-                        .{ .path = "llmd/developer-guide/connect-an-application-to-llmd", .label = "Connect an application to LLMD", .icon = "icon-code" },
-                        .{ .path = "llmd/developer-guide/llmd-on-zml", .label = "LLMD on ZML", .icon = "icon-boxes" },
-                        .{ .path = "llmd/developer-guide/ask-structured-questions", .label = "Ask structured questions", .icon = "icon-code" },
-                        .{ .path = "llmd/developer-guide/compare-texts-with-embeddings", .label = "Compare texts with embeddings", .icon = "icon-code" },
+                        .{ .path = "llmd/learn", .label = "Overview", .icon = "icon-book" },
+                        .{ .path = "llmd/learn/llmd-on-zml", .label = "LLMD on ZML", .icon = "icon-boxes" },
                     ],
                 },
             ],
         },
         .{
-            .label = "API Reference",
+            .label = "Reference",
             .groups = [
+                .{
+                    .label = "Compatibility",
+                    .pages = [
+                        .{ .path = "llmd/reference/model-compatibility", .label = "Model compatibility", .icon = "icon-boxes" },
+                        .{ .path = "llmd/reference/hardware-compatibility", .label = "Hardware compatibility", .icon = "icon-cpu" },
+                    ],
+                },
                 .{
                     .label = "API Reference",
                     .pages = [
-                        .{ .path = "llmd/api-reference/models", .label = "Models", .icon = "icon-boxes" },
-                        .{ .path = "llmd/api-reference/chat-completions", .label = "Chat completions", .icon = "icon-code" },
-                        .{ .path = "llmd/api-reference/decision", .label = "Decision", .icon = "icon-check" },
-                        .{ .path = "llmd/api-reference/embeddings", .label = "Embeddings", .icon = "icon-shapes" },
+                        .{ .path = "llmd/reference/models", .label = "Models", .icon = "icon-boxes" },
+                        .{ .path = "llmd/reference/chat-completions", .label = "Chat completions", .icon = "icon-code" },
+                        .{ .path = "llmd/reference/decision", .label = "Decision", .icon = "icon-check" },
+                        .{ .path = "llmd/reference/embeddings", .label = "Embeddings", .icon = "icon-shapes" },
                     ],
                 },
-            ],
-        },
-        .{
-            .label = "CLI Reference",
-            .groups = [
                 .{
                     .label = "CLI Reference",
                     .pages = [
-                        .{ .path = "llmd/cli-reference/model-and-listener-flags", .label = "Model and listener flags", .icon = "icon-server" },
-                        .{ .path = "llmd/cli-reference/batching-and-memory", .label = "Batching and memory", .icon = "icon-cpu" },
-                        .{ .path = "llmd/cli-reference/sampling-and-decoding", .label = "Sampling and decoding", .icon = "icon-sliders" },
-                        .{ .path = "llmd/cli-reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
-                        .{ .path = "llmd/cli-reference/docker-options", .label = "Docker options", .icon = "icon-container" },
+                        .{ .path = "llmd/reference/model-and-listener-flags", .label = "Model and listener flags", .icon = "icon-server" },
+                        .{ .path = "llmd/reference/batching-and-memory", .label = "Batching and memory", .icon = "icon-cpu" },
+                        .{ .path = "llmd/reference/sampling-and-decoding", .label = "Sampling and decoding", .icon = "icon-sliders" },
+                        .{ .path = "llmd/reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
+                        .{ .path = "llmd/reference/docker-options", .label = "Docker options", .icon = "icon-container" },
                     ],
                 },
             ],

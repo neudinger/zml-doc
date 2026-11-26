@@ -3,7 +3,7 @@
 .description = "Look up sampling defaults, configure speculative decoding, and launch LLMD with a native or external drafter.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "CLI Reference" },
+.custom = .{ .doc_section = "Reference" },
 ---
 # [Compare launch commands]($heading.id('choose-a-decoding-mode'))
 
@@ -32,7 +32,7 @@ context length, and sampling settings.
 Standard decoding takes only the target model. Native multi-token prediction
 (MTP) uses the target's own drafter, as shown with `Qwen/Qwen3.8-Flash-Next`.
 The external example loads a compatible target and drafter from Hugging Face at launch.
-See [Model compatibility]($link.page('llmd/user-guide/model-compatibility')) for other models and modes.
+See [Model compatibility]($link.page('llmd/reference/model-compatibility')) for other models and modes.
 
 # [Sampling controls and precedence]($heading.id('sampling-and-speculative-decoding'))
 
@@ -56,7 +56,7 @@ documents these controls. Check the options exposed by your installed build.
 # [External drafter options]($heading.id('external-drafter-options'))
 
 Select the exact model, backend, and drafter under
-[External drafters]($link.page('llmd/user-guide/model-compatibility').unsafeRef('external-drafters')),
+[External drafters]($link.page('llmd/reference/model-compatibility').unsafeRef('external-drafters')),
 then choose **Configure launch**. External pairings use LLMD's defaults unless
 you supply an override or select a preset with its own settings.
 Omit `--speculative-draft-count` to use the count derived from the model
@@ -66,7 +66,7 @@ configuration.
 >
 > Download both repositories under `${HOME}/models`. Pass each host directory
 > to a native installation. See
-> [Local model files]($link.page('llmd/cli-reference/model-and-listener-flags').ref('local-model-files'))
+> [Local model files]($link.page('llmd/reference/model-and-listener-flags').ref('local-model-files'))
 > for directory contents and revision options.
 >
 > ```sh
@@ -88,5 +88,5 @@ configuration.
 >
 > The published Qwen3.8-27B recipe pairs the model with
 > `tencent/Qwen3.8-27B-DSpine-b16` and sets `--batch-size=1` on both
-> [CUDA]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('qwen3-8-27b-cuda-dspine'))
-> and [ROCm]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('qwen3-8-27b-rocm-dspine')).
+> [CUDA]($link.page('llmd/tutorial/start').unsafeRef('qwen3-8-27b-cuda-dspine'))
+> and [ROCm]($link.page('llmd/tutorial/start').unsafeRef('qwen3-8-27b-rocm-dspine')).

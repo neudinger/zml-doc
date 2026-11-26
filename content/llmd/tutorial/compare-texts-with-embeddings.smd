@@ -3,15 +3,15 @@
 .description = "Embed a query and two passages with Qwen3-Embedding-8B, then rank the passages by cosine similarity.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "Developer Guide" },
+.custom = .{ .doc_section = "Tutorials" },
 ---
 # [Start the embedding model]($heading.id('start-the-embedding-model'))
 
 Choose `Qwen/Qwen3-Embedding-8B` and your backend in the
-[Embeddings catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('embedding-checkpoints')),
+[Embeddings catalog]($link.page('llmd/reference/model-compatibility').unsafeRef('embedding-checkpoints')),
 then choose **Configure launch**. Use an LLMD build with the embeddings
 endpoint. Start the server and send the
-[first embeddings request]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('send-an-embeddings-request'))
+[first embeddings request]($link.page('llmd/tutorial/start').unsafeRef('send-an-embeddings-request'))
 to confirm it returns a vector.
 
 # [Rank two passages]($heading.id('rank-two-passages'))
@@ -96,4 +96,4 @@ for score, passage in sorted(ranked, reverse=True):
 ```
 
 For encoding options, vector sizes, and request limits, see the
-[Embeddings API reference]($link.page('llmd/api-reference/embeddings').ref('embeddings')).
+[Embeddings API reference]($link.page('llmd/reference/embeddings').ref('embeddings')).

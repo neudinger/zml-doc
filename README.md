@@ -1,9 +1,8 @@
 # ZML documentation site
 
 Static documentation built with Zine, SuperMD, and SuperHTML. The homepage
-links directly to the **Build with ZML** and **Serve models with LLMD** overviews.
-Each product has its own sections and sidebars. ZML uses Tutorials, How-to
-guides, Guide, and Reference. Operations is in the LLMD User Guide.
+links directly to the ZML overview and LLMD Quickstart.
+Both products use Tutorials, How To, Learn, and Reference, with separate sidebars.
 The implementation roadmap is in [plan.md](plan.md).
 
 ## Requirements
@@ -67,10 +66,9 @@ revision or hardware verification is claimed yet.
 
 ## Add a page
 
-ZML imports follow the folders and filenames in upstream `docs/`, with
-`.smd` extensions and `index.smd` for the documentation overview. Add LLMD
-pages under `content/llmd/<section>/<slug>.smd` using lowercase hyphenated
-slugs. Include a group directory for Operations and User Guide reference pages.
+Use `tutorial/`, `howto/`, `learn/`, and `reference/` under `content/zml/`
+and `content/llmd/`. Use lowercase hyphenated slugs for LLMD pages. Each
+product's landing page is its `index.smd`.
 
 ```text
 ---
@@ -94,15 +92,15 @@ from the **On this page** list. Use Zine page links such as
 deployment prefix. Assets are published when referenced; static asset directories
 can be declared explicitly in `zine.ziggy` when needed.
 
-Set `custom.doc_section` to the section label in the page front matter. LLMD
-pages default to `User Guide`. Add the page to a group under its product and section in
+Set `custom.doc_section` to the section label in the page front matter. Add the page
+to a group under its product and section in
 [`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Each section’s
 first page is its header tab destination. Breadcrumbs, the sidebar, and Previous/Next follow
 the same group and page order within that section. Put LLMD operations pages
-in the User Guide’s Operations group. Article headings supply the anchors for
+in the How To section’s Operations group. Article headings supply the anchors for
 the On this page navigation.
 
-Edit [Hardware compatibility](content/reference/compatibility.smd) and
+Edit [Hardware compatibility](content/zml/reference/hardware-compatibility.smd) and
 [Environment variables](content/zml/reference/environment-variables.smd) in their source articles.
 Both topics are listed in the ZML Reference. In LLMD, Hardware compatibility
 supports the Quickstart and Environment variables is in the CLI Reference.

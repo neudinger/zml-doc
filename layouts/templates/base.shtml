@@ -38,23 +38,17 @@
       </div>
     </div>
     <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
-         section="$page.custom.getOr('doc_section', 'User Guide')"
+         section="$page.custom.getOr('doc_section', 'Learn')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.index().link().suffix('llmd/'))"
+         llmd="$page.link().startsWith($site.page('llmd').link())"
          reference="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')).custom, $page.custom)">
       <nav class="page-width product-tabs" aria-label="Product documentation">
-        <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
-          <ctx :if="$loop.it.get('label').eql($ctx.section)">
-            <ctx section_start="$loop.it.get('groups').at(0).get('pages').at(0).get('path')">
-              <ctx zml_target="$site.page($ctx.zml.then($ctx.reference.getOr('zml_reference_path', 'zml'), 'zml'))"
-                   llmd_target="$site.page($ctx.llmd.then($ctx.reference.getOr('llmd_reference_path', $ctx.section_start), 'llmd/user-guide'))">
-                <a href="$ctx.zml_target.link()"
-                   aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
-                <a href="$ctx.llmd_target.link()"
-                   aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
-              </ctx>
-            </ctx>
-          </ctx>
+        <ctx zml_target="$site.page($ctx.zml.then($ctx.reference.getOr('zml_reference_path', 'zml'), 'zml'))"
+             llmd_target="$site.page('llmd')">
+          <a href="$ctx.zml_target.link()"
+             aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
+          <a href="$ctx.llmd_target.link()"
+             aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
         </ctx>
       </nav>
       <ctx :if="$ctx.zml.or($ctx.llmd)">
@@ -75,9 +69,9 @@
   </header>
   <main id="site-content" class="$site.index().isCurrent().then('page-width', 'page-width docs-layout')" tabindex="-1">
     <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
-         section="$page.custom.getOr('doc_section', 'User Guide')"
+         section="$page.custom.getOr('doc_section', 'Learn')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.index().link().suffix('llmd/'))">
+         llmd="$page.link().startsWith($site.page('llmd').link())">
       <ctx :if="$ctx.zml.or($ctx.llmd)">
         <details class="docs-sidebar" open>
           <summary :text="$ctx.section.prefix('Pages in ')"></summary>
@@ -121,9 +115,9 @@
       </form>
     </div>
     <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
-         section="$page.custom.getOr('doc_section', 'User Guide')"
+         section="$page.custom.getOr('doc_section', 'Learn')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.index().link().suffix('llmd/'))">
+         llmd="$page.link().startsWith($site.page('llmd').link())">
       <nav class="mobile-navigation-overview" aria-label="Site navigation" data-mobile-overview>
         <div class="mobile-navigation-products" data-mobile-products></div>
         <ctx :if="$ctx.zml.or($ctx.llmd)">

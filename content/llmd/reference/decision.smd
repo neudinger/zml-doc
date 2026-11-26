@@ -3,14 +3,14 @@
 .description = "Score typed questions about a shared input with POST /v1/systemone. Read labels, probabilities, and conditional results.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "API Reference" },
+.custom = .{ .doc_section = "Reference" },
 ---
 # [Send a Decision request]($heading.id('decision'))
 
 `POST /v1/systemone` accepts a JSON object and returns scored labels for the
 requested questions. The loaded model must support Decision. Use the
-[worked request]($link.page('llmd/developer-guide/ask-structured-questions').ref('send-a-decision-request'))
-or copy one from [Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('send-a-decision-request')).
+[worked request]($link.page('llmd/tutorial/ask-structured-questions').ref('send-a-decision-request'))
+or copy one from [Start LLMD on any platform]($link.page('llmd/tutorial/start').unsafeRef('send-a-decision-request')).
 
 | Request field | Type | Meaning |
 | --- | --- | --- |
@@ -112,6 +112,6 @@ object. For `DuplicateOptionToken`, choose labels whose first tokens differ.
 
 LLMD revision `ca575167` limits the request body to 4 MiB, accepts 1–1,024
 questions, and scores 2–16 options per question. Its Decision path is enabled
-for the LFM3 model implementation. See the [Decision catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('decision-checkpoints'))
-for model and build evidence, and [Parallel work and Decision requests]($link.page('llmd/cli-reference/batching-and-memory').ref('parallel-work-and-decision-requests'))
+for the LFM3 model implementation. See the [Decision catalog]($link.page('llmd/reference/model-compatibility').unsafeRef('decision-checkpoints'))
+for model and build evidence, and [Parallel work and Decision requests]($link.page('llmd/reference/batching-and-memory').ref('parallel-work-and-decision-requests'))
 for the per-request concurrency control `--systemone-window`.

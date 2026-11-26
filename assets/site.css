@@ -364,7 +364,6 @@ html:has(.mobile-navigation[open]) { overflow: hidden; }
 }
 .document { max-width: 48rem; padding-block: 4rem 5rem; }
 .docs-layout > .document { min-inline-size: 0; max-width: none; padding-block-start: 0; }
-.document-header { margin-bottom: 2.5rem; }
 .page-toc {
   display: block;
   border-block: 1px solid var(--border);

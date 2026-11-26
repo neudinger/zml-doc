@@ -5,7 +5,7 @@
     .reference_source = "zml/reference/environment-variables",
     .related_reference = "",
     .product = "LLMD",
-    .doc_section = "CLI Reference",
+    .doc_section = "Reference",
     .environment_initial_variable = "GOOGLE_APPLICATION_CREDENTIALS",
     .launch_modes = [
         .{ .id = "docker", .label = "Docker", .command_label = "Docker options before the image", .flow = ["Host environment", "Docker options", "LLMD container"] },

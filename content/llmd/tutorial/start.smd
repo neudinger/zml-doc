@@ -1,9 +1,10 @@
 ---
-.title = "Configure launch",
+.title = "Start LLMD on any platform",
 .description = "Generate LLMD install, launch, and request commands for your model and hardware.",
 .date = .date("2026-11-25T00:00:00"),
 .layout = "content.shtml",
 .custom = .{
+    .doc_section = "Tutorials",
     .outline_complete = true,
     .recipe_outline = [
         .{ .id = "before-you-start", .label = "Before you run" },
@@ -37,16 +38,16 @@
   <div id="deepseek-v4-1-flash-rocm"></div>
   <div id="mistral-large-4-cuda"></div>
   <div id="gemma-4-31b-it-cuda"></div>
-  <a id="llmd-benchmark" data-moved-topic data-pagefind-ignore href="../../operations/monitoring-and-troubleshooting/#scrape-service-metrics">Scrape service metrics</a>
-  <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../../../cli-reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
-  <a id="checkpoint-storage" data-moved-topic data-pagefind-ignore href="../../../cli-reference/model-and-listener-flags/#local-model-files">Required model files</a>
-  <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../../../cli-reference/environment-variables/#gated-model-access">Gated model access</a>
-  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../../cli-reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a>
-  <a id="troubleshooting" data-moved-topic data-pagefind-ignore href="../../operations/monitoring-and-troubleshooting/#diagnose-common-failures">Troubleshoot startup</a>
+  <a id="llmd-benchmark" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#scrape-service-metrics">Scrape service metrics</a>
+  <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../../reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
+  <a id="checkpoint-storage" data-moved-topic data-pagefind-ignore href="../../reference/model-and-listener-flags/#local-model-files">Required model files</a>
+  <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/environment-variables/#gated-model-access">Gated model access</a>
+  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a>
+  <a id="troubleshooting" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#diagnose-common-failures">Troubleshoot startup</a>
   <div class="llmd-launch-release">
     <strong>Target LLMD 2026.11.3</strong>
     <a href="https://zml.ai/posts/llmd-2026.11.3/">Release notes</a>
-    <p>Docker platform tags and Homebrew install the current release. <a href="../../../cli-reference/model-and-listener-flags/#check-installed-flags">Check installed flags</a> for your build.</p>
+    <p>Docker platform tags and Homebrew install the current release. <a href="../../reference/model-and-listener-flags/#check-installed-flags">Check installed flags</a> for your build.</p>
   </div>
   <div id="before-you-start" class="llmd-launch-requirements" data-toc-label="Before you run">
     <h2>Before you run</h2>
@@ -109,7 +110,7 @@ furiosa-cdi list</code></pre>
               </optgroup>
             </select>
             <span class="llmd-launch-field-hint llmd-launch-checkpoint-value" aria-hidden="true" data-selected-checkpoint></span>
-            <span class="llmd-launch-field-hint" id="llmd-launch-checkpoint-hint"><span role="status" data-fit></span> <a href="../../model-compatibility/">Model compatibility</a></span>
+            <span class="llmd-launch-field-hint" id="llmd-launch-checkpoint-hint"><span role="status" data-fit></span> <a href="../../reference/model-compatibility/">Model compatibility</a></span>
           </div>
           <div class="llmd-launch-field">
             <label for="llmd-launch-source">Model source</label>
@@ -121,7 +122,7 @@ furiosa-cdi list</code></pre>
             <span class="llmd-launch-field-hint" id="llmd-launch-source-hint"><span data-hint></span> <span data-download-tools hidden>Requires <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> on the host.</span></span>
             <details class="llmd-launch-field-hint" data-source-help>
               <summary>Access and storage</summary>
-              <a href="../../../cli-reference/environment-variables/#gated-model-access">Gated model access</a><span data-cloud-help> · <a href="../../../cli-reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a></span>
+              <a href="../../reference/environment-variables/#gated-model-access">Gated model access</a><span data-cloud-help> · <a href="../../reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a></span>
             </details>
           </div>
         </div>
@@ -129,7 +130,7 @@ furiosa-cdi list</code></pre>
           <div class="llmd-launch-field" data-local hidden>
             <label for="llmd-launch-directory">Host model directory</label>
             <textarea id="llmd-launch-directory" name="directory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-directory-error">${HOME}/models/LiquidAI/LFM3-1.7B</textarea>
-            <span class="llmd-launch-field-hint" id="llmd-launch-directory-hint">Use a directory under <code>${HOME}</code> for the model’s <code>config.json</code> and weights. <a href="../../../cli-reference/model-and-listener-flags/#local-model-files">Required model files</a></span>
+            <span class="llmd-launch-field-hint" id="llmd-launch-directory-hint">Use a directory under <code>${HOME}</code> for the model’s <code>config.json</code> and weights. <a href="../../reference/model-and-listener-flags/#local-model-files">Required model files</a></span>
             <span class="llmd-launch-field-error" id="llmd-launch-directory-error" data-field-error="directory" aria-live="polite"></span>
           </div>
           <div class="llmd-launch-field" data-decoding-field>
@@ -137,7 +138,7 @@ furiosa-cdi list</code></pre>
             <select id="llmd-launch-decoding" name="decoding" aria-describedby="llmd-decoding-hint">
               <option value="standard">Standard</option>
             </select>
-            <span class="llmd-launch-field-hint" id="llmd-decoding-hint"><span data-decoding-hint></span> <a href="../../../cli-reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a></span>
+            <span class="llmd-launch-field-hint" id="llmd-decoding-hint"><span data-decoding-hint></span> <a href="../../reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a></span>
             <div class="llmd-launch-field" data-drafter-field hidden>
               <label for="llmd-launch-drafter">Drafter model</label>
               <select id="llmd-launch-drafter" name="drafter" disabled aria-describedby="llmd-drafter-hint llmd-drafter-error"></select>
@@ -274,14 +275,14 @@ furiosa-cdi list</code></pre>
             <label class="llmd-launch-checkbox">
               <input name="hfToken" type="checkbox" aria-describedby="llmd-launch-token-hint"> Forward <code>HF_TOKEN</code>
             </label>
-            <p class="llmd-launch-hint" id="llmd-launch-token-hint">Pass the host’s token to Docker for <a href="../../../cli-reference/environment-variables/#gated-model-access">gated model access</a>.</p>
+            <p class="llmd-launch-hint" id="llmd-launch-token-hint">Pass the host’s token to Docker for <a href="../../reference/environment-variables/#gated-model-access">gated model access</a>.</p>
           </div>
         </details>
       </form>
     </section>
     <section class="llmd-launch-commands" id="llmd-launch-steps" aria-labelledby="llmd-launch-commands-heading" data-toc-parent="llmd-launch-steps">
       <h2 id="llmd-launch-commands-heading">Commands</h2>
-      <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or see the <a href="../../../cli-reference/docker-options/#run-a-local-checkpoint">CUDA Docker example</a>.</p></noscript>
+      <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or see the <a href="../../reference/docker-options/#run-a-local-checkpoint">CUDA Docker example</a>.</p></noscript>
       <dl class="llmd-launch-context" aria-label="Server connection">
         <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
         <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
@@ -313,7 +314,7 @@ furiosa-cdi list</code></pre>
       </details>
       <section class="llmd-launch-step" aria-labelledby="start-the-server">
         <h3 id="start-the-server" data-toc-label="Start LLMD"><span class="llmd-launch-step-number" aria-hidden="true">2</span> Start LLMD</h3>
-        <p class="llmd-launch-hint"><span data-launch-hint>Run each time you start the server.</span> <a href="../../operations/deploy-llmd/">Deployment guide</a></p>
+        <p class="llmd-launch-hint"><span data-launch-hint>Run each time you start the server.</span> <a href="../../howto/deploy-llmd/">Deployment guide</a></p>
         <div class="command-shell">
           <span class="command-language icon-code">Host shell</span>
           <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
@@ -342,7 +343,7 @@ furiosa-cdi list</code></pre>
           </div>
           <div id="send-a-chat-request" data-chat-request>
             <h3>Chat request</h3>
-            <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../../../api-reference/chat-completions/">Chat API</a></p>
+            <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../../reference/chat-completions/">Chat API</a></p>
             <div class="command-shell">
               <span class="command-language icon-code">Host shell</span>
               <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -352,7 +353,7 @@ furiosa-cdi list</code></pre>
           </div>
           <div id="send-a-decision-request" data-decision-request>
             <h3>Decision request</h3>
-            <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../../../developer-guide/ask-structured-questions/">Decision guide</a> · <a href="../../../api-reference/decision/">API reference</a></p>
+            <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../ask-structured-questions/">Decision tutorial</a> · <a href="../../reference/decision/">API reference</a></p>
             <div class="command-shell">
               <span class="command-language icon-code">Host shell</span>
               <pre><code class="sh" data-command="decision" data-copy-label="Copy Decision request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
@@ -369,7 +370,7 @@ furiosa-cdi list</code></pre>
           </div>
           <div id="send-an-embeddings-request" data-embeddings-request>
             <h3>Embeddings request</h3>
-            <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../../../developer-guide/compare-texts-with-embeddings/">Text similarity guide</a> · <a href="../../../api-reference/embeddings/">API reference</a></p>
+            <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../compare-texts-with-embeddings/">Text similarity tutorial</a> · <a href="../../reference/embeddings/">API reference</a></p>
             <noscript><p>For this example, use <code>--model=hf://Qwen/Qwen3-Embedding-8B</code> in the launch command above.</p></noscript>
             <div class="command-shell">
               <span class="command-language icon-code">Host shell</span>

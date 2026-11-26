@@ -1,0 +1,5 @@
+---
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Reference", .reference_source = "zml/reference/hardware-compatibility", .product = "LLMD" },
+---

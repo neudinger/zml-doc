@@ -3,12 +3,12 @@
 .description = "Send chat requests to LLMD, read streaming completions, and handle tool calls.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "API Reference" },
+.custom = .{ .doc_section = "Reference" },
 ---
 # [Create a chat completion]($heading.id('create-a-chat-completion'))
 
 Send JSON to `POST /v1/chat/completions` with the ID returned by
-[Models]($link.page('llmd/api-reference/models').ref('read-the-model-id')).
+[Models]($link.page('llmd/reference/models').ref('read-the-model-id')).
 The Basic and Streaming examples use `LiquidAI/LFM3-1.7B-FP8`.
 
 ## [Read the response]($heading.id('read-the-response'))
@@ -208,7 +208,7 @@ encoded as a JSON string. The client validates and executes the function.
 For the request-level sampling behavior documented in
 [LLMD 20261112.0](https://zml.ai/posts/llmd-20261112.0/#sampling-controls),
 `temperature` and `top_p` override the CLI value, then the model recommendation
-and fallback apply when needed. See [Sampling and decoding]($link.page('llmd/cli-reference/sampling-and-decoding'))
+and fallback apply when needed. See [Sampling and decoding]($link.page('llmd/reference/sampling-and-decoding'))
 for server defaults. Additional request fields and modalities depend on the
 release and model. Verify that optional fields have the intended effect on
 your release because the server can ignore unknown JSON fields.

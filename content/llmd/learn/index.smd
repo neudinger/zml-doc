@@ -3,6 +3,7 @@
 .description = "Applications send HTTP requests to LLMD, which runs the model.",
 .date = .date("2026-11-06T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Learn" },
 ---
 []($section.attrs('service-node','service-client','icon-code'))
 
@@ -10,7 +11,7 @@
 
 Send a request from your application to a running server.
 
-[Connect a client]($link.page('llmd/developer-guide/connect-an-application-to-llmd'))
+[Connect a client]($link.page('llmd/howto/connect-an-application-to-llmd'))
 
 []($section.attrs('service-http'))
 
@@ -22,7 +23,7 @@ HTTP
 
 Load a model and run inference on your hardware.
 
-[Start a server]($link.page('llmd/user-guide/quickstart'))
+[Start a server]($link.page('llmd'))
 
 []($section.attrs('service-node','service-operations','icon-activity'))
 
@@ -30,8 +31,8 @@ Load a model and run inference on your hardware.
 
 Deploy, monitor, and troubleshoot the LLMD server.
 
-[Deploy LLMD]($link.page('llmd/user-guide/operations/deploy-llmd'))
+[Deploy LLMD]($link.page('llmd/howto/deploy-llmd'))
 
 []($section.attrs('service-map-reference'))
 
-[Explore the LLMD on ZML architecture map]($link.page('llmd/developer-guide/llmd-on-zml').attrs('service-architecture','icon-boxes'))
+[Explore the LLMD on ZML architecture map]($link.page('llmd/learn/llmd-on-zml').attrs('service-architecture','icon-boxes'))

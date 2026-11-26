@@ -5,7 +5,7 @@
 .layout = "content.shtml",
 .custom = .{
     .zml_reference_path = "zml/reference/environment-variables",
-    .llmd_reference_path = "llmd/cli-reference/environment-variables",
+    .llmd_reference_path = "llmd/reference/environment-variables",
     .related_reference = "zml/reference/hardware-compatibility",
     .related_note = "to identify the runtime and artifact before applying backend-specific settings.",
     .product = "ZML",
@@ -296,8 +296,8 @@ the approved account. Export `HF_TOKEN` or sign in with
 
 ```=html
 <ul>
-  <li id="pass-variables-to-docker"><a href="../../../llmd/cli-reference/environment-variables/#pass-variables-to-docker">Pass variables to Docker</a></li>
-  <li id="llmd-outbound-proxies"><a href="../../../llmd/cli-reference/environment-variables/#llmd-outbound-proxies">Outbound proxies</a></li>
-  <li id="llmd-reporting-controls"><a href="../../../llmd/cli-reference/environment-variables/#llmd-reporting-controls">Reporting controls</a></li>
+  <li id="pass-variables-to-docker"><a href="../../../llmd/reference/environment-variables/#pass-variables-to-docker">Pass variables to Docker</a></li>
+  <li id="llmd-outbound-proxies"><a href="../../../llmd/reference/environment-variables/#llmd-outbound-proxies">Outbound proxies</a></li>
+  <li id="llmd-reporting-controls"><a href="../../../llmd/reference/environment-variables/#llmd-reporting-controls">Reporting controls</a></li>
 </ul>
 ```

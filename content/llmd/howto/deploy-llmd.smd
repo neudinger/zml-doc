@@ -3,9 +3,10 @@
 .description = "Deploy the LLMD CUDA container, verify inference, and retain a rollback path on one host.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "How To" },
 ---
 Deploy a single LLMD instance on a Linux x86-64 host with an NVIDIA GPU.
-Use the [LLMD quickstart]($link.page('llmd/user-guide/quickstart')) for a first chat
+Use the [LLMD quickstart]($link.page('llmd')) for a first chat
 request. This guide uses a local model and shows how to retain the
 running container for rollback when you upgrade.
 
@@ -16,11 +17,11 @@ running container for rollback when you upgrade.
   [NVIDIA's sample workload](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/sample-workload.html).
 - Choose a device with memory for the model and its KV cache. The example
   uses `LiquidAI/LFM3-1.7B-FP8`. Check
-  [Hardware compatibility]($link.page('llmd/user-guide/reference/hardware-compatibility')) for other image
+  [Hardware compatibility]($link.page('llmd/reference/hardware-compatibility')) for other image
   architectures, backends, and precisions.
 - Place all model files for the selected revision in one directory. Keep
   that directory available for restarts and rollback. For a remote model URI,
-  see [Cloud model URIs]($link.page('llmd/cli-reference/model-and-listener-flags').ref('cloud-model-uris')).
+  see [Cloud model URIs]($link.page('llmd/reference/model-and-listener-flags').ref('cloud-model-uris')).
 
 Record the LLMD version, model ID and revision, driver and device,
 and the exact startup flags. Record which credentials the deployment uses
@@ -43,8 +44,8 @@ docker run -d --name llmd --restart unless-stopped \
 ```
 
 This command requests every available NVIDIA GPU and sets the `/dev/shm`
-limit from the published CUDA recipe. See [Docker options]($link.page('llmd/cli-reference/docker-options'))
-for device selection and [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory'))
+limit from the published CUDA recipe. See [Docker options]($link.page('llmd/reference/docker-options'))
+for device selection and [Batching and memory]($link.page('llmd/reference/batching-and-memory'))
 for the server’s context and memory limits. The container and its logs
 remain available after it exits. Docker's restart policy starts the container
 again after an unexpected exit, subject to
@@ -77,7 +78,7 @@ curl -fsS http://127.0.0.1:8000/v1/chat/completions \
 ```
 
 Confirm the response contains text in `choices[0].message.content` before
-routing traffic. See [Monitoring and troubleshooting]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting'))
+routing traffic. See [Monitoring and troubleshooting]($link.page('llmd/howto/monitoring-and-troubleshooting'))
 if startup stalls, the model ID differs, or generation fails.
 
 # [4. Route client traffic]($heading.id('route-client-traffic'))
@@ -91,7 +92,7 @@ when configuring the host network.
 
 Set proxy timeouts for your expected inference duration and allow streaming
 events to pass through as they arrive. Repeat the chat request through the
-client-facing endpoint. See [Stream a chat completion]($link.page('llmd/api-reference/chat-completions').ref('stream-a-chat-completion'))
+client-facing endpoint. See [Stream a chat completion]($link.page('llmd/reference/chat-completions').ref('stream-a-chat-completion'))
 for streaming request and response formats.
 
 # [5. Upgrade or roll back]($heading.id('upgrade-or-roll-back'))

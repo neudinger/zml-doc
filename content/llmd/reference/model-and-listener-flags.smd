@@ -3,7 +3,7 @@
 .description = "Select a model, set the served model ID, and bind the LLMD HTTP listener.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "CLI Reference" },
+.custom = .{ .doc_section = "Reference" },
 ---
 These defaults come from the LLMD source reviewed on 16 November 2026.
 Use `--name=value` for an option with a value and a bare flag for a boolean
@@ -71,7 +71,7 @@ switch.
 ```
 
 - `--model` selects the directory or URI.
-- `--model-name` makes the examples serve `qwen3-4b`. Verify the ID with [Models]($link.page('llmd/api-reference/models')).
+- `--model-name` makes the examples serve `qwen3-4b`. Verify the ID with [Models]($link.page('llmd/reference/models')).
 - `--listen` binds these native examples to `127.0.0.1:8000` for local access.
 
 # [Model storage prerequisites]($heading.id('model-storage-prerequisites'))
@@ -84,11 +84,11 @@ template or generation settings together from the same revision.
 `Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
 pooling configuration files.
 
-In [Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3')), **Download first**
+In [Start LLMD on any platform]($link.page('llmd/tutorial/start')), **Download first**
 generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
 To pin a download, add `--revision <commit>` to that command and give each
 revision its own local directory. Native LLMD reads the host path directly.
-For Docker, see [Run a local model]($link.page('llmd/cli-reference/docker-options').ref('run-a-local-checkpoint')).
+For Docker, see [Run a local model]($link.page('llmd/reference/docker-options').ref('run-a-local-checkpoint')).
 
 ## [Cloud model URIs]($heading.id('cloud-model-uris'))
 
@@ -97,8 +97,8 @@ launch. For S3 or Google Cloud Storage, keep the model files together under
 one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
 `--model=gs://my-bucket/llm/model`. To adapt a generated launch command, choose
 **Load at launch** and replace its `--model` value with the bucket URI.
-Configure [model storage credentials]($link.page('llmd/cli-reference/environment-variables').unsafeRef('model-storage-and-credentials'))
-in the environment that runs LLMD. See [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
+Configure [model storage credentials]($link.page('llmd/reference/environment-variables').unsafeRef('model-storage-and-credentials'))
+in the environment that runs LLMD. See [Environment variables]($link.page('llmd/reference/environment-variables'))
 for proxy settings and diagnostics.
 
 # [Select the I/O implementation]($heading.id('io-implementation'))
@@ -113,8 +113,8 @@ your LLMD build.
 # [Check installed flags]($heading.id('check-installed-flags'))
 
 Check the help from your installed binary or container for the options
-it exposes. The CUDA recipe in the
-[Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-fp8-cuda')) uses
+it exposes. The CUDA recipe in
+[Start LLMD on any platform]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda')) uses
 `zmlai/llmd:cuda`. Docker options go before the image name. LLMD options go
 after it.
 

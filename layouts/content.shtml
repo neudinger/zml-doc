@@ -55,23 +55,23 @@
 <main id="site-content">
   <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
        product="$page.link().startsWith($site.page('zml').link()).then('zml', 'llmd')"
-       section="$page.custom.getOr('doc_section', 'User Guide')">
+       section="$page.custom.getOr('doc_section', 'Learn')">
     <ctx :loop="$ctx.catalog.get($ctx.product)">
       <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.get('groups')">
         <ctx :loop="$ctx.groups">
           <ctx group="$loop.it" show_group="$loop.first.not()">
             <ctx :loop="$ctx.group.get('pages')">
               <ctx :if="$site.page($loop.it.get('path')).isCurrent()"
-                   overview="$site.page($ctx.product.eql('zml').then('zml', 'llmd/user-guide'))"
+                   overview="$site.page($ctx.product.eql('zml').then('zml', 'llmd'))"
                    section_start="$site.page($ctx.groups.at(0).get('pages').at(0).get('path'))"
                    product_label="$ctx.product.eql('zml').then('ZML', 'LLMD')">
                 <nav class="docs-breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
                   <ol role="list">
                     <li>
-                      <ctx :if="$ctx.section.eql('User Guide')">
+                      <ctx :if="$ctx.overview.link().eql($ctx.section_start.link())">
                         <span :text="$ctx.product_label"></span>
                       </ctx>
-                      <ctx :if="$ctx.section.eql('User Guide').not()">
+                      <ctx :if="$ctx.overview.link().eql($ctx.section_start.link()).not()">
                         <a href="$ctx.overview.link()" :text="$ctx.product_label"></a>
                       </ctx>
                     </li>
@@ -249,14 +249,9 @@
             </div>
           </ctx>
         </ctx>
-        <ctx legacy="$page.custom.has('reference_source').and($page.custom.has('product').not())">
+        <ctx related_reference="$page.custom.getOr('related_reference', $ctx.article.custom.getOr('related_reference', ''))">
           <ctx :if="$ctx.article.custom.has('environment_groups').not()">
-            <ctx :if="$ctx.legacy">
-              <div class="prose" data-pagefind-ignore :html="$ctx.article.content()"></div>
-            </ctx>
-            <ctx :if="$ctx.legacy.not()">
-              <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
-            </ctx>
+            <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
           </ctx>
           <ctx :if="$ctx.article.content().contains('data-llmd-launch')">
             <table hidden data-llmd-pairings data-pagefind-ignore>
@@ -294,14 +289,14 @@
               </ctx>
             </div>
           </ctx>
-          <ctx :if="$site.page('llmd/user-guide/model-compatibility').isCurrent()">
+          <ctx :if="$site.page('llmd/reference/model-compatibility').isCurrent()">
             <section data-llmd-pairings class="prose" data-pagefind-body aria-labelledby="external-drafters">
               <h2 id="external-drafters">External drafters</h2>
               <p>Each entry records a reported target and drafter pairing. A recorded run or published recipe identifies the hardware used. <a href="$site.asset('llmd-drafters.ziggy').link()">Pairing source file</a></p>
               <table>
                 <thead><tr><th scope="col">Target model</th><th scope="col">Drafter model</th></tr></thead>
                 <tbody>
-                  <ctx backends="$site.asset('llmd-routines.ziggy').ziggy().get('backends')" configure="$site.page('llmd/user-guide/configure-launch/2026.11.3').link()"
+                  <ctx backends="$site.asset('llmd-routines.ziggy').ziggy().get('backends')" configure="$site.page('llmd/tutorial/start').link()"
                        :loop="$site.asset('llmd-drafters.ziggy').ziggy().get('checkpoints')">
                     <ctx model="$loop.it">
                       <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
@@ -335,7 +330,7 @@
               <table data-llmd-routines>
                 <thead><tr><th scope="col">Model</th><th scope="col">Decoding and launch</th></tr></thead>
                 <tbody>
-                  <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()" configure="$site.page('llmd/user-guide/configure-launch/2026.11.3').link()">
+                  <ctx routines="$site.asset('llmd-routines.ziggy').ziggy()" configure="$site.page('llmd/tutorial/start').link()">
                     <ctx :loop="$ctx.routines.get('checkpoints')">
                       <ctx model="$loop.it" :if="$loop.it.has('modes')">
                         <tr data-checkpoint="$ctx.model.get('id')" data-family="$ctx.model.get('family')" data-precision="$ctx.model.getOr('precision', '')">
@@ -366,13 +361,13 @@
                 </tbody>
               </table>
             </section>
-            <ctx inventory="$site.asset('llmd-routines.ziggy').ziggy()" configure="$site.page('llmd/user-guide/configure-launch/2026.11.3').link()">
+            <ctx inventory="$site.asset('llmd-routines.ziggy').ziggy()" configure="$site.page('llmd/tutorial/start').link()">
               <ctx :loop="$ctx.inventory.get('capabilities')">
                 <ctx capability="$loop.it">
                   <section data-llmd-capability-list data-request="$ctx.capability.get('id')" class="prose" data-pagefind-body aria-labelledby="$ctx.capability.get('anchor')">
                     <h2 id="$ctx.capability.get('anchor')" :text="$ctx.capability.get('heading')"></h2>
                     <p :text="$ctx.capability.get('description')"></p>
-                    <p><a href="$site.asset('llmd-routines.ziggy').link()">Capability source file</a> · <a href="$site.page($ctx.capability.get('id').eql('decision').then('llmd/developer-guide/ask-structured-questions', 'llmd/developer-guide/compare-texts-with-embeddings')).link()" :text="$ctx.capability.get('id').eql('decision').then('Decision guide', 'Text similarity guide')"></a></p>
+                    <p><a href="$site.asset('llmd-routines.ziggy').link()">Capability source file</a> · <a href="$site.page($ctx.capability.get('id').eql('decision').then('llmd/tutorial/ask-structured-questions', 'llmd/tutorial/compare-texts-with-embeddings')).link()" :text="$ctx.capability.get('id').eql('decision').then('Decision tutorial', 'Text similarity tutorial')"></a></p>
                     <table>
                       <thead><tr><th scope="col">Model</th><th scope="col">Configure launch</th></tr></thead>
                       <tbody>
@@ -401,24 +396,13 @@
               </ctx>
             </ctx>
           </ctx>
-          <ctx related_reference="$page.custom.getOr('related_reference', $ctx.article.custom.getOr('related_reference', ''))">
-            <ctx :if="$ctx.related_reference.eql('').not()" related="$site.page($ctx.related_reference)">
-              <p class="prose" data-pagefind-ignore>See
-                <a :if="$ctx.legacy" href="$ctx.related.link()" :text="$ctx.related.title"></a>
-                <ctx :if="$ctx.legacy.not()">
-                  <a href="$site.page($ctx.related.custom.get($page.custom.get('product').lower().suffix('_reference_path'))).link()" :text="$ctx.related.title"></a>
-                </ctx>
-                <span :text="$page.custom.getOr('related_note', $ctx.article.custom.getOr('related_note', ''))"></span></p>
-            </ctx>
-          </ctx>
-          <ctx :if="$ctx.legacy">
-            <nav id="next-steps" class="reference-products" aria-label="Read this reference in a product">
-              <a href="$site.page($ctx.article.custom.get('zml_reference_path')).link()">Read in ZML →</a>
-              <a href="$site.page($ctx.article.custom.get('llmd_reference_path')).link()">Read in LLMD →</a>
-            </nav>
+          <ctx :if="$ctx.related_reference.eql('').not()" related="$site.page($ctx.related_reference)">
+            <p class="prose" data-pagefind-ignore>See
+              <a href="$site.page($ctx.related.custom.get($page.custom.get('product').lower().suffix('_reference_path'))).link()" :text="$ctx.related.title"></a>
+              <span :text="$page.custom.getOr('related_note', $ctx.article.custom.getOr('related_note', ''))"></span></p>
           </ctx>
         </ctx>
-        <ctx section="$page.custom.getOr('doc_section', 'User Guide')"
+        <ctx section="$page.custom.getOr('doc_section', 'Learn')"
              sections="$site.asset('docs-navigation.ziggy').ziggy().get($page.link().startsWith($site.page('zml').link()).then('zml', 'llmd'))">
           <ctx :loop="$ctx.sections">
             <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.get('groups')"

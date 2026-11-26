@@ -3,7 +3,7 @@
 .description = "Send a state and typed questions to LLMD, use conditional questions, and read scored labels.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "Developer Guide" },
+.custom = .{ .doc_section = "Tutorials" },
 ---
 Send a shared state and typed questions to `POST /v1/systemone`. LLMD returns
 a scored label for each question it answers. This example classifies an animal,
@@ -11,14 +11,14 @@ asks a follow-up for cats, and rates playfulness on a three-label scale.
 
 # [Send a Decision request]($heading.id('send-a-decision-request'))
 
-In the [Decision catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('decision-checkpoints')),
+In the [Decision catalog]($link.page('llmd/reference/model-compatibility').unsafeRef('decision-checkpoints')),
 choose `LiquidAI/LFM3-1.7B` and your backend, then choose **Configure launch**.
 The catalog also lists the StartLux Decision v1.1 Instant and AutoThink
 models. Use the generated commands to start LLMD
 and check the loaded model with `GET /v1/models`.
 
 Explore either animal answer below. To try the request, run it in a second
-terminal. It uses port `8000`. Configure launch uses your selected port.
+terminal. It uses port `8000`. The generated request uses the port you select.
 
 ```=html
 <div class="decision-example" data-toc-parent="send-a-decision-request">
@@ -80,5 +80,5 @@ The `answers` object uses the question IDs from your request.
   `"ask_if": {"animal": ["cat"]}` to `rating`.
 
 Check each entry for `error` or `skipped` before reading its label and
-scores. See the [Decision API reference]($link.page('llmd/api-reference/decision').ref('decision'))
+scores. See the [Decision API reference]($link.page('llmd/reference/decision').ref('decision'))
 for label probabilities, token usage, and request validation.

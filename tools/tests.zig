@@ -149,8 +149,8 @@ fn pairingTable(fixture: *Fixture, path: []const u8) ![]const u8 {
 
 fn checkDrafterHandoffs(fixture: *Fixture) !void {
     const allocator = fixture.arena.allocator();
-    const catalog = try pairingTable(fixture, "dist/llmd/user-guide/model-compatibility/index.html");
-    const launch_route = "/llmd/user-guide/configure-launch/2026.11.3/";
+    const catalog = try pairingTable(fixture, "dist/llmd/reference/model-compatibility/index.html");
+    const launch_route = "/llmd/tutorial/start/";
     const workspace = try pairingTable(fixture, "dist" ++ launch_route ++ "index.html");
     var checkpoints: std.StringHashMapUnmanaged(void) = .empty;
     var pairs: std.StringHashMapUnmanaged(void) = .empty;
@@ -206,7 +206,8 @@ fn checkDrafterHandoffs(fixture: *Fixture) !void {
 
 fn checkRemovedRedirects(fixture: *Fixture) !void {
     for ([_][]const u8{
-        "dist/llmd/index.html",
+        "dist/llmd/tutorial/quickstart/index.html",
+        "dist/llmd/howto/configure-launch/2026.11.3/index.html",
         "dist/llmd/developer-guide/index.html",
         "dist/llmd/quickstart/index.html",
         "dist/llmd/user-guide/configure-launch/index.html",
@@ -218,6 +219,23 @@ fn checkRemovedRedirects(fixture: *Fixture) !void {
         "dist/zml/cli-reference/environment-variables/index.html",
     }) |path| {
         try std.testing.expect(!try files.exists(std.testing.io, try fixture.path(path)));
+    }
+}
+
+fn checkLlmdProductLinks(fixture: *Fixture) !void {
+    const allocator = fixture.arena.allocator();
+    for ([_][]const u8{
+        "dist/zml/tutorial/getting_started/index.html",
+        "dist/llmd/reference/model-compatibility/index.html",
+        "dist/llmd/reference/environment-variables/index.html",
+    }) |path| {
+        const page = try files.read(allocator, std.testing.io, try fixture.path(path));
+        const product_menu = std.mem.cut(u8, page, "aria-label=\"Product documentation\"") orelse return error.MissingProductNavigation;
+        const contents = std.mem.cut(u8, product_menu[1], "</nav>") orelse return error.MissingProductNavigation;
+        var links = website.attributes(contents[0], "href");
+        _ = links.next() orelse return error.MissingZmlProductLink;
+        const llmd_link = links.next() orelse return error.MissingLlmdProductLink;
+        try std.testing.expect(std.mem.endsWith(u8, llmd_link, "/llmd/"));
     }
 }
 
@@ -267,6 +285,9 @@ test "render and validation failures preserve the last site; success removes sta
     _ = try website.build(allocator, std.testing.io, options);
     try checkDrafterHandoffs(&fixture);
     try checkRemovedRedirects(&fixture);
+    try checkLlmdProductLinks(&fixture);
+    const quickstart = try files.read(allocator, std.testing.io, try fixture.path("dist/llmd/index.html"));
+    try std.testing.expect(std.mem.indexOf(u8, quickstart, "<h1>LLMD quickstart</h1>") != null);
     try std.testing.expect(try files.exists(
         std.testing.io,
         try fixture.path("dist/index.html"),

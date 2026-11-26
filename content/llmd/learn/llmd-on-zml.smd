@@ -3,7 +3,7 @@
 .description = "See how LLMD serves requests and how ZML compiles models, loads weights and runs inference on the selected hardware.",
 .date = .date("2026-11-19T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "Developer Guide", .architecture = true },
+.custom = .{ .doc_section = "Learn", .architecture = true },
 ---
 **[Component references]($text.id('detailed-atlas'))**
 
@@ -14,12 +14,12 @@
 
 | Endpoint | Result |
 | --- | --- |
-| [Chat completions]($link.page('llmd/api-reference/chat-completions')) · [/v1/chat/completions]($text.id('component-chat-completions')) | An OpenAI-compatible client or SDK sends messages. LLMD returns a completion or streams the generated text. |
-| [Embeddings]($link.page('llmd/api-reference/embeddings')) · [/v1/embeddings]($text.id('component-embeddings')) | The model pools its output on the device and returns a vector for each input text. |
-| [Decision]($link.page('llmd/api-reference/decision')) · [/v1/systemone]($text.id('component-decision')) | The client supplies one state and a set of yes/no, choice or score questions. A question can depend on an earlier answer. |
+| [Chat completions]($link.page('llmd/reference/chat-completions')) · [/v1/chat/completions]($text.id('component-chat-completions')) | An OpenAI-compatible client or SDK sends messages. LLMD returns a completion or streams the generated text. |
+| [Embeddings]($link.page('llmd/reference/embeddings')) · [/v1/embeddings]($text.id('component-embeddings')) | The model pools its output on the device and returns a vector for each input text. |
+| [Decision]($link.page('llmd/reference/decision')) · [/v1/systemone]($text.id('component-decision')) | The client supplies one state and a set of yes/no, choice or score questions. A question can depend on an earlier answer. |
 
 For [observability]($text.id('component-observability')), LLMD exposes Prometheus metrics and provides crash reports.
-See [Monitor and troubleshoot LLMD]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting').ref('scrape-service-metrics')) to inspect service metrics during a run.
+See [Monitor and troubleshoot LLMD]($link.page('llmd/howto/monitoring-and-troubleshooting').ref('scrape-service-metrics')) to inspect service metrics during a run.
 
 # [Serving engine]($heading.id('engine'))
 
@@ -67,8 +67,8 @@ The [engine]($text.id('component-engine')) prepares input, schedules model execu
 </dl>
 ```
 
-See [Batching and memory]($link.page('llmd/cli-reference/batching-and-memory')) for scheduler and cache flags,
-and [External drafters]($link.page('llmd/user-guide/model-compatibility').unsafeRef('external-drafters')) for model pairings.
+See [Batching and memory]($link.page('llmd/reference/batching-and-memory')) for scheduler and cache flags,
+and [External drafters]($link.page('llmd/reference/model-compatibility').unsafeRef('external-drafters')) for model pairings.
 
 ## [Execution setup]($heading.id('engine-execution-setup'))
 
@@ -111,7 +111,7 @@ The optional [DSpark drafter]($text.id('component-dspark-drafter')) uses one dec
 | [mHC]($text.id('component-mhc')) | Mixes residual streams before and after attention and expert computation. |
 | [Paged caches]($text.id('component-paged-caches')) | Window KV uses FP8. Compressed KV and indexer keys use FP4. |
 
-The [model compatibility catalog]($link.page('llmd/user-guide/model-compatibility')) lists the published launch recipes for this model.
+The [model compatibility catalog]($link.page('llmd/reference/model-compatibility')) lists the published launch recipes for this model.
 
 # [Kernel implementations]($heading.id('kernels'))
 
@@ -196,8 +196,8 @@ Flash Linear Attention, DeepGEMM mHC and DeepSelect as examples of kernel implem
 # [Platforms]($heading.id('platforms'))
 
 The [framework targets]($text.id('component-platforms')) below show each platform’s runtime and kernel languages.
-To deploy a server, check the [LLMD distributions]($link.page('llmd/user-guide/reference/hardware-compatibility'))
-and the [model recipes]($link.page('llmd/user-guide/model-compatibility')) for your hardware.
+To deploy a server, check the [LLMD distributions]($link.page('llmd/reference/hardware-compatibility'))
+and the [model recipes]($link.page('llmd/reference/model-compatibility')) for your hardware.
 
 | Framework target | Runtime or architecture | Kernel languages shown |
 | --- | --- | --- |

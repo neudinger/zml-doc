@@ -3,14 +3,14 @@
 .description = "Create text vectors with POST /v1/embeddings. Send one string or a batch and choose the vector dimensions and encoding.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
-.custom = .{ .doc_section = "API Reference" },
+.custom = .{ .doc_section = "Reference" },
 ---
 # [Create embeddings]($heading.id('embeddings'))
 
 `POST /v1/embeddings` maps input text to a numeric vector using the loaded
 embedding model. Choose `Qwen/Qwen3-Embedding-8B` in the
-[Embeddings catalog]($link.page('llmd/user-guide/model-compatibility').unsafeRef('embedding-checkpoints')).
-[Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('send-an-embeddings-request'))
+[Embeddings catalog]($link.page('llmd/reference/model-compatibility').unsafeRef('embedding-checkpoints')).
+[Start LLMD on any platform]($link.page('llmd/tutorial/start').unsafeRef('send-an-embeddings-request'))
 generates an embeddings request with the selected host port.
 
 Both examples request 32 dimensions. The illustrative outputs show the
@@ -104,7 +104,7 @@ this command to reproduce the output format above.
 jq '[.data[] | {index, dimensions: (.embedding | length), first_four: .embedding[:4]}]'
 ```
 
-See [Compare texts with embeddings]($link.page('llmd/developer-guide/compare-texts-with-embeddings'))
+See [Compare texts with embeddings]($link.page('llmd/tutorial/compare-texts-with-embeddings'))
 for a client that ranks passages using the returned vectors.
 
 # [Limits and errors]($heading.id('embedding-limits-and-errors'))

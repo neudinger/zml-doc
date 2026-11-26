@@ -7,7 +7,7 @@
     .product = "ZML",
     .doc_section = "Reference",
     .zml_reference_path = "zml/reference/hardware-compatibility",
-    .llmd_reference_path = "llmd/user-guide/reference/hardware-compatibility",
+    .llmd_reference_path = "llmd/reference/hardware-compatibility",
     .related_reference = "zml/reference/environment-variables",
     .related_note = "for model credentials and backend settings.",
 },
@@ -38,19 +38,19 @@ and models its examples recognize.
 
 | Platform | Host architecture | Distribution |
 | --- | --- | --- |
-| NVIDIA CUDA | Linux amd64 or arm64 | `zmlai/llmd:cuda` · [Configure]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-fp8-cuda')) |
-| AMD ROCm | Linux amd64 | `zmlai/llmd:rocm` · [Configure]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-fp8-rocm')) |
-| Intel oneAPI | Linux amd64 | `zmlai/llmd:oneapi` · [Configure]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-oneapi')) |
-| Google TPU | Google TPU VM, Linux amd64 | `zmlai/llmd:tpu` · [Configure]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-tpu')) |
-| Apple Metal | macOS Tahoe or later on Apple Silicon | `brew install zml/zml/llmd` · [Configure]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-fp8-metal')) |
-| Furiosa RNGD | Linux amd64 | `zmlai/llmd:furiosa` · [Configure]($link.page('llmd/user-guide/configure-launch/2026.11.3').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
+| NVIDIA CUDA | Linux amd64 or arm64 | `zmlai/llmd:cuda` · [Configure]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda')) |
+| AMD ROCm | Linux amd64 | `zmlai/llmd:rocm` · [Configure]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-rocm')) |
+| Intel oneAPI | Linux amd64 | `zmlai/llmd:oneapi` · [Configure]($link.page('llmd/tutorial/start').unsafeRef('lfm3-oneapi')) |
+| Google TPU | Google TPU VM, Linux amd64 | `zmlai/llmd:tpu` · [Configure]($link.page('llmd/tutorial/start').unsafeRef('lfm3-tpu')) |
+| Apple Metal | macOS Tahoe or later on Apple Silicon | `brew install zml/zml/llmd` · [Configure]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-metal')) |
+| Furiosa RNGD | Linux amd64 | `zmlai/llmd:furiosa` · [Configure]($link.page('llmd/tutorial/start').unsafeRef('lfm3-furiosa')) · [Container device setup](https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html). |
 
 Check the architectures available for each backend on [Docker Hub](https://hub.docker.com/r/zmlai/llmd/tags).
 
 # [Model examples]($heading.id('checkpoint-examples'))
 
 These combinations come from the upstream LLMD release recipes. See
-[Model compatibility]($link.page('llmd/user-guide/model-compatibility')) for additional models and
+[Model compatibility]($link.page('llmd/reference/model-compatibility')) for additional models and
 backend-specific launch recipes.
 
 | Model | Precision | Backends in the published recipe | Evidence |

@@ -3,7 +3,12 @@
 .description = "Start a local server and send your first chat request.",
 .date = .date("2026-11-17T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "Tutorials" },
 ---
+
+LLMD is ZML's LLM server that runs many models on any platform at full speed.
+You can even try it on your laptop.
+
 # [Before you run]($heading.id('what-you-need'))
 
 ```=html
@@ -12,6 +17,9 @@
   <p>On M1 and M2, use LLMD 20261112.0 or later.</p>
 </div>
 ```
+
+For another model or accelerator, see [Start LLMD on any platform]($link.page('llmd/tutorial/start')).
+
 
 # [Run the server]($heading.id('run-local-server'))
 
@@ -57,8 +65,4 @@ After the model loads, send this request from a second terminal.
 </div>
 ```
 
-# [Other hardware and models]($heading.id('other-launch-settings'))
-
-[Configure launch]($link.page('llmd/user-guide/configure-launch/2026.11.3')) for another model or accelerator.
-
-[Troubleshoot startup]($link.page('llmd/user-guide/operations/monitoring-and-troubleshooting').ref('diagnose-common-failures'))
+[Troubleshoot startup]($link.page('llmd/howto/monitoring-and-troubleshooting').ref('diagnose-common-failures'))

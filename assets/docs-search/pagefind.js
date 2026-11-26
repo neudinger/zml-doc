@@ -1,10 +1,10 @@
 import { createInstance as createPagefind } from "../pagefind/pagefind.js";
 
-const sectionNames = {
-  "user-guide": "User Guide",
-  "developer-guide": "Developer Guide",
-  "api-reference": "API Reference",
-  "cli-reference": "CLI Reference",
+const llmdSectionNames = {
+  tutorial: "Tutorials",
+  howto: "How To",
+  learn: "Learn",
+  reference: "Reference",
 };
 const titleFilter = "page_title";
 
@@ -15,10 +15,9 @@ function titleKey(title) {
 function resultContext(url, basePath) {
   const path = new URL(url, document.baseURI).pathname;
   if (!path.startsWith(basePath)) return "";
-  const [product, section, group] = path.slice(basePath.length).split("/");
+  const [product, section] = path.slice(basePath.length).split("/");
   if (product !== "zml" && product !== "llmd") return "";
-  const labels = [product.toUpperCase(), sectionNames[section]];
-  if (group === "operations") labels.push("Operations");
+  const labels = [product.toUpperCase(), product === "llmd" ? llmdSectionNames[section || "tutorial"] : undefined];
   return labels.filter(Boolean).join(" / ");
 }
 

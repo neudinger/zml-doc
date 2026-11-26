@@ -3,12 +3,13 @@
 .description = "Check service readiness, scrape Prometheus metrics, and diagnose startup and request failures.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
+.custom = .{ .doc_section = "How To" },
 ---
 # [Diagnose common failures]($heading.id('diagnose-common-failures'))
 
 Follow the checks in order until you find the first failure. Use the host and
 port from your launch command. The examples use `127.0.0.1:8000` and, for Docker,
-the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operations/deploy-llmd')).
+the container name `llmd` from [Deploy LLMD]($link.page('llmd/howto/deploy-llmd')).
 
 ```=html
 <div class="readiness-path" data-readiness-path>
@@ -39,7 +40,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             <dt>Expected result</dt>
             <dd>LLMD can read all files for the selected model revision.</dd>
             <dt>Recovery</dt>
-            <dd>Confirm <a href="../../../cli-reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../../cli-reference/model-and-listener-flags/#local-model-files">local model directory</a> and bind mount.</dd>
+            <dd>Confirm <a href="../../reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../reference/model-and-listener-flags/#local-model-files">local model directory</a> and bind mount.</dd>
           </dl>
         </section>
         <section id="device-unavailable" data-readiness-symptom aria-labelledby="device-unavailable-title">
@@ -97,7 +98,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             <dt>Expected result</dt>
             <dd>The selected host port is free and the health request succeeds after startup.</dd>
             <dt>Recovery</dt>
-            <dd>Choose a free <strong>Host port</strong> under <strong>Launch options</strong> in <a href="../../configure-launch/2026.11.3/">Configure launch</a>. Use it for the model check and API requests.</dd>
+            <dd>Choose a free <strong>Host port</strong> under <strong>Launch options</strong> in <a href="../../tutorial/start/">Start LLMD on any platform</a>. Use it for the model check and API requests.</dd>
           </dl>
         </section>
       </div>
@@ -125,7 +126,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
               <pre><code class="json" data-copy-label="Copy example models response">{ "data": [{ "id": "lfm3" }] }</code></pre>
             </dd>
             <dt>Recovery</dt>
-            <dd>Use that value verbatim as the <code>model</code> field in your request, for example <code>"model": "lfm3"</code>. The <a href="../../../api-reference/models/#read-the-model-id">Models API reference</a> explains how <code>--model-name</code> sets the served ID.</dd>
+            <dd>Use that value verbatim as the <code>model</code> field in your request, for example <code>"model": "lfm3"</code>. The <a href="../../reference/models/#read-the-model-id">Models API reference</a> explains how <code>--model-name</code> sets the served ID.</dd>
           </dl>
         </section>
       </div>
@@ -148,7 +149,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             <dt>Expected result</dt>
             <dd>The complete prompt is shorter than the context limit.</dd>
             <dt>Recovery</dt>
-            <dd>Shorten the conversation and retry the request. See <a href="../../../api-reference/chat-completions/#errors">Chat completion errors</a>.</dd>
+            <dd>Shorten the conversation and retry the request. See <a href="../../reference/chat-completions/#errors">Chat completion errors</a>.</dd>
           </dl>
         </section>
         <section id="requests-out-of-memory" data-readiness-symptom aria-labelledby="requests-out-of-memory-title">
@@ -161,7 +162,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/user-guide/operati
             <dt>Expected result</dt>
             <dd>The rejection counter stays flat while those requests run.</dd>
             <dt>Recovery</dt>
-            <dd>Reduce concurrency or context length and retest the same workload. See <a href="../../../cli-reference/batching-and-memory/">Batching and memory</a>.</dd>
+            <dd>Reduce concurrency or context length and retest the same workload. See <a href="../../reference/batching-and-memory/">Batching and memory</a>.</dd>
           </dl>
         </section>
       </div>
@@ -193,7 +194,7 @@ curl --max-time 5 -fsS http://127.0.0.1:8000/v1/models
 ```
 
 `/health` returns `OK` when its handler responds. Check the expected model ID in
-`/v1/models`, then send a [short chat request]($link.page('llmd/api-reference/chat-completions').ref('create-a-chat-completion')) and verify
+`/v1/models`, then send a [short chat request]($link.page('llmd/reference/chat-completions').ref('create-a-chat-completion')) and verify
 that it generates a reply before routing traffic to the instance.
 
 # [Scrape service metrics]($heading.id('scrape-service-metrics'))
@@ -235,7 +236,7 @@ For a job named `llmd`, use this [PromQL rate expression](https://prometheus.io/
 for average output tokens per second by served model over five minutes.
 
 ```promql
-sum by (model_name) (rate(output_tokens_total{job="llmd/user-guide"}[5m]))
+sum by (model_name) (rate(output_tokens_total{job="llmd"}[5m]))
 ```
 
 Validate the series and labels against `/metrics` for the deployed release.
@@ -249,7 +250,7 @@ Use [zml-smi](https://zml.ai/posts/zml-smi/) on a supported host to list
 devices, and run `zml-smi --top` to view available utilization, memory, and
 temperature readings. With CUDA, `nvidia-smi` provides a host-side device and
 driver check. Compare those readings with the LLMD queue and token metrics for
-the same time window. See [Environment variables]($link.page('llmd/cli-reference/environment-variables'))
+the same time window. See [Environment variables]($link.page('llmd/reference/environment-variables'))
 for runtime diagnostics.
 
 # [Record the failure]($heading.id('record-the-failure'))

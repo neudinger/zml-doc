@@ -5,4 +5,4 @@
 .layout = "content.shtml",
 ---
 - [Build with ZML]($link.page('zml').id('build-with-zml'))
-- [Serve models with LLMD]($link.page('llmd/user-guide').id('serve-models-with-llmd'))
+- [Serve models with LLMD]($link.page('llmd').id('serve-models-with-llmd'))
