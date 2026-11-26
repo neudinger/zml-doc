@@ -257,6 +257,7 @@ test "render and validation failures preserve the last site; success removes sta
     try fixture.put("dist/previous.txt", "Last valid build");
     const original = try files.read(allocator, std.testing.io, "content/index.smd");
     const options: website.Options = .{
+        .pagefind_executable = paths.pagefind_executable,
         .zine_executable = try std.Io.Dir.cwd().realPathFileAlloc(
             std.testing.io,
             paths.zine_executable,

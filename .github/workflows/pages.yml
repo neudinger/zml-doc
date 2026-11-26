@@ -36,21 +36,6 @@ jobs:
           tar -xf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/zig-x86_64-linux-${ZIG_VERSION}" >> "$GITHUB_PATH"
 
-      - name: Install Pagefind 1.6.0
-        env:
-          PAGEFIND_VERSION: 1.6.0
-          # Checksum from the official Pagefind release assets.
-          PAGEFIND_SHA256: 004d40c9a644c995dadc42b8031196c6f17e7a6dacf9a6c15c63286dd6ead5f2
-        run: |
-          archive="pagefind-v${PAGEFIND_VERSION}-x86_64-unknown-linux-musl.tar.gz"
-          curl --fail --silent --show-error --location \
-            "https://github.com/Pagefind/pagefind/releases/download/v${PAGEFIND_VERSION}/${archive}" \
-            --output "$RUNNER_TEMP/$archive"
-          echo "$PAGEFIND_SHA256  $RUNNER_TEMP/$archive" | sha256sum --check --status
-          mkdir -p "$RUNNER_TEMP/pagefind-bin"
-          tar -xf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/pagefind-bin"
-          echo "$RUNNER_TEMP/pagefind-bin" >> "$GITHUB_PATH"
-
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5

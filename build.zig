@@ -10,6 +10,8 @@ comptime {
 }
 
 pub fn build(builder: *std.Build) void {
+    const pagefind_executable = pagefindExecutable(builder) orelse return;
+
     const zine = builder.dependency("zine", .{
         .target = builder.graph.host,
         .optimize = .ReleaseFast,
@@ -24,6 +26,10 @@ pub fn build(builder: *std.Build) void {
             .optimize = .ReleaseSafe,
         }),
     });
+    const paths = builder.addOptions();
+    paths.addOptionPath("zine_executable", zine.getEmittedBin());
+    paths.addOptionPath("pagefind_executable", pagefind_executable);
+    coordinator.root_module.addOptions("paths", paths);
 
     const release = builder.addRunArtifact(coordinator);
     release.addArg("build");
@@ -53,12 +59,31 @@ pub fn build(builder: *std.Build) void {
             .optimize = .Debug,
         }),
     });
-    const test_paths = builder.addOptions();
-    test_paths.addOptionPath("zine_executable", zine.getEmittedBin());
-    tests.root_module.addOptions("paths", test_paths);
+    tests.root_module.addOptions("paths", paths);
     const run_tests = builder.addRunArtifact(tests);
     run_tests.setCwd(builder.path("."));
     const test_step = builder.step("test", "Test validation and preserve the last valid build");
     test_step.dependOn(&run_tests.step);
     test_step.dependOn(&check.step);
+}
+
+fn pagefindExecutable(builder: *std.Build) ?std.Build.LazyPath {
+    const host = builder.graph.host.result;
+    const pagefind_platform = switch (host.os.tag) {
+        .macos => "macos",
+        .linux => "linux",
+        .windows => "windows",
+        .freebsd => "freebsd",
+        else => @panic("Pagefind 1.6.0 has no binary for this host OS"),
+    };
+    switch (host.cpu.arch) {
+        .aarch64, .x86_64 => {},
+        else => @panic("Pagefind 1.6.0 has no binary for this host architecture"),
+    }
+    if (host.os.tag == .freebsd and host.cpu.arch != .x86_64)
+        @panic("Pagefind 1.6.0 only supports x86_64 on FreeBSD");
+    const pagefind = builder.lazyDependency(builder.fmt("pagefind_{s}_{s}", .{
+        pagefind_platform, @tagName(host.cpu.arch),
+    }), .{}) orelse return null;
+    return pagefind.path(if (host.os.tag == .windows) "pagefind.exe" else "pagefind");
 }

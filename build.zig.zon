@@ -4,6 +4,41 @@
     .fingerprint = 0x3fa13ed73028a27f,
     .minimum_zig_version = "0.17.0",
     .dependencies = .{
+        .pagefind_macos_aarch64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-aarch64-apple-darwin.tar.gz",
+            .hash = "N-V-__8AAPANfQC2LerEILfafqUOBtZnX4MY6zdk1MZBJF2E",
+            .lazy = true,
+        },
+        .pagefind_macos_x86_64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-x86_64-apple-darwin.tar.gz",
+            .hash = "N-V-__8AADj0fQDjXgWoS7gaK-1T8p-MXur6FWCxv9nnKk0m",
+            .lazy = true,
+        },
+        .pagefind_linux_aarch64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-aarch64-unknown-linux-musl.tar.gz",
+            .hash = "N-V-__8AAJAYggChqzYNp-LPlnWNMa1oVv4T2H-7GzQ4VW3c",
+            .lazy = true,
+        },
+        .pagefind_linux_x86_64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-x86_64-unknown-linux-musl.tar.gz",
+            .hash = "N-V-__8AAKirkwDFikWsSCe2MiLP7k36cvR1nd9PRapmHt3x",
+            .lazy = true,
+        },
+        .pagefind_windows_aarch64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-aarch64-pc-windows-msvc.tar.gz",
+            .hash = "N-V-__8AAACshQCHcfI4pSw5TqWupQh3o7cHkMHsHpGdgQba",
+            .lazy = true,
+        },
+        .pagefind_windows_x86_64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-x86_64-pc-windows-msvc.tar.gz",
+            .hash = "N-V-__8AAAAYjwAbp38XJR8FlCITiW3GT3y8s7utUheDqiy1",
+            .lazy = true,
+        },
+        .pagefind_freebsd_x86_64 = .{
+            .url = "https://github.com/Pagefind/pagefind/releases/download/v1.6.0/pagefind-v1.6.0-x86_64-unknown-freebsd.tar.gz",
+            .hash = "N-V-__8AAIjOiwDeDWfy3AKiFYA7anahMkizCc-4F-C0qNUn",
+            .lazy = true,
+        },
         .zine = .{
             .url = "git+https://github.com/kristoff-it/zine#6c9782957f46cf1162aa6fe8e881162b2d31480e",
             .hash = "zine-0.14.1-ou6nIJKIFwBEjCLNI4Hryh9YWa73Rm_DCsypWHbEp5l8",

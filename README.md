@@ -9,7 +9,6 @@ The implementation roadmap is in [plan.md](plan.md).
 ## Requirements
 
 - **Zig 0.17.0**, enforced by the build.
-- **Pagefind 1.6.0** on `PATH` for builds that generate `dist/`. [Native binaries](https://github.com/pagefind/pagefind/releases/tag/v1.6.0)
 - Network access on the first build to obtain the pinned documentation dependencies.
 
 Zine and its transitive packages provide SuperMD and SuperHTML. The exact Zine
@@ -31,11 +30,11 @@ zig build test
 index, or validation preserves the last valid output. Stale output files
 disappear on a successful replacement.
 
-`zig build serve` starts Zine at <http://127.0.0.1:1990/> with live reload for
-content, layout, and asset edits. Stop it with Ctrl+C. Restart after changing
-native tools or dependencies. To preview the indexed site with search enabled,
-run `zig build` and serve `dist/` over HTTP. With the default site prefix, use
-`pagefind --site dist --serve` and open the URL printed by Pagefind.
+`zig build serve` builds the site and Pagefind index, then starts Zine at
+<http://127.0.0.1:1990/> with search and live reload for content, layout, and asset
+edits. The search index stays as it was at startup, so results may be outdated
+after edits. Restart to refresh search or after changing native tools or
+dependencies. Stop it with Ctrl+C.
 
 `zig build check` explicitly rebuilds and validates the output. `zig build test`
 also checks failure cases and preservation of the previous build.

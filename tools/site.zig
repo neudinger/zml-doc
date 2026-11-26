@@ -13,7 +13,10 @@ pub fn main(init: std.process.Init) !void {
     if (arguments.len != 3) return error.ExpectedCommandAndPath;
     const command = std.meta.stringToEnum(Command, arguments[1]) orelse
         return error.UnknownCommand;
-    const options: website.Options = .{ .zine_executable = arguments[2] };
+    const options: website.Options = .{
+        .zine_executable = arguments[2],
+        .pagefind_executable = @import("paths").pagefind_executable,
+    };
     if (command == .serve) return website.serve(allocator, init.io, options);
     const result = if (command == .build)
         try website.build(allocator, init.io, options)

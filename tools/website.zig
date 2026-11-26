@@ -5,6 +5,7 @@ const files = @import("files.zig");
 
 pub const Options = struct {
     zine_executable: []const u8,
+    pagefind_executable: []const u8,
     site_directory: []const u8 = ".",
     output_directory: []const u8 = "dist",
     engine_stderr: std.process.SpawnOptions.StdIo = .inherit,
@@ -198,19 +199,15 @@ fn arguments(
     return command.toOwnedSlice(allocator);
 }
 
-fn indexSearch(allocator: std.mem.Allocator, io: std.Io, staging: []const u8) !void {
+fn indexSearch(allocator: std.mem.Allocator, io: std.Io, staging: []const u8, executable: []const u8) !void {
     const bundle = try std.fs.path.join(allocator, &.{ staging, "pagefind" });
     if (try files.exists(io, bundle)) return error.PagefindOutputCollision;
-    var indexer = std.process.spawn(io, .{
-        .argv = &.{ "pagefind", "--site", staging, "--output-path", bundle },
+    const executable_path = try std.Io.Dir.cwd().realPathFileAlloc(io, executable, allocator);
+    var indexer = try std.process.spawn(io, .{
+        .argv = &.{ executable_path, "--site", staging, "--output-path", bundle },
         .cwd = .{ .path = staging },
         .stdout = .ignore, // Test runners reserve stdout for their protocol.
-    }) catch |failure| {
-        if (failure == error.FileNotFound) {
-            std.log.err("Install Pagefind 1.6.0 and add pagefind to PATH.", .{});
-        }
-        return failure;
-    };
+    });
     defer indexer.kill(io);
     if (!(try indexer.wait(io)).success()) return error.PagefindFailed;
     for ([_][]const u8{ "pagefind-entry.json", "pagefind.js" }) |asset| {
@@ -235,7 +232,7 @@ pub fn build(allocator: std.mem.Allocator, io: std.Io, options: Options) !Result
     });
     defer child.kill(io);
     if (!(try child.wait(io)).success()) return error.ZineFailed;
-    try indexSearch(allocator, io, staging);
+    try indexSearch(allocator, io, staging, options.pagefind_executable);
     const result = try validate(allocator, io, staging);
     const backup = try std.fmt.allocPrint(allocator, "{s}.previous", .{staging});
     const had_previous = try files.exists(io, destination);
@@ -249,11 +246,25 @@ pub fn build(allocator: std.mem.Allocator, io: std.Io, options: Options) !Result
 }
 
 /// Replace the coordinator with Zine so Ctrl+C reaches the live server directly.
-/// Source, layout, and asset changes reload; native artifacts require a rebuild.
+/// Build search once at startup; live edits reload pages but leave the index unchanged.
 pub fn serve(allocator: std.mem.Allocator, io: std.Io, options: Options) !void {
-    try preflight(allocator, io, options.site_directory);
+    _ = try build(allocator, io, options);
+    const bundle = try std.Io.Dir.cwd().realPathFileAlloc(
+        io,
+        try std.fs.path.join(allocator, &.{ options.output_directory, "pagefind" }),
+        allocator,
+    );
+    var command: std.ArrayList([]const u8) = .empty;
+    try command.appendSlice(allocator, try arguments(allocator, options, null));
+    for (try files.list(allocator, io, bundle)) |relative| {
+        try command.appendSlice(allocator, &.{
+            try std.fmt.allocPrint(allocator, "--build-asset=pagefind/{s}", .{relative}),
+            try std.fs.path.join(allocator, &.{ bundle, relative }),
+            try std.fmt.allocPrint(allocator, "--install-always=pagefind/{s}", .{relative}),
+        });
+    }
     return std.process.replace(io, .{
-        .argv = try arguments(allocator, options, null),
+        .argv = command.items,
         .cwd = .{ .path = options.site_directory },
     });
 }
