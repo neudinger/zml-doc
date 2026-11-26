@@ -214,6 +214,7 @@ if (contents) {
 }
 
 for (const heading of document.querySelectorAll(".prose :is(h2, h3, h4, h5, h6)")) {
+  if (heading.closest("[data-zml-api]")) continue;
   // Some configurator sections keep the bookmark on their enclosing panel.
   const id = heading.id || heading.parentElement.id;
   const title = heading.dataset.tocLabel ?? heading.textContent.trim();

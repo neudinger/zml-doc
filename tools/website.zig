@@ -3,9 +3,15 @@
 const std = @import("std");
 const files = @import("files.zig");
 
+pub const ApiAssets = struct {
+    wasm: []const u8,
+    sources: []const u8,
+};
+
 pub const Options = struct {
     zine_executable: []const u8,
     pagefind_executable: []const u8,
+    api_assets: ApiAssets,
     site_directory: []const u8 = ".",
     output_directory: []const u8 = "dist",
     engine_stderr: std.process.SpawnOptions.StdIo = .inherit,
@@ -184,6 +190,7 @@ pub fn preflight(allocator: std.mem.Allocator, io: std.Io, directory: []const u8
 /// A null output selects the loopback development server; releases use staging.
 fn arguments(
     allocator: std.mem.Allocator,
+    io: std.Io,
     options: Options,
     output: ?[]const u8,
 ) ![]const []const u8 {
@@ -196,6 +203,15 @@ fn arguments(
     } else try command.appendSlice(allocator, &.{
         "--host=127.0.0.1", "--port=1990", "--url-path-prefix=",
     });
+    for ([_][]const u8{ "zml-api/main.wasm", "zml-api/sources.tar" }, [_][]const u8{
+        options.api_assets.wasm, options.api_assets.sources,
+    }) |name, path| {
+        try command.appendSlice(allocator, &.{
+            try std.fmt.allocPrint(allocator, "--build-asset={s}", .{name}),
+            try std.Io.Dir.cwd().realPathFileAlloc(io, path, allocator),
+            try std.fmt.allocPrint(allocator, "--install={s}", .{name}),
+        });
+    }
     return command.toOwnedSlice(allocator);
 }
 
@@ -226,7 +242,7 @@ pub fn build(allocator: std.mem.Allocator, io: std.Io, options: Options) !Result
     const staging = try files.staging(allocator, io, destination);
     defer std.Io.Dir.cwd().deleteTree(io, staging) catch {};
     var child = try std.process.spawn(io, .{
-        .argv = try arguments(allocator, options, staging),
+        .argv = try arguments(allocator, io, options, staging),
         .cwd = .{ .path = options.site_directory },
         .stderr = options.engine_stderr,
     });
@@ -255,7 +271,7 @@ pub fn serve(allocator: std.mem.Allocator, io: std.Io, options: Options) !void {
         allocator,
     );
     var command: std.ArrayList([]const u8) = .empty;
-    try command.appendSlice(allocator, try arguments(allocator, options, null));
+    try command.appendSlice(allocator, try arguments(allocator, io, options, null));
     for (try files.list(allocator, io, bundle)) |relative| {
         try command.appendSlice(allocator, &.{
             try std.fmt.allocPrint(allocator, "--build-asset=pagefind/{s}", .{relative}),

@@ -49,6 +49,11 @@
         <link rel="stylesheet" href="$site.asset('environment-index.css').link()">
         <script defer src="$site.asset('environment-index.js').link()"></script>
       </ctx>
+      <ctx :if="$page.custom.has('zml_api')">
+        <link rel="stylesheet" href="$site.asset('zml-api.css').link()">
+        <link rel="license" href="$site.asset('zml-api-license.txt').link()">
+        <script defer src="$site.asset('zml-api.js').link()"></script>
+      </ctx>
     </ctx>
   </ctx>
 </head>
@@ -209,6 +214,12 @@
         <ctx related_reference="$page.custom.getOr('related_reference', $ctx.article.custom.getOr('related_reference', ''))">
           <ctx :if="$ctx.article.custom.has('environment_groups').not()">
             <div class="prose" data-pagefind-body :html="$ctx.article.content()"></div>
+            <ctx :if="$page.custom.has('zml_api')">
+              <div class="zml-api prose" data-zml-api data-pagefind-ignore
+                   data-wasm="$build.asset('zml-api/main.wasm').link()"
+                   data-sources="$build.asset('zml-api/sources.tar').link()"
+                   :html="$site.asset('zml-api.html').bytes()"></div>
+            </ctx>
           </ctx>
           <ctx :if="$ctx.article.content().contains('data-llmd-launch')">
             <table hidden data-llmd-pairings data-pagefind-ignore>

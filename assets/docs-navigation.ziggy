@@ -47,6 +47,7 @@
                     .pages = [
                         .{ .path = "zml/reference/hardware-compatibility", .label = "Hardware compatibility", .icon = "icon-cpu" },
                         .{ .path = "zml/reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
+                        .{ .path = "zml/reference/zml_api", .label = "ZML API", .icon = "icon-code" },
                     ],
                 },
             ],

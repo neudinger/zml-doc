@@ -10,7 +10,9 @@ comptime {
 }
 
 pub fn build(builder: *std.Build) void {
-    const pagefind_executable = pagefindExecutable(builder) orelse return;
+    const pagefind = pagefindExecutable(builder);
+    const zml = builder.lazyDependency("zml_sources", .{});
+    if (pagefind == null or zml == null) return;
 
     const zine = builder.dependency("zine", .{
         .target = builder.graph.host,
@@ -28,7 +30,9 @@ pub fn build(builder: *std.Build) void {
     });
     const paths = builder.addOptions();
     paths.addOptionPath("zine_executable", zine.getEmittedBin());
-    paths.addOptionPath("pagefind_executable", pagefind_executable);
+    paths.addOptionPath("pagefind_executable", pagefind.?);
+    paths.addOptionPath("zml_api_wasm", apiWasm(builder));
+    paths.addOptionPath("zml_api_sources", apiSources(builder, zml.?));
     coordinator.root_module.addOptions("paths", paths);
 
     const release = builder.addRunArtifact(coordinator);
@@ -65,6 +69,41 @@ pub fn build(builder: *std.Build) void {
     const test_step = builder.step("test", "Test validation and preserve the last valid build");
     test_step.dependOn(&run_tests.step);
     test_step.dependOn(&check.step);
+}
+
+fn apiWasm(builder: *std.Build) std.Build.LazyPath {
+    const target = builder.resolveTargetQuery(.{ .cpu_arch = .wasm32, .os_tag = .freestanding });
+    const wasm = builder.addExecutable(.{
+        .name = "main",
+        .root_module = builder.createModule(.{
+            .root_source_file = std.Build.LazyPath.zig_lib.path(builder, "docs/wasm/main.zig"),
+            .target = target,
+            .optimize = .ReleaseSafe,
+            .strip = true,
+        }),
+    });
+    wasm.root_module.addImport("Walk", builder.createModule(.{
+        .root_source_file = builder.path("tools/zml-api/Walk.zig"),
+    }));
+    wasm.entry = .disabled;
+    wasm.rdynamic = true;
+    wasm.stack_size = 1024 * 1024;
+    return wasm.getEmittedBin();
+}
+
+fn apiSources(builder: *std.Build, zml: *std.Build.Dependency) std.Build.LazyPath {
+    const pack = builder.addRunArtifact(builder.addExecutable(.{
+        .name = "pack-zml-api",
+        .root_module = builder.createModule(.{
+            .root_source_file = builder.path("tools/api-sources.zig"),
+            .target = builder.graph.host,
+            .optimize = .ReleaseSafe,
+        }),
+    }));
+    const url = @import("build.zig.zon").dependencies.zml_sources.url;
+    const revision = std.fs.path.basenamePosix(url);
+    pack.addDirectoryArg(zml.path(builder.fmt("zml-{s}", .{revision})));
+    return pack.addOutputFileArg("sources.tar");
 }
 
 fn pagefindExecutable(builder: *std.Build) ?std.Build.LazyPath {

@@ -1,0 +1,8 @@
+---
+.title = "ZML API",
+.description = "Browse public declarations, documentation comments, and Zig source.",
+.date = .date("2026-11-20T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .product = "ZML", .doc_section = "Reference", .zml_api = true },
+---
+Search by declaration name or open a declaration to view its documentation and source.

@@ -5,6 +5,7 @@ const website = @import("website.zig");
 pub const std_options: std.Options = .{ .log_level = .warn };
 
 pub fn main(init: std.process.Init) !void {
+    const paths = @import("paths");
     var arena = std.heap.ArenaAllocator.init(init.gpa);
     defer arena.deinit();
     const allocator = arena.allocator();
@@ -15,7 +16,8 @@ pub fn main(init: std.process.Init) !void {
         return error.UnknownCommand;
     const options: website.Options = .{
         .zine_executable = arguments[2],
-        .pagefind_executable = @import("paths").pagefind_executable,
+        .pagefind_executable = paths.pagefind_executable,
+        .api_assets = .{ .wasm = paths.zml_api_wasm, .sources = paths.zml_api_sources },
     };
     if (command == .serve) return website.serve(allocator, init.io, options);
     const result = if (command == .build)

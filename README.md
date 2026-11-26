@@ -38,6 +38,11 @@ dependencies. Stop it with Ctrl+C.
 `zig build check` explicitly rebuilds and validates the output. `zig build test`
 also checks failure cases and preservation of the previous build.
 
+The ZML API reference at `/zml/reference/zml_api/` builds a source archive
+from the ZML revision pinned in `build.zig.zon` and compiles the Zig 0.17
+Autodoc parser to WebAssembly. The browser uses both assets to render
+declarations, doc comments, and source.
+
 ## Publish to GitHub Pages
 
 Set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**.
@@ -118,7 +123,7 @@ attributes; it is not a general HTML, CSS URL, or external-link checker.
 include the product name so readers can open the corresponding navigation.
 The article layout marks the content to index. Navigation and the homepage are
 outside the index.
-Recipe components, recordings, API generation, and the command builder are
+Recipe components, recordings, and the command builder are
 subsequent roadmap work.
 
 ## Attribution

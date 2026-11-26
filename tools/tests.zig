@@ -254,6 +254,7 @@ test "render and validation failures preserve the last site; success removes sta
     const original = try files.read(allocator, std.testing.io, "content/index.smd");
     const options: website.Options = .{
         .pagefind_executable = paths.pagefind_executable,
+        .api_assets = .{ .wasm = paths.zml_api_wasm, .sources = paths.zml_api_sources },
         .zine_executable = try std.Io.Dir.cwd().realPathFileAlloc(
             std.testing.io,
             paths.zine_executable,
@@ -286,6 +287,20 @@ test "render and validation failures preserve the last site; success removes sta
     try checkDrafterHandoffs(&fixture);
     try checkRemovedRedirects(&fixture);
     try checkLlmdProductLinks(&fixture);
+    const api = try files.read(allocator, std.testing.io, try fixture.path("dist/zml/reference/zml_api/index.html"));
+    var api_roots = website.attributes(api, "data-site-root");
+    const api_root = api_roots.next() orelse return error.InvalidSiteRoot;
+    inline for ([_][]const u8{ "data-wasm", "data-sources" }, [_][]const u8{
+        "zml-api/main.wasm", "zml-api/sources.tar",
+    }) |attribute, asset| {
+        var links = website.attributes(api, attribute);
+        try std.testing.expectEqualStrings(
+            try std.fmt.allocPrint(allocator, "{s}{s}", .{ api_root, asset }),
+            links.next() orelse return error.MissingApiAssetLink,
+        );
+        const output = try std.fmt.allocPrint(allocator, "dist/{s}", .{asset});
+        try std.testing.expect(try files.exists(std.testing.io, try fixture.path(output)));
+    }
     const quickstart = try files.read(allocator, std.testing.io, try fixture.path("dist/llmd/index.html"));
     try std.testing.expect(std.mem.indexOf(u8, quickstart, "<h1>LLMD quickstart</h1>") != null);
     try std.testing.expect(try files.exists(

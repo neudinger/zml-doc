@@ -4,6 +4,11 @@ The ZML overview, tutorials, how-to guides, concepts, and style guide are adapte
 [ZML repository documentation](https://github.com/zml/zml/tree/f430c3530fbc6d99f734b641eb8f3fd699868843/docs).
 The imported material is distributed under the [Apache License 2.0](LICENSE-ZML-DOCS).
 
+The ZML API archive includes source from the same upstream revision and its
+license. The API viewer adapts the legacy ZML docs viewer using the
+[Zig 0.17.0 Autodoc sources](https://codeberg.org/ziglang/zig/src/tag/0.17.0/lib/docs),
+distributed under the [MIT License](assets/zml-api-license.txt).
+
 `tools/files.zig` and `tools/website.zig` are adapted from
 [neudinger/zast-site](https://github.com/neudinger/zast-site), used under the
 European Union Public Licence 1.2. The original licence is preserved in
