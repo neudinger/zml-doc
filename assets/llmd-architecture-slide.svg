@@ -1,0 +1,239 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="slide-title slide-description">
+  <title id="slide-title">zml/llmd architecture</title>
+  <desc id="slide-description">Models use ZML-maintained kernels. The LLMD engine exposes chat completion, embeddings, decision, and metrics APIs to agents, applications, and monitoring. ZML provides compiler and runtime APIs targeting NVIDIA, AMD, Furiosa, Google TPU, Intel, Apple, and other hardware.</desc>
+  <!-- Editable vector reconstruction of the supplied slide. Light-theme palette
+       from llmd-architecture-compact.svg: LLMD purple, kernels amber,
+       ZML blue, hardware gray. All labels remain editable SVG text. -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse">
+      <path d="M0 1 L10 5 L0 9 Z" fill="#6f7984"/>
+    </marker>
+
+    <clipPath id="models-surface"><path d="M113 129 H879 C905.6 129 907 130.4 907 157 V431 C907 457.6 905.6 459 879 459 H113 C86.4 459 85 457.6 85 431 V157 C85 130.4 86.4 129 113 129 Z"/></clipPath>
+    <clipPath id="kernels-surface"><path d="M113 484 H879 C905.6 484 907 485.4 907 512 V622 C907 648.6 905.6 650 879 650 H113 C86.4 650 85 648.6 85 622 V512 C85 485.4 86.4 484 113 484 Z"/></clipPath>
+    <clipPath id="engine-surface"><path d="M989 129 H1278 C1304.6 129 1306 130.4 1306 157 V622 C1306 648.6 1304.6 650 1278 650 H989 C962.4 650 961 648.6 961 622 V157 C961 130.4 962.4 129 989 129 Z"/></clipPath>
+    <clipPath id="compiler-api-surface"><path d="M113 768 H879 C905.6 768 907 769.4 907 796 V860 C907 886.6 905.6 888 879 888 H113 C86.4 888 85 886.6 85 860 V796 C85 769.4 86.4 768 113 768 Z"/></clipPath>
+    <clipPath id="runtime-api-surface"><path d="M989 768 H1848 C1874.6 768 1876 769.4 1876 796 V860 C1876 886.6 1874.6 888 1848 888 H989 C962.4 888 961 886.6 961 860 V796 C961 769.4 962.4 768 989 768 Z"/></clipPath>
+  </defs>
+  <style>
+    /* Type scale (SVG px): layer titles 30; box labels 22; tabs/body 20;
+       component labels 18. */
+    text { font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; font-size: 20px; fill: #14181c; }
+    .heading { font-family: "Space Grotesk", "IBM Plex Sans", Arial, sans-serif; font-weight: 700; font-size: 30px; }
+    .label { font-size: 18px; font-weight: 600; }
+    .box-label { font-size: 22px; }
+    .muted { fill: #5c6670; }
+    .llmd-heading { fill: #5646c8; }
+    .ops-heading { fill: #9a5806; }
+    .zml-heading { fill: #2765ae; }
+    .plat-heading { fill: #525d68; }
+    .llmd-card { fill: #fff; }
+    .component-card { fill: #e2ddfa; }
+    .client { fill: #edf0f2; }
+    .zml-item { fill: #d8e7fa; }
+    .platform { fill: #fff; }
+    .edge { fill: none; stroke: #6f7984; stroke-width: 2; marker-end: url(#arrow); }
+    .two-way { marker-start: url(#arrow); }
+    .model-tab-name { font-size: 20px; font-weight: 500; fill: #5c6670; text-anchor: middle; }
+    .model-tab-selected-name { fill: #14181c; }
+    .model-detail { font-size: 20px; }
+    .architecture-component { fill: #e2ddfa; }
+    .architecture-label { font-size: 18px; font-weight: 500; text-anchor: middle; }
+    .architecture-more { fill: #edf0f2; }
+    .architecture-edge { stroke-width: 1.6; }
+    .kernel-component { fill: #fcf2e3; }
+  </style>
+
+  <rect width="1920" height="1080" fill="#fff"/>
+
+  <g id="llmd">
+    <path d="M114 22 H1614 C1667.2 22 1670 24.8 1670 78 V630 C1670 683.2 1667.2 686 1614 686 H114 C60.8 686 58 683.2 58 630 V78 C58 24.8 60.8 22 114 22 Z" fill="#f2f0fd"/>
+    <text x="85" y="95" class="heading llmd-heading">zml/llmd</text>
+
+    <g id="models">
+      <path d="M113 129 H879 C905.6 129 907 130.4 907 157 V431 C907 457.6 905.6 459 879 459 H113 C86.4 459 85 457.6 85 431 V157 C85 130.4 86.4 129 113 129 Z" class="llmd-card"/>
+      <path d="M85 129 H907 V177 H85 Z" fill="#e2ddfa" clip-path="url(#models-surface)"/>
+      <text x="105" y="167" class="heading llmd-heading box-label">Models</text>
+      <g id="model-tabs" aria-label="Model tabs; Qwen 3.5 selected">
+        <!-- The active tab joins the white content surface without a bottom border. -->
+        <path d="M201 177 C212.4 177 213 176.4 213 165 V153 C213 141.6 213.6 141 225 141 H341 C352.4 141 353 141.6 353 153 V165 C353 176.4 353.6 177 365 177 Z" fill="#fff"/>
+        <path d="M545 150 V169 M681 150 V169" fill="none" stroke="#5646c8" stroke-opacity=".25" stroke-width="1"/>
+        <text x="283" y="167" class="model-tab-name model-tab-selected-name">Qwen 3.5</text>
+        <text x="455" y="167" class="model-tab-name">Deepseek 4.1</text>
+        <text x="613" y="167" class="model-tab-name">GLM 5.3</text>
+        <text x="784" y="167" class="model-tab-name">Mistral Large 4</text>
+      </g>
+      <g fill="#5c6670">
+        <circle cx="120" cy="251" r="4"/>
+        <circle cx="120" cy="291" r="4"/>
+        <circle cx="120" cy="331" r="4"/>
+      </g>
+      <text x="150" y="257.3" class="model-detail">page management strategy</text>
+      <text x="150" y="297.3" class="model-detail">Parallelism strategy: DP/TP/EP,</text>
+      <text x="150" y="337.3" class="model-detail">Model specific drafter</text>
+      <g id="qwen-architecture" transform="translate(0 178)" aria-label="Architecture: Embedding, Gated DeltaNet, Experts, Paged attention, additional layers, LM head, Sampling">
+        <path d="M119 225 H197 C210.3 225 211 225.7 211 239 V247 C211 260.3 210.3 261 197 261 H119 C105.7 261 105 260.3 105 247 V239 C105 225.7 105.7 225 119 225 Z" class="architecture-component"/>
+        <text x="158" y="249.25" class="architecture-label">Embedding</text>
+        <path d="M211 243 H229" class="edge architecture-edge"/>
+        <path d="M243 225 H355 C368.3 225 369 225.7 369 239 V247 C369 260.3 368.3 261 355 261 H243 C229.7 261 229 260.3 229 247 V239 C229 225.7 229.7 225 243 225 Z" class="architecture-component"/>
+        <text x="299" y="249.25" class="architecture-label">Gated DeltaNet</text>
+        <path d="M369 243 H387" class="edge architecture-edge"/>
+        <path d="M401 225 H447 C460.3 225 461 225.7 461 239 V247 C461 260.3 460.3 261 447 261 H401 C387.7 261 387 260.3 387 247 V239 C387 225.7 387.7 225 401 225 Z" class="architecture-component"/>
+        <text x="424" y="249.25" class="architecture-label">Experts</text>
+        <path d="M461 243 H479" class="edge architecture-edge"/>
+        <path d="M493 225 H601 C614.3 225 615 225.7 615 239 V247 C615 260.3 614.3 261 601 261 H493 C479.7 261 479 260.3 479 247 V239 C479 225.7 479.7 225 493 225 Z" class="architecture-component"/>
+        <text x="547" y="249.25" class="architecture-label">Paged attention</text>
+        <path d="M615 243 H633" class="edge architecture-edge"/>
+        <path d="M647 225 H659 C672.3 225 673 225.7 673 239 V247 C673 260.3 672.3 261 659 261 H647 C633.7 261 633 260.3 633 247 V239 C633 225.7 633.7 225 647 225 Z" class="architecture-more"/>
+        <text x="653" y="249.25" class="architecture-label muted">…</text>
+        <path d="M673 243 H691" class="edge architecture-edge"/>
+        <path d="M705 225 H763 C776.3 225 777 225.7 777 239 V247 C777 260.3 776.3 261 763 261 H705 C691.7 261 691 260.3 691 247 V239 C691 225.7 691.7 225 705 225 Z" class="architecture-component"/>
+        <text x="734" y="249.25" class="architecture-label">LM head</text>
+        <path d="M777 243 H795" class="edge architecture-edge"/>
+        <path d="M809 225 H873 C886.3 225 887 225.7 887 239 V247 C887 260.3 886.3 261 873 261 H809 C795.7 261 795 260.3 795 247 V239 C795 225.7 795.7 225 809 225 Z" class="architecture-component"/>
+        <text x="841" y="249.25" class="architecture-label">Sampling</text>
+      </g>
+    </g>
+
+
+    <g id="engine">
+      <path d="M989 129 H1278 C1304.6 129 1306 130.4 1306 157 V622 C1306 648.6 1304.6 650 1278 650 H989 C962.4 650 961 648.6 961 622 V157 C961 130.4 962.4 129 989 129 Z" class="llmd-card"/>
+      <path d="M961 129 H1306 V177 H961 Z" fill="#e2ddfa" clip-path="url(#engine-surface)"/>
+      <text x="981" y="167" class="heading llmd-heading box-label">Engine</text>
+      <path d="M995 195 H1272 C1285.3 195 1286 195.7 1286 209 V225 C1286 238.3 1285.3 239 1272 239 H995 C981.7 239 981 238.3 981 225 V209 C981 195.7 981.7 195 995 195 Z" class="architecture-component"/>
+      <text x="1133.5" y="223.3" class="architecture-label">Chat template</text>
+      <path d="M995 249 H1272 C1285.3 249 1286 249.7 1286 263 V279 C1286 292.3 1285.3 293 1272 293 H995 C981.7 293 981 292.3 981 279 V263 C981 249.7 981.7 249 995 249 Z" class="architecture-component"/>
+      <text x="1133.5" y="277.3" class="architecture-label">Tokenizers</text>
+      <path d="M995 303 H1272 C1285.3 303 1286 303.7 1286 317 V333 C1286 346.3 1285.3 347 1272 347 H995 C981.7 347 981 346.3 981 333 V317 C981 303.7 981.7 303 995 303 Z" class="architecture-component"/>
+      <text x="1133.5" y="331.3" class="architecture-label">Tool calling</text>
+      <path d="M995 357 H1272 C1285.3 357 1286 357.7 1286 371 V387 C1286 400.3 1285.3 401 1272 401 H995 C981.7 401 981 400.3 981 387 V371 C981 357.7 981.7 357 995 357 Z" class="architecture-component"/>
+      <text x="1133.5" y="385.3" class="architecture-label">Continuous batching</text>
+      <path d="M995 411 H1272 C1285.3 411 1286 411.7 1286 425 V441 C1286 454.3 1285.3 455 1272 455 H995 C981.7 455 981 454.3 981 441 V425 C981 411.7 981.7 411 995 411 Z" class="architecture-component"/>
+      <text x="1133.5" y="439.3" class="architecture-label">Mixed Prefill/Decode</text>
+      <path d="M995 465 H1272 C1285.3 465 1286 465.7 1286 479 V495 C1286 508.3 1285.3 509 1272 509 H995 C981.7 509 981 508.3 981 495 V479 C981 465.7 981.7 465 995 465 Z" class="architecture-component"/>
+      <text x="1133.5" y="493.3" class="architecture-label">Resource allocation</text>
+      <path d="M995 519 H1272 C1285.3 519 1286 519.7 1286 533 V549 C1286 562.3 1285.3 563 1272 563 H995 C981.7 563 981 562.3 981 549 V533 C981 519.7 981.7 519 995 519 Z" class="architecture-component"/>
+      <text x="1133.5" y="547.3" class="architecture-label">Prefix sharing</text>
+      <path d="M995 573 H1272 C1285.3 573 1286 573.7 1286 587 V603 C1286 616.3 1285.3 617 1272 617 H995 C981.7 617 981 616.3 981 603 V587 C981 573.7 981.7 573 995 573 Z" class="architecture-component"/>
+      <text x="1133.5" y="601.3" class="architecture-label">Asynchronous execution</text>
+    </g>
+
+    <g id="apis">
+      <path d="M1359 129 H1616 C1629.3 129 1630 129.7 1630 143 V195 C1630 208.3 1629.3 209 1616 209 H1359 C1345.7 209 1345 208.3 1345 195 V143 C1345 129.7 1345.7 129 1359 129 Z" class="architecture-component"/>
+      <text x="1487.5" y="175.3" class="architecture-label">Chat completion API</text>
+      <path d="M1359 276 H1616 C1629.3 276 1630 276.7 1630 290 V342 C1630 355.3 1629.3 356 1616 356 H1359 C1345.7 356 1345 355.3 1345 342 V290 C1345 276.7 1345.7 276 1359 276 Z" class="architecture-component"/>
+      <text x="1487.5" y="322.3" class="architecture-label">Embeddings API</text>
+      <path d="M1359 423 H1616 C1629.3 423 1630 423.7 1630 437 V489 C1630 502.3 1629.3 503 1616 503 H1359 C1345.7 503 1345 502.3 1345 489 V437 C1345 423.7 1345.7 423 1359 423 Z" class="architecture-component"/>
+      <text x="1487.5" y="469.3" class="architecture-label">Decision API</text>
+      <path d="M1359 570 H1616 C1629.3 570 1630 570.7 1630 584 V636 C1630 649.3 1629.3 650 1616 650 H1359 C1345.7 650 1345 649.3 1345 636 V584 C1345 570.7 1345.7 570 1359 570 Z" class="architecture-component"/>
+      <text x="1487.5" y="616.3" class="architecture-label">Metrics</text>
+    </g>
+
+    <g id="kernels">
+      <path d="M113 484 H879 C905.6 484 907 485.4 907 512 V622 C907 648.6 905.6 650 879 650 H113 C86.4 650 85 648.6 85 622 V512 C85 485.4 86.4 484 113 484 Z" fill="#fff"/>
+      <path d="M85 484 H907 V532 H85 Z" fill="#fcf2e3" clip-path="url(#kernels-surface)"/>
+      <text x="105" y="522" class="heading ops-heading box-label">Kernels</text>
+      <g id="kernel-tabs" aria-label="Kernel tabs; Paged attention selected">
+        <path d="M201 532 C212.4 532 213 531.4 213 520 V508 C213 496.6 213.6 496 225 496 H387 C398.4 496 399 496.6 399 508 V520 C399 531.4 399.6 532 411 532 Z" fill="#fff"/>
+        <path d="M622 505 V524" fill="none" stroke="#9a5806" stroke-opacity=".25" stroke-width="1"/>
+        <text x="306" y="522" class="model-tab-name model-tab-selected-name">Paged attention</text>
+        <text x="512" y="522" class="model-tab-name">Gated DeltaNet</text>
+        <text x="678" y="522" class="model-tab-name">MLA</text>
+      </g>
+      <g id="paged-attention-kernels" transform="translate(0 -17)">
+        <path d="M119 590 H191 C204.3 590 205 590.7 205 604 V612 C205 625.3 204.3 626 191 626 H119 C105.7 626 105 625.3 105 612 V604 C105 590.7 105.7 590 119 590 Z" class="kernel-component"/>
+        <text x="155" y="614.25" class="architecture-label">CuTe</text>
+        <path d="M231 590 H343 C356.3 590 357 590.7 357 604 V612 C357 625.3 356.3 626 343 626 H231 C217.7 626 217 625.3 217 612 V604 C217 590.7 217.7 590 231 590 Z" class="kernel-component"/>
+        <text x="287" y="614.25" class="architecture-label">MosaicTpu</text>
+        <path d="M383 590 H455 C468.3 590 469 590.7 469 604 V612 C469 625.3 468.3 626 455 626 H383 C369.7 626 369 625.3 369 612 V604 C369 590.7 369.7 590 383 590 Z" class="kernel-component"/>
+        <text x="419" y="614.25" class="architecture-label">Metal</text>
+        <path d="M495 590 H657 C670.3 590 671 590.7 671 604 V612 C671 625.3 670.3 626 657 626 H495 C481.7 626 481 625.3 481 612 V604 C481 590.7 481.7 590 495 590 Z" class="kernel-component"/>
+        <text x="576" y="614.25" class="architecture-label">Triton</text>
+        <path d="M697 590 H873 C886.3 590 887 590.7 887 604 V612 C887 625.3 886.3 626 873 626 H697 C683.7 626 683 625.3 683 612 V604 C683 590.7 683.7 590 697 590 Z" class="kernel-component"/>
+        <text x="785" y="614.25" class="architecture-label">Stablehlo (fallback)</text>
+      </g>
+    </g>
+  </g>
+
+  <g id="clients">
+    <path d="M1754 129 H1886 C1899.3 129 1900 129.7 1900 143 V195 C1900 208.3 1899.3 209 1886 209 H1754 C1740.7 209 1740 208.3 1740 195 V143 C1740 129.7 1740.7 129 1754 129 Z" class="client"/>
+    <text x="1820" y="175.3" class="architecture-label" text-anchor="middle">Agents</text>
+    <path d="M1754 276 H1886 C1899.3 276 1900 276.7 1900 290 V342 C1900 355.3 1899.3 356 1886 356 H1754 C1740.7 356 1740 355.3 1740 342 V290 C1740 276.7 1740.7 276 1754 276 Z" class="client"/>
+    <text x="1820" y="321.9" class="architecture-label" text-anchor="middle">Application</text>
+    <path d="M1754 570 H1886 C1899.3 570 1900 570.7 1900 584 V636 C1900 649.3 1899.3 650 1886 650 H1754 C1740.7 650 1740 649.3 1740 636 V584 C1740 570.7 1740.7 570 1754 570 Z" class="client"/>
+    <text x="1820" y="615.9" class="architecture-label" text-anchor="middle">Monitoring</text>
+  </g>
+
+  <g id="zml">
+    <path d="M86 722 H1872 C1898.6 722 1900 723.4 1900 750 V884 C1900 910.6 1898.6 912 1872 912 H86 C59.4 912 58 910.6 58 884 V750 C58 723.4 59.4 722 86 722 Z" fill="#e9f1fb"/>
+    <text x="85" y="752" class="heading zml-heading">ZML</text>
+    <g id="compiler-api">
+    <path d="M113 768 H879 C905.6 768 907 769.4 907 796 V860 C907 886.6 905.6 888 879 888 H113 C86.4 888 85 886.6 85 860 V796 C85 769.4 86.4 768 113 768 Z" fill="#fff"/>
+    <path d="M85 768 H907 V816 H85 Z" fill="#d8e7fa" clip-path="url(#compiler-api-surface)"/>
+    <text x="105" y="806" class="heading zml-heading box-label">Compiler API</text>
+    <g transform="translate(0 24)">
+    <path d="M119 810 H246 C259.3 810 260 810.7 260 824 V832 C260 845.3 259.3 846 246 846 H119 C105.7 846 105 845.3 105 832 V824 C105 810.7 105.7 810 119 810 Z" class="zml-item"/>
+    <text x="182.5" y="834" class="architecture-label">Operator fusion</text>
+    <path d="M286 810 H558 C571.3 810 572 810.7 572 824 V832 C572 845.3 571.3 846 558 846 H286 C272.7 846 272 845.3 272 832 V824 C272 810.7 272.7 810 286 810 Z" class="zml-item"/>
+    <text x="422" y="834" class="architecture-label">Memory layout and planning</text>
+    <path d="M598 810 H720 C733.3 810 734 810.7 734 824 V832 C734 845.3 733.3 846 720 846 H598 C584.7 846 584 845.3 584 832 V824 C584 810.7 584.7 810 598 810 Z" class="zml-item"/>
+    <text x="659" y="834" class="architecture-label">Scheduling</text>
+    <path d="M760 810 H873 C886.3 810 887 810.7 887 824 V832 C887 845.3 886.3 846 873 846 H760 C746.7 846 746 845.3 746 832 V824 C746 810.7 746.7 810 760 810 Z" class="zml-item"/>
+    <text x="816.5" y="834" class="architecture-label">Sharding</text>
+    </g>
+    </g>
+    <g id="runtime-api">
+    <path d="M989 768 H1848 C1874.6 768 1876 769.4 1876 796 V860 C1876 886.6 1874.6 888 1848 888 H989 C962.4 888 961 886.6 961 860 V796 C961 769.4 962.4 768 989 768 Z" fill="#fff"/>
+    <path d="M961 768 H1876 V816 H961 Z" fill="#d8e7fa" clip-path="url(#runtime-api-surface)"/>
+    <text x="981" y="806" class="heading zml-heading box-label">Runtime API</text>
+    <g transform="translate(0 24)">
+    <path d="M995 810 H1398.5 C1411.8 810 1412.5 810.7 1412.5 824 V832 C1412.5 845.3 1411.8 846 1398.5 846 H995 C981.7 846 981 845.3 981 832 V824 C981 810.7 981.7 810 995 810 Z" class="zml-item"/>
+    <text x="1196.75" y="834" class="architecture-label">Operation dispatching</text>
+    <path d="M1438.5 810 H1842 C1855.3 810 1856 810.7 1856 824 V832 C1856 845.3 1855.3 846 1842 846 H1438.5 C1425.2 846 1424.5 845.3 1424.5 832 V824 C1424.5 810.7 1425.2 810 1438.5 810 Z" class="zml-item"/>
+    <text x="1640.25" y="834" class="architecture-label">Host/Device synchronization</text>
+    </g>
+    </g>
+  </g>
+
+  <g id="hardware">
+    <path d="M86 926 H1872 C1898.6 926 1900 927.4 1900 954 V1006 C1900 1032.6 1898.6 1034 1872 1034 H86 C59.4 1034 58 1032.6 58 1006 V954 C58 927.4 59.4 926 86 926 Z" fill="#edf0f2"/>
+    <text x="85" y="967" class="heading plat-heading">Hardware</text>
+    <path d="M470 974 H624 C637.3 974 638 974.7 638 988 V1000 C638 1013.3 637.3 1014 624 1014 H470 C456.7 1014 456 1013.3 456 1000 V988 C456 974.7 456.7 974 470 974 Z" class="platform"/>
+    <text x="547" y="999.9" class="label" text-anchor="middle">NVIDIA</text>
+    <path d="M668 974 H822 C835.3 974 836 974.7 836 988 V1000 C836 1013.3 835.3 1014 822 1014 H668 C654.7 1014 654 1013.3 654 1000 V988 C654 974.7 654.7 974 668 974 Z" class="platform"/>
+    <text x="745" y="999.9" class="label" text-anchor="middle">AMD</text>
+    <path d="M866 974 H1020 C1033.3 974 1034 974.7 1034 988 V1000 C1034 1013.3 1033.3 1014 1020 1014 H866 C852.7 1014 852 1013.3 852 1000 V988 C852 974.7 852.7 974 866 974 Z" class="platform"/>
+    <text x="943" y="999.9" class="label" text-anchor="middle">Furiosa</text>
+    <path d="M1064 974 H1218 C1231.3 974 1232 974.7 1232 988 V1000 C1232 1013.3 1231.3 1014 1218 1014 H1064 C1050.7 1014 1050 1013.3 1050 1000 V988 C1050 974.7 1050.7 974 1064 974 Z" class="platform"/>
+    <text x="1141" y="999.9" class="label" text-anchor="middle">Google TPU</text>
+    <path d="M1262 974 H1416 C1429.3 974 1430 974.7 1430 988 V1000 C1430 1013.3 1429.3 1014 1416 1014 H1262 C1248.7 1014 1248 1013.3 1248 1000 V988 C1248 974.7 1248.7 974 1262 974 Z" class="platform"/>
+    <text x="1339" y="999.9" class="label" text-anchor="middle">Intel</text>
+    <path d="M1460 974 H1614 C1627.3 974 1628 974.7 1628 988 V1000 C1628 1013.3 1627.3 1014 1614 1014 H1460 C1446.7 1014 1446 1013.3 1446 1000 V988 C1446 974.7 1446.7 974 1460 974 Z" class="platform"/>
+    <text x="1537" y="999.9" class="label" text-anchor="middle">Apple</text>
+    <path d="M1658 974 H1812 C1825.3 974 1826 974.7 1826 988 V1000 C1826 1013.3 1825.3 1014 1812 1014 H1658 C1644.7 1014 1644 1013.3 1644 1000 V988 C1644 974.7 1644.7 974 1658 974 Z" class="platform"/>
+    <text x="1735" y="999.9" class="label" text-anchor="middle">…</text>
+  </g>
+
+  <g id="connections">
+    <path d="M85 249 C14 249 7 729 57 804" class="edge"/>
+    <path d="M496 459 V482" class="edge"/>
+    <path d="M496 650 V766" class="edge"/>
+    <path d="M1133.5 650 V766" class="edge"/>
+    <path d="M907 852 H959" class="edge"/>
+    <g id="hardware-rack" aria-label="ZML connects through a shared rail to each hardware platform">
+      <path d="M1141 912 V950 M547 950 H1735" fill="none" stroke="#6f7984" stroke-width="1.6"/>
+      <path d="M547 950 V973" class="edge architecture-edge"/>
+      <path d="M745 950 V973" class="edge architecture-edge"/>
+      <path d="M943 950 V973" class="edge architecture-edge"/>
+      <path d="M1141 950 V973" class="edge architecture-edge"/>
+      <path d="M1339 950 V973" class="edge architecture-edge"/>
+      <path d="M1537 950 V973" class="edge architecture-edge"/>
+      <path d="M1735 950 V973" class="edge architecture-edge"/>
+    </g>
+    <path d="M1632 169 H1738" class="edge two-way"/>
+    <path d="M1632 185 L1738 295" class="edge two-way"/>
+    <path d="M1632 316 H1738" class="edge two-way"/>
+    <path d="M1632 463 L1738 337" class="edge two-way"/>
+    <path d="M1632 610 H1738" class="edge"/>
+  </g>
+</svg>
