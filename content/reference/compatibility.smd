@@ -7,7 +7,7 @@
     .reference_source = "reference/compatibility",
     .zml_reference_path = "zml/reference/hardware-compatibility",
     .llmd_reference_path = "llmd/user-guide/reference/hardware-compatibility",
-    .related_reference = "reference/environment",
+    .related_reference = "zml/reference/environment-variables",
     .related_note = "for model credentials and backend settings.",
 },
 ---

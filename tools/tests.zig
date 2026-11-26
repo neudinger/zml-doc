@@ -204,42 +204,20 @@ fn checkDrafterHandoffs(fixture: *Fixture) !void {
     try std.testing.expectEqual(@as(usize, 0), checkpoints.count());
 }
 
-fn checkLegacyRoutes(fixture: *Fixture) !void {
-    const allocator = fixture.arena.allocator();
-    const cases = [_]struct { source: []const u8, destination: []const u8 }{
-        .{ .source = "llmd/", .destination = "/llmd/user-guide/" },
-        .{
-            .source = "llmd/developer-guide/",
-            .destination = "/llmd/developer-guide/connect-an-application-to-llmd/#send-a-chat-message",
-        },
-        .{ .source = "llmd/quickstart/", .destination = "/llmd/user-guide/quickstart/" },
-        .{
-            .source = "llmd/user-guide/configure-launch/",
-            .destination = "/llmd/user-guide/configure-launch/2026.11.3/",
-        },
-        .{
-            .source = "llmd/launch/",
-            .destination = "/llmd/user-guide/configure-launch/2026.11.3/#gemma-4-31b-it-cuda",
-        },
-        .{
-            .source = "llmd/quickstart-apple-silicon/",
-            .destination = "/llmd/user-guide/configure-launch/2026.11.3/#lfm3-fp8-metal",
-        },
-        .{
-            .source = "operations/deployment/",
-            .destination = "/llmd/user-guide/operations/deploy-llmd/",
-        },
-    };
-    for (cases) |case| {
-        const output = try std.fmt.allocPrint(allocator, "dist/{s}index.html", .{case.source});
-        const page = try files.read(allocator, std.testing.io, try fixture.path(output));
-        try std.testing.expect(std.mem.indexOf(u8, page, "data-pagefind-ignore") != null);
-        var links = website.attributes(page, "href");
-        const found = while (links.next()) |href| {
-            if (std.mem.endsWith(u8, href, case.destination)) break true;
-        } else false;
-        if (!found) std.debug.print("Missing legacy destination for /{s}\n", .{case.source});
-        try std.testing.expect(found);
+fn checkRemovedRedirects(fixture: *Fixture) !void {
+    for ([_][]const u8{
+        "dist/llmd/index.html",
+        "dist/llmd/developer-guide/index.html",
+        "dist/llmd/quickstart/index.html",
+        "dist/llmd/user-guide/configure-launch/index.html",
+        "dist/llmd/launch/index.html",
+        "dist/llmd/quickstart-apple-silicon/index.html",
+        "dist/operations/deployment/index.html",
+        "dist/reference/environment/index.html",
+        "dist/start/index.html",
+        "dist/zml/cli-reference/environment-variables/index.html",
+    }) |path| {
+        try std.testing.expect(!try files.exists(std.testing.io, try fixture.path(path)));
     }
 }
 
@@ -288,7 +266,7 @@ test "render and validation failures preserve the last site; success removes sta
     try fixture.put("content/index.smd", original);
     _ = try website.build(allocator, std.testing.io, options);
     try checkDrafterHandoffs(&fixture);
-    try checkLegacyRoutes(&fixture);
+    try checkRemovedRedirects(&fixture);
     try std.testing.expect(try files.exists(
         std.testing.io,
         try fixture.path("dist/index.html"),

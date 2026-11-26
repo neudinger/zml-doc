@@ -42,9 +42,6 @@
       <ctx :if="$ctx.html.contains('data-llmd-launch')">
         <script type="module" src="$site.asset('llmd-launch.js').link()"></script>
       </ctx>
-      <ctx :if="$site.page('llmd/user-guide/quickstart').isCurrent()">
-        <script defer src="$site.asset('llmd-quickstart-redirect.js').link()"></script>
-      </ctx>
       <ctx :if="$ctx.html.contains('data-model-catalog')">
         <script type="module" src="$site.asset('model-catalog.js').link()"></script>
       </ctx>
@@ -137,10 +134,9 @@
         </header>
       </ctx>
       <ctx :if="$site.index().isCurrent().not()">
-        <ctx appendix="$page.custom.getOr('reference_append', $ctx.article.custom.getOr('reference_append', ''))"
-             environment="$ctx.article.custom.has('environment_groups')"
+        <ctx environment="$ctx.article.custom.has('environment_groups')"
              llmd_environment="$page.custom.has('launch_modes')">
-          <ctx toc="$ctx.llmd_environment.then('', $ctx.article.toc()).suffix($ctx.appendix.eql('').then('', $site.page($ctx.appendix).toc()))">
+          <ctx toc="$ctx.llmd_environment.then('', $ctx.article.toc())">
             <ctx :if="$ctx.toc.contains('href=').or($ctx.environment, $ctx.article.custom.has('recipe_outline'))">
               <nav class="page-toc" aria-labelledby="page-toc-heading">
                 <details open>
@@ -250,7 +246,6 @@
                 </div>
               </div>
               <ctx :if="$ctx.llmd_environment.not()" :html="$ctx.article.content()"></ctx>
-              <ctx :if="$ctx.appendix.eql('').not()" :html="$site.page($ctx.appendix).content()"></ctx>
             </div>
           </ctx>
         </ctx>

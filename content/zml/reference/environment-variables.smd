@@ -1,15 +1,297 @@
 ---
+.title = "Environment variables",
+.description = "Configure model access, runtime diagnostics, and backend settings.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",
 .custom = .{
-    .reference_source = "reference/environment",
-    .reference_append = "zml/reference/environment-variables",
+    .zml_reference_path = "zml/reference/environment-variables",
+    .llmd_reference_path = "llmd/cli-reference/environment-variables",
     .related_reference = "zml/reference/hardware-compatibility",
     .related_note = "to identify the runtime and artifact before applying backend-specific settings.",
     .product = "ZML",
     .doc_section = "Reference",
+    .environment_groups = [
+        .{ .id = "model-storage-and-credentials", .label = "Model access", .variables = [
+            .{
+                .name = "HF_TOKEN",
+                .llmd_aliases = ["model-storage-setup", "gated-model-access"],
+                .fallback = "When unset, the loader tries $HOME/.cache/huggingface/token, then uses anonymous access if no token is available.",
+                .effect = "An explicit value overrides the token file. An empty value skips the token file.",
+                .example = "bazel run //tools/hf -- auth login",
+                .launch = .{
+                    .docker = .{
+                        .id = "docker-forward-hf-token",
+                        .aliases = ["pass-variables-to-docker", "pass-variables-to-docker-heading"],
+                        .hint = "For a gated model, request access and export an approved read token as HF_TOKEN on the host. Docker forwards the host value when it is exported.",
+                        .command = "-e HF_TOKEN",
+                    },
+                    .native = .{
+                        .id = "native-hf-token",
+                        .aliases = ["native-process-environment", "native-process-environment-heading"],
+                        .hint = "For a gated model, request access and export an approved read token as HF_TOKEN before launch. Replace org/repo with your model.",
+                        .command = "llmd --model=hf://org/repo",
+                    },
+                },
+            },
+            .{
+                .name = "AWS_ACCESS_KEY_ID",
+                .fallback = "Unset. The S3 loader uses anonymous requests if either access key variable is unset.",
+                .effect = "Supplies the access key ID for signing S3 requests together with AWS_SECRET_ACCESS_KEY.",
+            },
+            .{
+                .name = "AWS_SECRET_ACCESS_KEY",
+                .fallback = "Unset. The S3 loader uses anonymous requests if either access key variable is unset.",
+                .effect = "Supplies the secret key for signing S3 requests together with AWS_ACCESS_KEY_ID.",
+            },
+            .{
+                .name = "AWS_ENDPOINT_URL",
+                .fallback = "First choice, ahead of AWS_ENDPOINT_URL_S3. With both unset, the default is https://s3.amazonaws.com.",
+                .effect = "Selects the S3 endpoint.",
+            },
+            .{
+                .name = "AWS_ENDPOINT_URL_S3",
+                .fallback = "Used when AWS_ENDPOINT_URL is unset. With both unset, the default is https://s3.amazonaws.com.",
+                .effect = "Selects the S3 endpoint.",
+            },
+            .{
+                .name = "AWS_REGION",
+                .fallback = "First choice, ahead of AWS_DEFAULT_REGION. With both unset, the default is us-east-1.",
+                .effect = "Selects the region for S3 request signing.",
+                .example = "export AWS_REGION=us-east-1",
+            },
+            .{
+                .name = "AWS_DEFAULT_REGION",
+                .fallback = "Used when AWS_REGION is unset. With both unset, the default is us-east-1.",
+                .effect = "Selects the region for S3 request signing.",
+            },
+            .{
+                .name = "GOOGLE_APPLICATION_CREDENTIALS",
+                .fallback = "When unset, the loader tries $HOME/.config/gcloud/application_default_credentials.json on Linux and macOS. With no usable file, it can try GCE metadata, then anonymous access.",
+                .effect = "Selects the Application Default Credentials file for the Google Cloud Storage loader.",
+                .example = "export GOOGLE_APPLICATION_CREDENTIALS=/path/to/adc.json",
+                .launch = .{
+                    .docker = .{
+                        .id = "docker-gcs-credentials",
+                        .hint = "Replace the host file path. Mount it read-only and pass the container path.",
+                        .command = "--mount type=bind,source=/absolute/path/to/adc.json,target=/run/gcs-adc.json,readonly \\\n-e GOOGLE_APPLICATION_CREDENTIALS=/run/gcs-adc.json",
+                    },
+                    .native = .{
+                        .id = "native-gcs-credentials",
+                        .hint = "Use a credentials file the LLMD process can read. Export its path before launch.",
+                        .command = "export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/adc.json",
+                    },
+                },
+            },
+        ] },
+        .{ .id = "llmd-outbound-proxies", .label = "Network", .llmd_only = true, .variables = [
+            .{
+                .name = "https_proxy",
+                .fallback = "Checks https_proxy, HTTPS_PROXY, all_proxy, and ALL_PROXY in order. The first nonempty value wins. Default is a direct connection.",
+                .effect = "Routes HTTPS model downloads from LLMD through a proxy.",
+                .launch = .{
+                    .docker = .{ .hint = "Export your proxy URL as https_proxy on the host first.", .command = "-e https_proxy" },
+                    .native = .{ .hint = "Replace the example with your proxy URL.", .command = "export https_proxy=http://proxy.example:3128" },
+                },
+            },
+            .{
+                .name = "HTTPS_PROXY",
+                .fallback = "Used when https_proxy is unset or empty. Takes precedence over all_proxy and ALL_PROXY.",
+                .effect = "Routes HTTPS model downloads from LLMD through a proxy.",
+            },
+            .{
+                .name = "http_proxy",
+                .fallback = "Checks http_proxy, HTTP_PROXY, all_proxy, and ALL_PROXY in order. The first nonempty value wins. Default is a direct connection.",
+                .effect = "Routes HTTP model downloads from LLMD through a proxy.",
+                .launch = .{
+                    .docker = .{ .hint = "Export your proxy URL as http_proxy on the host first.", .command = "-e http_proxy" },
+                    .native = .{ .hint = "Replace the example with your proxy URL.", .command = "export http_proxy=http://proxy.example:3128" },
+                },
+            },
+            .{
+                .name = "HTTP_PROXY",
+                .fallback = "Used when http_proxy is unset or empty. Takes precedence over all_proxy and ALL_PROXY.",
+                .effect = "Routes HTTP model downloads from LLMD through a proxy.",
+            },
+            .{
+                .name = "all_proxy",
+                .fallback = "Used when both protocol-specific variables are unset or empty. Takes precedence over ALL_PROXY.",
+                .effect = "Supplies a fallback proxy for HTTP and HTTPS model downloads.",
+            },
+            .{
+                .name = "ALL_PROXY",
+                .fallback = "Used when the protocol-specific variables and all_proxy are unset or empty.",
+                .effect = "Supplies a fallback proxy for HTTP and HTTPS model downloads.",
+            },
+        ] },
+        .{ .id = "llmd-reporting-controls", .label = "Reporting", .llmd_only = true, .variables = [
+            .{
+                .name = "DO_NOT_TRACK",
+                .fallback = "Unset unless configured.",
+                .effect = "Set to 1 to disable crash reporting and usage statistics.",
+                .launch = .{
+                    .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e DO_NOT_TRACK=1" },
+                    .native = .{ .hint = "Set the value before starting LLMD.", .command = "export DO_NOT_TRACK=1" },
+                },
+            },
+            .{
+                .name = "LLMD_NO_USAGE_STATS",
+                .fallback = "Unset unless configured.",
+                .effect = "Set to 1 to disable usage statistics.",
+                .launch = .{
+                    .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e LLMD_NO_USAGE_STATS=1" },
+                    .native = .{ .hint = "Set the value before starting LLMD.", .command = "export LLMD_NO_USAGE_STATS=1" },
+                },
+            },
+            .{
+                .name = "SENTRY_DSN",
+                .fallback = "Depends on the package configuration.",
+                .effect = "Supplies the DSN required to enable crash reporting.",
+            },
+            .{
+                .name = "LLMD_USAGE_STATS_ENDPOINT",
+                .fallback = "Depends on the package configuration.",
+                .effect = "Supplies the endpoint required to enable usage statistics together with LLMD_POSTHOG_TOKEN.",
+            },
+            .{
+                .name = "LLMD_POSTHOG_TOKEN",
+                .fallback = "Depends on the package configuration.",
+                .effect = "Supplies the project token required to enable usage statistics together with LLMD_USAGE_STATS_ENDPOINT.",
+            },
+            .{
+                .name = "LLMD_SENTRY_HANDLER_PATH",
+                .fallback = "Uses the packaged crash handler path when unset.",
+                .effect = "Allows maintainers to override the crash handler path.",
+            },
+        ] },
+        .{ .id = "runtime-diagnostics", .label = "Diagnostics", .variables = [
+            .{
+                .name = "LLMD_PROFILE_DEVICE_ONLY",
+                .llmd_only = true,
+                .llmd_aliases = ["llmd-profiling"],
+                .fallback = "0 when unset.",
+                .effect = "Set to 1 to select device-only tracing when profiling is enabled.",
+                .launch = .{
+                    .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e LLMD_PROFILE_DEVICE_ONLY=1" },
+                    .native = .{ .hint = "Set the value before starting LLMD.", .command = "export LLMD_PROFILE_DEVICE_ONLY=1" },
+                },
+            },
+            .{
+                .name = "XLA_FLAGS",
+                .fallback = "Uses the selected backend's defaults when unset.",
+                .effect = "Passes compiler flags supported by the backend plugin. For HLO dumps, use a plugin that supports them and choose a writable output directory.",
+                .example = "export XLA_FLAGS=\"--xla_dump_to=/path/to/dumps --xla_dump_hlo_as_text\"",
+                .source = "https://openxla.org/xla/hlo_dumps",
+                .source_label = "OpenXLA HLO dump guide",
+            },
+            .{
+                .name = "ZML_AUTOTUNE_CACHE_DIR",
+                .fallback = "Unset.",
+                .effect = "Selects the per-fusion autotune cache directory for CUDA, ROCm, and oneAPI.",
+                .launch = .{
+                    .docker = .{ .hint = "Use a writable host directory to keep the cache across container runs.", .command = "--mount type=bind,source=/absolute/path/to/cache,target=/cache/zml \\\n-e ZML_AUTOTUNE_CACHE_DIR=/cache/zml" },
+                    .native = .{ .hint = "Use a writable directory on the host.", .command = "export ZML_AUTOTUNE_CACHE_DIR=/absolute/path/to/cache" },
+                },
+            },
+            .{
+                .name = "TF_CPP_MIN_LOG_LEVEL",
+                .fallback = "3 in the pinned ZML platform setup.",
+                .effect = "Sets the compiler runtime log threshold.",
+                .example = "export TF_CPP_MIN_LOG_LEVEL=3",
+            },
+            .{
+                .name = "SKIP_PJRT_PROFILER",
+                .fallback = "Unset.",
+                .effect = "Set to true to skip nested backend profiling while keeping local host tracing.",
+                .example = "export SKIP_PJRT_PROFILER=true",
+            },
+            .{
+                .name = "NO_COLOR",
+                .fallback = "Unset. When nonempty, takes precedence over CLICOLOR_FORCE.",
+                .effect = "Disables logo color.",
+            },
+            .{
+                .name = "CLICOLOR_FORCE",
+                .fallback = "Unset.",
+                .effect = "Requests logo color when nonempty.",
+            },
+            .{
+                .name = "COLORTERM",
+                .fallback = "Supplied by the terminal.",
+                .effect = "Helps select the logo's color depth.",
+            },
+            .{
+                .name = "TERM",
+                .fallback = "Supplied by the terminal.",
+                .effect = "Helps select the logo's color depth.",
+            },
+        ] },
+        .{ .id = "backend-specific-settings", .label = "Backend settings", .variables = [
+            .{
+                .name = "LD_LIBRARY_PATH",
+                .fallback = "Supplied by the host or image.",
+                .effect = "The ZML loader checks it for library paths during CUDA diagnostics.",
+            },
+            .{
+                .name = "ROCPROFILER_LOG_LEVEL",
+                .fallback = "error when unset.",
+                .effect = "Controls ROCm profiler logging.",
+            },
+            .{
+                .name = "CCL_LOG_LEVEL",
+                .fallback = "error when unset.",
+                .effect = "Controls Intel oneAPI collective library logging.",
+            },
+            .{
+                .name = "NEURON_RT_LOG_LEVEL",
+                .fallback = "error when unset.",
+                .effect = "Controls AWS Neuron runtime logging.",
+                .launch = .{
+                    .docker = .{ .hint = "Pass the log level to the LLMD container.", .command = "-e NEURON_RT_LOG_LEVEL=error" },
+                    .native = .{ .hint = "Set the log level before starting LLMD.", .command = "export NEURON_RT_LOG_LEVEL=error" },
+                },
+            },
+            .{
+                .name = "NEURON_CC_FLAGS",
+                .fallback = "Generated from the backend configuration when unset.",
+                .effect = "An explicit value overrides the AWS Neuron compiler flags.",
+            },
+            .{
+                .name = "FURIOSA_SDK_ROOT",
+                .fallback = "Set by the pinned loader.",
+                .effect = "Points to the packaged Furiosa SDK.",
+            },
+        ] },
+        .{ .id = "set-by-bazel", .label = "Set by Bazel", .zml_only = true, .variables = [
+            .{
+                .name = "BUILD_WORKING_DIRECTORY",
+                .fallback = "Set by bazel run to the caller's working directory.",
+                .effect = "The ZML LLM example uses it to resolve relative paths.",
+            },
+        ] },
+    ],
 },
 ---
+# [Model storage setup]($heading.id('model-storage-setup'))
+
+Use `hf://org/repo` for Hugging Face. Omit the revision to use `main`, or add
+`@revision` to select one. Use `s3://` or `gs://` for object storage.
+
+- **S3** · Use a local copy of the model when your setup requires an AWS session token.
+- **Google Cloud Storage** · The reviewed loader supports authorized-user
+  application default credentials and GCE metadata. It does not support
+  service account key refresh.
+
+See the pinned loaders for
+[Hugging Face](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/hf.zig),
+[S3](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/s3.zig),
+and [GCS](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/vfs/gcs.zig).
+
+## [Gated model access]($heading.id('gated-model-access'))
+
+Request access on the Hugging Face model page and use a read token from
+the approved account. Export `HF_TOKEN` or sign in with
+`uvx --from huggingface_hub hf auth login` for a host download.
+
 # [LLMD environment variables]($heading.id('llmd-environment-variables'))
 
 ```=html

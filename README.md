@@ -102,17 +102,12 @@ the same group and page order within that section. Put LLMD operations pages
 in the User Guide’s Operations group. Article headings supply the anchors for
 the On this page navigation.
 
-Edit Hardware compatibility and Environment variables in [`content/reference/`](content/reference/).
+Edit [Hardware compatibility](content/reference/compatibility.smd) and
+[Environment variables](content/zml/reference/environment-variables.smd) in their source articles.
 Both topics are listed in the ZML Reference. In LLMD, Hardware compatibility
 supports the Quickstart and Environment variables is in the CLI Reference.
-Each topic uses one source article through
-`reference_source`, and Pagefind indexes the product views. The original
-`/reference/` URLs preserve existing bookmarks.
-
-When moving an existing page, keep a source stub at its former URL with
-`doc-redirect.shtml` and a `custom.destination` set to the new page path.
-The redirect carries the query and fragment. Add a `custom.anchors` mapping
-when a fragment changes.
+Product views share the source content through `reference_source`, and Pagefind
+indexes both views.
 
 ## Validation and scope
 
@@ -124,7 +119,7 @@ attributes; it is not a general HTML, CSS URL, or external-link checker.
 **Search docs** covers ZML and LLMD, including Operations. Reference results
 include the product name so readers can open the corresponding navigation.
 The article layout marks the content to index. Navigation and the homepage are
-outside the index. Old `/start/` bookmarks remain available through a redirect.
+outside the index.
 Recipe components, recordings, API generation, and the command builder are
 subsequent roadmap work.
 

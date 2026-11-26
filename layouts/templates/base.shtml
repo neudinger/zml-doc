@@ -40,8 +40,8 @@
     <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.page('llmd').link())"
-         reference="$site.page($page.custom.getOr('reference_source', '')).custom">
+         llmd="$page.link().startsWith($site.index().link().suffix('llmd/'))"
+         reference="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')).custom, $page.custom)">
       <nav class="page-width product-tabs" aria-label="Product documentation">
         <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
           <ctx :if="$loop.it.get('label').eql($ctx.section)">
@@ -77,7 +77,7 @@
     <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.page('llmd').link())">
+         llmd="$page.link().startsWith($site.index().link().suffix('llmd/'))">
       <ctx :if="$ctx.zml.or($ctx.llmd)">
         <details class="docs-sidebar" open>
           <summary :text="$ctx.section.prefix('Pages in ')"></summary>
@@ -123,7 +123,7 @@
     <ctx catalog="$site.asset('docs-navigation.ziggy').ziggy()"
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
-         llmd="$page.link().startsWith($site.page('llmd').link())">
+         llmd="$page.link().startsWith($site.index().link().suffix('llmd/'))">
       <nav class="mobile-navigation-overview" aria-label="Site navigation" data-mobile-overview>
         <div class="mobile-navigation-products" data-mobile-products></div>
         <ctx :if="$ctx.zml.or($ctx.llmd)">
