@@ -1,17 +1,61 @@
 .{
-    .sections = [
+    .zml = [
         .{
-            .label = "User Guide",
-            .zml = [
+            .label = "Tutorials",
+            .groups = [
                 .{
-                    .label = "User Guide",
+                    .label = "Tutorials",
                     .pages = [
-                        .{ .path = "zml/user-guide", .label = "Overview", .icon = "icon-book" },
-                        .{ .path = "zml/user-guide/quickstart", .label = "Quickstart", .icon = "icon-bolt" },
+                        .{ .path = "zml/tutorial/getting_started", .label = "Getting started with ZML", .icon = "icon-bolt" },
+                        .{ .path = "zml/tutorial/write_first_model", .label = "Write your first model", .icon = "icon-pencil" },
                     ],
                 },
             ],
-            .llmd = [
+        },
+        .{
+            .label = "How To",
+            .groups = [
+                .{
+                    .label = "How To",
+                    .pages = [
+                        .{ .path = "zml/howto/huggingface_access_token", .label = "Authenticate for gated Hugging Face models", .icon = "icon-sliders" },
+                        .{ .path = "zml/howto/howto_torch2zml", .label = "Port a PyTorch model to ZML", .icon = "icon-code" },
+                        .{ .path = "zml/howto/deploy_on_server", .label = "Deploy models on a server", .icon = "icon-server" },
+                        .{ .path = "zml/howto/dockerize_models", .label = "Containerize a model", .icon = "icon-container" },
+                        .{ .path = "zml/howto/profiling", .label = "Profile ZML programs", .icon = "icon-activity" },
+                    ],
+                },
+            ],
+        },
+        .{
+            .label = "Learn",
+            .groups = [
+                .{
+                    .label = "Learn",
+                    .pages = [
+                        .{ .path = "zml/learn/concepts", .label = "ZML concepts", .icon = "icon-shapes" },
+                        .{ .path = "zml/learn/style_guide", .label = "ZML style guide", .icon = "icon-book" },
+                    ],
+                },
+            ],
+        },
+        .{
+            .label = "Reference",
+            .groups = [
+                .{
+                    .label = "Reference",
+                    .pages = [
+                        .{ .path = "zml/reference/hardware-compatibility", .label = "Hardware compatibility", .icon = "icon-cpu" },
+                        .{ .path = "zml/reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
+                    ],
+                },
+            ],
+        },
+    ],
+    .llmd = [
+        .{
+            .label = "User Guide",
+            .groups = [
                 .{
                     .label = "User Guide",
                     .pages = [
@@ -32,19 +76,7 @@
         },
         .{
             .label = "Developer Guide",
-            .zml = [
-                .{
-                    .label = "Developer Guide",
-                    .pages = [
-                        .{ .path = "zml/developer-guide/write-your-first-model", .label = "Write your first model", .icon = "icon-pencil" },
-                        .{ .path = "zml/developer-guide/tensors-and-shapes", .label = "Tensors and shapes", .icon = "icon-shapes" },
-                        .{ .path = "zml/developer-guide/build-and-run-with-bazel", .label = "Build and run with Bazel", .icon = "icon-hammer" },
-                        .{ .path = "zml/developer-guide/load-and-inspect-model-weights", .label = "Load and inspect model weights", .icon = "icon-boxes" },
-                        .{ .path = "zml/developer-guide/run-across-devices", .label = "Run across devices", .icon = "icon-cpu" },
-                    ],
-                },
-            ],
-            .llmd = [
+            .groups = [
                 .{
                     .label = "Developer Guide",
                     .pages = [
@@ -58,19 +90,7 @@
         },
         .{
             .label = "API Reference",
-            .zml = [
-                .{
-                    .label = "API Reference",
-                    .pages = [
-                        .{ .path = "zml/api-reference/tensor", .label = "Tensor", .icon = "icon-boxes" },
-                        .{ .path = "zml/api-reference/shape", .label = "Shape", .icon = "icon-shapes" },
-                        .{ .path = "zml/api-reference/buffer", .label = "Buffer", .icon = "icon-container" },
-                        .{ .path = "zml/api-reference/platform", .label = "Platform", .icon = "icon-cpu" },
-                        .{ .path = "zml/api-reference/exe", .label = "Exe", .icon = "icon-bolt" },
-                    ],
-                },
-            ],
-            .llmd = [
+            .groups = [
                 .{
                     .label = "API Reference",
                     .pages = [
@@ -84,16 +104,7 @@
         },
         .{
             .label = "CLI Reference",
-            .zml = [
-                .{
-                    .label = "CLI Reference",
-                    .pages = [
-                        .{ .path = "zml/cli-reference", .label = "ZML CLI reference", .icon = "icon-terminal" },
-                        .{ .path = "zml/cli-reference/environment-variables", .label = "Environment variables", .icon = "icon-sliders" },
-                    ],
-                },
-            ],
-            .llmd = [
+            .groups = [
                 .{
                     .label = "CLI Reference",
                     .pages = [

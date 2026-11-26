@@ -1,5 +1,9 @@
 # Source attribution
 
+The ZML overview, tutorials, how-to guides, concepts, and style guide are adapted to SuperMD from the
+[ZML repository documentation](https://github.com/zml/zml/tree/f430c3530fbc6d99f734b641eb8f3fd699868843/docs).
+The imported material is distributed under the [Apache License 2.0](LICENSE-ZML-DOCS).
+
 `tools/files.zig` and `tools/website.zig` are adapted from
 [neudinger/zast-site](https://github.com/neudinger/zast-site), used under the
 European Union Public Licence 1.2. The original licence is preserved in

@@ -1,0 +1,21 @@
+---
+.date = .date("2026-11-18T00:00:00"),
+.layout = "content.shtml",
+.custom = .{
+    .reference_source = "reference/environment",
+    .reference_append = "zml/reference/environment-variables",
+    .related_reference = "zml/reference/hardware-compatibility",
+    .related_note = "to identify the runtime and artifact before applying backend-specific settings.",
+    .product = "ZML",
+    .doc_section = "Reference",
+},
+---
+# [LLMD environment variables]($heading.id('llmd-environment-variables'))
+
+```=html
+<ul>
+  <li id="pass-variables-to-docker"><a href="../../../llmd/cli-reference/environment-variables/#pass-variables-to-docker">Pass variables to Docker</a></li>
+  <li id="llmd-outbound-proxies"><a href="../../../llmd/cli-reference/environment-variables/#llmd-outbound-proxies">Outbound proxies</a></li>
+  <li id="llmd-reporting-controls"><a href="../../../llmd/cli-reference/environment-variables/#llmd-reporting-controls">Reporting controls</a></li>
+</ul>
+```

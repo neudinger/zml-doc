@@ -150,11 +150,11 @@ Flash Linear Attention, DeepGEMM mHC and DeepSelect as examples of kernel implem
 <dl class="architecture-reference-rows">
   <div>
     <dt id="component-tensor-api">Tensor API</dt>
-    <dd>Express matrix multiplication, gather, scan and sort in Zig. <code>q.dot(k, .hd).softmax(.k)</code> computes a dot product followed by softmax. <a href="../../../zml/api-reference/tensor/">Tensor API reference</a></dd>
+    <dd>Express matrix multiplication, gather, scan and sort in Zig. <code>q.dot(k, .hd).softmax(.k)</code> computes a dot product followed by softmax. <a href="../../../zml/learn/concepts/#tensor-bros">Tensors in ZML</a></dd>
   </div>
   <div>
     <dt id="component-sharding">Sharding</dt>
-    <dd>Describe tensor placement on a device mesh with named axes so XLA can partition the computation. <a href="../../../zml/developer-guide/run-across-devices/">Run ZML across devices</a></dd>
+    <dd>Describe tensor placement on a device mesh with named axes so XLA can partition the computation. <a href="https://github.com/zml/zml/tree/master/examples/sharding">ZML sharding example</a></dd>
   </div>
 </dl>
 ```
@@ -180,11 +180,11 @@ Flash Linear Attention, DeepGEMM mHC and DeepSelect as examples of kernel implem
 <dl class="architecture-reference-rows">
   <div>
     <dt id="component-io">I/O</dt>
-    <dd>Read tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk, and transfer them between host and device using DMA. <a href="../../../zml/developer-guide/load-and-inspect-model-weights/">Load and inspect model weights</a></dd>
+    <dd>Read tensors from Hugging Face, S3, Google Cloud Storage, HTTP or disk, and transfer them between host and device using DMA. <a href="https://github.com/zml/zml/tree/master/examples/io">ZML I/O example</a></dd>
   </div>
   <div>
     <dt id="component-execution">Execution</dt>
-    <dd>Launches compiled programs asynchronously with device buffers for parameters and inputs. <a href="../../../zml/api-reference/exe/">Exe reference</a></dd>
+    <dd>Launches compiled programs asynchronously with device buffers for parameters and inputs. <a href="../../../zml/learn/concepts/#model-lifecycle">ZML model lifecycle</a></dd>
   </div>
   <div>
     <dt id="component-pjrt">PJRT C API</dt>

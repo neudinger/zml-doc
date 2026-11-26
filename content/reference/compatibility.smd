@@ -5,7 +5,8 @@
 .layout = "content.shtml",
 .custom = .{
     .reference_source = "reference/compatibility",
-    .reference_path = "user-guide/reference/hardware-compatibility",
+    .zml_reference_path = "zml/reference/hardware-compatibility",
+    .llmd_reference_path = "llmd/user-guide/reference/hardware-compatibility",
     .related_reference = "reference/environment",
     .related_note = "for model credentials and backend settings.",
 },
@@ -17,7 +18,7 @@ precision determine what the selected runtime needs to serve.
 
 # [Build with ZML]($heading.id('build-with-zml'))
 
-Start with the [ZML quickstart]($link.page('zml/user-guide/quickstart')) to run the
+Start with [Getting started with ZML]($link.page('zml/tutorial/getting_started')) to run the
 pretrained MNIST example on CPU. For another backend, pass
 `--@zml//platforms:<backend>=true` to Bazel. CPU is enabled by default.
 
@@ -29,7 +30,7 @@ pretrained MNIST example on CPU. For another backend, pass
 | Apple Metal | `metal` | macOS on Apple Silicon. |
 
 See the [ZML platform build definitions](https://github.com/zml/zml/blob/8fcff8c462070d06056f8a85ba0c8a81f0f3a636/platforms/BUILD.bazel)
-at the revision used by the quickstart. The checkout determines which backends
+for the build settings. The checkout determines which backends
 and models its examples recognize.
 
 # [Serve models with LLMD]($heading.id('serve-models-with-llmd'))

@@ -41,16 +41,18 @@
          section="$page.custom.getOr('doc_section', 'User Guide')"
          zml="$page.link().startsWith($site.page('zml').link())"
          llmd="$page.link().startsWith($site.page('llmd').link())"
-         reference="$site.page($page.custom.getOr('reference_source', '')).custom.getOr('reference_path', '')">
+         reference="$site.page($page.custom.getOr('reference_source', '')).custom">
       <nav class="page-width product-tabs" aria-label="Product documentation">
-        <ctx :loop="$ctx.catalog.get('sections')">
+        <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
           <ctx :if="$loop.it.get('label').eql($ctx.section)">
-            <ctx zml_target="$site.page($ctx.reference.eql('').then($loop.it.get('zml').at(0).get('pages').at(0).get('path'), $ctx.reference.prefix('zml/')))"
-                 llmd_target="$site.page($ctx.reference.eql('').then($loop.it.get('llmd').at(0).get('pages').at(0).get('path'), $ctx.reference.prefix('llmd/')))">
-              <a href="$ctx.zml.then($ctx.zml_target.link(), $site.page('zml/user-guide').link())"
-                 aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
-              <a href="$ctx.llmd.then($ctx.llmd_target.link(), $site.page('llmd/user-guide').link())"
-                 aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+            <ctx section_start="$loop.it.get('groups').at(0).get('pages').at(0).get('path')">
+              <ctx zml_target="$site.page($ctx.zml.then($ctx.reference.getOr('zml_reference_path', 'zml'), 'zml'))"
+                   llmd_target="$site.page($ctx.llmd.then($ctx.reference.getOr('llmd_reference_path', $ctx.section_start), 'llmd/user-guide'))">
+                <a href="$ctx.zml_target.link()"
+                   aria-current="$ctx.zml_target.isCurrent().then('page', $ctx.zml.then('location', 'false'))">ZML</a>
+                <a href="$ctx.llmd_target.link()"
+                   aria-current="$ctx.llmd_target.isCurrent().then('page', $ctx.llmd.then('location', 'false'))">LLMD</a>
+              </ctx>
             </ctx>
           </ctx>
         </ctx>
@@ -58,14 +60,12 @@
       <ctx :if="$ctx.zml.or($ctx.llmd)">
         <div class="section-nav">
           <nav class="page-width section-tabs" aria-label="Documentation sections">
-            <ctx :loop="$ctx.catalog.get('sections')">
-              <ctx tab="$loop.it" group="$loop.it.get($ctx.zml.then('zml', 'llmd')).at(0)">
-                <ctx target="$site.page($ctx.group.get('pages').at(0).get('path'))">
-                  <a href="$ctx.target.link()"
-                     aria-current="$ctx.target.isCurrent().then('page', $ctx.tab.get('label').eql($ctx.section).then('location', 'false'))">
-                    <span :text="$ctx.group.get('label')"></span>
-                  </a>
-                </ctx>
+            <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
+              <ctx label="$loop.it.get('label')" target="$site.page($loop.it.get('groups').at(0).get('pages').at(0).get('path'))">
+                <a href="$ctx.target.link()"
+                   aria-current="$ctx.target.isCurrent().then('page', $ctx.label.eql($ctx.section).then('location', 'false'))">
+                  <span :text="$ctx.label"></span>
+                </a>
               </ctx>
             </ctx>
           </nav>
@@ -82,8 +82,8 @@
         <details class="docs-sidebar" open>
           <summary :text="$ctx.section.prefix('Pages in ')"></summary>
           <nav aria-label="Documentation sidebar">
-            <ctx :loop="$ctx.catalog.get('sections')">
-              <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.get($ctx.zml.then('zml', 'llmd'))">
+            <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
+              <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.get('groups')">
                 <ctx :loop="$ctx.groups">
                   <div class="sidebar-group">
                     <p class="sidebar-heading" :text="$loop.it.get('label')"></p>
@@ -128,7 +128,7 @@
         <div class="mobile-navigation-products" data-mobile-products></div>
         <ctx :if="$ctx.zml.or($ctx.llmd)">
           <ul class="mobile-navigation-sections">
-            <ctx :loop="$ctx.catalog.get('sections')">
+            <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
               <li><button type="button" data-mobile-section="$loop.it.get('label')"
                           aria-current="$loop.it.get('label').eql($ctx.section).then('location', 'false')"
                           :text="$loop.it.get('label')"></button></li>
@@ -137,8 +137,8 @@
         </ctx>
       </nav>
       <ctx :if="$ctx.zml.or($ctx.llmd)">
-        <ctx :loop="$ctx.catalog.get('sections')">
-          <ctx label="$loop.it.get('label')" groups="$loop.it.get($ctx.zml.then('zml', 'llmd'))">
+        <ctx :loop="$ctx.catalog.get($ctx.zml.then('zml', 'llmd'))">
+          <ctx label="$loop.it.get('label')" groups="$loop.it.get('groups')">
             <nav class="mobile-navigation-pages" data-mobile-pages="$ctx.label" aria-label="$ctx.label.prefix('Pages in ')" hidden>
               <button class="mobile-navigation-back" type="button" aria-label="Back to documentation sections">Sections</button>
               <h3 :text="$ctx.label"></h3>

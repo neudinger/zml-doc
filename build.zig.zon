@@ -58,6 +58,7 @@
         "upstream.lock.json",
         "README.md",
         "LICENSE",
+        "LICENSE-ZML-DOCS",
         "NOTICE.md",
     },
 }

@@ -15,7 +15,7 @@
     <h1 :text="$page.title"></h1>
     <p>Start is now the <a href="$site.index().link()">ZML homepage</a>.</p>
     <ul>
-      <li><a id="build-with-zml" href="$site.page('zml/user-guide').link()">Build with ZML</a></li>
+      <li><a id="build-with-zml" href="$site.page('zml').link()">Build with ZML</a></li>
       <li><a id="serve-models-with-llmd" href="$site.page('llmd/user-guide').link()">Serve models with LLMD</a></li>
     </ul>
   </main>

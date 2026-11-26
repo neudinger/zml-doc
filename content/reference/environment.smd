@@ -4,8 +4,9 @@
 .date = .date("2026-11-16T00:00:00"),
 .layout = "doc-redirect.shtml",
 .custom = .{
-    .destination = "zml/cli-reference/environment-variables",
-    .reference_path = "cli-reference/environment-variables",
+    .destination = "zml/reference/environment-variables",
+    .zml_reference_path = "zml/reference/environment-variables",
+    .llmd_reference_path = "llmd/cli-reference/environment-variables",
     .anchors = [
         .{ .from = "model-storage-and-credentials", .to = "model-storage-and-credentials", .label = "Model access" },
         .{ .from = "gated-model-access", .to = "gated-model-access", .label = "Gated model access" },

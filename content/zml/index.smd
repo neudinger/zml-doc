@@ -1,5 +1,34 @@
 ---
-.date = .date("2026-11-23T00:00:00"),
-.layout = "doc-redirect.shtml",
-.custom = .{ .destination = "zml/user-guide" },
+.title = "Build with ZML",
+.description = "Run example models, write inference code in Zig, and deploy ZML programs.",
+.date = .date("2026-05-11T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Tutorials" },
 ---
+Start with [Getting started with ZML]($link.page('zml/tutorial/getting_started')) to run
+the example models. When you're ready to write code, try
+[writing your first model]($link.page('zml/tutorial/write_first_model')) or read about
+[ZML concepts]($link.page('zml/learn/concepts')).
+
+# [Tutorials]($heading.id('tutorials'))
+
+- [Getting started with ZML]($link.page('zml/tutorial/getting_started'))
+- [Write your first model]($link.page('zml/tutorial/write_first_model'))
+
+# [How To]($heading.id('how-to-guides'))
+
+- [Authenticate for gated Hugging Face models]($link.page('zml/howto/huggingface_access_token'))
+- [Port a PyTorch model to ZML]($link.page('zml/howto/howto_torch2zml'))
+- [Deploy models on a server]($link.page('zml/howto/deploy_on_server'))
+- [Containerize a model]($link.page('zml/howto/dockerize_models'))
+- [Profile ZML programs]($link.page('zml/howto/profiling'))
+
+# [Learn]($heading.id('guide'))
+
+- [ZML concepts]($link.page('zml/learn/concepts'))
+- [ZML style guide]($link.page('zml/learn/style_guide'))
+
+# [Reference]($heading.id('reference'))
+
+- [Hardware compatibility]($link.page('zml/reference/hardware-compatibility'))
+- [Environment variables]($link.page('zml/reference/environment-variables'))
