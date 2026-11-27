@@ -7,23 +7,6 @@
 ---
 These defaults come from the LLMD source reviewed on 16 November 2026.
 
-# [KV-cache pages and memory limits]($heading.id('kv-cache-and-memory-limits'))
-
-LLMD plans cache capacity from the device memory available after fixed
-allocations such as model weights.
-
-```=html
-<ol class="cli-cache-flow">
-  <li><strong>Device limit</strong><span>Use the smallest reported limit.</span></li>
-  <li><strong>Cache budget</strong><span>Apply <code>--cache-memory-fraction</code>.</span></li>
-  <li><strong>Space for pages</strong><span>Deduct fixed allocations.</span></li>
-</ol>
-```
-
-The planner budgets the remaining memory across the model’s cache kinds and
-divides each budget by that kind’s bytes per page. If capacity is too low for
-your workload, reduce concurrency or context length.
-
 # [Estimate workload demand]($heading.id('page-estimate'))
 
 Estimate logical KV-cache pages for full-length sequences in one data-parallel

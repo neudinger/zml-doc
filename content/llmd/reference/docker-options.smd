@@ -35,7 +35,7 @@ to port `8000`, where LLMD listens inside the container.
 
 Use **Download first** in the [CUDA launch preset]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda'))
 to download the example model. If the files are elsewhere, change the mount's
-`source` to your [local model directory]($link.page('llmd/reference/flags-list').ref('local-model-files')).
+`source` to your [local model directory]($link.page('llmd/howto/model-storage').ref('local')).
 
 ```=html
 <div class="cli-docker-command-order" aria-label="Argument order">

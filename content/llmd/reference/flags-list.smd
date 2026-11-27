@@ -1,131 +1,109 @@
 ---
 .title = "flags list",
-.description = "Select a model, set the served model ID, and bind the LLMD HTTP listener.",
-.date = .date("2026-11-16T00:00:00"),
+.description = "All LLMD flags for model serving, batching, memory, sampling, and speculative decoding.",
+.date = .date("2026-11-27T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Reference" },
 ---
-These defaults come from the LLMD source reviewed on 16 November 2026.
-Use `--name=value` for an option with a value and a bare flag for a boolean
-switch.
 
-# [Model flags]($heading.id('model-and-listener'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--model=<path>` | Required | Path to a model directory or supported model URI. |
-| `--model-name=<text>` | Basename of the model path | Set the identifier reported by `/v1/models` and used in requests. |
-
-# [Bind the listener]($heading.id('bind-the-listener'))
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--listen=<address>` | `0.0.0.0:8000` | Bind HTTP to an IP address and port. A bare IPv4 address uses port `8000`. |
-
-# [Launch by model source]($heading.id('launch-by-model-source'))
-
-```=html
-<fieldset class="command-tabs model-walkthrough" data-toc-parent="launch-by-model-source">
-  <legend>Model source</legend>
-  <div class="model-stage">
-    <label id="model-source-local" class="command-tab" data-toc-label="Local directory"><input type="radio" name="model-source" aria-controls="model-command-local" checked><span>Local directory</span></label>
-    <div class="model-stage-panel" id="model-command-local">
-      <pre><code class="sh" data-copy-label="Copy local launch command">llmd --model="${HOME}/models/Qwen/Qwen3-4B" \
-  --model-name=qwen3-4b \
-  --listen=127.0.0.1:8000
-</code></pre>
-      <p>Point LLMD to a directory with the <a href="#local-model-files">configuration, tokenizer and weights</a>.</p>
-    </div>
-  </div>
-  <div class="model-stage">
-    <label id="model-source-hugging-face" class="command-tab" data-toc-label="Hugging Face"><input type="radio" name="model-source" aria-controls="model-command-hugging-face"><span>Hugging Face</span></label>
-    <div class="model-stage-panel" id="model-command-hugging-face">
-      <pre><code class="sh" data-copy-label="Copy Hugging Face launch command">llmd --model=hf://Qwen/Qwen3-4B \
-  --model-name=qwen3-4b \
-  --listen=127.0.0.1:8000
-</code></pre>
-      <p>Append <code>@revision</code> to pin a revision. Set <code>HF_TOKEN</code> for gated access.</p>
-    </div>
-  </div>
-  <div class="model-stage">
-    <label id="model-source-s3" class="command-tab" data-toc-label="S3"><input type="radio" name="model-source" aria-controls="model-command-s3"><span>S3</span></label>
-    <div class="model-stage-panel" id="model-command-s3">
-      <pre><code class="sh" data-copy-label="Copy S3 launch command">llmd --model=s3://my-bucket/llm/Qwen3-4B \
-  --model-name=qwen3-4b \
-  --listen=127.0.0.1:8000
-</code></pre>
-      <p>Replace the bucket and prefix. For private storage, configure <a href="#cloud-model-uris">AWS credentials</a>.</p>
-    </div>
-  </div>
-  <div class="model-stage">
-    <label id="model-source-gcs" class="command-tab" data-toc-label="GCS"><input type="radio" name="model-source" aria-controls="model-command-gcs"><span>GCS</span></label>
-    <div class="model-stage-panel" id="model-command-gcs">
-      <pre><code class="sh" data-copy-label="Copy GCS launch command">llmd --model=gs://my-bucket/llm/Qwen3-4B \
-  --model-name=qwen3-4b \
-  --listen=127.0.0.1:8000
-</code></pre>
-      <p>Replace the bucket and prefix. For private storage, configure <a href="#cloud-model-uris">Google Cloud credentials</a>.</p>
-    </div>
-  </div>
-</fieldset>
-```
-
-- `--model` selects the directory or URI.
-- `--model-name` makes the examples serve `qwen3-4b`. Verify the ID with [Models]($link.page('llmd/reference/v1/models')).
-- `--listen` binds these native examples to `127.0.0.1:8000` for local access.
-
-# [Model storage prerequisites]($heading.id('model-storage-prerequisites'))
-
-## [Local model files]($heading.id('local-model-files'))
-
-Point `--model` to the directory containing `config.json`. Keep the tokenizer,
-Safetensors weights, weight index and all its shards, and any supplied chat
-template or generation settings together from the same revision.
-`Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
-pooling configuration files.
-
-In [Any model, any platform]($link.page('llmd/tutorial/start')), **Download first**
-generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
-To pin a download, add `--revision <commit>` to that command and give each
-revision its own local directory. Native LLMD reads the host path directly.
-For Docker, see [Run a local model]($link.page('llmd/reference/docker-options').ref('run-a-local-checkpoint')).
-
-## [Cloud model URIs]($heading.id('cloud-model-uris'))
-
-Use `--model=hf://org/repo@revision` to select a Hugging Face revision at
-launch. For S3 or Google Cloud Storage, keep the model files together under
-one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
-`--model=gs://my-bucket/llm/model`. To adapt a generated launch command, choose
-**Load at launch** and replace its `--model` value with the bucket URI.
-Configure [model storage credentials]($link.page('llmd/reference/environment-variables').unsafeRef('model-storage-and-credentials'))
-in the environment that runs LLMD. See [Environment variables]($link.page('llmd/reference/environment-variables'))
-for proxy settings and diagnostics.
-
-# [Select the I/O implementation]($heading.id('io-implementation'))
-
-The reviewed source exposes this advanced option. Check availability in
-your LLMD build.
-
-| LLMD option | Default | Effect |
-| --- | --- | --- |
-| `--io-impl=<name>` | `zio` | Choose the I/O implementation. `threaded` is also available in the reviewed source. |
-
-# [Check installed flags]($heading.id('check-installed-flags'))
-
-Check the help from your installed binary or container for the options
-it exposes. The CUDA recipe in
-[Any model, any platform]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda')) uses
-`zmlai/llmd:cuda`. Docker options go before the image name. LLMD options go
-after it.
+# [List available flags]($heading.id('help'))
 
 | LLMD option | Default | Effect |
 | --- | --- | --- |
 | `-h`, `--help` | Off | Print the supported usage. |
 
-```sh
-# Native installation
-llmd --help
+# [Model flags]($heading.id('model-and-listener'))
 
-# CUDA container
-docker run --rm zmlai/llmd:cuda --help
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--model=<path>` | Required | Path to the model repository. See [Model storage]($link.page('llmd/howto/model-storage')) for directories and supported URIs. |
+| `--model-name=<string>` | Derived from model path | Model name reported in the OpenAI API. |
+| `--speculative-drafter-model=<path>` | `null` (disabled) | Drafter repository path, or `native` for a built-in drafter. |
+
+
+# [Bind the listener]($heading.id('bind-the-listener'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--listen=<addr>` | `0.0.0.0:8000` | Address to listen on. |
+
+# [Batching and context]($heading.id('batching-and-context'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--batch-size=<number>` | `16` | Maximum concurrent requests per data shard. |
+| `--token-batch-size=<number>` | `1024` | Maximum tokens per data shard in one inference step. |
+| `--max-context-len=<number>` | `128000` | Maximum context length in tokens for the model. |
+| `--prefill-chunk-size=<number>` | `256` | Maximum tokens processed for a given sequence during chunked prefill. |
+| `--speculative-draft-count=<num>` | Derived from model configuration | Number of draft tokens to verify. |
+| `--data-parallel=<number>` | `1` | Number of data shards |
+
+# [Memory and cache]($heading.id('memory-and-cache'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--page-chunk-size=<number>` | `16` | Tokens per KV-cache page chunk. |
+| `--gpu-memory-fraction=<fraction>` | `0.9` | Fraction of GPU memory available to LLMD. |
+| `--cache-memory-fraction=<fraction>` | `0.95` | Fraction of the memory allocated to LLMD by `--gpu-memory-fraction` filled with cache pages after loading the model. |
+
+The memory of the device is divided in 4 parts.
+- Driver memory
+- Model weights
+- User Kv Cache
+- Dynamic overhead
+
+When LLMD starts, it allocates up front `--gpu-memory-fraction` on the device. A bit should be left over for the driver.
+After the model weights are loaded, LLMD use `--cache-memory-fraction` on the remaining memory to allocate the KV cache, leaving a little bit of memory for runtime allocations.
+
+Normally lack of memory is detected before serving start,
+but if a runtime crash is triggered by an OOM, decreasing `--cache-memory-fraction` can help.
+
+```=html
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 208" role="img" aria-labelledby="memory-sharing-title memory-sharing-description" style="display:block;width:100%;height:auto;color:inherit;font-family:inherit">
+  <title id="memory-sharing-title">LLMD device memory allocation</title>
+  <desc id="memory-sharing-description">The GPU memory fraction covers weights, KV cache and runtime overhead, leaving a driver reserve. The cache memory fraction controls the KV-cache share of memory remaining after loading weights. Proportions are illustrative.</desc>
+  <g fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="1.5">
+    <path d="M132 54 V42 H780 V54"/>
+    <path d="M356 142 V154 H652 V142"/>
+  </g>
+  <g fill="currentColor" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15">
+    <text x="456" y="28">--gpu-memory-fraction</text>
+    <text x="504" y="180">--cache-memory-fraction</text>
+  </g>
+  <rect x="20" y="66" width="104" height="64" rx="5" fill="#e2e8f0"/>
+  <rect x="132" y="66" width="216" height="64" rx="5" fill="#ddd6fe"/>
+  <rect x="356" y="66" width="296" height="64" rx="5" fill="#99f6e4"/>
+  <rect x="660" y="66" width="120" height="64" rx="5" fill="#e2e8f0"/>
+  <g font-size="16" font-weight="500" text-anchor="middle">
+    <text x="72" y="104" fill="#334155">Driver</text>
+    <text x="240" y="104" fill="#4c1d95">Weights</text>
+    <text x="504" y="104" fill="#134e4a">KV cache</text>
+    <text x="720" y="93" fill="#334155">Runtime</text>
+    <text x="720" y="114" fill="#334155">overhead</text>
+  </g>
+</svg>
 ```
+
+# [Sampling]($heading.id('sampling'))
+
+These values are sampling fallbacks, rather than launch defaults.
+
+| LLMD option | Fallback | Effect |
+| --- | --- | --- |
+| `--top-k=<number>` | `50` | Top-k sampling cutoff. |
+| `--top-p=<fraction>` | `1.0` | Nucleus sampling probability threshold. |
+| `--min-p=<fraction>` | `0.0` | Minimum nucleus sampling probability threshold. |
+| `--temperature=<number>` | `1.0` | Sampling temperature controlling randomness. |
+
+# [System One]($heading.id('systemone'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--systemone-window=<number>` | Batch size / 4 | Number of questions from one `/v1/systemone` request in flight at once. |
+
+# [Misc]($heading.id('misc'))
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--io-impl=<name>` | `zio` | Zig allows to dynamically change the I/O runtime.
+We recommend [zio](https://github.com/lalinsky/zio), but `--io-impl=threaded` is also available using `std.Io.Threaded` |

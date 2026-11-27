@@ -72,16 +72,17 @@
             .label = "How To",
             .groups = [
                 .{
-                    .label = "Setup",
-                    .pages = [
-                        .{ .path = "llmd/howto/connect-an-application-to-llmd", .label = "Connect an application to LLMD", .icon = "icon-code" },
-                    ],
-                },
-                .{
                     .label = "Operations",
                     .pages = [
                         .{ .path = "llmd/howto/deploy-llmd", .label = "Deploy LLMD", .icon = "icon-rocket" },
+                        .{ .path = "llmd/howto/model-storage", .label = "Model storage", .icon = "icon-cloud-download" },
                         .{ .path = "llmd/howto/monitoring-and-troubleshooting", .label = "Monitoring and troubleshooting", .icon = "icon-activity" },
+                    ],
+                },
+                .{
+                    .label = "Integration",
+                    .pages = [
+                        .{ .path = "llmd/howto/connect-an-application-to-llmd", .label = "Connect an application to LLMD", .icon = "icon-code" },
                     ],
                 },
             ],
@@ -94,6 +95,7 @@
                     .pages = [
                         .{ .path = "llmd/learn", .label = "Overview", .icon = "icon-book" },
                         .{ .path = "llmd/learn/architecture", .label = "architecture", .icon = "icon-boxes" },
+                        .{ .path = "llmd/learn/collected-metrics", .label = "Collected metrics", .icon = "icon-activity" },
                     ],
                 },
             ],

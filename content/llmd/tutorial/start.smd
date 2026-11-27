@@ -47,7 +47,7 @@
   <a id="llmd-benchmark" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#scrape-service-metrics">Scrape service metrics</a>
   <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../../reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
   <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/environment-variables/#gated-model-access">Gated model access</a>
-  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/flags-list/#cloud-model-uris">S3 and Google Cloud Storage</a>
+  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../howto/model-storage/#cloud">S3 and Google Cloud Storage</a>
   <a id="troubleshooting" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#diagnose-common-failures">Troubleshoot startup</a>
   <noscript><p>This quickstart shows the Apple Silicon example. Enable JavaScript to choose other platforms and models.</p></noscript>
   <form id="llmd-launch-form" aria-label="LLMD quickstart">
@@ -131,7 +131,7 @@ furiosa-cdi list</code></pre>
       </div>
       <p class="llmd-launch-hint">
         <a href="../../reference/environment-variables/#gated-model-access">Set up Hugging Face access for gated weights</a>.
-        <a href="../../reference/flags-list/#local-model-files">Required model files</a>
+        <a href="../../howto/model-storage/#local">Required model files</a>
       </p>
     </section>
 

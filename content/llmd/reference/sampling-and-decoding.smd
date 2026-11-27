@@ -66,7 +66,7 @@ configuration.
 >
 > Download both repositories under `${HOME}/models`. Pass each host directory
 > to a native installation. See
-> [Local model files]($link.page('llmd/reference/flags-list').ref('local-model-files'))
+> [Local model files]($link.page('llmd/howto/model-storage').ref('local'))
 > for directory contents and revision options.
 >
 > ```sh

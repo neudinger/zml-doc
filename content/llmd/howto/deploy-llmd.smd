@@ -19,9 +19,9 @@ running container for rollback when you upgrade.
   uses `LiquidAI/LFM3-1.7B-FP8`. Check
   [Hardware compatibility]($link.page('llmd/reference/hardware-compatibility')) for other image
   architectures, backends, and precisions.
-- Place all model files for the selected revision in one directory. Keep
-  that directory available for restarts and rollback. For a remote model URI,
-  see [Cloud model URIs]($link.page('llmd/reference/flags-list').ref('cloud-model-uris')).
+- Place all model files for the selected revision in one directory. 
+  Keep that directory available for restarts and rollback. For a remote model URI,
+  see [Cloud model URIs]($link.page('llmd/howto/model-storage').ref('cloud')).
 
 Record the LLMD version, model ID and revision, driver and device,
 and the exact startup flags. Record which credentials the deployment uses

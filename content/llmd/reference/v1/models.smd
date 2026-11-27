@@ -5,13 +5,6 @@
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Reference" },
 ---
-Use `http://127.0.0.1:8000` for the server in the
-[LLMD quickstart]($link.page('llmd')). A client that accepts an
-OpenAI-compatible base URL uses `http://127.0.0.1:8000/v1`. For a remote
-deployment, use its base URL and any authentication it requires.
-
-The endpoint examples in this reference are source-reviewed. Verification
-against a running LLMD instance is pending.
 
 # [List the loaded model]($heading.id('list-the-loaded-model'))
 

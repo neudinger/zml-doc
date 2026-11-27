@@ -40,7 +40,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/howto/deploy-llmd'
             <dt>Expected result</dt>
             <dd>LLMD can read all files for the selected model revision.</dd>
             <dt>Recovery</dt>
-            <dd>Confirm <a href="../../reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../reference/flags-list/#local-model-files">local model directory</a> and bind mount.</dd>
+            <dd>Confirm <a href="../../reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../howto/model-storage/#local">local model directory</a> and bind mount.</dd>
           </dl>
         </section>
         <section id="device-unavailable" data-readiness-symptom aria-labelledby="device-unavailable-title">

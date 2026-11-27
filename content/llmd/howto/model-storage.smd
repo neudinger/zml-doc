@@ -1,0 +1,82 @@
+---
+.title = "How to store models",
+.description = "Start LLMD using models on local or remote storage",
+.date = .date("2026-11-16T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "How To" },
+---
+
+# [Launch by model source]($heading.id('launch-by-model-source'))
+
+```=html
+<fieldset class="command-tabs model-walkthrough" data-toc-parent="launch-by-model-source">
+  <legend>Model source</legend>
+  <div class="model-stage">
+    <label id="model-source-local" class="command-tab" data-toc-label="Local directory"><input type="radio" name="model-source" aria-controls="model-command-local" checked><span>Local directory</span></label>
+    <div class="model-stage-panel" id="model-command-local">
+      <pre><code class="sh" data-copy-label="Copy local launch command">llmd --model="${HOME}/models/Qwen/Qwen3-4B" \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Point LLMD to a directory with the <a href="#local">configuration, tokenizer and weights</a>.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label id="model-source-hugging-face" class="command-tab" data-toc-label="Hugging Face"><input type="radio" name="model-source" aria-controls="model-command-hugging-face"><span>Hugging Face</span></label>
+    <div class="model-stage-panel" id="model-command-hugging-face">
+      <pre><code class="sh" data-copy-label="Copy Hugging Face launch command">llmd --model=hf://Qwen/Qwen3-4B \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Append <code>@revision</code> to pin a revision. Set <code>HF_TOKEN</code> for gated access.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label id="model-source-s3" class="command-tab" data-toc-label="S3"><input type="radio" name="model-source" aria-controls="model-command-s3"><span>S3</span></label>
+    <div class="model-stage-panel" id="model-command-s3">
+      <pre><code class="sh" data-copy-label="Copy S3 launch command">llmd --model=s3://my-bucket/llm/Qwen3-4B \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Replace the bucket and prefix. For private storage, configure <a href="#cloud">AWS credentials</a>.</p>
+    </div>
+  </div>
+  <div class="model-stage">
+    <label id="model-source-gcs" class="command-tab" data-toc-label="GCS"><input type="radio" name="model-source" aria-controls="model-command-gcs"><span>GCS</span></label>
+    <div class="model-stage-panel" id="model-command-gcs">
+      <pre><code class="sh" data-copy-label="Copy GCS launch command">llmd --model=gs://my-bucket/llm/Qwen3-4B \
+  --model-name=qwen3-4b \
+  --listen=127.0.0.1:8000
+</code></pre>
+      <p>Replace the bucket and prefix. For private storage, configure <a href="#cloud">Google Cloud credentials</a>.</p>
+    </div>
+  </div>
+</fieldset>
+```
+
+# [Model storage prerequisites]($heading.id('model-storage-prerequisites'))
+
+## [Local model files]($heading.id('local'))
+
+Point `--model` to the directory containing `config.json`. Keep the tokenizer,
+Safetensors weights, weight index and all its shards, and any supplied chat
+template or generation settings together from the same revision.
+`Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
+pooling configuration files.
+
+In [Any model, any platform]($link.page('llmd/tutorial/start')), **Download first**
+generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
+To pin a download, add `--revision <commit>` to that command and give each
+revision its own local directory. Native LLMD reads the host path directly.
+For Docker, see [Run a local model]($link.page('llmd/reference/docker-options').ref('run-a-local-checkpoint')).
+
+## [Cloud model URIs]($heading.id('cloud'))
+
+Use `--model=hf://org/repo@revision` to select a Hugging Face revision at
+launch. For S3 or Google Cloud Storage, keep the model files together under
+one bucket prefix and pass `--model=s3://my-bucket/llm/model` or
+`--model=gs://my-bucket/llm/model`. To adapt a generated launch command, choose
+**Load at launch** and replace its `--model` value with the bucket URI.
+Configure [model storage credentials]($link.page('llmd/reference/environment-variables').unsafeRef('model-storage-and-credentials'))
+in the environment that runs LLMD. See [Environment variables]($link.page('llmd/reference/environment-variables'))
+for proxy settings and diagnostics.

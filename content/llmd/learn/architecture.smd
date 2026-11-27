@@ -1,6 +1,6 @@
 ---
 .title = "architecture",
-.description = "See how LLMD serves requests and how ZML compiles models, loads weights and runs inference on the selected hardware.",
+.description = "Overall LLMD architecture",
 .date = .date("2026-11-19T00:00:00"),
 .layout = "content.shtml",
 .custom = .{ .doc_section = "Learn", .architecture = true },

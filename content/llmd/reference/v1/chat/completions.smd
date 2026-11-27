@@ -7,6 +7,9 @@
 ---
 # [Create a chat completion]($heading.id('create-a-chat-completion'))
 
+LLMD implements a subset of OpenAI chat completion API.
+https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create
+
 Send JSON to `POST /v1/chat/completions` with the ID returned by
 [Models]($link.page('llmd/reference/v1/models').ref('read-the-model-id')).
 The Basic and Streaming examples use `LiquidAI/LFM3-1.7B-FP8`.

@@ -1,7 +1,7 @@
 # ZML documentation site
 
-Static documentation built with Zine, SuperMD, and SuperHTML. The homepage
-links directly to the ZML overview and LLMD Quickstart.
+Static documentation built with Zine, [SuperMD](https://zine-ssg.io/docs/supermd/), and [SuperHTML](https://zine-ssg.io/docs/superhtml/). 
+The homepage links directly to the ZML overview and LLMD Quickstart.
 Both products use Tutorials, How To, Learn, and Reference, with separate sidebars.
 The implementation roadmap is in [plan.md](plan.md).
 
