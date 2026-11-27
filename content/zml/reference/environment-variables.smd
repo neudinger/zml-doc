@@ -123,39 +123,59 @@
                 .effect = "Supplies a fallback proxy for HTTP and HTTPS model downloads.",
             },
         ] },
+        .{ .id = "perf", .label = "Performance tuning", .variables = [
+            .{
+                .name = "XLA_FLAGS",
+                .fallback = "Uses the selected backend's defaults when unset.",
+                .effect = "Passes compiler flags for XLA based plugins. Can eg be used to save compiler outputs, or tweak compiler optimizations."
+                .example = "export XLA_FLAGS=\"--xla_dump_to=/path/to/dumps --xla_dump_hlo_as_text\"",
+                .source = "https://openxla.org/xla/flags_guidance",
+                .source_label = "OpenXLA flags list",
+            },
+            .{
+                .name = "NEURON_CC_FLAGS",
+                .fallback = "Default Neuron compiler behavior",
+                .effect = "An explicit value overrides the AWS Neuron compiler flags.",
+            },
+            .{
+                .name = "LLMD_PROFILE_DEVICE_ONLY",
+                .llmd_only = true,
+                .llmd_aliases = ["llmd-profiling"],
+                .fallback = "Host traces included",
+                .effect = "Controls how to set the ",
+                .launch = .{
+                    .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e LLMD_PROFILE_DEVICE_ONLY=1" },
+                    .native = .{ .hint = "Set the value before starting LLMD.", .command = "export LLMD_PROFILE_DEVICE_ONLY=1" },
+                },
+            },
+            .{
+                .name = "SKIP_PJRT_PROFILER",
+                .fallback = "Unset.",
+                .effect = "When using a vendor profiler like nsys or rocprof to profile a ZML program (or LLMD), it's best to disable PJRT profiling that can interfer.",
+                .example = "export SKIP_PJRT_PROFILER=true",
+                .source = "https://openxla.org/xla/flags_guidance",
+                .source_label = "OpenXLA flags list",
+            },
+        ] },
         .{ .id = "llmd-reporting-controls", .label = "Reporting", .llmd_only = true, .variables = [
             .{
-                .name = "DO_NOT_TRACK",
-                .fallback = "Unset unless configured.",
-                .effect = "Set to 1 to disable crash reporting and usage statistics.",
+                .name = "DO_NOT_TRACK / LLMD_NO_USAGE_STATS",
+                .fallback = "Usage statistics and crash reporting are enabled by default.",
+                .effect = "Set to 1 to disable usage statistics and crash reporting.",
                 .launch = .{
                     .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e DO_NOT_TRACK=1" },
                     .native = .{ .hint = "Set the value before starting LLMD.", .command = "export DO_NOT_TRACK=1" },
                 },
             },
             .{
-                .name = "LLMD_NO_USAGE_STATS",
-                .fallback = "Unset unless configured.",
-                .effect = "Set to 1 to disable usage statistics.",
-                .launch = .{
-                    .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e LLMD_NO_USAGE_STATS=1" },
-                    .native = .{ .hint = "Set the value before starting LLMD.", .command = "export LLMD_NO_USAGE_STATS=1" },
-                },
-            },
-            .{
                 .name = "SENTRY_DSN",
-                .fallback = "Depends on the package configuration.",
+                .fallback = "zml.ai sentry dashboard",
                 .effect = "Supplies the DSN required to enable crash reporting.",
             },
             .{
                 .name = "LLMD_USAGE_STATS_ENDPOINT",
-                .fallback = "Depends on the package configuration.",
+                .fallback = "zml.ai post hog endpoint",
                 .effect = "Supplies the endpoint required to enable usage statistics together with LLMD_POSTHOG_TOKEN.",
-            },
-            .{
-                .name = "LLMD_POSTHOG_TOKEN",
-                .fallback = "Depends on the package configuration.",
-                .effect = "Supplies the project token required to enable usage statistics together with LLMD_USAGE_STATS_ENDPOINT.",
             },
             .{
                 .name = "LLMD_SENTRY_HANDLER_PATH",
@@ -163,73 +183,12 @@
                 .effect = "Allows maintainers to override the crash handler path.",
             },
         ] },
-        .{ .id = "runtime-diagnostics", .label = "Diagnostics", .variables = [
-            .{
-                .name = "LLMD_PROFILE_DEVICE_ONLY",
-                .llmd_only = true,
-                .llmd_aliases = ["llmd-profiling"],
-                .fallback = "0 when unset.",
-                .effect = "Set to 1 to select device-only tracing when profiling is enabled.",
-                .launch = .{
-                    .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e LLMD_PROFILE_DEVICE_ONLY=1" },
-                    .native = .{ .hint = "Set the value before starting LLMD.", .command = "export LLMD_PROFILE_DEVICE_ONLY=1" },
-                },
-            },
-            .{
-                .name = "XLA_FLAGS",
-                .fallback = "Uses the selected backend's defaults when unset.",
-                .effect = "Passes compiler flags supported by the backend plugin. For HLO dumps, use a plugin that supports them and choose a writable output directory.",
-                .example = "export XLA_FLAGS=\"--xla_dump_to=/path/to/dumps --xla_dump_hlo_as_text\"",
-                .source = "https://openxla.org/xla/hlo_dumps",
-                .source_label = "OpenXLA HLO dump guide",
-            },
-            .{
-                .name = "ZML_AUTOTUNE_CACHE_DIR",
-                .fallback = "Unset.",
-                .effect = "Selects the per-fusion autotune cache directory for CUDA, ROCm, and oneAPI.",
-                .launch = .{
-                    .docker = .{ .hint = "Use a writable host directory to keep the cache across container runs.", .command = "--mount type=bind,source=/absolute/path/to/cache,target=/cache/zml \\\n-e ZML_AUTOTUNE_CACHE_DIR=/cache/zml" },
-                    .native = .{ .hint = "Use a writable directory on the host.", .command = "export ZML_AUTOTUNE_CACHE_DIR=/absolute/path/to/cache" },
-                },
-            },
-            .{
-                .name = "TF_CPP_MIN_LOG_LEVEL",
-                .fallback = "3 in the pinned ZML platform setup.",
-                .effect = "Sets the compiler runtime log threshold.",
-                .example = "export TF_CPP_MIN_LOG_LEVEL=3",
-            },
-            .{
-                .name = "SKIP_PJRT_PROFILER",
-                .fallback = "Unset.",
-                .effect = "Set to true to skip nested backend profiling while keeping local host tracing.",
-                .example = "export SKIP_PJRT_PROFILER=true",
-            },
-            .{
-                .name = "NO_COLOR",
-                .fallback = "Unset. When nonempty, takes precedence over CLICOLOR_FORCE.",
-                .effect = "Disables logo color.",
-            },
-            .{
-                .name = "CLICOLOR_FORCE",
-                .fallback = "Unset.",
-                .effect = "Requests logo color when nonempty.",
-            },
-            .{
-                .name = "COLORTERM",
-                .fallback = "Supplied by the terminal.",
-                .effect = "Helps select the logo's color depth.",
-            },
-            .{
-                .name = "TERM",
-                .fallback = "Supplied by the terminal.",
-                .effect = "Helps select the logo's color depth.",
-            },
-        ] },
         .{ .id = "backend-specific-settings", .label = "Backend settings", .variables = [
             .{
-                .name = "LD_LIBRARY_PATH",
-                .fallback = "Supplied by the host or image.",
-                .effect = "The ZML loader checks it for library paths during CUDA diagnostics.",
+                .name = "TF_CPP_MIN_LOG_LEVEL",
+                .fallback = "No logs (3)",
+                .effect = "Control verbosity of XLA runtime. 0: all messages are logged, 1: warnings and erros are logged, 2: errors are logged, 3: no logs",
+                .example = "export TF_CPP_MIN_LOG_LEVEL=1",
             },
             .{
                 .name = "ROCPROFILER_LOG_LEVEL",
@@ -251,21 +210,21 @@
                 },
             },
             .{
-                .name = "NEURON_CC_FLAGS",
-                .fallback = "Generated from the backend configuration when unset.",
-                .effect = "An explicit value overrides the AWS Neuron compiler flags.",
-            },
-            .{
                 .name = "FURIOSA_SDK_ROOT",
                 .fallback = "Set by the pinned loader.",
                 .effect = "Points to the packaged Furiosa SDK.",
             },
         ] },
-        .{ .id = "set-by-bazel", .label = "Set by Bazel", .zml_only = true, .variables = [
+        .{ .id = "vanity", .label = "Vanity", .variables = [
             .{
-                .name = "BUILD_WORKING_DIRECTORY",
-                .fallback = "Set by bazel run to the caller's working directory.",
-                .effect = "The ZML LLM example uses it to resolve relative paths.",
+                .name = "NO_COLOR / CLICOLOR_FORCE",
+                .effect = "Disable/force loco colors",
+                .fallback = "use colors",
+            },
+            .{
+                .name = "COLORTERM / TERM",
+                .effect = "Helps select the logo's color depth.",
+                .fallback = "Ansi colors",
             },
         ] },
     ],
