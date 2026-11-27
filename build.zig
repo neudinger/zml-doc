@@ -10,9 +10,7 @@ comptime {
 }
 
 pub fn build(builder: *std.Build) void {
-    const pagefind = pagefindExecutable(builder);
-    const zml = builder.lazyDependency("zml_sources", .{});
-    if (pagefind == null or zml == null) return;
+    const pagefind = pagefindExecutable(builder) orelse return;
 
     const zine = builder.dependency("zine", .{
         .target = builder.graph.host,
@@ -30,9 +28,9 @@ pub fn build(builder: *std.Build) void {
     });
     const paths = builder.addOptions();
     paths.addOptionPath("zine_executable", zine.getEmittedBin());
-    paths.addOptionPath("pagefind_executable", pagefind.?);
+    paths.addOptionPath("pagefind_executable", pagefind);
     paths.addOptionPath("zml_api_wasm", apiWasm(builder));
-    paths.addOptionPath("zml_api_sources", apiSources(builder, zml.?));
+    paths.addOptionPath("zml_api_sources", apiSources(builder));
     coordinator.root_module.addOptions("paths", paths);
 
     const release = builder.addRunArtifact(coordinator);
@@ -91,7 +89,17 @@ fn apiWasm(builder: *std.Build) std.Build.LazyPath {
     return wasm.getEmittedBin();
 }
 
-fn apiSources(builder: *std.Build, zml: *std.Build.Dependency) std.Build.LazyPath {
+fn apiSources(builder: *std.Build) std.Build.LazyPath {
+    const manifest = @import("tools/zml-api/build.zig.zon");
+    // Fetch the source package without evaluating ZML's empty build.zig.
+    const fetch = builder.addSystemCommand(&.{
+        builder.graph.zig_exe, "build", "--fetch=all", "--build-file", "build.zig", "--pkg-dir",
+    });
+    fetch.setCwd(builder.path("tools/zml-api"));
+    fetch.addFileInput(builder.path("tools/zml-api/build.zig.zon"));
+    const packages = fetch.addOutputDirectoryArg2("zig-pkg", .{ .make_absolute = true });
+    fetch.setName("fetch ZML API sources");
+
     const pack = builder.addRunArtifact(builder.addExecutable(.{
         .name = "pack-zml-api",
         .root_module = builder.createModule(.{
@@ -100,9 +108,7 @@ fn apiSources(builder: *std.Build, zml: *std.Build.Dependency) std.Build.LazyPat
             .optimize = .ReleaseSafe,
         }),
     }));
-    const url = @import("build.zig.zon").dependencies.zml_sources.url;
-    const revision = std.fs.path.basenamePosix(url);
-    pack.addDirectoryArg(zml.path(builder.fmt("zml-{s}", .{revision})));
+    pack.addDirectoryArg(packages.path(builder, manifest.dependencies.zml_sources.hash));
     return pack.addOutputFileArg("sources.tar");
 }
 

@@ -1,0 +1,12 @@
+.{
+    .name = .zml_api_sources,
+    .version = "0.0.0",
+    .fingerprint = 0x3e55d8e455960ac,
+    .dependencies = .{
+        .zml_sources = .{
+            .url = "https://codeload.github.com/zml/zml/tar.gz/3a3169064a445e0ebea75061705a8d0b0336e6a7",
+            .hash = "N-V-__8AAJmJnwAIUQQjqTcULGlDOE-1PDVPC1xmt-q-rSr_",
+        },
+    },
+    .paths = .{"build.zig.zon"},
+}

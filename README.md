@@ -39,7 +39,7 @@ dependencies. Stop it with Ctrl+C.
 also checks failure cases and preservation of the previous build.
 
 The ZML API reference at `/zml/reference/zml_api/` builds a source archive
-from the ZML revision pinned in `build.zig.zon` and compiles the Zig 0.17
+from the ZML revision pinned in `tools/zml-api/build.zig.zon` and compiles the Zig 0.17
 Autodoc parser to WebAssembly. The browser uses both assets to render
 declarations, doc comments, and source.
 
