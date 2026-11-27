@@ -21,7 +21,7 @@ running container for rollback when you upgrade.
   architectures, backends, and precisions.
 - Place all model files for the selected revision in one directory. Keep
   that directory available for restarts and rollback. For a remote model URI,
-  see [Cloud model URIs]($link.page('llmd/reference/model-and-listener-flags').ref('cloud-model-uris')).
+  see [Cloud model URIs]($link.page('llmd/reference/flags-list').ref('cloud-model-uris')).
 
 Record the LLMD version, model ID and revision, driver and device,
 and the exact startup flags. Record which credentials the deployment uses
@@ -92,7 +92,7 @@ when configuring the host network.
 
 Set proxy timeouts for your expected inference duration and allow streaming
 events to pass through as they arrive. Repeat the chat request through the
-client-facing endpoint. See [Stream a chat completion]($link.page('llmd/reference/chat-completions').ref('stream-a-chat-completion'))
+client-facing endpoint. See [Stream a chat completion]($link.page('llmd/reference/v1/chat/completions').ref('stream-a-chat-completion'))
 for streaming request and response formats.
 
 # [5. Upgrade or roll back]($heading.id('upgrade-or-roll-back'))

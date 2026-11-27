@@ -1,5 +1,5 @@
 ---
-.title = "Decision",
+.title = "/v1/systemone",
 .description = "Score typed questions about a shared input with POST /v1/systemone. Read labels, probabilities, and conditional results.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",

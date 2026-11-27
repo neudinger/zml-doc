@@ -35,7 +35,7 @@ to port `8000`, where LLMD listens inside the container.
 
 Use **Download first** in the [CUDA launch preset]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda'))
 to download the example model. If the files are elsewhere, change the mount's
-`source` to your [local model directory]($link.page('llmd/reference/model-and-listener-flags').ref('local-model-files')).
+`source` to your [local model directory]($link.page('llmd/reference/flags-list').ref('local-model-files')).
 
 ```=html
 <div class="cli-docker-command-order" aria-label="Argument order">
@@ -153,7 +153,7 @@ unless requested.
 | `--listen=0.0.0.0:8000` | Bind HTTP inside the container. For bridge networking, match Docker's container port. |
 | `--model-name=<text>` | Set the served model ID. With `--model=/model`, the default ID is `model`. |
 
-See [Model and listener flags]($link.page('llmd/reference/model-and-listener-flags'))
+See [Model and listener flags]($link.page('llmd/reference/flags-list'))
 and [Environment variables]($link.page('llmd/reference/environment-variables')) for other inputs.
 
 Use [Any model, any platform]($link.page('llmd/tutorial/start')) to generate a launch

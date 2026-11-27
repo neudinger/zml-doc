@@ -1,5 +1,5 @@
 ---
-.title = "Model and listener flags",
+.title = "flags list",
 .description = "Select a model, set the served model ID, and bind the LLMD HTTP listener.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
@@ -71,7 +71,7 @@ switch.
 ```
 
 - `--model` selects the directory or URI.
-- `--model-name` makes the examples serve `qwen3-4b`. Verify the ID with [Models]($link.page('llmd/reference/models')).
+- `--model-name` makes the examples serve `qwen3-4b`. Verify the ID with [Models]($link.page('llmd/reference/v1/models')).
 - `--listen` binds these native examples to `127.0.0.1:8000` for local access.
 
 # [Model storage prerequisites]($heading.id('model-storage-prerequisites'))

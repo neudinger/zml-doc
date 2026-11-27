@@ -1,5 +1,5 @@
 ---
-.title = "Embeddings",
+.title = "/v1/embeddings",
 .description = "Create text vectors with POST /v1/embeddings. Send one string or a batch and choose the vector dimensions and encoding.",
 .date = .date("2026-11-18T00:00:00"),
 .layout = "content.shtml",

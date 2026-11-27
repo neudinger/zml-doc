@@ -96,4 +96,4 @@ for score, passage in sorted(ranked, reverse=True):
 ```
 
 For encoding options, vector sizes, and request limits, see the
-[Embeddings API reference]($link.page('llmd/reference/embeddings').ref('embeddings')).
+[Embeddings API reference]($link.page('llmd/reference/v1/embeddings').ref('embeddings')).

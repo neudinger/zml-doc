@@ -1,5 +1,5 @@
 ---
-.title = "LLMD on ZML",
+.title = "architecture",
 .description = "See how LLMD serves requests and how ZML compiles models, loads weights and runs inference on the selected hardware.",
 .date = .date("2026-11-19T00:00:00"),
 .layout = "content.shtml",
@@ -14,9 +14,9 @@
 
 | Endpoint | Result |
 | --- | --- |
-| [Chat completions]($link.page('llmd/reference/chat-completions')) · [/v1/chat/completions]($text.id('component-chat-completions')) | An OpenAI-compatible client or SDK sends messages. LLMD returns a completion or streams the generated text. |
-| [Embeddings]($link.page('llmd/reference/embeddings')) · [/v1/embeddings]($text.id('component-embeddings')) | The model pools its output on the device and returns a vector for each input text. |
-| [Decision]($link.page('llmd/reference/decision')) · [/v1/systemone]($text.id('component-decision')) | The client supplies one state and a set of yes/no, choice or score questions. A question can depend on an earlier answer. |
+| [Chat completions]($link.page('llmd/reference/v1/chat/completions')) · [/v1/chat/completions]($text.id('component-chat-completions')) | An OpenAI-compatible client or SDK sends messages. LLMD returns a completion or streams the generated text. |
+| [Embeddings]($link.page('llmd/reference/v1/embeddings')) · [/v1/embeddings]($text.id('component-embeddings')) | The model pools its output on the device and returns a vector for each input text. |
+| [Decision]($link.page('llmd/reference/v1/systemone')) · [/v1/systemone]($text.id('component-decision')) | The client supplies one state and a set of yes/no, choice or score questions. A question can depend on an earlier answer. |
 
 For [observability]($text.id('component-observability')), LLMD exposes Prometheus metrics and provides crash reports.
 See [Monitor and troubleshoot LLMD]($link.page('llmd/howto/monitoring-and-troubleshooting').ref('scrape-service-metrics')) to inspect service metrics during a run.

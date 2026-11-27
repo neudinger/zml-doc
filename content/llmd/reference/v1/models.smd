@@ -1,5 +1,5 @@
 ---
-.title = "Models",
+.title = "/v1/models",
 .description = "List the model loaded by LLMD, find its served ID, and check server health.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
@@ -24,10 +24,10 @@ curl -fsS http://127.0.0.1:8000/v1/models
 # [Read the model ID]($heading.id('read-the-model-id'))
 
 Use `data[0].id` as the `model` field in a
-[chat completion]($link.page('llmd/reference/chat-completions').ref('create-a-chat-completion')).
+[chat completion]($link.page('llmd/reference/v1/chat/completions').ref('create-a-chat-completion')).
 The CLI's `--model-name` sets the ID. When omitted, LLMD uses the basename
 of `--model`. To serve another model, start LLMD with its path or URI.
-See [Model and listener flags]($link.page('llmd/reference/model-and-listener-flags').ref('model-and-listener'))
+See [Model and listener flags]($link.page('llmd/reference/flags-list').ref('model-and-listener'))
 for local model files and supported URIs.
 
 # [Check service health and errors]($heading.id('check-service-health-and-errors'))
@@ -37,4 +37,4 @@ for local model files and supported URIs.
 | `GET /health` | Returns `OK` from the running HTTP service. Send an inference request supported by the loaded model to confirm it can answer. |
 | `GET /metrics` | Exposes Prometheus metrics. See [Scrape service metrics]($link.page('llmd/howto/monitoring-and-troubleshooting').ref('scrape-service-metrics')). |
 
-For errors from a chat request, see [Chat completion errors]($link.page('llmd/reference/chat-completions').ref('errors')).
+For errors from a chat request, see [Chat completion errors]($link.page('llmd/reference/v1/chat/completions').ref('errors')).

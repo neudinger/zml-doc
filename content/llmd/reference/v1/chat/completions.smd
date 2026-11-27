@@ -1,5 +1,5 @@
 ---
-.title = "Chat completions",
+.title = "/v1/chat/completions",
 .description = "Send chat requests to LLMD, read streaming completions, and handle tool calls.",
 .date = .date("2026-11-16T00:00:00"),
 .layout = "content.shtml",
@@ -8,7 +8,7 @@
 # [Create a chat completion]($heading.id('create-a-chat-completion'))
 
 Send JSON to `POST /v1/chat/completions` with the ID returned by
-[Models]($link.page('llmd/reference/models').ref('read-the-model-id')).
+[Models]($link.page('llmd/reference/v1/models').ref('read-the-model-id')).
 The Basic and Streaming examples use `LiquidAI/LFM3-1.7B-FP8`.
 
 ## [Read the response]($heading.id('read-the-response'))

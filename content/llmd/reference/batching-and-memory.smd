@@ -76,7 +76,7 @@ For example, four sequences of 4,096 tokens each need 1,024 logical pages.
 | LLMD option | Default | Effect |
 | --- | --- | --- |
 | `--data-parallel=<groups>` | `1` | Set the number of groups that share request and KV-cache work in supported configurations. |
-| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight within one [Decision request]($link.page('llmd/reference/decision').ref('decision')). |
+| `--systemone-window=<requests>` | Batch size divided by four, rounded down with a minimum of one | Limit the questions in flight within one [Decision request]($link.page('llmd/reference/v1/systemone').ref('decision')). |
 
 The [20261106.0 release notes](https://zml.ai/posts/llmd-20261106.0/#data-parallelism-beta)
 describe data parallelism on Llama as a beta feature.

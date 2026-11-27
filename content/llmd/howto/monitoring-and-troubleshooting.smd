@@ -40,7 +40,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/howto/deploy-llmd'
             <dt>Expected result</dt>
             <dd>LLMD can read all files for the selected model revision.</dd>
             <dt>Recovery</dt>
-            <dd>Confirm <a href="../../reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../reference/model-and-listener-flags/#local-model-files">local model directory</a> and bind mount.</dd>
+            <dd>Confirm <a href="../../reference/environment-variables/#gated-model-access">gated model access</a> and pass the token, or correct the <a href="../../reference/flags-list/#local-model-files">local model directory</a> and bind mount.</dd>
           </dl>
         </section>
         <section id="device-unavailable" data-readiness-symptom aria-labelledby="device-unavailable-title">
@@ -126,7 +126,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/howto/deploy-llmd'
               <pre><code class="json" data-copy-label="Copy example models response">{ "data": [{ "id": "lfm3" }] }</code></pre>
             </dd>
             <dt>Recovery</dt>
-            <dd>Use that value verbatim as the <code>model</code> field in your request, for example <code>"model": "lfm3"</code>. The <a href="../../reference/models/#read-the-model-id">Models API reference</a> explains how <code>--model-name</code> sets the served ID.</dd>
+            <dd>Use that value verbatim as the <code>model</code> field in your request, for example <code>"model": "lfm3"</code>. The <a href="../../reference/v1/models/#read-the-model-id">Models API reference</a> explains how <code>--model-name</code> sets the served ID.</dd>
           </dl>
         </section>
       </div>
@@ -149,7 +149,7 @@ the container name `llmd` from [Deploy LLMD]($link.page('llmd/howto/deploy-llmd'
             <dt>Expected result</dt>
             <dd>The complete prompt is shorter than the context limit.</dd>
             <dt>Recovery</dt>
-            <dd>Shorten the conversation and retry the request. See <a href="../../reference/chat-completions/#errors">Chat completion errors</a>.</dd>
+            <dd>Shorten the conversation and retry the request. See <a href="../../reference/v1/chat/completions/#errors">Chat completion errors</a>.</dd>
           </dl>
         </section>
         <section id="requests-out-of-memory" data-readiness-symptom aria-labelledby="requests-out-of-memory-title">
@@ -194,7 +194,7 @@ curl --max-time 5 -fsS http://127.0.0.1:8000/v1/models
 ```
 
 `/health` returns `OK` when its handler responds. Check the expected model ID in
-`/v1/models`, then send a [short chat request]($link.page('llmd/reference/chat-completions').ref('create-a-chat-completion')) and verify
+`/v1/models`, then send a [short chat request]($link.page('llmd/reference/v1/chat/completions').ref('create-a-chat-completion')) and verify
 that it generates a reply before routing traffic to the instance.
 
 # [Scrape service metrics]($heading.id('scrape-service-metrics'))

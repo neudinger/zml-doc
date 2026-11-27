@@ -41,7 +41,7 @@ print(reply.choices[0].message.content)
 </div>
 ```
 
-The SDK reads the [served model ID]($link.page('llmd/reference/models').ref('read-the-model-id')), including custom names. `local` is a placeholder for a local server without authentication. For a protected deployment, supply its base URL and token.
+The SDK reads the [served model ID]($link.page('llmd/reference/v1/models').ref('read-the-model-id')), including custom names. `local` is a placeholder for a local server without authentication. For a protected deployment, supply its base URL and token.
 
 ```=html
 <div data-toc-parent="send-a-chat-message">
@@ -79,7 +79,7 @@ The SDK reads the [served model ID]($link.page('llmd/reference/models').ref('rea
 > print()
 > ```
 >
-> Each text delta extends the same line. An optional usage event has empty `choices`. The SDK stops at `[DONE]`. [Streaming HTTP example]($link.page('llmd/reference/chat-completions').ref('stream-a-chat-completion'))
+> Each text delta extends the same line. An optional usage event has empty `choices`. The SDK stops at `[DONE]`. [Streaming HTTP example]($link.page('llmd/reference/v1/chat/completions').ref('stream-a-chat-completion'))
 
 []($section.attrs('client-branch'))
 
@@ -124,4 +124,4 @@ The SDK reads the [served model ID]($link.page('llmd/reference/models').ref('rea
 > print(reply.choices[0].message.content)
 > ```
 >
-> The second request includes the original assistant message and one tool result per call. Each `tool_call_id` matches the ID LLMD supplied. [Tool call fields and schema]($link.page('llmd/reference/chat-completions').ref('call-tools-from-a-client'))
+> The second request includes the original assistant message and one tool result per call. Each `tool_call_id` matches the ID LLMD supplied. [Tool call fields and schema]($link.page('llmd/reference/v1/chat/completions').ref('call-tools-from-a-client'))

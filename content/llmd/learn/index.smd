@@ -35,4 +35,4 @@ Deploy, monitor, and troubleshoot the LLMD server.
 
 []($section.attrs('service-map-reference'))
 
-[Explore the LLMD on ZML architecture map]($link.page('llmd/learn/llmd-on-zml').attrs('service-architecture','icon-boxes'))
+[Explore the LLMD on ZML architecture map]($link.page('llmd/learn/architecture').attrs('service-architecture','icon-boxes'))

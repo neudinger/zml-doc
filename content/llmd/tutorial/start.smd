@@ -47,7 +47,7 @@
   <a id="llmd-benchmark" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#scrape-service-metrics">Scrape service metrics</a>
   <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../../reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
   <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/environment-variables/#gated-model-access">Gated model access</a>
-  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a>
+  <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/flags-list/#cloud-model-uris">S3 and Google Cloud Storage</a>
   <a id="troubleshooting" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#diagnose-common-failures">Troubleshoot startup</a>
   <noscript><p>This quickstart shows the Apple Silicon example. Enable JavaScript to choose other platforms and models.</p></noscript>
   <form id="llmd-launch-form" aria-label="LLMD quickstart">
@@ -131,7 +131,7 @@ furiosa-cdi list</code></pre>
       </div>
       <p class="llmd-launch-hint">
         <a href="../../reference/environment-variables/#gated-model-access">Set up Hugging Face access for gated weights</a>.
-        <a href="../../reference/model-and-listener-flags/#local-model-files">Required model files</a>
+        <a href="../../reference/flags-list/#local-model-files">Required model files</a>
       </p>
     </section>
 
@@ -161,7 +161,7 @@ furiosa-cdi list</code></pre>
         <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
   --model=hf://LiquidAI/LFM3-1.7B</code></pre>
       </div>
-      <p class="llmd-launch-hint"><a href="../../howto/deploy-llmd/">Deployment guide</a> · <a href="../../reference/model-and-listener-flags/">Model and listener flags</a></p>
+      <p class="llmd-launch-hint"><a href="../../howto/deploy-llmd/">Deployment guide</a> · <a href="../../reference/flags-list/">Model and listener flags</a></p>
     </section>
 
     <section aria-labelledby="check-the-loaded-model">
@@ -201,7 +201,7 @@ furiosa-cdi list</code></pre>
         </select>
       </div>
       <div id="send-a-chat-request" data-chat-request>
-        <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../../reference/chat-completions/">Chat API</a></p>
+        <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../../reference/v1/chat/completions/">Chat API</a></p>
         <div class="command-shell">
           <span class="command-language icon-code">Host shell</span>
           <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
@@ -210,7 +210,7 @@ furiosa-cdi list</code></pre>
         </div>
       </div>
       <div id="send-a-decision-request" data-decision-request hidden>
-        <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../ask-structured-questions/">Decision tutorial</a> · <a href="../../reference/decision/">API reference</a></p>
+        <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../ask-structured-questions/">Decision tutorial</a> · <a href="../../reference/v1/systemone/">API reference</a></p>
         <div class="command-shell">
           <span class="command-language icon-code">Host shell</span>
           <pre><code class="sh" data-command="decision" data-copy-label="Copy Decision request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
@@ -226,7 +226,7 @@ furiosa-cdi list</code></pre>
         </div>
       </div>
       <div id="send-an-embeddings-request" data-embeddings-request hidden>
-        <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../compare-texts-with-embeddings/">Text similarity tutorial</a> · <a href="../../reference/embeddings/">API reference</a></p>
+        <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../compare-texts-with-embeddings/">Text similarity tutorial</a> · <a href="../../reference/v1/embeddings/">API reference</a></p>
         <div class="command-shell">
           <span class="command-language icon-code">Host shell</span>
           <pre><code class="sh" data-command="embeddings" data-copy-label="Copy embeddings request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
