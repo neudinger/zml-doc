@@ -1,0 +1,62 @@
+---
+.title = "Usage statistics",
+.description = "Session metadata and usage counters serialized by LLMD for PostHog capture events.",
+.date = .date("2026-11-27T00:00:00"),
+.layout = "content.shtml",
+.custom = .{ .doc_section = "Learn" },
+---
+
+LLMD send anonymous usage statistics to PostHog.
+We use the following PostHog settings: `$process_person_profile = false` and `$geoip_disable = false`,
+disabling user level statistics, but allowing coarse geographical localization.
+
+We send statistics at startup time with LLMD version, selected backend, model type and cli flags.
+We also collect some usage metric while serving.
+
+The metrics are listed below.
+They contain no user prompt, no generated text, embedding vectors, no model repository path or request body. 
+
+Usage statistics can be disabled using [DO_NOT_TRACK]($link.page('llmd/reference/environment-variables').id('env-DO_NOT_TRACK') env variable.
+
+# [User configuration]($heading.id('session-start'))
+
+On session start we send the following properties,
+describing how LLMD is used.
+
+| Property | Meaning |
+| --- | --- |
+| `timestamp_unix_ms` | Event timestamp in Unix milliseconds. |
+| `llmd_revision` | LLMD revision for the session. |
+| `model_type` | Model type for the session. |
+| `api_kind` | Kind of API served. |
+| `platform_target` | Platform target for the session. |
+| `device_count` | Number of devices. |
+| `device_kind` | Kind of device. |
+| `configured_backend` | Configured execution backend. |
+| `batch_size` | Configured batch size. |
+| `token_batch_size` | Configured token batch size. |
+| `max_context_length` | Configured maximum context length. |
+| `prefill_chunk_size` | Configured prefill chunk size. |
+| `page_chunk_size` | Configured KV-cache page chunk size. |
+| `speculative_decoding_enabled` | Whether speculative decoding is enabled. |
+
+
+# [Usage statistics]($heading.id('heartbeat-counters'))
+
+During usage we send the following metrics,
+to understand the relative importance of each configurations.
+
+| Property | Meaning |
+| --- | --- |
+| `input_tokens_total` | Total input tokens. |
+| `prefill_tokens_total` | Total prefill tokens. |
+| `output_tokens_total` | Total output tokens. |
+| `requests_finished_eos_total` | Requests finished with an end-of-sequence condition. |
+| `requests_finished_length_total` | Requests finished at a length limit. |
+| `requests_finished_error_total` | Requests finished with an error. |
+| `requests_finished_canceled_total` | Requests finished by cancellation. |
+| `requests_rejected_oom_total` | Requests rejected due to an out-of-memory condition. |
+| `embedding_inputs_completed_total` | Embedding inputs completed. |
+| `embedding_inputs_error_total` | Embedding inputs with an error. |
+| `embedding_inputs_canceled_total` | Embedding inputs canceled. |
+| `embedding_inputs_rejected_oom_total` | Embedding inputs rejected due to an out-of-memory condition. |

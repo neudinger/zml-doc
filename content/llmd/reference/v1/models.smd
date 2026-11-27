@@ -20,7 +20,7 @@ Use `data[0].id` as the `model` field in a
 [chat completion]($link.page('llmd/reference/v1/chat/completions').ref('create-a-chat-completion')).
 The CLI's `--model-name` sets the ID. When omitted, LLMD uses the basename
 of `--model`. To serve another model, start LLMD with its path or URI.
-See [Model and listener flags]($link.page('llmd/reference/flags-list').ref('model-and-listener'))
+See [Model and listener flags]($link.page('llmd/reference/flags').ref('model-and-listener'))
 for local model files and supported URIs.
 
 # [Check service health and errors]($heading.id('check-service-health-and-errors'))

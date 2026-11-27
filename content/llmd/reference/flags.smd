@@ -1,5 +1,5 @@
 ---
-.title = "flags list",
+.title = "Flags",
 .description = "All LLMD flags for model serving, batching, memory, sampling, and speculative decoding.",
 .date = .date("2026-11-27T00:00:00"),
 .layout = "content.shtml",
@@ -59,41 +59,62 @@ Normally lack of memory is detected before serving start,
 but if a runtime crash is triggered by an OOM, decreasing `--cache-memory-fraction` can help.
 
 ```=html
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 208" role="img" aria-labelledby="memory-sharing-title memory-sharing-description" style="display:block;width:100%;height:auto;color:inherit;font-family:inherit">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 216" role="img" aria-labelledby="memory-sharing-title memory-sharing-description" style="display:block;width:100%;height:auto;color:inherit;font-family:inherit">
   <title id="memory-sharing-title">LLMD device memory allocation</title>
-  <desc id="memory-sharing-description">The GPU memory fraction covers weights, KV cache and runtime overhead, leaving a driver reserve. The cache memory fraction controls the KV-cache share of memory remaining after loading weights. Proportions are illustrative.</desc>
-  <g fill="none" stroke="currentColor" stroke-opacity="0.45" stroke-width="1.5">
-    <path d="M132 54 V42 H780 V54"/>
-    <path d="M356 142 V154 H652 V142"/>
+  <desc id="memory-sharing-description">Solid brackets show allocated memory; dotted brackets show the total used to calculate each fraction. The GPU memory fraction allocates weights, KV cache and runtime overhead out of total device memory. The cache memory fraction allocates KV cache out of memory remaining after weights, including runtime overhead. Proportions are illustrative.</desc>
+  <g fill="none" stroke="currentColor" stroke-opacity="0.55" stroke-width="1.5">
+    <g stroke-dasharray="1 5" stroke-linecap="round">
+      <path d="M20 54 V42 H780 V54"/>
+      <path d="M356 166 V178 H780 V166"/>
+      <path d="M20 198 H48"/>
+    </g>
+    <path d="M132 66 V54 H780 V66"/>
+    <path d="M356 152 V164 H652 V152"/>
+    <path d="M20 176 H48"/>
   </g>
   <g fill="currentColor" text-anchor="middle" font-family="ui-monospace, monospace" font-size="15">
     <text x="456" y="28">--gpu-memory-fraction</text>
-    <text x="504" y="180">--cache-memory-fraction</text>
+    <text x="568" y="205">--cache-memory-fraction</text>
   </g>
-  <rect x="20" y="66" width="104" height="64" rx="5" fill="#e2e8f0"/>
-  <rect x="132" y="66" width="216" height="64" rx="5" fill="#ddd6fe"/>
-  <rect x="356" y="66" width="296" height="64" rx="5" fill="#99f6e4"/>
-  <rect x="660" y="66" width="120" height="64" rx="5" fill="#e2e8f0"/>
+  <rect x="20" y="76" width="104" height="64" rx="5" fill="#e2e8f0"/>
+  <rect x="132" y="76" width="216" height="64" rx="5" fill="#ddd6fe"/>
+  <rect x="356" y="76" width="296" height="64" rx="5" fill="#99f6e4"/>
+  <rect x="660" y="76" width="120" height="64" rx="5" fill="#e2e8f0"/>
   <g font-size="16" font-weight="500" text-anchor="middle">
-    <text x="72" y="104" fill="#334155">Driver</text>
-    <text x="240" y="104" fill="#4c1d95">Weights</text>
-    <text x="504" y="104" fill="#134e4a">KV cache</text>
-    <text x="720" y="93" fill="#334155">Runtime</text>
-    <text x="720" y="114" fill="#334155">overhead</text>
+    <text x="72" y="114" fill="#334155">Driver</text>
+    <text x="240" y="114" fill="#4c1d95">Weights</text>
+    <text x="504" y="114" fill="#134e4a">KV cache</text>
+    <text x="720" y="103" fill="#334155">Runtime</text>
+    <text x="720" y="124" fill="#334155">overhead</text>
+  </g>
+  <g fill="currentColor" font-size="13" opacity="0.7">
+    <text x="58" y="181">Allocated</text>
+    <text x="58" y="203">Total</text>
   </g>
 </svg>
 ```
 
+# [Asynchronous scheduling]($heading.id('scheduling-and-attention-workers'))
+
+Availability can vary by model, backend, and release.
+
+| LLMD option | Default | Effect |
+| --- | --- | --- |
+| `--async-scheduling` | Off | Enable asynchronous scheduling on supported models. The initial beta covers Llama and Gemma 4 without speculative decoding. |
+
+
 # [Sampling]($heading.id('sampling'))
 
-These values are sampling fallbacks, rather than launch defaults.
+`--top-k` acts as an upper bound on the sampled tokens.
+`--temperature`, `--top-p` and `--min-p` can be set per-request using [Chat completion API]($link.page('llmd/reference/v1/chat/completions')
+The model defaults generally come from model authors in the "model card".
 
 | LLMD option | Fallback | Effect |
 | --- | --- | --- |
-| `--top-k=<number>` | `50` | Top-k sampling cutoff. |
-| `--top-p=<fraction>` | `1.0` | Nucleus sampling probability threshold. |
-| `--min-p=<fraction>` | `0.0` | Minimum nucleus sampling probability threshold. |
-| `--temperature=<number>` | `1.0` | Sampling temperature controlling randomness. |
+| `--top-k=<number>` | `model default` | Top-k sampling cutoff. |
+| `--temperature=<number>` | `model default` | Sampling temperature controlling randomness. |
+| `--top-p=<fraction>` | `model default` | Nucleus sampling probability threshold. |
+| `--min-p=<fraction>` | `model default` | Minimum nucleus sampling probability threshold. |
 
 # [System One]($heading.id('systemone'))
 

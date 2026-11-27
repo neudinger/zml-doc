@@ -8,4 +8,4 @@
 
 [Architecture]($link.page('llmd/learn/architecture').attrs('service-architecture','icon-boxes'))
 
-[Collected metrics]($link.page('llmd/learn/collected-metrics').attrs('collected-metrics','icon-activity'))
+[Usage statistics]($link.page('llmd/learn/usage-statistics').attrs('usage-statistics','icon-activity'))

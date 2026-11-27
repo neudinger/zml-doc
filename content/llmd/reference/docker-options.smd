@@ -153,7 +153,7 @@ unless requested.
 | `--listen=0.0.0.0:8000` | Bind HTTP inside the container. For bridge networking, match Docker's container port. |
 | `--model-name=<text>` | Set the served model ID. With `--model=/model`, the default ID is `model`. |
 
-See [Model and listener flags]($link.page('llmd/reference/flags-list'))
+See [Model and listener flags]($link.page('llmd/reference/flags'))
 and [Environment variables]($link.page('llmd/reference/environment-variables')) for other inputs.
 
 Use [Any model, any platform]($link.page('llmd/tutorial/start')) to generate a launch

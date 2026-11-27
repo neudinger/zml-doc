@@ -159,9 +159,9 @@
         ] },
         .{ .id = "llmd-reporting-controls", .label = "Reporting", .llmd_only = true, .variables = [
             .{
-                .name = "DO_NOT_TRACK / LLMD_NO_USAGE_STATS",
+                .name = "DO_NOT_TRACK",
                 .fallback = "Usage statistics and crash reporting are enabled by default.",
-                .effect = "Set to 1 to disable usage statistics and crash reporting.",
+                .effect = "Set to 1 to disable usage statistics and crash reporting. Also available as LLMD_NO_USAGE_STATS",
                 .launch = .{
                     .docker = .{ .hint = "Pass the value to the LLMD container.", .command = "-e DO_NOT_TRACK=1" },
                     .native = .{ .hint = "Set the value before starting LLMD.", .command = "export DO_NOT_TRACK=1" },
@@ -217,9 +217,14 @@
         ] },
         .{ .id = "vanity", .label = "Vanity", .variables = [
             .{
-                .name = "NO_COLOR / CLICOLOR_FORCE",
-                .effect = "Disable/force loco colors",
-                .fallback = "use colors",
+                .name = "NO_COLOR",
+                .effect = "Disable loco colors",
+                .fallback = "use colors only in tty",
+            },
+            .{
+                .name = "CLICOLOR_FORCE",
+                .effect = "Force loco colors",
+                .fallback = "use colors only in tty",
             },
             .{
                 .name = "COLORTERM / TERM",
