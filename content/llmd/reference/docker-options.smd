@@ -156,7 +156,7 @@ unless requested.
 See [Model and listener flags]($link.page('llmd/reference/model-and-listener-flags'))
 and [Environment variables]($link.page('llmd/reference/environment-variables')) for other inputs.
 
-Use [Start LLMD on any platform]($link.page('llmd/tutorial/start')) to generate a launch
+Use [Any model, any platform]($link.page('llmd/tutorial/start')) to generate a launch
 command for your backend. See [Hardware compatibility]($link.page('llmd/reference/hardware-compatibility'))
 for host requirements and [Deploy LLMD with Docker]($link.page('llmd/howto/deploy-llmd'))
 for deployment, readiness checks, and rollback.

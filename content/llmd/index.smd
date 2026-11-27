@@ -18,7 +18,7 @@ You can even try it on your laptop.
 </div>
 ```
 
-For another model or accelerator, see [Start LLMD on any platform]($link.page('llmd/tutorial/start')).
+For another accelerator, see [Any model, any hardware]($link.page('llmd/tutorial/start')).
 
 
 # [Run the server]($heading.id('run-local-server'))

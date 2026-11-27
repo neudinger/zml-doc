@@ -95,7 +95,7 @@ can be declared explicitly in `zine.ziggy` when needed.
 Set `custom.doc_section` to the section label in the page front matter. Add the page
 to a group under its product and section in
 [`assets/docs-navigation.ziggy`](assets/docs-navigation.ziggy). Each section’s
-first page is its header tab destination. Breadcrumbs, the sidebar, and Previous/Next follow
+first page is its header tab destination. The sidebar and Previous/Next follow
 the same group and page order within that section. Put LLMD operations pages
 in the How To section’s Operations group. Article headings supply the anchors for
 the On this page navigation.

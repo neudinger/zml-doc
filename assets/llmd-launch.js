@@ -18,21 +18,21 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
   };
   const lfm3Bf16DockerEvidence = "Tested upstream with BF16 weights. The Docker command is adapted from the published FP8 recipe.";
   const presets = [
-    { id: "lfm3-fp8-metal", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "metal", batchSize: 4 },
+    { id: "lfm3-fp8-metal", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "metal" },
     { id: "lfm3-fp8-cuda", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "cuda" },
     { id: "lfm3-fp8-rocm", checkpoint: "LiquidAI/LFM3-1.7B-FP8", backend: "rocm" },
-    { id: "lfm3-bf16-metal", checkpoint: "LiquidAI/LFM3-1.7B", backend: "metal", batchSize: 1, evidence: "Benchmarked upstream with this BF16 checkpoint on M3 Max." },
+    { id: "lfm3-bf16-metal", checkpoint: "LiquidAI/LFM3-1.7B", backend: "metal", evidence: "Benchmarked upstream with this BF16 checkpoint on M3 Max." },
     { id: "lfm3-bf16-cuda", checkpoint: "LiquidAI/LFM3-1.7B", backend: "cuda", evidence: lfm3Bf16DockerEvidence },
     { id: "lfm3-bf16-rocm", checkpoint: "LiquidAI/LFM3-1.7B", backend: "rocm", evidence: lfm3Bf16DockerEvidence },
     { id: "lfm3-oneapi", checkpoint: "LiquidAI/LFM3-1.7B", backend: "oneapi" },
     { id: "lfm3-tpu", checkpoint: "LiquidAI/LFM3-1.7B", backend: "tpu" },
-    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", batchSize: 1, evidence: "Tested upstream on Furiosa. Docker recipe pending hardware validation." },
-    { id: "qwen3-8-27b-fp8-metal", checkpoint: "Qwen/Qwen3.8-27B-FP8", backend: "metal", batchSize: 1 },
-    { id: "qwen3-8-27b-cuda", checkpoint: "Qwen/Qwen3.8-27B", backend: "cuda", dspine: true },
-    { id: "qwen3-8-27b-rocm", checkpoint: "Qwen/Qwen3.8-27B", backend: "rocm", dspine: true },
+    { id: "lfm3-furiosa", checkpoint: "LiquidAI/LFM3-1.7B", backend: "furiosa", evidence: "Tested upstream on Furiosa. Docker recipe pending hardware validation." },
+    { id: "qwen3-8-27b-fp8-metal", checkpoint: "Qwen/Qwen3.8-27B-FP8", backend: "metal" },
+    { id: "qwen3-8-27b-cuda", checkpoint: "Qwen/Qwen3.8-27B", backend: "cuda", drafter: "tencent/Qwen3.8-27B-DSpine-b16" },
+    { id: "qwen3-8-27b-rocm", checkpoint: "Qwen/Qwen3.8-27B", backend: "rocm", drafter: "tencent/Qwen3.8-27B-DSpine-b16" },
     { id: "qwen3-8-27b-oneapi", checkpoint: "Qwen/Qwen3.8-27B", backend: "oneapi" },
     { id: "qwen3-8-27b-tpu", checkpoint: "Qwen/Qwen3.8-27B", backend: "tpu" },
-    { id: "qwen3-8-27b-nvfp4-metal", checkpoint: "nvidia/Qwen3.8-27B-NVFP4", backend: "metal", batchSize: 1 },
+    { id: "qwen3-8-27b-nvfp4-metal", checkpoint: "nvidia/Qwen3.8-27B-NVFP4", backend: "metal" },
     { id: "qwen3-8-flash-next-cuda", checkpoint: "Qwen/Qwen3.8-Flash-Next", backend: "cuda" },
     { id: "qwen3-8-flash-next-rocm", checkpoint: "Qwen/Qwen3.8-Flash-Next", backend: "rocm" },
     { id: "deepseek-v4-1-flash-cuda", checkpoint: "deepseek-ai/DeepSeek-V4.1-Flash", backend: "cuda" },
@@ -40,14 +40,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     { id: "mistral-large-4-cuda", checkpoint: "mistralai/Mistral-Large-4-1T-A52B", backend: "cuda", shm: "32GB" },
   ];
   const gemmaPreset = { id: "gemma-4-31b-it-cuda", checkpoint: "google/gemma-4-31B-it", backend: "cuda", evidence: "Local model example for NVIDIA CUDA." };
-  const overrides = [
-    ["context", "max-context-len"],
-    ["batch", "batch-size"],
-    ["tokens", "token-batch-size"],
-    ["memory", "gpu-memory-fraction"],
-  ];
   const homePrefix = "${HOME}";
-  const dspine = { mode: "dspine", label: "DSpine (published recipe)", drafter: "tencent/Qwen3.8-27B-DSpine-b16" };
   const continuation = " \\" + "\n";
 
   function shellQuote(value) {
@@ -56,7 +49,8 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
   }
 
   function homePath(directory) {
-    return '"${HOME:?Set HOME to your absolute home directory}"' + shellQuote(directory.slice(homePrefix.length));
+    const suffix = directory.slice(homePrefix.length).replace(/["\\$`]/g, "\\$&");
+    return '"' + homePrefix + suffix + '"';
   }
 
   function directoryError(directory) {
@@ -77,55 +71,8 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     return "";
   }
 
-  function cacheDirectoryError(directory) {
-    if (!directory.startsWith("/")) {
-      return "Enter an absolute path, such as /tmp/furiosa-tcc-cache.";
-    }
-    if (directory.includes(":")) {
-      return "Remove colons. Docker uses : to separate the host path from the container path.";
-    }
-    if (/[\u0000-\u001f\u007f]|\p{White_Space}$/u.test(directory)) {
-      return "Remove control characters or whitespace at the end of the path.";
-    }
-    const parts = directory.split("/");
-    if (parts.includes("..") || !parts.some(part => part && part !== ".")) {
-      return "Choose a subdirectory of / and remove any .. path component.";
-    }
-    return "";
-  }
-
-  function integerError(value, max, required = false) {
-    if (!value && !required) return "";
-    if (/^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= max) return "";
-    return "Enter a whole number from 1 to " + max.toLocaleString("en-US") + " using digits only.";
-  }
-
-  function parseListenAddress(value) {
-    if (/^(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){3}$/.test(value)) {
-      return value.split(".").every(octet => Number(octet) <= 255) ? value : "";
-    }
-    const address = value.startsWith("[") && value.endsWith("]") ? value.slice(1, -1) : value;
-    if (!address.includes(":") || !/^[0-9a-f:.]+$/i.test(address)) return "";
-    try {
-      return new URL("http://[" + address + "]").hostname;
-    } catch {
-      return "";
-    }
-  }
-
-  function memoryError(value) {
-    if (!value) return "";
-    if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value)) {
-      return "Enter a number such as 0.5. Use a decimal point in place of a comma.";
-    }
-    const fraction = Number(value);
-    if (fraction <= 0 || fraction > 1) {
-      return "Enter a fraction greater than 0 and at most 1.";
-    }
-    if (Math.fround(fraction) === 0) {
-      return "This fraction rounds to zero. Enter a larger value such as 0.5.";
-    }
-    return "";
+  function normalizeDirectory(directory) {
+    return directory.split("/").filter(part => part && part !== ".").join("/");
   }
 
   function downloadCommand({ checkpoint, directory }) {
@@ -139,90 +86,55 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     return shellQuote("http://" + endpoint + "/v1/" + route);
   }
 
-  function llmdArguments(settings, modelArgument) {
-    const args = ["  --model=" + modelArgument];
-    // A local directory may use a different basename, especially the /model bind mount.
-    const modelName = servedModelName(settings.checkpoint);
-    if (settings.source !== "hub" &&
-        (settings.backend !== "metal" || servedModelName(settings.directory.replace(/\/+$/, "")) !== modelName)) {
-      args.push("  --model-name=" + shellQuote(modelName));
-    }
-    if (settings.decoding === "native") args.push("  --speculative-drafter-model=native");
-    if (settings.drafter) {
-      const local = settings.backend === "metal" ? homePath(settings.drafterDirectory) : "/drafter";
-      const path = settings.drafterSource === "local" ? local : shellQuote("hf://" + settings.drafter);
-      args.push("  --speculative-drafter-model=" + path);
-    }
-    for (const [name, flag] of overrides) {
-      const value = settings[name];
-      if (value) args.push("  --" + flag + "=" + Number(value));
-    }
+  function modelArguments(model, drafter) {
+    const args = ["  --model=" + model];
+    if (drafter) args.push("  --speculative-drafter-model=" + drafter);
     return args;
   }
 
-  function withAbsoluteHome(command, setup = []) {
-    return [
-      "(",
-      '  case "${HOME:?Set HOME to your absolute home directory}" in',
-      "    /*) ;;",
-      "    *) printf '%s\\n' 'HOME must be an absolute path.' >&2; exit 1 ;;",
-      "  esac",
-      ...setup,
-      command.replace(/^/gm, "  "),
-      ")",
-    ].join("\n");
+  function nativeLaunchCommand(settings) {
+    const { checkpoint, directory, drafter, drafterDirectory, port } = settings;
+    const model = directory ? homePath(directory) : shellQuote("hf://" + checkpoint);
+    const draft = drafterDirectory ? homePath(drafterDirectory) : drafterArgument(drafter);
+    return ["llmd --listen=127.0.0.1:" + port, ...modelArguments(model, draft)].join(continuation);
   }
 
-  function nativeLaunchCommand(settings, listener) {
-    const localCheckpoint = settings.source !== "hub";
-    const model = localCheckpoint ? homePath(settings.directory) : shellQuote("hf://" + settings.checkpoint);
-    const command = [
-      listener === "0.0.0.0:8000" ? "llmd" : "llmd --listen=" + shellQuote(listener),
-      ...llmdArguments(settings, model),
-    ].join(continuation);
-    return localCheckpoint || settings.drafterSource === "local" ? withAbsoluteHome(command) : command;
+  function drafterArgument(drafter) {
+    return drafter && (drafter === "native" ? drafter : shellQuote("hf://" + drafter));
   }
 
-  function dockerLaunchCommand(settings, image, backendOptions, listener) {
-    const { backend, checkpoint, directory, source, cacheDirectory } = settings;
-    const localCheckpoint = source !== "hub";
-    const localDrafter = settings.drafterSource === "local";
+  function dockerLaunchCommand(settings, image, backendOptions, shm) {
+    const { backend, checkpoint, directory, drafter, drafterDirectory, port } = settings;
+    const model = directory ? "/models/" + servedModelName(checkpoint) : "hf://" + checkpoint;
     const mounts = [];
-    if (localCheckpoint) mounts.push({ name: "model", directory });
-    if (localDrafter) mounts.push({ name: "drafter", directory: settings.drafterDirectory });
+    if (directory) mounts.push({ name: "model", directory, target: model });
+    if (drafterDirectory) mounts.push({ name: "drafter", directory: drafterDirectory, target: "/drafter" });
 
-    const lines = ["docker run " + (settings.runMode === "foreground" ? "--rm" : "-d") + " --name llmd"];
+    const lines = ["docker run --rm --name llmd"];
     if (backendOptions.hostNetwork) lines.push("  --net=host");
-    else lines.push("  -p 127.0.0.1:" + Number(settings.port) + ":" + Number(settings.listenPort));
+    else lines.push("  -p 127.0.0.1:" + port + ":8000");
     lines.push(...backendOptions.devices.map(flag => "  " + flag));
-    if (backend === "cuda") lines.push("  --gpus=" + shellQuote(settings.gpu));
-    const shm = settings.shm === "recipe" ? backendOptions.shm : settings.shm;
-    if (shm && shm !== "default") lines.push("  --shm-size=" + shellQuote(shm));
+    if (backend === "cuda") lines.push("  --gpus=all");
+    if (shm) lines.push("  --shm-size=" + shm);
     // Docker expects CSV, including quotes around the entire source field.
-    for (const { name } of mounts) {
-      lines.push('  --mount "type=bind,\\"source=${' + name + '_src}\\",target=/' + name + ',readonly"');
+    for (const { name, target } of mounts) {
+      lines.push('  --mount "type=bind,\\"source=${' + name + '_src}\\",target=' + target + ',readonly"');
     }
-    if (cacheDirectory) {
-      lines.push("  -v " + shellQuote(cacheDirectory + ":/cache/furiosa"), "  -e FURIOSA_COMPILER_CACHE=/cache/furiosa");
-    }
-    if (settings.hfToken) lines.push("  -e HF_TOKEN");
-    const model = localCheckpoint ? "/model" : "hf://" + checkpoint;
-    lines.push("  " + image);
-    if (listener !== "0.0.0.0:8000") lines.push("  --listen=" + shellQuote(listener));
-    lines.push(...llmdArguments(settings, shellQuote(model)));
-    const createCacheDirectory = cacheDirectory ? "mkdir -p -- " + shellQuote(cacheDirectory) + " &&\n" : "";
-    const command = createCacheDirectory + lines.join(continuation);
+    const listener = backendOptions.hostNetwork ? "127.0.0.1:" + port : "0.0.0.0:8000";
+    const draft = drafterDirectory ? "/drafter" : drafterArgument(drafter);
+    lines.push("  " + image, "  --listen=" + listener, ...modelArguments(shellQuote(model), draft));
+    const command = lines.join(continuation);
     if (!mounts.length) return command;
 
     const setup = mounts.map(({ name, directory }) =>
       "  " + name + "_src=$(printf '%s' " + homePath(directory) + " | sed 's/\"/\"\"/g') || exit 1"
     );
-    return withAbsoluteHome(command, setup);
+    return ["(", ...setup, command.replace(/^/gm, "  "), ")"].join("\n");
   }
 
-  function chatCommand(checkpoint, endpoint) {
+  function chatCommand(model, endpoint) {
     const payload = JSON.stringify({
-      model: servedModelName(checkpoint),
+      model,
       messages: [{ role: "user", content: "Reply with one short greeting." }],
     }, null, 2);
     return [
@@ -246,19 +158,16 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     const form = root.querySelector("form");
     const part = name => root.querySelector(`[data-${name}]`);
     const field = name => form.elements.namedItem(name);
-    const steps = [...root.querySelectorAll(".llmd-launch-step")];
     const codeBlocks = [...root.querySelectorAll("code[data-command]")];
+    const modelList = JSON.parse(root.querySelector('code[data-command="models-response"]').textContent);
     const checkpointField = field("checkpoint");
     const backendField = field("backend");
-    const decodingField = field("decoding");
     const drafterField = field("drafter");
+    const sourceField = field("source");
+    const directoryField = field("directory");
+    const drafterDirectoryField = field("drafterDirectory");
+    const portField = field("port");
     const requestField = field("request");
-    const drafterSourceField = field("drafterSource");
-    const hfTokenField = field("hfToken");
-    const persistCacheField = field("persistCompilerCache");
-    const cacheDirectoryField = field("cacheDirectory");
-    const batchField = field("batch");
-    const standard = { mode: "standard", label: "Standard", drafter: "" };
     const families = new Map();
     function addModel({ family, checkpoint }) {
       const parent = modelFamily(family);
@@ -277,7 +186,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     for (const row of document.querySelectorAll("[data-llmd-models] [data-checkpoint]")) {
       addModel(row.dataset);
       const modes = [...row.querySelectorAll("[data-decoding]")].map(item => ({
-        mode: item.dataset.decoding, label: item.textContent.trim(), drafter: item.dataset.drafter,
+        mode: item.dataset.decoding, drafter: item.dataset.drafter,
       }));
       if (modes.length) routineModes.set(row.dataset.checkpoint, modes);
       for (const type of requestTypes) {
@@ -297,6 +206,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       return group;
     }));
     checkpointField.value = checkpoint;
+    let previousDrafter = "";
     let legacyPreset = null;
     let invalidLink = false;
 
@@ -312,29 +222,28 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     }
 
     function updateCheckpointDirectory() {
-      const nextCheckpoint = checkpointField.value;
-      if (nextCheckpoint === checkpoint) return;
-
-      field("directory").value = homePrefix + "/models/" + nextCheckpoint;
-      checkpoint = nextCheckpoint;
+      if (checkpointField.value === checkpoint) return;
+      checkpoint = checkpointField.value;
+      directoryField.value = homePrefix + "/models/" + checkpoint;
     }
 
-    function refreshDecoding(mode = decodingField.value, preferredDrafter) {
+    function refreshDrafters(preferred) {
       const checkpoint = checkpointField.value;
-      const options = [...(routineModes.get(checkpoint) ?? [standard])];
-      const routineExternal = options.find(option => option.mode === "external");
-      const routineDrafter = routineExternal?.drafter;
-      const drafters = pairings.get(checkpoint) ?? (routineDrafter ? [routineDrafter] : []);
-      if (drafters.length && !routineExternal) {
-        options.push({ mode: "external", label: "External drafter" });
-      }
-      if (presets.some(item => item.checkpoint === checkpoint && item.backend === backendField.value && item.dspine)) {
-        options.push(dspine);
-      }
-      decodingField.replaceChildren(...options.map(option => new Option(option.label, option.mode)));
-      decodingField.value = options.some(option => option.mode === mode) ? mode : "standard";
-      drafterField.replaceChildren(...drafters.map(id => new Option(id, id)));
-      drafterField.value = preferredDrafter ?? routineDrafter ?? drafters[0] ?? "";
+      const modes = routineModes.get(checkpoint) ?? [];
+      const native = modes.some(option => option.mode === "native");
+      const recommended = modes.find(option => option.mode === "external")?.drafter;
+      const external = new Set(pairings.get(checkpoint));
+      if (recommended) external.add(recommended);
+      const options = [new Option("No drafter", "")];
+      if (native) options.push(new Option("Built-in drafter (included with model)", "native"));
+      for (const id of external) options.push(new Option(id, id));
+      // An external link can request the recommended drafter without naming it.
+      const selected = preferred === null
+        ? recommended ?? external.values().next().value
+        : preferred ?? (native ? "native" : "");
+      drafterField.replaceChildren(...options);
+      drafterField.disabled = options.length === 1;
+      drafterField.value = options.some(option => option.value === selected) ? selected : "";
     }
 
     function refreshRequest(preferred) {
@@ -344,16 +253,15 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       if (!hasSpecialRequest || routineModes.has(name)) options.unshift(new Option("Chat", "chat"));
       requestField.replaceChildren(...options);
       requestField.value = options.find(option => option.value === preferred)?.value ?? options[0].value;
-      show("request-type", hasSpecialRequest);
+      show("request-type", options.length > 1);
     }
 
-    function selectLaunch(preset, mode, request = "chat", drafter) {
+    function selectLaunch(preset, drafter, request = "chat") {
       invalidLink = false;
       backendField.value = preset.backend;
       checkpointField.value = preset.checkpoint;
-      refreshDecoding(mode, drafter);
+      refreshDrafters(drafter);
       refreshRequest(request);
-      drafterSourceField.value = "hub";
       updateCheckpointDirectory();
     }
 
@@ -362,10 +270,10 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       const useDspine = typeof id === "string" && id.endsWith("-dspine");
       const presetId = useDspine ? id.slice(0, -"-dspine".length) : id;
       const preset = gemma ? gemmaPreset : presets.find(item => item.id === presetId);
-      if (!preset || (useDspine && !preset.dspine)) return false;
+      if (!preset || (useDspine && !preset.drafter)) return false;
       legacyPreset = preset;
-      if (gemma) field("source").value = "download";
-      selectLaunch(preset, useDspine ? "dspine" : "standard");
+      if (gemma) sourceField.value = "download";
+      selectLaunch(preset, useDspine ? preset.drafter : undefined);
       return true;
     }
 
@@ -380,8 +288,9 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
         || (decoding === "standard" && requestTypes.some(type => type.checkpoints.has(checkpoint)));
       if (Object.hasOwn(backends, backend) && knownMode) {
         legacyPreset = null;
-        selectLaunch({ checkpoint, backend }, decoding, query.get("request"), drafter);
-        invalidLink = drafter !== null && decoding !== "external";
+        const preferred = decoding === "external" ? drafter : decoding === "native" ? "native" : "";
+        selectLaunch({ checkpoint, backend }, preferred, query.get("request"));
+        invalidLink = drafter !== null && (decoding !== "external" || drafterField.value !== drafter);
       } else if (drafter !== null) {
         invalidLink = true;
       } else {
@@ -390,11 +299,13 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
     }
 
     function applyFragment(fragment) {
-      if (fragment === "download-checkpoint") field("source").value = "download";
+      if (fragment === "download-checkpoint") sourceField.value = "download";
       if (fragment === "download-drafter") {
-        if (decodingField.value !== "dspine" && decodingField.value !== "external"
-          && pairings.has(checkpointField.value)) refreshDecoding("external");
-        if (decodingField.value === "dspine" || decodingField.value === "external") drafterSourceField.value = "local";
+        const externalDrafter = [...drafterField.options].find(option => option.value && option.value !== "native");
+        if (externalDrafter) {
+          if (!drafterField.value || drafterField.value === "native") drafterField.value = externalDrafter.value;
+          sourceField.value = "download";
+        }
       }
       if (fragment === "send-a-chat-request") refreshRequest("chat");
       if (fragment === "send-a-decision-request") refreshRequest("decision");
@@ -402,7 +313,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
         const embeddings = requestTypes.find(type => type.key === "embeddings");
         if (!embeddings.checkpoints.has(checkpointField.value) && embeddings.checkpoints.size) {
           legacyPreset = null;
-          selectLaunch({ checkpoint: embeddings.checkpoints.values().next().value, backend: backendField.value }, "standard", "embeddings");
+          selectLaunch({ checkpoint: embeddings.checkpoints.values().next().value, backend: backendField.value }, "", "embeddings");
         } else {
           refreshRequest("embeddings");
         }
@@ -410,95 +321,60 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       if (fragment === "before-you-start" && backendField.value === "furiosa") part("furiosa-requirements").open = true;
     }
 
-    function showCommands(commands) {
-      show("error", !commands.launch);
-      let number = 0;
-      for (const step of steps) {
-        if (!step.hidden) step.querySelector(".llmd-launch-step-number").textContent = String(++number);
-      }
-      for (const code of codeBlocks) updateCode(code, commands[code.dataset.command]);
-    }
-
     function render() {
       const backend = backendField.value;
       const backendOptions = backends[backend];
       const native = backend === "metal";
-      const furiosa = backend === "furiosa";
-      const hostListener = native || backendOptions.hostNetwork === true;
       const checkpoint = checkpointField.value;
       const preset = presets.find(item => item.checkpoint === checkpoint && item.backend === backend);
-      const decoding = decodingField.value;
+      const source = sourceField.value;
       const requestType = requestField.value;
-      const embeddings = requestType === "embeddings";
-      const routine = routineModes.get(checkpoint);
-      const external = decoding === "external";
-      const drafter = external ? drafterField.value : decoding === "dspine" ? dspine.drafter : "";
-      const drafterDirectory = drafter ? homePrefix + "/models/" + drafter : "";
-      const defaultBatch = decoding === "dspine" ? 1 : legacyPreset?.batchSize;
-      const recipeShm = preset?.shm ?? backendOptions.shm;
-      drafterField.disabled = !external;
-      show("drafter-field", external);
-      part("drafter-source").disabled = !drafter;
-      show("drafter-source", Boolean(drafter));
-      batchField.disabled = decoding === "dspine";
-      part("batch").hidden = batchField.disabled;
-
-      const source = field("source").value;
-      const drafterSource = drafter ? drafterSourceField.value : "";
-      hfTokenField.disabled = native || (source !== "hub" && drafterSource !== "hub");
-      field("runMode").disabled = native;
-      field("gpu").disabled = native;
-      field("shm").disabled = native;
-      field("listenAddress").disabled = !hostListener;
-      field("listenPort").disabled = hostListener;
-      persistCacheField.disabled = !furiosa;
-      cacheDirectoryField.disabled = !furiosa || !persistCacheField.checked;
-      batchField.placeholder = defaultBatch ? String(defaultBatch) : "LLMD default";
-      const settings = Object.fromEntries(new FormData(form));
-      settings.batch ||= defaultBatch;
-      settings.drafter = drafter;
-      settings.drafterDirectory = drafterDirectory;
-      const listenAddress = hostListener ? parseListenAddress(settings.listenAddress) : "0.0.0.0";
-      const errors = {
-        drafter: external && !drafter ? "This drafter is not listed for " + checkpoint + ". Choose a drafter model above." : "",
-        directory: source === "hub" ? "" : directoryError(settings.directory),
-        cacheDirectory: cacheDirectoryField.disabled ? "" : cacheDirectoryError(settings.cacheDirectory),
-        port: integerError(settings.port, 65535, true),
-        listenAddress: listenAddress ? "" : "Enter an IPv4 or IPv6 address without a port, such as 127.0.0.1 or ::1.",
-        listenPort: hostListener ? "" : integerError(settings.listenPort, 65535, true),
-        context: integerError(settings.context, 0xffffffff),
-        batch: integerError(settings.batch, 0xffffffff),
-        tokens: integerError(settings.tokens, 0xffffffff),
-        memory: memoryError(settings.memory),
-      };
-      for (const [name, error] of Object.entries(errors)) {
-        const message = root.querySelector('[data-field-error="' + name + '"]');
-        if (message.textContent === error) continue;
-        if (error) field(name).setAttribute("aria-invalid", "true");
-        else field(name).removeAttribute("aria-invalid");
-        message.textContent = error;
+      const drafter = drafterField.value;
+      const external = Boolean(drafter) && drafter !== "native";
+      if (drafter !== previousDrafter) {
+        drafterDirectoryField.value = external ? homePrefix + "/models/" + drafter : "";
+        previousDrafter = drafter;
       }
-      show("link-error", invalidLink);
+      const local = source !== "hub";
+      const localDrafter = local && external;
+      const directory = local ? normalizeDirectory(directoryField.value) : "";
+      const drafterDirectory = localDrafter ? normalizeDirectory(drafterDirectoryField.value) : "";
+      const download = source === "download";
+      const port = Number(portField.value);
+      const validPort = /^\d+$/.test(portField.value) && port >= 1 && port <= 65535;
+      const endpoint = validPort ? "127.0.0.1:" + port : "";
+      const errors = {
+        directory: local ? directoryError(directoryField.value) : "",
+        drafterDirectory: localDrafter ? directoryError(drafterDirectoryField.value) : "",
+        port: validPort ? "" : "Enter a whole number from 1 to 65535.",
+      };
+      if (download && localDrafter && !errors.directory && !errors.drafterDirectory && directory === drafterDirectory) {
+        errors.drafterDirectory = "Use a different directory for the drafter weights.";
+      }
+      for (const [name, error] of Object.entries(errors)) {
+        const input = field(name);
+        if (error) input.setAttribute("aria-invalid", "true");
+        else input.removeAttribute("aria-invalid");
+        const message = root.querySelector(`[data-field-error="${name}"]`);
+        if (message.textContent !== error) message.textContent = error;
+      }
+      const settings = { backend, checkpoint, directory, drafter, drafterDirectory, port };
+      const modelId = native && directory ? servedModelName(directory) : servedModelName(checkpoint);
+      const image = "zmlai/llmd:" + backend;
       const hasErrors = invalidLink || Object.values(errors).some(Boolean);
-      const listenPortName = hostListener ? "port" : "listenPort";
-      const listener = listenAddress && !errors[listenPortName]
-        ? listenAddress + ":" + Number(settings[listenPortName]) : "";
-      const loopback = listenAddress === "[::]" ? "[::1]" : "127.0.0.1";
-      const clientAddress = listenAddress === "0.0.0.0" || listenAddress === "[::]" ? loopback : listenAddress;
-      const endpoint = clientAddress && !errors.port ? clientAddress + ":" + Number(settings.port) : "";
-      const downloadModel = source === "download";
-      const downloadDrafter = drafterSource === "local";
-      const image = native ? "" : "zmlai/llmd:" + backend;
       const commands = {
-        download: downloadModel && !errors.directory ? downloadCommand(settings) : "",
-        "drafter-download": downloadDrafter
+        download: download && !errors.directory ? downloadCommand(settings) : "",
+        "drafter-download": download && external && !errors.drafterDirectory
           ? downloadCommand({ checkpoint: drafter, directory: drafterDirectory }) : "",
         setup: native ? "brew install zml/zml/llmd" : "docker pull " + image,
-        launch: hasErrors ? "" : native ? nativeLaunchCommand(settings, listener)
-          : dockerLaunchCommand(settings, image, { ...backendOptions, shm: recipeShm }, listener),
+        launch: hasErrors ? "" : native ? nativeLaunchCommand(settings)
+          : dockerLaunchCommand(settings, image, backendOptions, preset?.shm ?? backendOptions.shm),
         models: endpoint ? "curl -fsS " + apiUrl(endpoint, "models") : "",
-        chat: requestType === "chat" && endpoint ? chatCommand(checkpoint, endpoint) : "",
+        chat: requestType === "chat" && endpoint && !errors.directory ? chatCommand(modelId, endpoint) : "",
       };
+      modelList.data[0].id = modelId;
+      commands["models-response"] = commands.models && !errors.directory ? JSON.stringify(modelList, null, 2) : "";
+
       for (const type of requestTypes) {
         const selected = requestType === type.key;
         commands[type.key] = selected && endpoint
@@ -506,74 +382,42 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
         show(type.key + "-request", selected);
       }
 
-      show("model-download-step", downloadModel);
-      show("drafter-download-step", downloadDrafter);
-      show("local", source !== "hub");
-      show("drafter-path", drafterSource === "local");
-      show("hub", !hfTokenField.disabled);
-      show("cuda", backend === "cuda");
-      show("furiosa-cache", furiosa);
-      show("cache-directory", !cacheDirectoryField.disabled);
-      show("furiosa-requirements", furiosa);
+      show("link-error", invalidLink);
+      show("error", hasErrors);
+      show("download-weights", Boolean(commands.download || commands["drafter-download"]));
+      show("local", local);
+      show("local-drafter", localDrafter);
+      show("gated-access", source !== "local");
+      show("furiosa-requirements", backend === "furiosa");
       show("tpu-requirements", backend === "tpu");
-      show("host-listener", hostListener);
-      show("container-listener", !hostListener);
-      for (const element of root.querySelectorAll("[data-docker]")) element.hidden = native;
-      show("decoding-field", !embeddings);
-      show("request-error", !endpoint);
       show("chat-request", requestType === "chat");
-      const hints = {
-        standard: "Use the model without a speculative drafter.",
-        native: "Use this model’s built-in multi-token prediction drafter. No separate download is required.",
-        external: drafter ? "LLMD will load " + drafter + "." : "Choose a drafter model.",
-        dspine: "Use " + drafter + " with LLMD 20261112.0 or later. Launch uses the published batch size of 1.",
-      };
-      setText("decoding-hint", hints[decoding]);
-      setText("drafter-directory", drafterDirectory);
+
       setText("setup-title", native ? "Install LLMD" : "Pull the LLMD image");
-      setText("setup-hint", native ? "Run once to install LLMD with Homebrew." : "Run to download or refresh the image for this backend.");
-      setText("shm-hint", (recipeShm ? "Recipe setting passes --shm-size=" + recipeShm + "." : "Recipe setting uses the Docker default.")
-        + " You can choose the Docker default or 1, 8, 32, or 256 GiB.");
-      setText("launch-hint", hasErrors ? "Server command unavailable until the launch settings are valid." : "Run each time you start the server.");
       const sourceHints = {
-        hub: "Fetch from Hugging Face when LLMD starts.",
-        download: "Download the files before starting LLMD.",
-        local: native ? "LLMD reads the existing model directory directly on this Mac."
-          : "Docker mounts the existing model directory read-only at /model.",
+        hub: "Fetch the weights from Hugging Face when LLMD starts.",
+        download: "Download the weights before starting LLMD.",
+        local: "Use weights already on this machine.",
       };
-      setText("hint", sourceHints[source]);
-      show("download-tools", source === "download");
-      show("source-help", source !== "local");
-      show("cloud-help", source === "hub");
+      setText("source-hint", sourceHints[source]);
       setText("requirements", backendOptions.requirements);
       setText("selected-checkpoint", checkpoint);
-      const published = legacyPreset || (decoding === "dspine" ? preset : null);
-      setText("fit", published ? published.evidence ?? "Published launch recipe for this model and accelerator."
-        : external ? "Reported target and drafter pairing. Check for a recorded run on this backend and LLMD build."
-        : routine ? ""
-        : requestType !== "chat" ? requestField.selectedOptions[0].textContent + " model. Verify support for this model on the selected backend and LLMD build."
-        : preset ? preset.evidence ?? "A published recipe is available for this model and accelerator."
-        : "Confirm compatibility for this model and run target.");
-      setText("endpoint", listener || "Enter a valid listener");
-      setText("client-endpoint", endpoint || "Enter a valid host port");
-      for (const element of root.querySelectorAll("[data-connect]")) element.hidden = hostListener && listener === endpoint;
-      setText("expected-model-id", servedModelName(checkpoint));
-      showCommands(commands);
+      const published = legacyPreset || preset;
+      setText("fit", published?.evidence ?? (published ? "A published recipe is available for this model and platform."
+        : "Check support for this model on the selected platform."));
+      for (const code of codeBlocks) updateCode(code, commands[code.dataset.command]);
     }
 
     form.addEventListener("submit", event => event.preventDefault());
-    requestField.addEventListener("change", render);
     form.addEventListener("input", event => {
-      if ([checkpointField, backendField, decodingField, drafterField].includes(event.target)) {
+      if ([checkpointField, backendField, drafterField].includes(event.target)) {
         legacyPreset = null;
         invalidLink = false;
       }
       if (event.target === checkpointField) {
-        refreshDecoding("standard");
+        refreshDrafters();
         refreshRequest(requestField.value);
+        updateCheckpointDirectory();
       }
-      if (event.target === backendField) refreshDecoding(decodingField.value, drafterField.value);
-      updateCheckpointDirectory();
       render();
     });
 
@@ -591,7 +435,7 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       }
       render();
       if (!root.contains(target)) return;
-      const destination = target.closest("[hidden]") ? document.getElementById(form.getAttribute("aria-labelledby")) : target;
+      const destination = target.closest("[hidden]") ? document.getElementById("choose-model") : target;
       for (let details = destination.closest("details"); root.contains(details); details = details.parentElement.closest("details")) {
         details.open = true;
       }
@@ -609,10 +453,9 @@ import { compareCheckpoints, compareNames, modelFamily, modelName as servedModel
       }
     });
 
-    updateCheckpointDirectory();
-    refreshDecoding();
+    refreshDrafters();
     refreshRequest("chat");
-    form.hidden = false;
+    for (const control of root.querySelectorAll("[data-launch-control]")) control.hidden = false;
     renderFragment(true);
   }
 })();

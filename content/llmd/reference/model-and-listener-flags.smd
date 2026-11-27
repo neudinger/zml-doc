@@ -84,7 +84,7 @@ template or generation settings together from the same revision.
 `Qwen/Qwen3-Embedding-8B` also needs its sentence-transformers module and
 pooling configuration files.
 
-In [Start LLMD on any platform]($link.page('llmd/tutorial/start')), **Download first**
+In [Any model, any platform]($link.page('llmd/tutorial/start')), **Download first**
 generates a host command that saves the model under `${HOME}/models/<org>/<model>`.
 To pin a download, add `--revision <commit>` to that command and give each
 revision its own local directory. Native LLMD reads the host path directly.
@@ -114,7 +114,7 @@ your LLMD build.
 
 Check the help from your installed binary or container for the options
 it exposes. The CUDA recipe in
-[Start LLMD on any platform]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda')) uses
+[Any model, any platform]($link.page('llmd/tutorial/start').unsafeRef('lfm3-fp8-cuda')) uses
 `zmlai/llmd:cuda`. Docker options go before the image name. LLMD options go
 after it.
 

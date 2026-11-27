@@ -1,15 +1,21 @@
 ---
-.title = "Start LLMD on any platform",
-.description = "Generate LLMD install, launch, and request commands for your model and hardware.",
+.title = "Any model, any hardware",
+.description = "Detailed instructions for LLMD installation and launch for all supported model and hardware.",
 .date = .date("2026-11-25T00:00:00"),
 .layout = "content.shtml",
 .custom = .{
     .doc_section = "Tutorials",
     .outline_complete = true,
     .recipe_outline = [
+        .{ .id = "choose-platform", .label = "Choose your platform" },
         .{ .id = "before-you-start", .label = "Before you run" },
-        .{ .id = "llmd-launch-settings-heading", .label = "Settings" },
-        .{ .id = "llmd-launch-steps", .label = "Commands" },
+        .{ .id = "install-llmd", .label = "Install LLMD" },
+        .{ .id = "choose-model", .label = "Choose a model" },
+        .{ .id = "choose-drafter", .label = "Choose a drafter" },
+        .{ .id = "loading-methods", .label = "Choose a weight source" },
+        .{ .id = "start-the-server", .label = "Start LLMD" },
+        .{ .id = "check-the-loaded-model", .label = "List models" },
+        .{ .id = "first-request", .label = "Send a request" },
     ],
 },
 ---
@@ -40,323 +46,174 @@
   <div id="gemma-4-31b-it-cuda"></div>
   <a id="llmd-benchmark" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#scrape-service-metrics">Scrape service metrics</a>
   <a id="decoding-mode" data-moved-topic data-pagefind-ignore href="../../reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a>
-  <a id="checkpoint-storage" data-moved-topic data-pagefind-ignore href="../../reference/model-and-listener-flags/#local-model-files">Required model files</a>
   <a id="gated-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/environment-variables/#gated-model-access">Gated model access</a>
   <a id="cloud-checkpoints" data-moved-topic data-pagefind-ignore href="../../reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a>
   <a id="troubleshooting" data-moved-topic data-pagefind-ignore href="../../howto/monitoring-and-troubleshooting/#diagnose-common-failures">Troubleshoot startup</a>
-  <div class="llmd-launch-release">
-    <strong>Target LLMD 2026.11.3</strong>
-    <a href="https://zml.ai/posts/llmd-2026.11.3/">Release notes</a>
-    <p>Docker platform tags and Homebrew install the current release. <a href="../../reference/model-and-listener-flags/#check-installed-flags">Check installed flags</a> for your build.</p>
-  </div>
-  <div id="before-you-start" class="llmd-launch-requirements" data-toc-label="Before you run">
-    <h2>Before you run</h2>
-    <p data-requirements>Use Apple Silicon, macOS Tahoe or later, and Homebrew. Use LLMD 20261112.0 or later on M1 and M2.</p>
-    <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Send requests from the TPU VM using the host port.</p>
-    <details data-furiosa-requirements hidden>
-      <summary>Furiosa device setup</summary>
-      <p><strong>Install the device tools.</strong> Furiosa supports Docker Engine 25 or later. The Container Device Interface (CDI) tools require Linux kernel 6.3 or later and administrator access. On Ubuntu 22.04 LTS, Debian 12, or later, add Furiosa's package repository and install the RNGD driver first. See the <a href="https://developer.furiosa.ai/latest/en/get_started/prerequisites.html">host prerequisites</a>.</p>
-      <pre><code class="sh">sudo apt update
+  <noscript><p>This quickstart shows the Apple Silicon example. Enable JavaScript to choose other platforms and models.</p></noscript>
+  <form id="llmd-launch-form" aria-label="LLMD quickstart">
+    <section aria-labelledby="choose-platform" data-launch-control data-pagefind-ignore hidden>
+      <h2 id="choose-platform">Choose your platform</h2>
+      <div class="llmd-launch-field">
+        <select id="llmd-launch-backend" name="backend" aria-labelledby="choose-platform">
+          <option value="metal">Metal · Apple Silicon</option>
+          <option value="cuda">CUDA · NVIDIA GPU</option>
+          <option value="rocm">ROCm · AMD GPU</option>
+          <option value="oneapi">oneAPI · Intel GPU</option>
+          <option value="tpu">Google TPU</option>
+          <option value="furiosa">Furiosa RNGD</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="llmd-launch-requirements" aria-labelledby="before-you-start">
+      <h2 id="before-you-start">Before you run</h2>
+      <p data-requirements>Use an Apple Silicon Mac with macOS Tahoe or later and Homebrew. On M1 and M2, use LLMD 20261112.0 or later.</p>
+      <p data-tpu-requirements hidden>The <a href="https://docs.cloud.google.com/tpu/docs/run-in-container">TPU container</a> uses privileged mode and shares the VM's network. Run the requests below from the TPU VM.</p>
+      <details data-furiosa-requirements hidden>
+        <summary>Set up Furiosa device access</summary>
+        <p>Use Docker Engine 25 or later. The Container Device Interface (CDI) tools require Linux kernel 6.3 or later and administrator access. Add Furiosa's package repository and install the RNGD driver first. See the <a href="https://developer.furiosa.ai/latest/en/get_started/prerequisites.html">Furiosa host prerequisites</a>.</p>
+        <pre><code class="sh">sudo apt update
 sudo apt install furiosa-cdi
 sudo furiosa-cdi generate
 furiosa-cdi list</code></pre>
-      <p><code>furiosa-cdi generate</code> writes the device specification in <code>/etc/cdi</code>. Docker Engine 28.3.0 and later enable CDI by default. If CDI is disabled, merge these settings into <code>/etc/docker/daemon.json</code>, restart Docker, then check the configuration with <code>docker info</code>. See <a href="https://docs.docker.com/reference/cli/dockerd/#configure-cdi-devices">Configure CDI devices in Docker</a>.</p>
-      <pre><code class="json">{
-  "features": { "cdi": true },
-  "cdi-spec-dirs": ["/etc/cdi", "/var/run/cdi"]
-}</code></pre>
-      <p><strong>Choose the accelerators.</strong> <code>furiosa-cdi list</code> shows the available device names under <code>furiosa.ai/npu</code>. Use those names if you edit the launch command.</p>
-      <ul>
-        <li>For one NPU, use <code>--device=furiosa.ai/npu=npu0</code>. This is the generated default.</li>
-        <li>For multiple NPUs, repeat <code>--device</code>. For example, use <code>--device=furiosa.ai/npu=npu0</code> and <code>--device=furiosa.ai/npu=npu1</code> if both are listed.</li>
-        <li>For all available NPUs, use <code>--device=furiosa.ai/npu=all</code>.</li>
-      </ul>
-      <p><strong>Expose the DMA allocator.</strong> <code>--device=/dev/dma_heap/system</code> passes the Linux DMA-BUF system heap into the container. The runtime uses it to allocate host buffers for transfers to and from RNGD. See the <a href="https://docs.kernel.org/userspace-api/dma-buf-heaps.html">Linux DMA-BUF heap documentation</a>.</p>
-      <p><strong>Allow the driver syscalls.</strong> <code>--security-opt=seccomp=unconfined</code> disables Docker's seccomp filter for this container. The RNGD driver needs <code>io_uring_setup</code>, <code>io_uring_enter</code>, and <code>io_uring_register</code>, which the default filter can block. To retain syscall filtering, replace the option with <code>--security-opt seccomp=/path/to/profile.json</code> using a profile that allows those calls. See <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#container-runtime-support">Furiosa container runtime support</a>.</p>
-      <p>With containerd (<code>ctr</code> or <code>nerdctl</code>) and CRI-O, use that runtime's CDI syntax. For details, see <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-using-cdi">Furiosa's CDI device assignment guide</a> or its <a href="https://developer.furiosa.ai/latest/en/cloud_native_toolkit/container.html#assign-furiosa-npus-to-containers-manually">manual device mapping</a>.</p>
-    </details>
-  </div>
-  <div class="llmd-launch-layout">
-    <section class="llmd-launch-controls" data-toc-parent="llmd-launch-settings-heading" aria-labelledby="llmd-launch-settings-heading">
-      <h2 id="llmd-launch-settings-heading">Settings</h2>
-      <details class="llmd-launch-options">
-        <summary id="loading-methods" data-toc-label="Choose a loading method">Choose a loading method</summary>
-        <dl class="llmd-quickstart-concepts">
-          <div class="icon-cloud-download"><dt>Load at launch</dt><dd>LLMD can reach Hugging Face and fetch the model files when the server starts.</dd></div>
-          <div class="icon-folder"><dt>Download first</dt><dd>Download a reusable copy to the host before starting LLMD.</dd></div>
-          <div class="icon-boxes"><dt>Already downloaded</dt><dd>Point LLMD to the existing model directory on this machine.</dd></div>
-        </dl>
+        <p>Docker Engine 28.3.0 and later enable CDI by default. On older versions, <a href="https://docs.docker.com/reference/cli/dockerd/#configure-cdi-devices">enable CDI in Docker</a>. Check that <code>furiosa-cdi list</code> includes <code>furiosa.ai/npu=npu0</code>. The <a href="../../reference/docker-options/#accelerators-and-shared-memory">Docker options reference</a> explains the container's device access and security settings.</p>
       </details>
-      <form id="llmd-launch-form" class="llmd-launch-settings" aria-labelledby="llmd-launch-settings-heading" data-pagefind-ignore hidden>
-        <p class="llmd-launch-error" data-link-error role="status" hidden>The link contains an unlisted model, backend, or decoding mode for this drafter. Select the model and decoding settings to generate commands.</p>
-        <div class="llmd-launch-recipe">
-          <div class="llmd-launch-field">
-            <label for="llmd-launch-backend">Run on</label>
-            <select id="llmd-launch-backend" name="backend" aria-describedby="llmd-launch-backend-hint">
-              <option value="metal">Apple Silicon</option>
-              <option value="cuda">NVIDIA GPU</option>
-              <option value="rocm">AMD GPU</option>
-              <option value="oneapi">Intel GPU</option>
-              <option value="tpu">Google TPU</option>
-              <option value="furiosa">Furiosa RNGD</option>
-            </select>
-            <span class="llmd-launch-field-hint" id="llmd-launch-backend-hint">Choose the hardware of the machine that will serve the model.</span>
-          </div>
-          <div class="llmd-launch-field llmd-launch-checkpoint">
-            <label for="llmd-launch-checkpoint">Model</label>
-            <select id="llmd-launch-checkpoint" name="checkpoint" aria-describedby="llmd-launch-checkpoint-hint">
-              <optgroup label="LFM">
-                <option selected>LiquidAI/LFM3-1.7B</option>
-              </optgroup>
-            </select>
-            <span class="llmd-launch-field-hint llmd-launch-checkpoint-value" aria-hidden="true" data-selected-checkpoint></span>
-            <span class="llmd-launch-field-hint" id="llmd-launch-checkpoint-hint"><span role="status" data-fit></span> <a href="../../reference/model-compatibility/">Model compatibility</a></span>
-          </div>
-          <div class="llmd-launch-field">
-            <label for="llmd-launch-source">Model source</label>
-            <select id="llmd-launch-source" name="source" aria-describedby="llmd-launch-source-hint">
-              <option value="hub">Load at launch</option>
-              <option value="download">Download first</option>
-              <option value="local">Already downloaded</option>
-            </select>
-            <span class="llmd-launch-field-hint" id="llmd-launch-source-hint"><span data-hint></span> <span data-download-tools hidden>Requires <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> on the host.</span></span>
-            <details class="llmd-launch-field-hint" data-source-help>
-              <summary>Access and storage</summary>
-              <a href="../../reference/environment-variables/#gated-model-access">Gated model access</a><span data-cloud-help> · <a href="../../reference/model-and-listener-flags/#cloud-model-uris">S3 and Google Cloud Storage</a></span>
-            </details>
-          </div>
-        </div>
-        <div class="llmd-launch-storage">
-          <div class="llmd-launch-field" data-local hidden>
-            <label for="llmd-launch-directory">Host model directory</label>
-            <textarea id="llmd-launch-directory" name="directory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-directory-error">${HOME}/models/LiquidAI/LFM3-1.7B</textarea>
-            <span class="llmd-launch-field-hint" id="llmd-launch-directory-hint">Use a directory under <code>${HOME}</code> for the model’s <code>config.json</code> and weights. <a href="../../reference/model-and-listener-flags/#local-model-files">Required model files</a></span>
-            <span class="llmd-launch-field-error" id="llmd-launch-directory-error" data-field-error="directory" aria-live="polite"></span>
-          </div>
-          <div class="llmd-launch-field" data-decoding-field>
-            <label for="llmd-launch-decoding">Decoding mode</label>
-            <select id="llmd-launch-decoding" name="decoding" aria-describedby="llmd-decoding-hint">
-              <option value="standard">Standard</option>
-            </select>
-            <span class="llmd-launch-field-hint" id="llmd-decoding-hint"><span data-decoding-hint></span> <a href="../../reference/sampling-and-decoding/#choose-a-decoding-mode">Compare decoding modes</a></span>
-            <div class="llmd-launch-field" data-drafter-field hidden>
-              <label for="llmd-launch-drafter">Drafter model</label>
-              <select id="llmd-launch-drafter" name="drafter" disabled aria-describedby="llmd-drafter-hint llmd-drafter-error"></select>
-              <span class="llmd-launch-field-hint" id="llmd-drafter-hint">Choose an external drafter listed for this exact target model.</span>
-              <span class="llmd-launch-field-error" id="llmd-drafter-error" data-field-error="drafter" aria-live="polite"></span>
-            </div>
-          </div>
-        </div>
-        <fieldset class="llmd-launch-drafter" data-drafter-source hidden disabled>
-          <legend>Drafter source</legend>
-          <div class="drafter-source-choices">
-            <label>
-              <input type="radio" name="drafterSource" value="hub" checked aria-labelledby="drafter-hub-label" aria-describedby="drafter-hub-hint">
-              <span><strong id="drafter-hub-label">Hugging Face at launch</strong><span class="llmd-launch-field-hint" id="drafter-hub-hint">Fetch the drafter when LLMD starts.</span></span>
-              <span class="drafter-source-icon icon-cloud-download" aria-hidden="true"></span>
-            </label>
-            <label>
-              <input type="radio" name="drafterSource" value="local" aria-labelledby="drafter-local-label" aria-describedby="drafter-local-hint" aria-controls="llmd-launch-drafter-path">
-              <span><strong id="drafter-local-label">Local directory</strong><span class="llmd-launch-field-hint" id="drafter-local-hint">Download once or use a copy already on disk.</span></span>
-              <span class="drafter-source-icon icon-folder" aria-hidden="true"></span>
-            </label>
-          </div>
-          <div class="llmd-launch-field-hint" id="llmd-launch-drafter-path" data-drafter-path hidden>
-            <strong>Host drafter directory</strong>
-            <code data-drafter-directory></code>
-            Use the Download drafter step below or reuse the files in this directory.
-            <span data-docker hidden>Docker mounts it read-only at <code>/drafter</code>.</span>
-          </div>
-        </fieldset>
-        <details class="llmd-launch-options">
-          <summary>Launch options</summary>
-          <div class="llmd-launch-option-groups">
-            <fieldset>
-              <legend>Connection</legend>
-              <div class="llmd-launch-options-grid">
-                <div class="llmd-launch-field">
-                  <label for="llmd-launch-port">Host port</label>
-                  <input id="llmd-launch-port" name="port" type="text" inputmode="numeric" value="8000" aria-required="true" aria-describedby="llmd-launch-port-hint llmd-launch-port-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-port-hint">Whole number from 1 to 65535.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-port-error" data-field-error="port" aria-live="polite"></span>
-                </div>
-                <div class="llmd-launch-field" data-host-listener>
-                  <label for="llmd-launch-listen-address">Listen address (<code>--listen</code>)</label>
-                  <input id="llmd-launch-listen-address" name="listenAddress" type="text" value="127.0.0.1" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-listen-address-hint llmd-launch-listen-address-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-listen-address-hint">IPv4 or IPv6 without a port, such as 127.0.0.1 or ::1. Use 0.0.0.0 to listen on all IPv4 interfaces.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-listen-address-error" data-field-error="listenAddress" aria-live="polite"></span>
-                </div>
-                <div class="llmd-launch-field" data-container-listener hidden>
-                  <label for="llmd-launch-listen-port">Container listen port (<code>--listen</code>)</label>
-                  <input id="llmd-launch-listen-port" name="listenPort" type="text" inputmode="numeric" value="8000" aria-required="true" aria-describedby="llmd-launch-listen-port-hint llmd-launch-listen-port-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-listen-port-hint">Whole number from 1 to 65535. LLMD listens on 0.0.0.0 inside Docker. The requests below use the host port.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-listen-port-error" data-field-error="listenPort" aria-live="polite"></span>
-                </div>
-              </div>
-            </fieldset>
-            <fieldset data-docker hidden>
-              <legend>Docker options</legend>
-              <div class="llmd-launch-options-grid">
-                <div class="llmd-launch-field">
-                  <label for="llmd-launch-run-mode">Run mode</label>
-                  <select id="llmd-launch-run-mode" name="runMode" aria-describedby="llmd-launch-run-mode-hint">
-                    <option value="foreground">Foreground</option>
-                    <option value="detached">Detached</option>
-                  </select>
-                  <span class="llmd-launch-field-hint" id="llmd-launch-run-mode-hint">Foreground attaches to the container. Detached runs in the background.</span>
-                </div>
-                <div class="llmd-launch-field" data-cuda>
-                  <label for="llmd-launch-gpu">GPU access</label>
-                  <select id="llmd-launch-gpu" name="gpu" aria-describedby="llmd-launch-gpu-hint">
-                    <option value="all">All GPUs</option>
-                    <option value="device=0">GPU 0</option>
-                  </select>
-                  <span class="llmd-launch-field-hint" id="llmd-launch-gpu-hint">Expose all CUDA GPUs or only GPU 0.</span>
-                </div>
-                <div class="llmd-launch-field">
-                  <label for="llmd-launch-shm">Shared memory</label>
-                  <select id="llmd-launch-shm" name="shm" aria-describedby="llmd-launch-shm-hint">
-                    <option value="recipe">Recipe setting</option>
-                    <option value="default">Docker default</option>
-                    <option value="1g">1 GiB</option>
-                    <option value="8g">8 GiB</option>
-                    <option value="32g">32 GiB</option>
-                    <option value="256g">256 GiB</option>
-                  </select>
-                  <span class="llmd-launch-field-hint" id="llmd-launch-shm-hint" data-shm-hint>Use the recipe or Docker default, or choose 1, 8, 32, or 256 GiB.</span>
-                </div>
-                <div class="llmd-launch-options-grid" data-furiosa-cache hidden>
-                  <div>
-                    <label class="llmd-launch-checkbox">
-                      <input name="persistCompilerCache" type="checkbox" aria-controls="llmd-launch-cache-path" aria-describedby="llmd-launch-cache-hint"> Persist compiler cache
-                    </label>
-                    <span class="llmd-launch-field-hint" id="llmd-launch-cache-hint">Save compiled artifacts on the Docker host for reuse across container launches.</span>
-                  </div>
-                  <div class="llmd-launch-field" id="llmd-launch-cache-path" data-cache-directory hidden>
-                    <label for="llmd-launch-cache-directory">Host cache directory</label>
-                    <input id="llmd-launch-cache-directory" name="cacheDirectory" type="text" value="/tmp/furiosa-tcc-cache" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-cache-directory-hint llmd-launch-cache-directory-error">
-                    <span class="llmd-launch-field-hint" id="llmd-launch-cache-directory-hint">Absolute directory writable by the container, such as /tmp/furiosa-tcc-cache. The host may clear /tmp.</span>
-                    <span class="llmd-launch-field-error" id="llmd-launch-cache-directory-error" data-field-error="cacheDirectory" aria-live="polite"></span>
-                  </div>
-                </div>
-              </div>
-            </fieldset>
-            <fieldset>
-              <legend>LLMD overrides</legend>
-              <div class="llmd-launch-options-grid">
-                <div class="llmd-launch-field">
-                  <label for="llmd-launch-context">Context tokens</label>
-                  <input id="llmd-launch-context" name="context" type="text" inputmode="numeric" placeholder="LLMD default" aria-describedby="llmd-launch-context-hint llmd-launch-context-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-context-hint">Whole number from 1 to 4,294,967,295, or blank.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-context-error" data-field-error="context" aria-live="polite"></span>
-                </div>
-                <div class="llmd-launch-field" data-batch>
-                  <label for="llmd-launch-batch">Batch size</label>
-                  <input id="llmd-launch-batch" name="batch" type="text" inputmode="numeric" placeholder="LLMD default" aria-describedby="llmd-launch-batch-hint llmd-launch-batch-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-batch-hint">Whole number from 1 to 4,294,967,295, or blank.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-batch-error" data-field-error="batch" aria-live="polite"></span>
-                </div>
-                <div class="llmd-launch-field">
-                  <label for="llmd-launch-tokens">Token batch size</label>
-                  <input id="llmd-launch-tokens" name="tokens" type="text" inputmode="numeric" placeholder="LLMD default" aria-describedby="llmd-launch-tokens-hint llmd-launch-tokens-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-tokens-hint">Whole number from 1 to 4,294,967,295, or blank.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-tokens-error" data-field-error="tokens" aria-live="polite"></span>
-                </div>
-                <div class="llmd-launch-field">
-                  <label for="llmd-launch-memory">GPU memory fraction</label>
-                  <input id="llmd-launch-memory" name="memory" type="text" inputmode="decimal" placeholder="LLMD default" aria-describedby="llmd-launch-memory-hint llmd-launch-memory-error">
-                  <span class="llmd-launch-field-hint" id="llmd-launch-memory-hint">Decimal greater than 0 and at most 1, such as 0.5, or blank.</span>
-                  <span class="llmd-launch-field-error" id="llmd-launch-memory-error" data-field-error="memory" aria-live="polite"></span>
-                </div>
-              </div>
-            </fieldset>
-          </div>
-          <div class="llmd-launch-model-options" data-hub hidden>
-            <label class="llmd-launch-checkbox">
-              <input name="hfToken" type="checkbox" aria-describedby="llmd-launch-token-hint"> Forward <code>HF_TOKEN</code>
-            </label>
-            <p class="llmd-launch-hint" id="llmd-launch-token-hint">Pass the host’s token to Docker for <a href="../../reference/environment-variables/#gated-model-access">gated model access</a>.</p>
-          </div>
-        </details>
-      </form>
     </section>
-    <section class="llmd-launch-commands" id="llmd-launch-steps" aria-labelledby="llmd-launch-commands-heading" data-toc-parent="llmd-launch-steps">
-      <h2 id="llmd-launch-commands-heading">Commands</h2>
-      <noscript><p>The example below uses Apple Silicon. Enable JavaScript to select other run targets or see the <a href="../../reference/docker-options/#run-a-local-checkpoint">CUDA Docker example</a>.</p></noscript>
-      <dl class="llmd-launch-context" aria-label="Server connection">
-        <div><dt>Listening on</dt><dd><code data-endpoint>127.0.0.1:8000</code></dd></div>
-        <div data-connect hidden><dt>Connect to</dt><dd><code data-client-endpoint></code></dd></div>
-      </dl>
-      <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the fields with errors to update the affected commands.</p>
-      <details class="llmd-launch-step" id="install-llmd" open data-toc-label="Install LLMD or pull the image">
-        <summary><span class="llmd-launch-step-number">1</span> <span data-setup-title>Install LLMD</span></summary>
-        <p class="llmd-launch-hint" data-setup-hint>Run once to install LLMD with Homebrew.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="setup" data-copy-label="Copy LLMD setup command">brew install zml/zml/llmd</code></pre>
-        </div>
-      </details>
-      <details class="llmd-launch-step" id="download-checkpoint" open data-toc-label="Download model" data-model-download-step data-pagefind-ignore hidden>
-        <summary><span class="llmd-launch-step-number"></span> Download model</summary>
-        <p class="llmd-launch-hint">Run on the LLMD host with access to Hugging Face.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="download" data-copy-label="Copy model download command"></code></pre>
-        </div>
-      </details>
-      <details class="llmd-launch-step" id="download-drafter" open data-toc-label="Download drafter" data-drafter-download-step data-pagefind-ignore hidden>
-        <summary><span class="llmd-launch-step-number"></span> Download drafter</summary>
-        <p class="llmd-launch-hint">Download with <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> on the host. Skip this command if the drafter is already in this directory.</p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="drafter-download" data-copy-label="Copy drafter download command"></code></pre>
-        </div>
-      </details>
-      <section class="llmd-launch-step" aria-labelledby="start-the-server">
-        <h3 id="start-the-server" data-toc-label="Start LLMD"><span class="llmd-launch-step-number" aria-hidden="true">2</span> Start LLMD</h3>
-        <p class="llmd-launch-hint"><span data-launch-hint>Run each time you start the server.</span> <a href="../../howto/deploy-llmd/">Deployment guide</a></p>
-        <div class="command-shell">
-          <span class="command-language icon-code">Host shell</span>
-          <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
+
+    <section aria-labelledby="install-llmd">
+      <h2 id="install-llmd" data-setup-title>Install LLMD</h2>
+      <div class="command-shell">
+        <span class="command-language icon-code">Host shell</span>
+        <pre><code class="sh" data-command="setup" data-copy-label="Copy LLMD setup command">brew install zml/zml/llmd</code></pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="choose-model" data-launch-control data-pagefind-ignore hidden>
+      <h2 id="choose-model"><span id="llmd-launch-settings-heading"></span>Choose a model</h2>
+      <div class="llmd-launch-field llmd-launch-checkpoint">
+        <select id="llmd-launch-checkpoint" name="checkpoint" aria-labelledby="choose-model" aria-describedby="llmd-launch-checkpoint-hint">
+          <optgroup label="LFM">
+            <option selected>LiquidAI/LFM3-1.7B</option>
+          </optgroup>
+        </select>
+      </div>
+    </section>
+
+    <section aria-labelledby="choose-drafter" data-launch-control data-pagefind-ignore hidden>
+      <h2 id="choose-drafter">Choose a drafter <span class="llmd-launch-optional">(optional)</span></h2>
+      <div class="llmd-launch-field">
+        <select id="llmd-launch-drafter" name="drafter" aria-labelledby="choose-drafter" aria-describedby="llmd-drafter-hint">
+          <option value="">No drafter</option>
+        </select>
+      </div>
+      <p class="llmd-launch-error" data-link-error role="status" hidden>This link specifies a drafter or launch setting that is unavailable. Check your platform, model, and drafter selections.</p>
+    </section>
+
+    <section aria-labelledby="loading-methods" data-launch-control data-pagefind-ignore hidden>
+      <h2 id="loading-methods">Choose a weight source</h2>
+      <div class="llmd-launch-field">
+        <select id="llmd-launch-source" name="source" aria-describedby="llmd-launch-source-hint">
+          <option value="hub">Load at launch</option>
+          <option value="download">Download first</option>
+          <option value="local">Already downloaded</option>
+        </select>
+        <span class="llmd-launch-field-hint" id="llmd-launch-source-hint" data-source-hint></span>
+      </div>
+      <div class="llmd-launch-field" data-local hidden>
+        <label for="llmd-launch-directory">Host model directory</label>
+        <textarea id="llmd-launch-directory" name="directory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-directory-error">${HOME}/models/LiquidAI/LFM3-1.7B</textarea>
+        <span class="llmd-launch-field-error" id="llmd-launch-directory-error" data-field-error="directory" aria-live="polite"></span>
+      </div>
+      <div class="llmd-launch-field" data-local-drafter hidden>
+        <label for="llmd-launch-drafter-directory">Host drafter directory</label>
+        <textarea id="llmd-launch-drafter-directory" name="drafterDirectory" rows="2" wrap="soft" spellcheck="false" autocomplete="off" aria-required="true" aria-describedby="llmd-launch-directory-hint llmd-launch-drafter-directory-error"></textarea>
+        <span class="llmd-launch-field-error" id="llmd-launch-drafter-directory-error" data-field-error="drafterDirectory" aria-live="polite"></span>
+      </div>
+      <p class="llmd-launch-hint">
+        <a href="../../reference/environment-variables/#gated-model-access">Set up Hugging Face access for gated weights</a>.
+        <a href="../../reference/model-and-listener-flags/#local-model-files">Required model files</a>
+      </p>
+    </section>
+
+    <section aria-labelledby="download-weights-heading" data-toc-parent="loading-methods" data-download-weights data-pagefind-ignore hidden>
+      <h2 id="download-weights-heading" data-toc-label="Download weights">Download weights</h2>
+      <p class="llmd-launch-hint">Run these commands on the LLMD host with <a href="https://docs.astral.sh/uv/getting-started/installation/">uv</a> installed.</p>
+      <div class="command-shell" hidden>
+        <span class="command-language icon-code" id="download-checkpoint">Download model · Host shell</span>
+        <pre><code class="sh" data-command="download" data-copy-label="Copy model download command"></code></pre>
+      </div>
+      <div class="command-shell" hidden>
+        <span class="command-language icon-code" id="download-drafter">Download drafter · Host shell</span>
+        <pre><code class="sh" data-command="drafter-download" data-copy-label="Copy drafter download command"></code></pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="start-the-server">
+      <h2 id="start-the-server"><span id="llmd-launch-steps"></span>Start LLMD</h2>
+      <div class="llmd-launch-field" data-port data-launch-control data-pagefind-ignore hidden>
+        <label for="llmd-launch-port">Host port</label>
+        <input id="llmd-launch-port" name="port" type="text" inputmode="numeric" value="8000" aria-required="true" aria-describedby="llmd-launch-port-error">
+        <span class="llmd-launch-field-error" id="llmd-launch-port-error" data-field-error="port" aria-live="polite"></span>
+      </div>
+      <p class="llmd-launch-error" role="status" data-error data-pagefind-ignore hidden>Correct the settings above to generate the server command.</p>
+      <div class="command-shell">
+        <span class="command-language icon-code">Host shell</span>
+        <pre><code class="sh" data-command="launch" data-copy-label="Copy LLMD server command">llmd --listen=127.0.0.1:8000 \
   --model=hf://LiquidAI/LFM3-1.7B</code></pre>
-        </div>
-      </section>
-      <div class="llmd-launch-requests">
-        <p class="llmd-launch-error" data-request-error data-pagefind-ignore hidden>Correct the connection fields in Launch options to generate these requests.</p>
-        <details class="llmd-launch-step" id="check-the-loaded-model" data-toc-label="Check the loaded model">
-          <summary><span class="llmd-launch-step-number">3</span> Check the loaded model</summary>
-          <p class="llmd-launch-hint">Once LLMD finishes loading, run this in a second terminal on the host. Expect <code data-expected-model-id>LFM3-1.7B</code> in <code>data[0].id</code>.</p>
-          <div class="command-shell">
-            <span class="command-language icon-code">Host shell</span>
-            <pre><code class="sh" data-command="models" data-copy-label="Copy model check command">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
-          </div>
-        </details>
-        <details class="llmd-launch-step" id="first-request" data-toc-label="Send a request">
-          <summary><span class="llmd-launch-step-number">4</span> Send a request</summary>
-          <div class="llmd-launch-field" data-request-type hidden>
-            <label for="llmd-request-type">Request type</label>
-            <select id="llmd-request-type" name="request" form="llmd-launch-form" aria-describedby="llmd-request-hint">
-              <option value="chat">Chat</option>
-              <option value="decision">Decision</option>
-            </select>
-            <span class="llmd-launch-field-hint" id="llmd-request-hint">Choose the endpoint for the first request to this model.</span>
-          </div>
-          <div id="send-a-chat-request" data-chat-request>
-            <h3>Chat request</h3>
-            <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../../reference/chat-completions/">Chat API</a></p>
-            <div class="command-shell">
-              <span class="command-language icon-code">Host shell</span>
-              <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
+      </div>
+      <p class="llmd-launch-hint"><a href="../../howto/deploy-llmd/">Deployment guide</a> · <a href="../../reference/model-and-listener-flags/">Model and listener flags</a></p>
+    </section>
+
+    <section aria-labelledby="check-the-loaded-model">
+      <h2 id="check-the-loaded-model">List models</h2>
+      <p class="llmd-launch-hint">After LLMD finishes loading, run this in a second terminal on the host.</p>
+      <div class="command-shell">
+        <span class="command-language icon-code">Host shell</span>
+        <pre><code class="sh" data-command="models" data-copy-label="Copy model list command">curl -fsS http://127.0.0.1:8000/v1/models</code></pre>
+      </div>
+      <p class="llmd-launch-hint">
+      The response includes the served model ID. Note that LLMD doesn't support loading models after startup time,
+      so it will only list the model supplied at startup.
+      </p>
+      <div class="command-shell">
+        <span class="command-language icon-code">Example response · JSON</span>
+        <pre><code class="json" data-command="models-response" data-copy-label="Copy example model list response">{
+  "object": "list",
+  "data": [
+    {
+      "id": "LFM3-1.7B",
+      "object": "model",
+      "created": 1795564800,
+      "owned_by": "local"
+    }
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <section aria-labelledby="first-request">
+      <h2 id="first-request">Send a request</h2>
+      <div class="llmd-launch-field" data-request-type data-pagefind-ignore hidden>
+        <label for="llmd-request-type">Request type</label>
+        <select id="llmd-request-type" name="request">
+          <option value="chat">Chat</option>
+          <option value="decision">Decision</option>
+        </select>
+      </div>
+      <div id="send-a-chat-request" data-chat-request>
+        <p class="llmd-launch-hint">Read the reply in <code>choices[0].message.content</code>. <a href="../../reference/chat-completions/">Chat API</a></p>
+        <div class="command-shell">
+          <span class="command-language icon-code">Host shell</span>
+          <pre><code class="sh" data-command="chat" data-copy-label="Copy chat request command">curl -fsS http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
   -d '{"model":"LFM3-1.7B","messages":[{"role":"user","content":"Reply with one short greeting."}]}'</code></pre>
-            </div>
-          </div>
-          <div id="send-a-decision-request" data-decision-request>
-            <h3>Decision request</h3>
-            <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../ask-structured-questions/">Decision tutorial</a> · <a href="../../reference/decision/">API reference</a></p>
-            <div class="command-shell">
-              <span class="command-language icon-code">Host shell</span>
-              <pre><code class="sh" data-command="decision" data-copy-label="Copy Decision request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
+        </div>
+      </div>
+      <div id="send-a-decision-request" data-decision-request hidden>
+        <p class="llmd-launch-hint">Read the selected animal in <code>answers.animal.label</code>. <a href="../ask-structured-questions/">Decision tutorial</a> · <a href="../../reference/decision/">API reference</a></p>
+        <div class="command-shell">
+          <span class="command-language icon-code">Host shell</span>
+          <pre><code class="sh" data-command="decision" data-copy-label="Copy Decision request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/systemone \
   -H 'Content-Type: application/json' \
   -d '{
     "state": "The animal sits on the mat, purrs and chases a red laser dot.",
@@ -366,25 +223,21 @@ furiosa-cdi list</code></pre>
       "rating": {"kind": "score", "instructions": "How playful is it?", "criteria": ["low", "medium", "high"], "depends_on": ["cute"]}
     }
   }'</code></pre>
-            </div>
-          </div>
-          <div id="send-an-embeddings-request" data-embeddings-request>
-            <h3>Embeddings request</h3>
-            <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../compare-texts-with-embeddings/">Text similarity tutorial</a> · <a href="../../reference/embeddings/">API reference</a></p>
-            <noscript><p>For this example, use <code>--model=hf://Qwen/Qwen3-Embedding-8B</code> in the launch command above.</p></noscript>
-            <div class="command-shell">
-              <span class="command-language icon-code">Host shell</span>
-              <pre><code class="sh" data-command="embeddings" data-copy-label="Copy embeddings request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
+        </div>
+      </div>
+      <div id="send-an-embeddings-request" data-embeddings-request hidden>
+        <p class="llmd-launch-hint">Read the first vector in <code>data[0].embedding</code>. <a href="../compare-texts-with-embeddings/">Text similarity tutorial</a> · <a href="../../reference/embeddings/">API reference</a></p>
+        <div class="command-shell">
+          <span class="command-language icon-code">Host shell</span>
+          <pre><code class="sh" data-command="embeddings" data-copy-label="Copy embeddings request command">curl -sS --fail-with-body http://127.0.0.1:8000/v1/embeddings \
   -H 'Content-Type: application/json' \
   -d '{
     "input": "The quick brown fox jumps over the lazy dog.",
     "encoding_format": "float"
   }'</code></pre>
-            </div>
-          </div>
-        </details>
+        </div>
       </div>
     </section>
-  </div>
+  </form>
 </div>
 ```

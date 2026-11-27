@@ -205,7 +205,8 @@ import { compareCheckpoints, compareNames, modelFamily } from "./llmd-model-fami
   }
 
   function selectRecipe(recipe) {
-    const previousMode = selected?.name === recipe?.name ? decodingSelect.value : "standard";
+    const previousMode = selected?.name === recipe?.name ? decodingSelect.value
+      : recipe?.modes.some(mode => mode.id === "native") ? "native" : "standard";
     const previousRequest = selected?.name === recipe?.name ? requestSelect.value : "";
     const previousDrafter = selected?.name === recipe?.name ? drafterSelect.value : "";
     selected?.button.setAttribute("aria-pressed", "false");

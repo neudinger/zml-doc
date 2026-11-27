@@ -60,7 +60,7 @@
                     .label = "Tutorials",
                     .pages = [
                         .{ .path = "llmd", .label = "Quickstart", .icon = "icon-bolt" },
-                        .{ .path = "llmd/tutorial/start", .label = "Start LLMD on any platform", .icon = "icon-rocket" },
+                        .{ .path = "llmd/tutorial/start", .label = "Any model, any platform", .icon = "icon-rocket" },
                         .{ .path = "llmd/tutorial/ask-structured-questions", .label = "Ask structured questions", .icon = "icon-code" },
                         .{ .path = "llmd/tutorial/compare-texts-with-embeddings", .label = "Compare texts with embeddings", .icon = "icon-code" },
                     ],

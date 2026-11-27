@@ -53,49 +53,6 @@
   </ctx>
 </head>
 <main id="site-content">
-  <ctx :if="$site.index().isCurrent().not()" catalog="$site.asset('docs-navigation.ziggy').ziggy()"
-       product="$page.link().startsWith($site.page('zml').link()).then('zml', 'llmd')"
-       section="$page.custom.getOr('doc_section', 'Learn')">
-    <ctx :loop="$ctx.catalog.get($ctx.product)">
-      <ctx :if="$loop.it.get('label').eql($ctx.section)" groups="$loop.it.get('groups')">
-        <ctx :loop="$ctx.groups">
-          <ctx group="$loop.it" show_group="$loop.first.not()">
-            <ctx :loop="$ctx.group.get('pages')">
-              <ctx :if="$site.page($loop.it.get('path')).isCurrent()"
-                   overview="$site.page($ctx.product.eql('zml').then('zml', 'llmd'))"
-                   section_start="$site.page($ctx.groups.at(0).get('pages').at(0).get('path'))"
-                   product_label="$ctx.product.eql('zml').then('ZML', 'LLMD')">
-                <nav class="docs-breadcrumbs" aria-label="Breadcrumb" data-pagefind-ignore>
-                  <ol role="list">
-                    <li>
-                      <ctx :if="$ctx.overview.link().eql($ctx.section_start.link())">
-                        <span :text="$ctx.product_label"></span>
-                      </ctx>
-                      <ctx :if="$ctx.overview.link().eql($ctx.section_start.link()).not()">
-                        <a href="$ctx.overview.link()" :text="$ctx.product_label"></a>
-                      </ctx>
-                    </li>
-                    <li>
-                      <ctx :if="$ctx.section_start.isCurrent()">
-                        <span :text="$ctx.section"></span>
-                      </ctx>
-                      <ctx :if="$ctx.section_start.isCurrent().not()">
-                        <a href="$ctx.section_start.link()" :text="$ctx.section"></a>
-                      </ctx>
-                    </li>
-                    <ctx :if="$ctx.show_group">
-                      <li :text="$ctx.group.get('label')"></li>
-                    </ctx>
-                    <li><span aria-current="page" :text="$loop.it.get('label')"></span></li>
-                  </ol>
-                </nav>
-              </ctx>
-            </ctx>
-          </ctx>
-        </ctx>
-      </ctx>
-    </ctx>
-  </ctx>
   <ctx article="$page.custom.has('reference_source').then($site.page($page.custom.getOr('reference_source', '')), $page)">
     <ctx :if="$page.custom.has('architecture')" compact="$site.asset('llmd-architecture-compact.svg')">
       <section class="architecture-overview" aria-labelledby="architecture-title">

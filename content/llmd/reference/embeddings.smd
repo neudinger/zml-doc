@@ -10,7 +10,7 @@
 `POST /v1/embeddings` maps input text to a numeric vector using the loaded
 embedding model. Choose `Qwen/Qwen3-Embedding-8B` in the
 [Embeddings catalog]($link.page('llmd/reference/model-compatibility').unsafeRef('embedding-checkpoints')).
-[Start LLMD on any platform]($link.page('llmd/tutorial/start').unsafeRef('send-an-embeddings-request'))
+[Any model, any platform]($link.page('llmd/tutorial/start').unsafeRef('send-an-embeddings-request'))
 generates an embeddings request with the selected host port.
 
 Both examples request 32 dimensions. The illustrative outputs show the
